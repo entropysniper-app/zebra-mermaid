@@ -13,6 +13,7 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_label, style, Label, Measure};
 use crate::theme::Role;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 /// How far a bone moves toward the tail for each unit it rises from the spine.
 const SLANT: f64 = 0.5;
@@ -225,16 +226,16 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             for bone in &category.bones {
                 let y = sign * bone.rise;
                 if bone.depth.is_multiple_of(2) {
-                    d.push_str(&format!("M{},{}H{}", num(px(bone.at, bone.rise)), num(y), num(px(bone.text_end + TEXT_GAP, bone.rise))));
+                    write!(d, "M{},{}H{}", num(px(bone.at, bone.rise)), num(y), num(px(bone.text_end + TEXT_GAP, bone.rise))).unwrap();
                 } else {
                     let from = bone.parent.map_or(0.0, |p| category.bones[p].rise);
-                    d.push_str(&format!("M{},{}L{},{}", num(px(bone.at, from)), num(sign * from), num(px(bone.at, bone.rise)), num(y)));
+                    write!(d, "M{},{}L{},{}", num(px(bone.at, from)), num(sign * from), num(px(bone.at, bone.rise)), num(y)).unwrap();
                 }
                 let right = px(bone.text_end, bone.rise);
                 // Causes below the first level are secondary.
                 let fill =
                     if bone.depth > 2 { format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")) } else { String::new() };
-                texts.push_str(&label_svg(&bone.label, right - bone.label.width / 2.0, y, &fill, None));
+                write!(texts, "{}", label_svg(&bone.label, right - bone.label.width / 2.0, y, &fill, None)).unwrap();
                 min_x = js::min(min_x, right - bone.label.width);
             }
             let box_y = end_y + sign * (category.box_h / 2.0);
@@ -242,10 +243,10 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             max_x = js::max(max_x, end_x + category.box_w / 2.0);
             min_y = js::min(min_y, box_y - category.box_h / 2.0);
             max_y = js::max(max_y, box_y + category.box_h / 2.0);
-            groups.push_str(&format!("<g class=\"pele-ishikawa-category\" data-id=\"{}\">", esc_text(&model.nodes[category.node].text)));
-            groups.push_str(&format!("<path class=\"pele-ishikawa-bones\" d=\"{}\" fill=\"none\" stroke=\"{}\"/>", d, line));
-            groups.push_str(&marker("arrow_point", ax, 0.0, SLANT / length, -sign / length, arrow));
-            groups.push_str(&format!(
+            write!(groups, "<g class=\"pele-ishikawa-category\" data-id=\"{}\">", esc_text(&model.nodes[category.node].text)).unwrap();
+            write!(groups, "<path class=\"pele-ishikawa-bones\" d=\"{}\" fill=\"none\" stroke=\"{}\"/>", d, line).unwrap();
+            write!(groups, "{}", marker("arrow_point", ax, 0.0, SLANT / length, -sign / length, arrow)).unwrap();
+            write!(groups, 
                 "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 num(end_x - category.box_w / 2.0),
                 num(box_y - category.box_h / 2.0),
@@ -254,10 +255,10 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
                 RADIUS,
                 node_fill,
                 node_stroke
-            ));
-            groups.push_str(&label_svg(&category.label, end_x, box_y, " class=\"pele-label\"", None));
+            ).unwrap();
+            write!(groups, "{}", label_svg(&category.label, end_x, box_y, " class=\"pele-label\"", None)).unwrap();
             if !texts.is_empty() {
-                groups.push_str(&format!("<g class=\"pele-ishikawa-causes\" font-size=\"{}\">{}</g>", js::to_string(small), texts));
+                write!(groups, "<g class=\"pele-ishikawa-causes\" font-size=\"{}\">{}</g>", js::to_string(small), texts).unwrap();
             }
             groups.push_str("</g>");
         }
@@ -271,8 +272,8 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             marker("arrow_point", 0.0, 0.0, 1.0, 0.0, arrow),
             groups
         );
-        body.push_str(&format!("<g class=\"pele-ishikawa-head\" data-id=\"{}\">", esc_text(&root.text)));
-        body.push_str(&format!(
+        write!(body, "<g class=\"pele-ishikawa-head\" data-id=\"{}\">", esc_text(&root.text)).unwrap();
+        write!(body, 
             "<path d=\"M0,{}H{}A{},{} 0 0 1 {},{}H0Z\" fill=\"{}\" stroke=\"{}\" stroke-linejoin=\"round\"/>",
             num(-r),
             num(head_w - r),
@@ -282,8 +283,8 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             num(r),
             node_fill,
             node_stroke
-        ));
-        body.push_str(&label_svg(&head, 12.0 + head.width / 2.0, 0.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None));
+        ).unwrap();
+        write!(body, "{}", label_svg(&head, 12.0 + head.width / 2.0, 0.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None)).unwrap();
         body.push_str("</g>");
     }
 
@@ -292,9 +293,9 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
     let height = (max_y - min_y + title_height + 2.0 * pad).ceil();
     let ox = pad + (inner - (max_x - min_x)) / 2.0 - min_x;
     let oy = pad + title_height - min_y;
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !body.is_empty() {
-        content.push_str(&format!("<g transform=\"translate({},{})\">{}</g>", num(ox), num(oy), body));
+        write!(content, "<g transform=\"translate({},{})\">{}</g>", num(ox), num(oy), body).unwrap();
     }
     Rendered { svg: svg_document("ishikawa", width, height, size, ctx, Accessible::default(), &content), width, height, links: Vec::new() }
 }
@@ -371,9 +372,9 @@ fn vertical_causes(model: &IshikawaModel, ctx: &RenderCtx) -> Rendered {
             1 => "pele-ishikawa-category",
             _ => "pele-ishikawa-cause",
         };
-        nodes.push_str(&format!("<g class=\"pele-node {}\" data-id=\"{}\">", class, esc_text(text)));
+        write!(nodes, "<g class=\"pele-node {}\" data-id=\"{}\">", class, esc_text(text)).unwrap();
         if framed {
-            nodes.push_str(&format!(
+            write!(nodes, 
                 "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 num(x),
                 num(top),
@@ -382,31 +383,31 @@ fn vertical_causes(model: &IshikawaModel, ctx: &RenderCtx) -> Rendered {
                 if entry_depth == 0 { 12 } else { 4 },
                 node_fill,
                 node_stroke
-            ));
+            ).unwrap();
         }
         let attrs = format!(
             " class=\"pele-label\"{}{}",
             if entry_depth < 2 { " font-weight=\"var(--_hw)\"" } else { "" },
             if entry_depth > 1 { format!(" font-size=\"{}\"", js::to_string(small)) } else { String::new() }
         );
-        nodes.push_str(&label_svg(&label, x + w / 2.0, top + h / 2.0, &attrs, None));
+        write!(nodes, "{}", label_svg(&label, x + w / 2.0, top + h / 2.0, &attrs, None)).unwrap();
         nodes.push_str("</g>");
         if let Some(p) = order[k].parent {
             let parent = &order[p];
             let gx = parent.x + indent / 2.0;
-            edges.push_str(&format!(
+            write!(edges, 
                 "<path class=\"pele-edge\" d=\"M{},{}V{}H{}\" fill=\"none\" stroke=\"{}\"/>",
                 num(gx),
                 num(parent.y + parent.h),
                 num(top + h / 2.0),
                 num(x),
                 edge_color
-            ));
+            ).unwrap();
         }
     }
     let total_width = (width + 2.0 * pad).ceil();
     let height = (js::max(pad + title.height, y - 12.0) + pad).ceil();
-    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
         + &edges
         + &nodes;
     Rendered {

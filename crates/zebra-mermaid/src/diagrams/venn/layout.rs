@@ -8,6 +8,7 @@ use indexmap::IndexMap;
 
 use super::VennSubset;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct Circle {
@@ -488,10 +489,10 @@ pub(crate) fn region_path(circles: &[&Circle], format: impl Fn(f64) -> String) -
             }
         }
         match arc {
-            None => d.push_str(&format!("L{},{}", format(to.x), format(to.y))),
+            None => write!(d, "L{},{}", format(to.x), format(to.y)).unwrap(),
             Some(k) => {
                 let r = circles[k].r;
-                d.push_str(&format!("A{},{} 0 {} 1 {},{}", format(r), format(r), large, format(to.x), format(to.y)));
+                write!(d, "A{},{} 0 {} 1 {},{}", format(r), format(r), large, format(to.x), format(to.y)).unwrap();
             }
         }
     }

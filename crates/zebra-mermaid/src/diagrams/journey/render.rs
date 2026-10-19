@@ -7,6 +7,7 @@
 //! reads on that fill. Tasks outside any section keep the node fill. CSS output is Pele's.
 
 use std::collections::HashMap;
+use std::fmt::Write as _;
 
 use super::{journey_actors, JourneyModel};
 use crate::config::Config;
@@ -116,7 +117,7 @@ fn section_colors(model: &JourneyModel) -> Vec<Option<i64>> {
 /// the section's chart color, or `role` outside any section.
 fn section_fill(ctx: &RenderCtx, color: Option<i64>, role: Role, css: &'static str) -> String {
     match color {
-        Some(k) if ctx.resolved() => ctx.series(k),
+        Some(k) if ctx.resolved() => ctx.series(k).into_owned(),
         _ => ctx.paint(role, css).to_string(),
     }
 }
@@ -254,17 +255,17 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
         let mut scale = String::new();
         for score in (1..=5).rev() {
             let y = chart_top + (5 - score) as f64 * LEVEL;
-            grid.push_str(&format!("M{},{}H{}", num(left - 6.0), num(y), num(right)));
-            scale.push_str(&format!("<text x=\"{}\" y=\"{}\">{}</text>", num(left - 12.0), num(y + tiny * 0.35), score));
+            write!(grid, "M{},{}H{}", num(left - 6.0), num(y), num(right)).unwrap();
+            write!(scale, "<text x=\"{}\" y=\"{}\">{}</text>", num(left - 12.0), num(y + tiny * 0.35), score).unwrap();
         }
-        body.push_str(&format!(
+        write!(body,
             "<path class=\"pele-grid\" d=\"{}\" fill=\"none\" stroke=\"{}\"/><g class=\"pele-scale\" font-size=\"{}\" text-anchor=\"end\" fill=\"{}\">{}</g>",
             grid,
             ctx.paint(Role::InnerStroke, "var(--_a)"),
             js::to_string(tiny),
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             scale
-        ));
+        ).unwrap();
 
         let mut line = String::new();
         let mut stems = String::new();
@@ -276,8 +277,8 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
             let score = task.score;
             let level = if score.is_nan() { 3.0 } else { js::min(5.0, js::max(1.0, score)) };
             let y = chart_top + (5.0 - level) * LEVEL;
-            line.push_str(&format!("{}{},{}", if i == 0 { "M" } else { "L" }, num(cx), num(y)));
-            stems.push_str(&format!("M{},{}V{}", num(cx), num(cards_y + card_h), num(y - FACE)));
+            write!(line, "{}{},{}", if i == 0 { "M" } else { "L" }, num(cx), num(y)).unwrap();
+            write!(stems, "M{},{}V{}", num(cx), num(cards_y + card_h), num(y - FACE)).unwrap();
             faces.push_str(&face(ctx, cx, y, Mood::of(score)));
 
             let fill = section_fill(ctx, colors[i], Role::NodeFill, "var(--_s)");
@@ -287,7 +288,8 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
             let step = js::min(DOT_STEP, (card_w - 2.0 * PAD_X - 2.0 * DOT) / js::max(count - 1.0, 1.0));
             for (k, name) in people.iter().enumerate() {
                 // The ring around a dot is the card's own fill, which parts dots that touch.
-                dots.push_str(&format!(
+                write!(
+                    dots,
                     "<circle class=\"pele-actor\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" stroke=\"{}\"><title>{}</title></circle>",
                     num(cx + (k as f64 - (count - 1.0) / 2.0) * step),
                     num(cards_y + card_h - PAD_Y - DOT),
@@ -295,7 +297,8 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
                     ctx.series(actor.get(name.as_str()).map_or(0, |&a| a as i64)),
                     fill,
                     esc_text(name)
-                ));
+                )
+                .unwrap();
             }
             cards.push(format!(
                 "<g class=\"pele-node pele-task\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",
@@ -311,17 +314,21 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
                 dots
             ));
         }
-        body.push_str(&format!(
+        write!(
+            body,
             "<path class=\"pele-stems\" d=\"{}\" fill=\"none\" stroke=\"{}\" stroke-dasharray=\"2 3\"/>",
             stems,
             ctx.paint(Role::NodeStroke, "var(--_b)")
-        ));
+        )
+        .unwrap();
         if n > 1 {
-            body.push_str(&format!(
+            write!(
+                body,
                 "<path class=\"pele-edge\" d=\"{}\" fill=\"none\" stroke=\"{}\" stroke-linejoin=\"round\"/>",
                 line,
                 ctx.paint(Role::Line, "var(--_l)")
-            ));
+            )
+            .unwrap();
         }
         body.push_str(&faces);
 
@@ -335,7 +342,7 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
             let w = run.count as f64 * pitch - GAP;
             // A band always belongs to a section, so in resolved mode it has a section color.
             let fill = section_fill(ctx, colors[run.start], Role::GroupHeader, "var(--_a)");
-            body.push_str(&format!(
+            write!(body,
                 "<g class=\"pele-cluster pele-section\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\"/>{}{}</g>",
                 esc_text(js::trim(&tasks[run.start].section)),
                 num(x),
@@ -352,7 +359,7 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
                     None
                 ),
                 members
-            ));
+            ).unwrap();
         }
         bottom = chart_bottom + FACE;
 
@@ -362,7 +369,8 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
             let mut items = String::new();
             for item in &legend {
                 let cy = y0 + item.y + item.h / 2.0;
-                items.push_str(&format!(
+                write!(
+                    items,
                     "<g class=\"pele-legend-item\" data-id=\"{}\"><circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\"/>{}</g>",
                     esc_text(item.name),
                     num(x0 + item.x + DOT),
@@ -370,9 +378,10 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
                     js::to_string(DOT),
                     ctx.series(actor.get(item.name).map_or(0, |&a| a as i64)),
                     label_svg(&item.label, x0 + item.x + 2.0 * DOT + 6.0 + item.label.width / 2.0, cy, "", None)
-                ));
+                )
+                .unwrap();
             }
-            body.push_str(&format!("<g class=\"pele-legend\" font-size=\"{}\">{}</g>", small_s, items));
+            write!(body, "<g class=\"pele-legend\" font-size=\"{}\">{}</g>", small_s, items).unwrap();
             bottom = y0 + legend_h;
         }
     }
@@ -380,7 +389,7 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (js::max(bottom, pad) + pad).ceil();
     let content =
-        label_svg(&title, pad + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None) + &body;
+        label_svg(&title, pad + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string() + &body;
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered {
         svg: svg_document("journey", total_width, total_height, size, ctx, acc, &content),
@@ -419,13 +428,13 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
             section = Some(task.section.as_str());
             let head = fit_label(section, &m, size, room - 16.0, style::BOLD);
             if truthy(head.height) {
-                body.push_str(&label_svg(
+                write!(body, "{}", label_svg(
                     &head,
                     pad + 8.0 + head.width / 2.0,
                     y + head.height / 2.0,
                     " class=\"pele-cluster-label\" font-weight=\"var(--_hw)\"",
                     None,
-                ));
+                )).unwrap();
                 width = js::max(width, head.width + 16.0);
                 y += head.height + 8.0;
             }
@@ -445,7 +454,7 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
         let w = js::max(room, label.width + 72.0);
         let fill = section_fill(ctx, colors[index], Role::NodeFill, "var(--_s)");
         let on = text_on(ctx, &fill);
-        body.push_str(&format!(
+        write!(body,
             "<g class=\"pele-node pele-journey-step\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
             index,
             num(pad),
@@ -455,54 +464,60 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
             RADIUS,
             fill,
             ctx.paint(Role::NodeStroke, "var(--_b)")
-        ));
-        body.push_str(&label_svg(
+        ).unwrap();
+        write!(body, "{}", label_svg(
             &label,
             pad + PAD_X + label.width / 2.0,
             y + PAD_Y + label.height / 2.0,
             &format!(" class=\"pele-label\"{}", on),
             None,
-        ));
+        )).unwrap();
         let cx = pad + w - 28.0;
         body.push_str(&face(ctx, cx, y + PAD_Y + FACE, Mood::of(task.score)));
         if !task.score.is_nan() {
-            body.push_str(&format!(
+            write!(
+                body,
                 "<text class=\"pele-journey-score\" x=\"{}\" y=\"{}\" font-size=\"{}\" text-anchor=\"middle\"{}>{}</text>",
                 num(cx),
                 num(y + PAD_Y + 2.0 * FACE + small),
                 small_s,
                 on,
                 num(js::min(5.0, js::max(1.0, task.score)))
-            ));
+            )
+            .unwrap();
         }
         let mut py = y + PAD_Y + text_h + 4.0;
         for person in &people {
             let ph = js::max(16.0, person.label.height);
-            body.push_str(&format!(
+            write!(
+                body,
                 "<circle class=\"pele-actor\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\"/>",
                 num(pad + 16.0),
                 num(py + ph / 2.0),
                 js::to_string(DOT),
                 ctx.series(actors.get(person.name).map_or(0, |&a| a as i64))
-            ));
-            body.push_str(&label_svg(
+            )
+            .unwrap();
+            write!(body, "{}", label_svg(
                 &person.label,
                 pad + 28.0 + person.label.width / 2.0,
                 py + ph / 2.0,
                 &format!(" class=\"pele-journey-actor\" font-size=\"{}\"{}", small_s, on),
                 None,
-            ));
+            )).unwrap();
             py += ph + 4.0;
         }
         body.push_str("</g>");
         y += h;
         if index + 1 < count {
-            body.push_str(&format!(
+            write!(
+                body,
                 "<path class=\"pele-edge\" d=\"M{},{}v16\" fill=\"none\" stroke=\"{}\"/>",
                 num(pad + w / 2.0),
                 num(y),
                 ctx.paint(Role::Line, "var(--_l)")
-            ));
+            )
+            .unwrap();
         }
         y += 16.0;
         width = js::max(width, w);
@@ -510,7 +525,7 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
     let total_width = (width + 2.0 * pad).ceil();
     let height = (js::max(pad + title.height, y - if count > 0 { 16.0 } else { 0.0 }) + pad).ceil();
     let content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None) + &body;
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string() + &body;
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered { svg: svg_document("journey", total_width, height, size, ctx, acc, &content), width: total_width, height, links: Vec::new() }
 }

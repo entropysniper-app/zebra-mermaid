@@ -5,6 +5,7 @@ use crate::detect::DiagramType;
 use crate::error::Error;
 use crate::util::chars::{is_space, is_word};
 use crate::util::js;
+use std::fmt::Write as _;
 
 /// `/[─━│┃└┗├┣]/`
 fn is_box_char(c: char) -> bool {
@@ -112,7 +113,7 @@ pub fn remap_error_lines(message: &str, result: &PreprocessResult) -> String {
             let original = message[ws..d].parse::<usize>().ok().and_then(|n| result.original(n));
             if let Some(original) = original {
                 out.push_str(&message[last..i]);
-                out.push_str(&format!("line {}", original));
+                write!(out, "line {}", original).unwrap();
                 last = d;
             }
             i = d;

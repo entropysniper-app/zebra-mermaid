@@ -17,6 +17,7 @@ use crate::theme::Role;
 use crate::util::{js, url::linked};
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
+use std::fmt::Write as _;
 
 fn setting(c: &Config, key: &str, min: f64, max: f64) -> Option<f64> {
     c.lookup("gantt", key).and_then(ConfigValue::as_f64).filter(|n| n.is_finite()).map(|n| n.clamp(min, max))
@@ -150,7 +151,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
     if start > stop {
         let width = (js::max(title.width, 1.0) + 2.0 * pad).ceil();
         let height = (js::max(title.height, 1.0) + 2.0 * pad).ceil();
-        let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+        let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
         return Ok(Rendered { svg: svg_document("gantt", width, height, size, ctx, acc, &content), width, height, links: vec![] });
     }
     let mut section_labels = IndexMap::new();
@@ -227,7 +228,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
     let top_y = plot_top - grid_lead - tick_h / 2.0 - 2.0;
     for t in ticks {
         let tx = x(t);
-        grid.push_str(&format!("M{},{}V{}", num(tx), num(plot_top - grid_lead), num(plot_bottom)));
+        write!(grid, "M{},{}V{}", num(tx), num(plot_top - grid_lead), num(plot_bottom)).unwrap();
         let label = tick_label(t);
         let w = m.width(&label, tick_size, 0);
         if tx - w / 2.0 < last_right + 8.0 || label == last_label {
@@ -237,9 +238,9 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
         last_label = label.clone();
         extent = js::max(extent, last_right);
         let body = format!("text-anchor=\"middle\">{}</text>", esc(&label));
-        axis_bottom.push_str(&format!("<text x=\"{}\" y=\"{}\" {body}", num(tx), num(bottom_y + tick_size * 0.35)));
+        write!(axis_bottom, "<text x=\"{}\" y=\"{}\" {body}", num(tx), num(bottom_y + tick_size * 0.35)).unwrap();
         if top_axis {
-            axis_top.push_str(&format!("<text x=\"{}\" y=\"{}\" {body}", num(tx), num(top_y + tick_size * 0.35)));
+            write!(axis_top, "<text x=\"{}\" y=\"{}\" {body}", num(tx), num(top_y + tick_size * 0.35)).unwrap();
         }
     }
     let (mut vert_lines, mut vert_labels) = (String::new(), String::new());
@@ -260,20 +261,20 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
             vert_ends[line] = end;
         }
         extent = js::max(extent, end);
-        vert_lines.push_str(&format!(
+        write!(vert_lines, 
             "<path class=\"pele-vert\" data-id=\"{}\" d=\"M{},{}V{}\"/>",
             esc_text(&task.id),
             num(vx),
             num(plot_top - grid_lead),
             num(plot_bottom)
-        ));
-        vert_labels.push_str(&label_svg(
+        ).unwrap();
+        write!(vert_labels, "{}", label_svg(
             &label,
             cx,
             vert_top + line as f64 * vert_line + vert_line / 2.0,
             &format!(" class=\"pele-vert-label\" data-id=\"{}\"", esc_text(&task.id)),
             None,
-        ));
+        )).unwrap();
     }
     let width = (js::max(extent, pad + title.width) + pad).ceil();
     let height = (plot_bottom + tick_h + if vert_ends.is_empty() { 0.0 } else { 4.0 + vert_ends.len() as f64 * vert_line } + pad).ceil();
@@ -289,22 +290,22 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
         let y = plot_top + row as f64 * row_h;
         let h = (end - row) as f64 * row_h;
         if categories.len() > 1 || !section.is_empty() {
-            bands.push_str(&format!(
+            write!(bands, 
                 "<rect class=\"pele-section pele-section-{index}\" x=\"0\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\"/>",
                 num(y),
                 js::to_string(width),
                 num(h),
                 if index % 2 == 0 { ctx.paint(Role::NodeFill, "var(--_s)") } else { "none" }
-            ));
+            ).unwrap();
         }
         let label = &section_labels[section];
-        section_out.push_str(&label_svg(
+        write!(section_out, "{}", label_svg(
             label,
             pad + 8.0 + label.width / 2.0,
             y + h / 2.0,
             &format!(" class=\"pele-section-label\" data-id=\"{}\"", esc_text(section)),
             ctx.icons(),
-        ));
+        )).unwrap();
         row = end;
     }
     let mut excluded = String::new();
@@ -318,13 +319,13 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
                 let ex0 = js::max(left, x(from.time()));
                 let ex1 = js::min(right, x(to.time()));
                 if ex1 > ex0 {
-                    out.push_str(&format!(
+                    write!(out, 
                         "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"/>",
                         num(ex0),
                         num(plot_top),
                         num(ex1 - ex0),
                         num(plot_height)
-                    ));
+                    ).unwrap();
                 }
             }
         };
@@ -360,7 +361,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
         };
         let mut classes = "pele-task".to_string();
         if !state.is_empty() {
-            classes.push_str(&format!(" pele-{state}"));
+            write!(classes, " pele-{state}").unwrap();
         }
         if task.crit {
             classes.push_str(" pele-crit");
@@ -380,7 +381,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
             let color = if task.crit {
                 ctx.paint(Role::DangerText, CRITICAL).to_owned()
             } else if ctx.resolved() {
-                ctx.series(categories[&task.section] as i64)
+                ctx.series(categories[&task.section] as i64).into_owned()
             } else {
                 "var(--_c)".into()
             };
@@ -426,11 +427,11 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
                 text_fill = format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)"));
             }
         }
-        let mut body = shape + &label_svg(&bar.label, bar.label_x, cy, &format!(" class=\"pele-label\"{text_fill}"), None);
+        let mut body = shape + &label_svg(&bar.label, bar.label_x, cy, &format!(" class=\"pele-label\"{text_fill}"), None).to_string();
         if let Some(url) = model.links.get(&task.id) {
             body = linked(&body, url, &task.id, &mut links, options, "");
         }
-        tasks_out.push_str(&format!("<g class=\"{classes}\" data-id=\"{}\">{body}</g>", esc_text(&task.id)));
+        write!(tasks_out, "<g class=\"{classes}\" data-id=\"{}\">{body}</g>", esc_text(&task.id)).unwrap();
     }
     let mut today = String::new();
     if model.today_marker != "off" && now >= start && now <= stop && stop > start {
@@ -468,23 +469,23 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
         num(right),
         if top_axis { format!("M{},{}H{}", num(left), num(plot_top - grid_lead), num(right)) } else { String::new() }
     );
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !bands.is_empty() {
-        content.push_str(&format!("<g class=\"pele-sections\">{bands}</g>"));
+        write!(content, "<g class=\"pele-sections\">{bands}</g>").unwrap();
     }
     if !excluded.is_empty() {
-        content.push_str(&format!("<g class=\"pele-excluded\" fill=\"{}\">{excluded}</g>", ctx.paint(Role::GroupHeader, "var(--_a)")));
+        write!(content, "<g class=\"pele-excluded\" fill=\"{}\">{excluded}</g>", ctx.paint(Role::GroupHeader, "var(--_a)")).unwrap();
     }
-    content.push_str(&format!("<g class=\"pele-grid\" fill=\"none\"><path d=\"{grid}\" stroke=\"{}\" stroke-dasharray=\"1 3\"/><path d=\"{axis_line}\" stroke=\"{}\"/></g>",ctx.paint(Role::InnerStroke,"var(--_b)"),ctx.paint(Role::Line,"var(--_b)")));
+    write!(content, "<g class=\"pele-grid\" fill=\"none\"><path d=\"{grid}\" stroke=\"{}\" stroke-dasharray=\"1 3\"/><path d=\"{axis_line}\" stroke=\"{}\"/></g>",ctx.paint(Role::InnerStroke,"var(--_b)"),ctx.paint(Role::Line,"var(--_b)")).unwrap();
     if !vert_lines.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-verts\" fill=\"none\" stroke=\"{}\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\">{vert_lines}</g>",
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
-    content.push_str(&format!("{today}<g class=\"pele-tasks\" font-size=\"{}\">{tasks_out}</g><g class=\"pele-section-labels\" font-size=\"{}\">{section_out}</g><g class=\"pele-axis\" font-size=\"{}\" fill=\"{}\">{axis_bottom}{axis_top}</g>",num(label_size),num(section_size),js::to_string(tick_size),ctx.paint(Role::SecondaryText,"var(--_m)")));
+    write!(content, "{today}<g class=\"pele-tasks\" font-size=\"{}\">{tasks_out}</g><g class=\"pele-section-labels\" font-size=\"{}\">{section_out}</g><g class=\"pele-axis\" font-size=\"{}\" fill=\"{}\">{axis_bottom}{axis_top}</g>",num(label_size),num(section_size),js::to_string(tick_size),ctx.paint(Role::SecondaryText,"var(--_m)")).unwrap();
     if !vert_labels.is_empty() {
-        content.push_str(&format!("<g class=\"pele-vert-labels\" font-size=\"{}\">{vert_labels}</g>", num(label_size)));
+        write!(content, "<g class=\"pele-vert-labels\" font-size=\"{}\">{vert_labels}</g>", num(label_size)).unwrap();
     }
     Ok(Rendered { svg: svg_document("gantt", width, height, size, ctx, acc, &content), width, height, links })
 }

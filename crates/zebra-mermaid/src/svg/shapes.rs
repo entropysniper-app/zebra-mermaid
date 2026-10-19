@@ -4,9 +4,10 @@
 //! The functions that take a node's layout box receive its center and size (`cx`, `cy`, `cw`,
 //! `ch`) rather than a layout node, so that every diagram can call them.
 
-use super::builder::num;
+use super::builder::{num, push_num};
 use crate::theme::{Role, Theming};
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ShapeSize {
@@ -142,20 +143,56 @@ fn box_size(tw: f64, th: f64) -> ShapeSize {
 }
 
 fn poly(points: &[f64], a: &str) -> String {
-    let mut d = String::new();
+    let mut out = String::with_capacity(24 + points.len() * 8 + a.len());
+    out.push_str("<polygon points=\"");
     let mut i = 0;
     while i + 1 < points.len() {
         if i > 0 {
-            d.push(' ');
+            out.push(' ');
         }
-        d.push_str(&format!("{},{}", num(points[i]), num(points[i + 1])));
+        push_num(&mut out, points[i]);
+        out.push(',');
+        push_num(&mut out, points[i + 1]);
         i += 2;
     }
-    format!("<polygon points=\"{}\"{}/>", d, a)
+    out.push('"');
+    out.push_str(a);
+    out.push_str("/>");
+    out
 }
 
+/// A rectangle centered on the origin; `rx` is the whole radius attribute, if any.
 fn rect(w: f64, h: f64, a: &str, rx: &str) -> String {
-    format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{}{}/>", num(-w / 2.0), num(-h / 2.0), num(w), num(h), rx, a)
+    let mut out = String::with_capacity(64 + rx.len() + a.len());
+    push_rect_open(&mut out, w, h);
+    out.push_str(rx);
+    out.push_str(a);
+    out.push_str("/>");
+    out
+}
+
+/// A rectangle with a radius written as a number.
+fn rect_radius(w: f64, h: f64, a: &str, rx: f64) -> String {
+    let mut out = String::with_capacity(72 + a.len());
+    push_rect_open(&mut out, w, h);
+    out.push_str(" rx=\"");
+    push_num(&mut out, rx);
+    out.push('"');
+    out.push_str(a);
+    out.push_str("/>");
+    out
+}
+
+fn push_rect_open(out: &mut String, w: f64, h: f64) {
+    out.push_str("<rect x=\"");
+    push_num(out, -w / 2.0);
+    out.push_str("\" y=\"");
+    push_num(out, -h / 2.0);
+    out.push_str("\" width=\"");
+    push_num(out, w);
+    out.push_str("\" height=\"");
+    push_num(out, h);
+    out.push('"');
 }
 
 fn brace(x: f64, h: f64, dir: f64, line: &str) -> String {
@@ -287,8 +324,8 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
     let lcolor = theming.paint(Role::Line, "var(--_l)");
     match known(shape) {
         "rect" => rr(w, h, a),
-        "rounded" => rect(w, h, a, &format!(" rx=\"{}\"", num(js::min(12.0, h / 2.0)))),
-        "stadium" => rect(w, h, a, &format!(" rx=\"{}\"", num(h / 2.0))),
+        "rounded" => rect_radius(w, h, a, js::min(12.0, h / 2.0)),
+        "stadium" => rect_radius(w, h, a, h / 2.0),
         "fr-rect" => {
             let x = w / 2.0 - 8.0;
             format!(
@@ -480,15 +517,8 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             for i in 0..3 {
                 let x = -w / 2.0 + (2 - i) as f64 * 4.0;
                 let y = -h / 2.0 + i as f64 * 4.0;
-                out.push_str(&format!(
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{}{}/>",
-                    num(x),
-                    num(y),
-                    num(bw),
-                    num(bh),
-                    ROUNDED,
-                    a
-                ));
+                write!(out, "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{}{}/>", num(x), num(y), num(bw), num(bh), ROUNDED, a)
+                    .unwrap();
             }
             out
         }
@@ -592,12 +622,14 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
         "browser" => {
             let mut dots = String::new();
             for i in 0..3 {
-                dots.push_str(&format!(
+                write!(
+                    dots,
                     "<circle cx=\"{}\" cy=\"{}\" r=\"1.5\" fill=\"none\"{}/>",
                     num(-w / 2.0 + 8.0 + i as f64 * 7.0),
                     num(-h / 2.0 + 6.0),
                     line
-                ));
+                )
+                .unwrap();
             }
             format!(
                 "{}<path d=\"M{},{}H{}\" fill=\"none\"{}/>{}",
@@ -718,7 +750,7 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
         "docs" => {
             let mut out = String::new();
             for i in 0..3i32 {
-                out.push_str(&format!("<g transform=\"translate({},{})\">{}</g>", (1 - i) * 4, (i - 1) * 4, wave(w - 8.0, h - 8.0, a)));
+                write!(out, "<g transform=\"translate({},{})\">{}</g>", (1 - i) * 4, (i - 1) * 4, wave(w - 8.0, h - 8.0, a)).unwrap();
             }
             out
         }
@@ -972,6 +1004,15 @@ pub fn inset_route(route: &mut [f64], at: usize, shape: &str, vw: f64, vh: f64, 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn basic_markup() {
+        let t = Theming::pele();
+        assert_eq!(draw_shape("rect", 10.0, 4.0, " a=\"1\"", "", &t), "<rect x=\"-5\" y=\"-2\" width=\"10\" height=\"4\" rx=\"var(--pele-radius,4px)\" a=\"1\"/>");
+        assert_eq!(draw_shape("rounded", 10.0, 4.0, "", "", &t), "<rect x=\"-5\" y=\"-2\" width=\"10\" height=\"4\" rx=\"2\"/>");
+        assert_eq!(draw_shape("stadium", 10.0, 5.0, "", "", &t), "<rect x=\"-5\" y=\"-2.5\" width=\"10\" height=\"5\" rx=\"2.5\"/>");
+        assert_eq!(draw_shape("diam", 10.0, 4.0, " a", "", &t), "<polygon points=\"0,-2 5,0 0,2 -5,0\" a/>");
+    }
 
     #[test]
     fn fallbacks() {

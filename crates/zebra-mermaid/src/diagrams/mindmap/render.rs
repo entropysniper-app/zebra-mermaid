@@ -14,6 +14,7 @@ use crate::text::{layout_label, style, Icons, Label};
 use crate::theme::color::mix_hex;
 use crate::theme::Role;
 use crate::util::js;
+use std::fmt::Write as _;
 
 /// Indexed by Mermaid's node type. A node without delimiters is text on a line, except the root.
 const SHAPES: [&str; 7] = ["", "rounded", "rect", "circle", "cloud", "bang", "hex"];
@@ -38,7 +39,7 @@ const ROW_GAP: f64 = 10.0;
 /// A label with each line starting at `left`, for an outline, where centered lines would look ragged.
 fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> String {
     if label.lines.len() < 2 {
-        return label_svg(label, left + label.width / 2.0, cy, " class=\"pele-label\"", icons);
+        return label_svg(label, left + label.width / 2.0, cy, " class=\"pele-label\"", icons).to_string();
     }
     let mut out = String::new();
     let count = label.lines.len() as f64;
@@ -52,13 +53,13 @@ fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> Strin
             size: label.size,
             line_height: label.line_height,
         };
-        out.push_str(&label_svg(
+        write!(out, "{}", label_svg(
             &one,
             left + width / 2.0,
             cy + (k as f64 - (count - 1.0) / 2.0) * label.line_height,
             " class=\"pele-label\"",
             icons,
-        ));
+        )).unwrap();
     }
     out
 }
@@ -89,7 +90,7 @@ struct Branch {
 /// colors are chosen for an opaque fill, so the tint's opacity is left out there.
 fn branch(ctx: &RenderCtx, section: i64) -> Branch {
     if !ctx.resolved() {
-        let color = ctx.series(section);
+        let color = ctx.series(section).into_owned();
         return Branch {
             tint: format!(" fill=\"{}\" fill-opacity=\"{}\" stroke=\"{}\"", color, TINT, color),
             inner: format!(" stroke=\"{}\"", color),
@@ -100,7 +101,7 @@ fn branch(ctx: &RenderCtx, section: i64) -> Branch {
     let t = &ctx.theming.resolved;
     let line = t.color(Role::Line).to_string();
     let (fill, text) = if t.series.is_some() {
-        let fill = ctx.series(section);
+        let fill = ctx.series(section).into_owned();
         let text = ctx.theming.text_on(&fill, "").into_owned();
         (fill, text)
     } else {
@@ -332,13 +333,13 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             return;
         }
         let line = colors.as_ref().map_or("", |c| c.line.as_str());
-        out.push_str(&format!(
+        write!(out, 
             "<g class=\"pele-branch pele-section-{}\"><g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-width=\"1.5\">{}</g>{}</g>",
             section.unwrap_or(0),
             line,
             edges,
             body
-        ));
+        ).unwrap();
         edges.clear();
         body.clear();
     };
@@ -376,7 +377,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             let bend = js::max(0.0, js::min(js::min(BEND, x2 - x1), y2 - y1));
             // The next link carries on from where this one leaves the trunk, so the trunk has no gap.
             trunk[p] = y2 - bend;
-            edges.push_str(&format!(
+            write!(edges, 
                 "<path class=\"pele-edge\" d=\"M{},{}V{}Q{},{} {},{}H{}\"/>",
                 num(x1),
                 num(y1),
@@ -386,7 +387,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
                 num(x1 + bend),
                 num(y2),
                 num(x2)
-            ));
+            ).unwrap();
         } else if i > 0 {
             if parent[i] == 0 {
                 colors = Some(branch(ctx, node.section.unwrap_or(0) as i64));
@@ -400,7 +401,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             let x2 = near + if !shape.is_empty() { dir * shape_inset(shape, w[i], h[i], 4 - from, 0.0) } else { 0.0 };
             let y2 = top + anchor[i];
             let mid = num((x1 + x2) / 2.0);
-            edges.push_str(&format!(
+            write!(edges, 
                 "<path class=\"pele-edge\" d=\"M{},{}C{},{} {},{} {},{}\"/>",
                 num(x1),
                 num(y1),
@@ -410,7 +411,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
                 num(y2),
                 num(x2),
                 num(y2)
-            ));
+            ).unwrap();
         }
 
         let pill = shape.is_empty() && !node.children.is_empty();
@@ -493,7 +494,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             if down && shape.is_empty() {
                 left_label(label, shift - label.width / 2.0, dy[i], icons)
             } else {
-                label_svg(label, shift, dy[i], " class=\"pele-label\"", icons)
+                label_svg(label, shift, dy[i], " class=\"pele-label\"", icons).to_string()
             }
         );
         if i > 0 {
@@ -509,13 +510,13 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (max_y - min_y + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!(
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, 
         "<g transform=\"translate({},{})\">{}</g>",
         num(pad - min_x + (width - max_x + min_x) / 2.0),
         num(pad + title_height - min_y),
         out
-    ));
+    ).unwrap();
 
     Rendered {
         svg: svg_document("mindmap", total_width, total_height, size, ctx, Accessible::default(), &content),

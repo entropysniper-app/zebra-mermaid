@@ -26,6 +26,15 @@ impl StepMap {
         StepMap { marks: vec![Mark { out: 0, src: 0, exact: true }], out_len: len, src_len: len }
     }
 
+    /// A step that kept the text from byte `start` of its `len` bytes: what a [`Builder`] that
+    /// copies that one run produces.
+    pub fn suffix(len: usize, start: usize) -> Self {
+        if start >= len {
+            return StepMap { marks: vec![Mark { out: 0, src: 0, exact: false }], out_len: 0, src_len: len };
+        }
+        StepMap { marks: vec![Mark { out: 0, src: start, exact: true }], out_len: len - start, src_len: len }
+    }
+
     pub fn to_src(&self, out: usize) -> usize {
         if out >= self.out_len {
             return self.src_len;

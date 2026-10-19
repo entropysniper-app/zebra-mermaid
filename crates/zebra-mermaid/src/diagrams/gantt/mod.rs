@@ -7,6 +7,9 @@ mod js_date;
 mod lexer;
 mod parser;
 mod render;
+#[cfg(test)]
+#[path = "../../../tests/upstream/gantt_dates.rs"]
+mod upstream_dates;
 use super::ParseInput;
 use crate::{ConfigValue, Error};
 pub use db::{GanttModel, GanttTask};

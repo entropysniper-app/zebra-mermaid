@@ -1,0 +1,89 @@
+{
+  "stressPassed": 172,
+  "strictOriginalTestsPassed": 2629,
+  "strictOriginalTestsTotal": 6810,
+  "wholeWorkspacePassed": 3013,
+  "wholeWorkspaceFailed": 0,
+  "wholeWorkspaceIgnored": 5,
+  "stressTiming": [
+    {
+      "name": "class diagram worst cases > 1,600 classDefs applied to 1,600 classes",
+      "beforeDebugMs": 12668.39625,
+      "afterDebugMs": 1410.265584,
+      "originalBudgetMs": 3000
+    },
+    {
+      "name": "class diagram worst cases > a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+      "beforeDebugMs": 6879.826417,
+      "afterDebugMs": 1012.510542,
+      "originalBudgetMs": 3000
+    }
+  ],
+  "overallRenderRatioVsInitialBaseline": 0.9423226494849274,
+  "allocation": [
+    {
+      "case": "stress: class/50 1,600 classDefs applied to 1,600 classes",
+      "before": {
+        "engine": "rust",
+        "case": "stress: class/50 1,600 classDefs applied to 1,600 classes",
+        "allocations": 69228985,
+        "reallocations": 10270511,
+        "requestedBytes": 1924484246,
+        "peakAdditionalLiveBytes": 106818036,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: class/50 1,600 classDefs applied to 1,600 classes",
+        "allocations": 2665803,
+        "reallocations": 30513,
+        "requestedBytes": 198718810,
+        "peakAdditionalLiveBytes": 106818676,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "reductionPercent": {
+        "allocations": 96.14929642547844,
+        "requestedBytes": 89.67417839802883,
+        "peakAdditionalLiveBytes": -0.000599149754076933
+      }
+    },
+    {
+      "case": "stress: class/51 a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+      "before": {
+        "engine": "rust",
+        "case": "stress: class/51 a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+        "allocations": 36065591,
+        "reallocations": 7317,
+        "requestedBytes": 195577641,
+        "peakAdditionalLiveBytes": 125613751,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: class/51 a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+        "allocations": 4079208,
+        "reallocations": 7317,
+        "requestedBytes": 133926943,
+        "peakAdditionalLiveBytes": 125884267,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "reductionPercent": {
+        "allocations": 88.6894741306194,
+        "requestedBytes": 31.522365074441204,
+        "peakAdditionalLiveBytes": -0.21535540324721936
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # 按 Pele 仓库原口径的性能对比
 
-测量时间：2026-10-19T09:06:43.245Z。运行时：Node v26.3.0；Rust 1.96.1 release，thin LTO，codegen-units=1，启用当前全部 33 类。
+测量时间：2026-10-19T23:16:51.778Z。运行时：Node v26.3.0；Rust 1.96.1 release，thin LTO，codegen-units=1，启用当前全部 33 类。
 
 参照是固定提交的 [scripts/bench.mjs](https://github.com/obsidianmd/pele/blob/44da152bbb79b91f03e68016f42499bb25bf6e82/scripts/bench.mjs)。Pele 一侧直接执行该原文件，未修改计时函数；仅捕获最终 console.table。Rust 逐行移植同一计时循环，使用该脚本直接求值获得的同一组输入。
 
@@ -8,11 +8,11 @@
 
 | case | diagrams | pele | zebra-mermaid |
 | --- | ---: | ---: | ---: |
-| docs: all examples | 114 | 2.2 ms | 1.5 ms |
-| tree: 50 nodes | 1 | 0.209 ms | 0.221 ms |
-| mesh: 50 nodes, 20 extra labelled edges | 1 | 0.632 ms | 0.436 ms |
-| tree: 500 nodes | 1 | 2.5 ms | 2.3 ms |
-| mesh: 500 nodes, 200 extra labelled edges | 1 | 8.3 ms | 6.2 ms |
+| docs: all examples | 114 | 2.5 ms | 1.1 ms |
+| tree: 50 nodes | 1 | 0.245 ms | 0.159 ms |
+| mesh: 50 nodes, 20 extra labelled edges | 1 | 0.687 ms | 0.302 ms |
+| tree: 500 nodes | 1 | 2.9 ms | 1.7 ms |
+| mesh: 500 nodes, 200 extra labelled edges | 1 | 9.9 ms | 5.0 ms |
 
 这里的时间是**整批输入的中位渲染耗时**：第一行是 114 张图的总耗时，其余每行一张。格式与原脚本一致：小于 1 ms 保留三位小数，否则保留一位。没有把 CLI 启动时间、预解析渲染、缓存命中或多轮中位数混入这张表。
 
@@ -43,7 +43,7 @@
 
 `bundle: 662.1 kB minified, 245.8 kB gzipped`
 
-该固定版本的实测 gzip 为 245.8 kB，与首页声明的 230 kB 不相同。Rust 当前 33 类 CLI 为 4804.3 kB 原生可执行文件、gzip 后 2223.5 kB。它们不是同类分发产物，不据此给出“几倍更小”的结论。
+该固定版本的实测 gzip 为 245.8 kB，与首页声明的 230 kB 不相同。Rust 当前 33 类 CLI 为 4839.0 kB 原生可执行文件、gzip 后 2235.3 kB。它们不是同类分发产物，不据此给出“几倍更小”的结论。
 
 ## 复现与证据
 
@@ -53,4 +53,4 @@ CARGO_TARGET_DIR=target node tools/bench/run-upstream.mjs
 node tools/bench/report-upstream.mjs
 ```
 
-[原始结果 JSON](research/upstream-benchmark-2026-10-19-33-types/comparison.json)、[Pele 原控制台输出](research/upstream-benchmark-2026-10-19-33-types/pele-console.txt) 及同目录的输入、Rust 原始样本与完整 SVG 验证输出已保存。脚本 SHA-256：`5afa837231ac555041eccae2d8b82e29414675caff0aa3ec4c48ddfaaed35ec6`。
+[原始结果 JSON](research/upstream-benchmark-2026-10-19-33-types-codex-takeover/comparison.json)、[Pele 原控制台输出](research/upstream-benchmark-2026-10-19-33-types-codex-takeover/pele-console.txt) 及同目录的输入、Rust 原始样本与完整 SVG 验证输出已保存。脚本 SHA-256：`5afa837231ac555041eccae2d8b82e29414675caff0aa3ec4c48ddfaaed35ec6`。

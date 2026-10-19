@@ -5,8 +5,8 @@ use crate::detect::{detect, DiagramType};
 use crate::diagrams::{self, DiagramModel, ParseInput, RenderCtx};
 use crate::error::{Error, ErrorCode};
 use crate::options::{ParseLimits, ParseOptions, RenderOptions, DEFAULT_LIMIT, DEFAULT_MAX_EDGES, DEFAULT_OUTPUT_LIMIT};
-use crate::preprocess::{encode_entities, preprocess};
-use crate::text::entities::decode_entities;
+use crate::preprocess::{encode_entities, preprocess, Preprocessed};
+use crate::text::entities::decode_entities_cow;
 use crate::text::{Icons, MetricsMeasurer, TextMeasurer};
 use crate::theme::Theming;
 use crate::util::js;
@@ -68,11 +68,13 @@ pub fn supports(source: &str) -> bool {
 /// Parses diagram text.
 pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Error> {
     let limit = options.limit.unwrap_or(DEFAULT_LIMIT);
-    if js::len16(source) > limit {
+    // A string has at least as many bytes as UTF-16 code units, so a short one is within the
+    // limit without being counted.
+    if source.len() > limit && js::len16(source) > limit {
         return Err(Error::limit(format!("Diagram source is longer than the limit of {} characters.", limit)));
     }
-    let pre = preprocess(source)?;
-    let Some(diagram_type) = detect(&pre.text) else {
+    let Preprocessed { text: cleaned, title, config: own, with_comments, line_offset, text_map, with_comments_map } = preprocess(source)?;
+    let Some(diagram_type) = detect(&cleaned) else {
         return Err(Error::new("No diagram type detected for the given text.", ErrorCode::UnsupportedDiagram));
     };
     if !diagrams::enabled(diagram_type) {
@@ -82,27 +84,23 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
     let config = match &options.config {
         Some(extra) => {
             let mut merged: ConfigMap = extra.clone();
-            for (k, v) in pre.config.iter() {
+            for (k, v) in own.iter() {
                 merged.insert(k, v.clone());
             }
             merged
         }
-        None => pre.config.clone(),
+        None => own,
     };
-    let (text, mut map) = if diagram_type.keeps_comments() {
-        (pre.with_comments.as_str(), pre.with_comments_map.clone())
-    } else {
-        (pre.text.as_str(), pre.text_map.clone())
-    };
-    let (encoded, entity_map) = encode_entities(text);
+    let (text, mut map) = if diagram_type.keeps_comments() { (with_comments, with_comments_map) } else { (cleaned, text_map) };
+    let (mut source_text, entity_map) = encode_entities(&text);
+    drop(text);
     map.extend(entity_map);
-    let mut source_text = encoded;
     source_text.push('\n');
     let input = ParseInput {
         source: &source_text,
         config: &config,
-        title: pre.title.as_deref(),
-        line_offset: pre.line_offset,
+        title: title.as_deref(),
+        line_offset,
         limits: ParseLimits { max_edges: options.max_edges.unwrap_or(DEFAULT_MAX_EDGES) },
     };
     let model = diagrams::parse(diagram_type, &input).map_err(|mut e| {
@@ -112,7 +110,7 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
         }
         e
     })?;
-    Ok(ParsedDiagram { diagram_type, config, title: pre.title, model })
+    Ok(ParsedDiagram { diagram_type, config, title, model })
 }
 
 /// Parses and renders diagram text.
@@ -141,13 +139,15 @@ pub fn render_parsed(parsed: &ParsedDiagram, options: &RenderOptions) -> Result<
     let ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
     let mut rendered = diagrams::render(&parsed.model, &parsed.config, &ctx)?;
     let output_limit = options.output_limit.unwrap_or(DEFAULT_OUTPUT_LIMIT);
-    if js::len16(&rendered.svg) > output_limit {
+    if rendered.svg.len() > output_limit && js::len16(&rendered.svg) > output_limit {
         return Err(
             Error::limit(format!("Diagram output is longer than the limit of {} characters.", output_limit)).with_type(diagram_type)
         );
     }
     for link in &mut rendered.links {
-        link.id = decode_entities(&link.id);
+        if let std::borrow::Cow::Owned(decoded) = decode_entities_cow(&link.id) {
+            link.id = decoded;
+        }
     }
     Ok(RenderResult { svg: rendered.svg, width: rendered.width, height: rendered.height, diagram_type, links: rendered.links })
 }

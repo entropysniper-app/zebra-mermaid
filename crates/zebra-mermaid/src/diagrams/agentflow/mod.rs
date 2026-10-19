@@ -2,6 +2,9 @@
 mod db;
 mod graph;
 mod lexer;
+#[cfg(test)]
+#[path = "../../../tests/upstream/agentflow_stress_generated.rs"]
+mod upstream_stress;
 mod parser;
 mod render;
 mod shapes;

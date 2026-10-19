@@ -17,3 +17,6 @@ mod compound;
 
 #[path = "upstream/lanes.rs"]
 mod lanes;
+
+#[path = "upstream/utilities.rs"]
+mod utilities;

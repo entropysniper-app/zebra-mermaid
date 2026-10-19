@@ -1,0 +1,102 @@
+{
+  "baseline": "Previous shared Class style / ordered membership implementation; binaries frozen before owner indexing.",
+  "workspace": {
+    "passed": 3016,
+    "failed": 0,
+    "ignored": 5
+  },
+  "originalTests": {
+    "total": 6810,
+    "mapped": 2634,
+    "unmapped": 4176,
+    "passed": 2629,
+    "failed": 0,
+    "skipped": 5,
+    "unverified": 0
+  },
+  "stress": {
+    "total": 172,
+    "passed": 172,
+    "failed": 0,
+    "timeout": 0
+  },
+  "renderRatioVsPreviousRust": 0.985612503152946,
+  "renderChangePercent": -1.4387496847053982,
+  "targetTiming": {
+    "method": "Three independent processes per version, alternating order, five warm-ups then a >=3 second full-render loop. Report median of three loop means; this stress-specific metric is separate from the original Pele benchmark table. No sampler or allocation counters in timing.",
+    "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+    "beforeMs": 52.8454649122807,
+    "afterMs": 9.572085191082802,
+    "afterOverBefore": 0.18113352218533244,
+    "runs": [
+      {
+        "before": {
+          "engine": "rust",
+          "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+          "batches": 57,
+          "elapsedMs": 3012.1915,
+          "renderedPerBatch": 1,
+          "rejectedPerBatch": 0,
+          "svgBytesPerBatch": 985192,
+          "msPerBatch": 52.8454649122807
+        },
+        "after": {
+          "engine": "rust",
+          "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+          "batches": 319,
+          "elapsedMs": 3005.834709,
+          "renderedPerBatch": 1,
+          "rejectedPerBatch": 0,
+          "svgBytesPerBatch": 985192,
+          "msPerBatch": 9.422679338557995
+        }
+      },
+      {
+        "after": {
+          "engine": "rust",
+          "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+          "batches": 313,
+          "elapsedMs": 3000.096,
+          "renderedPerBatch": 1,
+          "rejectedPerBatch": 0,
+          "svgBytesPerBatch": 985192,
+          "msPerBatch": 9.58497124600639
+        },
+        "before": {
+          "engine": "rust",
+          "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+          "batches": 57,
+          "elapsedMs": 3009.472666,
+          "renderedPerBatch": 1,
+          "rejectedPerBatch": 0,
+          "svgBytesPerBatch": 985192,
+          "msPerBatch": 52.79776607017544
+        }
+      },
+      {
+        "before": {
+          "engine": "rust",
+          "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+          "batches": 57,
+          "elapsedMs": 3015.399709,
+          "renderedPerBatch": 1,
+          "rejectedPerBatch": 0,
+          "svgBytesPerBatch": 985192,
+          "msPerBatch": 52.90174928070175
+        },
+        "after": {
+          "engine": "rust",
+          "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+          "batches": 314,
+          "elapsedMs": 3005.63475,
+          "renderedPerBatch": 1,
+          "rejectedPerBatch": 0,
+          "svgBytesPerBatch": 985192,
+          "msPerBatch": 9.572085191082802
+        }
+      }
+    ]
+  },
+  "memorySourceCycles": 1408680,
+  "conclusion": "No retained allocator bytes or blocks after any measured round. Independent system leaks reports zero in four tested paths and detects a separate deliberate leak. RSS includes allocator/page retention and is reported separately; this is evidence for measured scenarios, not a proof for all possible programs."
+}

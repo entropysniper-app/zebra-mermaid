@@ -1,11 +1,20 @@
 //! Mermaid flowcharts with Pele's lexer, semantic model and compound layout.
-mod graph;
+pub mod graph;
 mod lexer;
 mod model;
 mod parser;
 mod render;
 pub(crate) mod shapes;
 mod tokens;
+#[cfg(test)]
+#[path = "../../../tests/upstream/flowchart_compat.rs"]
+mod upstream_compat;
+#[cfg(test)]
+#[path = "../../../tests/upstream/flowchart_db.rs"]
+mod upstream_db;
+#[cfg(test)]
+#[path = "../../../tests/upstream/flowchart_parser.rs"]
+mod upstream_parser;
 use super::ParseInput;
 use crate::{ConfigValue, Error};
 pub use model::FlowchartModel;

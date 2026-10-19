@@ -5,6 +5,7 @@
 
 use crate::svg::builder::num;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 /// mulberry32, one step, with JavaScript's integer conversions: `|` and `^` take ToInt32 of
 /// their operands, `>>>` ToUint32, and `+` adds doubles.
@@ -110,7 +111,7 @@ pub fn forward(curve: &[f64]) -> String {
     let mut d = String::new();
     let mut i = 2;
     while i + 5 < curve.len() {
-        d.push_str(&format!(
+        write!(d, 
             "C{},{} {},{} {},{}",
             num(curve[i]),
             num(curve[i + 1]),
@@ -118,7 +119,7 @@ pub fn forward(curve: &[f64]) -> String {
             num(curve[i + 3]),
             num(curve[i + 4]),
             num(curve[i + 5])
-        ));
+        ).unwrap();
         i += 6;
     }
     d
@@ -130,7 +131,7 @@ pub fn backward(curve: &[f64]) -> String {
     let mut i = curve.len() as isize - 6;
     while i >= 2 {
         let k = i as usize;
-        d.push_str(&format!(
+        write!(d, 
             "C{},{} {},{} {},{}",
             num(curve[k + 2]),
             num(curve[k + 3]),
@@ -138,7 +139,7 @@ pub fn backward(curve: &[f64]) -> String {
             num(curve[k + 1]),
             num(curve[k - 2]),
             num(curve[k - 1])
-        ));
+        ).unwrap();
         i -= 6;
     }
     d

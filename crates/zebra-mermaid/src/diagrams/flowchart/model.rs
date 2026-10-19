@@ -96,6 +96,14 @@ pub struct FlowchartModel {
     pub acc_descr: Option<String>,
     pub inherit_dir: bool,
     pub max_edges: usize,
+    /// Collect warnings when a host requests diagnostics, equivalent to Pele's warn callback.
+    #[cfg_attr(feature = "serde", serde(skip))]
+    pub collect_warnings: bool,
+    #[cfg_attr(feature = "serde", serde(skip))]
+    pub warnings: Vec<String>,
+    #[cfg(test)]
+    #[cfg_attr(feature = "serde", serde(skip))]
+    pub(crate) calls: Option<Vec<(&'static str, Vec<ConfigValue>)>>,
     members: IndexSet<String>,
     edge_by_id: IndexMap<String, usize>,
     pair_count: IndexMap<(String, String), usize>,
@@ -111,6 +119,13 @@ fn semantic(message: String) -> Error {
     Error::semantic(message).with_type(DiagramType::Flowchart)
 }
 impl FlowchartModel {
+    pub fn exists(all: &[Subgraph], id: &str) -> bool {
+        all.iter().any(|sg| sg.nodes.iter().any(|node| node == id))
+    }
+    pub fn make_unique(sg: &Subgraph, all: &[Subgraph]) -> Vec<String> {
+        let taken: IndexSet<&str> = all.iter().flat_map(|s| s.nodes.iter().map(String::as_str)).collect();
+        sg.nodes.iter().filter(|id| !taken.contains(id.as_str())).cloned().collect()
+    }
     pub fn vertex(
         &mut self,
         id: &str,
@@ -155,6 +170,10 @@ impl FlowchartModel {
                 }
             }
             return Ok(());
+        }
+        if self.collect_warnings && !self.nodes.contains_key(id) && text.is_none() && shape.is_none() && styles.is_some() {
+            self.warnings
+                .push(format!("Style applied to unknown node \"{id}\". This may indicate a typo. The node will be created automatically."));
         }
         let n = self.nodes.entry(id.into()).or_insert_with(|| Node { id: id.into(), label_type: "text".into(), ..Default::default() });
         if let Some(t) = text {
@@ -301,6 +320,14 @@ impl FlowchartModel {
         }
     }
     pub fn set_link(&mut self, ids: &str, url: &str, target: Option<String>) {
+        #[cfg(test)]
+        if let Some(calls) = &mut self.calls {
+            let mut args = vec![ConfigValue::String(ids.into()), ConfigValue::String(url.into())];
+            if let Some(target) = &target {
+                args.push(ConfigValue::String(target.clone()));
+            }
+            calls.push(("setLink", args));
+        }
         let u = js::trim(url);
         for id in ids.split(',') {
             if let Some(n) = self.nodes.get_mut(id) {
@@ -311,9 +338,25 @@ impl FlowchartModel {
         self.set_class(ids, "clickable");
     }
     pub fn tooltip(&mut self, ids: &str, value: String) {
+        #[cfg(test)]
+        if let Some(calls) = &mut self.calls {
+            calls.push(("setTooltip", vec![ConfigValue::String(ids.into()), ConfigValue::String(value.clone())]));
+        }
         for id in ids.split(',') {
             self.tooltips.insert(id.into(), value.clone());
         }
+    }
+    /// Keep the clickable class without executing a callback, matching Pele's inert renderer.
+    pub fn set_click_event(&mut self, ids: &str, _name: &str, _args: Option<&str>) {
+        #[cfg(test)]
+        if let Some(calls) = &mut self.calls {
+            let mut args = vec![ConfigValue::String(ids.into()), ConfigValue::String(_name.into())];
+            if let Some(value) = _args {
+                args.push(ConfigValue::String(value.into()));
+            }
+            calls.push(("setClickEvent", args));
+        }
+        self.set_class(ids, "clickable");
     }
     pub fn set_direction(&mut self, dir: &str) {
         let mut d = js::trim(dir);

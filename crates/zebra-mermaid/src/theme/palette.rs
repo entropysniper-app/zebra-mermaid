@@ -18,6 +18,7 @@ use std::fmt;
 use super::color::{mix_hex, Rgb};
 use crate::config::json::{parse_json_limited, parse_json_members};
 use crate::config::ConfigValue;
+use std::fmt::Write as _;
 
 /// Light or dark: which default palette applies when the caller gives none.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -399,15 +400,15 @@ impl MermaidPalette {
         let opt = |v: &Option<String>| v.as_deref().map_or("null".to_string(), json_string);
         let mut out = String::from("{");
         for (name, value) in self.required() {
-            out.push_str(&format!("{}:{},", q(name), q(value)));
+            write!(out, "{}:{},", q(name), q(value)).unwrap();
         }
-        out.push_str(&format!("\"edge\":{},", opt(&self.edge)));
-        out.push_str(&format!("\"groupBackground\":{},", opt(&self.group_background)));
-        out.push_str(&format!("\"groupBorder\":{},", opt(&self.group_border)));
+        write!(out, "\"edge\":{},", opt(&self.edge)).unwrap();
+        write!(out, "\"groupBackground\":{},", opt(&self.group_background)).unwrap();
+        write!(out, "\"groupBorder\":{},", opt(&self.group_border)).unwrap();
         match &self.series {
             Some(series) => {
                 let items: Vec<String> = series.iter().map(|v| q(v)).collect();
-                out.push_str(&format!("\"series\":[{}]", items.join(",")));
+                write!(out, "\"series\":[{}]", items.join(",")).unwrap();
             }
             None => out.push_str("\"series\":null"),
         }
@@ -426,7 +427,7 @@ fn json_string(v: &str) -> String {
             '\n' => out.push_str("\\n"),
             '\r' => out.push_str("\\r"),
             '\t' => out.push_str("\\t"),
-            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c if (c as u32) < 0x20 => write!(out, "\\u{:04x}", c as u32).unwrap(),
             c => out.push(c),
         }
     }

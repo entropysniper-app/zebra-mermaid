@@ -1,0 +1,5316 @@
+{
+  "source": "tests/gantt/dates.test.ts",
+  "sourceSha256": "ec85a2c03e295091d6d28f98147748382827e38a572c60157104884c8a0c20f6",
+  "timezone": "UTC",
+  "records": [
+    {
+      "id": "f0be2637300773334c9e906d",
+      "index": 0,
+      "name": "strict date parsing > reads 2014-01-06 as YYYY-MM-DD",
+      "generatedName": "strict date parsing > reads 2014-01-06 as YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1388966400000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "78896b2b4b1a66311506e3f0",
+      "index": 1,
+      "name": "strict date parsing > reads 06-01-2014 as DD-MM-YYYY",
+      "generatedName": "strict date parsing > reads 06-01-2014 as DD-MM-YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "06-01-2014"
+              },
+              {
+                "op": "literal",
+                "value": "DD-MM-YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1388966400000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8ad685cf3e60c8e114ed3b94",
+      "index": 2,
+      "name": "strict date parsing > reads 14/1/6 as YY/M/D",
+      "generatedName": "strict date parsing > reads 14/1/6 as YY/M/D",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "14/1/6"
+              },
+              {
+                "op": "literal",
+                "value": "YY/M/D"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1388966400000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "8a50fc746c6095fa693fea09",
+      "index": 3,
+      "name": "strict date parsing > reads 70/12/31 as YY/M/D",
+      "generatedName": "strict date parsing > reads 70/12/31 as YY/M/D",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "70/12/31"
+              },
+              {
+                "op": "literal",
+                "value": "YY/M/D"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 31449600000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "2653df9d84f1a03dcbcf9f50",
+      "index": 4,
+      "name": "strict date parsing > reads 2014-01-06 17:49 as YYYY-MM-DD HH:mm",
+      "generatedName": "strict date parsing > reads 2014-01-06 17:49 as YYYY-MM-DD HH:mm",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06 17:49"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD HH:mm"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1389030540000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9cbb21b5552fc1a27b0c6cdc",
+      "index": 5,
+      "name": "strict date parsing > reads 2014-01-06 7:5:9 as YYYY-MM-DD H:m:s",
+      "generatedName": "strict date parsing > reads 2014-01-06 7:5:9 as YYYY-MM-DD H:m:s",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06 7:5:9"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD H:m:s"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1388991909000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "714106c7451a0ccbd6ff3869",
+      "index": 6,
+      "name": "strict date parsing > reads 2014-01-06T07:05:09.123 as YYYY-MM-DDTHH:mm:ss.SSS",
+      "generatedName": "strict date parsing > reads 2014-01-06T07:05:09.123 as YYYY-MM-DDTHH:mm:ss.SSS",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06T07:05:09.123"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DDTHH:mm:ss.SSS"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1388991909123
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f4904da0ac20d9ed8ea7f06d",
+      "index": 7,
+      "name": "strict date parsing > reads 9:30 PM as h:mm A",
+      "generatedName": "strict date parsing > reads 9:30 PM as h:mm A",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "9:30 PM"
+              },
+              {
+                "op": "literal",
+                "value": "h:mm A"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1935869400000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "805dfa25421012cb50dfc7be",
+      "index": 8,
+      "name": "strict date parsing > reads 12:05 am as hh:mm a",
+      "generatedName": "strict date parsing > reads 12:05 am as hh:mm a",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "12:05 am"
+              },
+              {
+                "op": "literal",
+                "value": "hh:mm a"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1935792300000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d7ba5afcc27a98ce99534627",
+      "index": 9,
+      "name": "strict date parsing > reads 12:05 pm as hh:mm a",
+      "generatedName": "strict date parsing > reads 12:05 pm as hh:mm a",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "12:05 pm"
+              },
+              {
+                "op": "literal",
+                "value": "hh:mm a"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1935835500000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9fa8bcd85857c28703f865c4",
+      "index": 10,
+      "name": "strict date parsing > reads Jan 5, 2024 as MMM D, YYYY",
+      "generatedName": "strict date parsing > reads Jan 5, 2024 as MMM D, YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "Jan 5, 2024"
+              },
+              {
+                "op": "literal",
+                "value": "MMM D, YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1704412800000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "7f79f083830e1a46d9c7de42",
+      "index": 11,
+      "name": "strict date parsing > reads 5th January 2024 as Do MMMM YYYY",
+      "generatedName": "strict date parsing > reads 5th January 2024 as Do MMMM YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "5th January 2024"
+              },
+              {
+                "op": "literal",
+                "value": "Do MMMM YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1704412800000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "80f668ebb6da05c4f32c3207",
+      "index": 12,
+      "name": "strict date parsing > reads 22nd December 2024 as Do MMMM YYYY",
+      "generatedName": "strict date parsing > reads 22nd December 2024 as Do MMMM YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "22nd December 2024"
+              },
+              {
+                "op": "literal",
+                "value": "Do MMMM YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1734825600000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "28ac18ea9c53a0a00d4bc9d7",
+      "index": 13,
+      "name": "strict date parsing > reads on 2024-03-01 as [on] YYYY-MM-DD",
+      "generatedName": "strict date parsing > reads on 2024-03-01 as [on] YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "on 2024-03-01"
+              },
+              {
+                "op": "literal",
+                "value": "[on] YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1709251200000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "5e093d8c5fbbea9a47da6e9e",
+      "index": 14,
+      "name": "strict date parsing > reads 17:49 as HH:mm",
+      "generatedName": "strict date parsing > reads 17:49 as HH:mm",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "17:49"
+              },
+              {
+                "op": "literal",
+                "value": "HH:mm"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1935856140000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9a79cae0e292006a78b35af2",
+      "index": 15,
+      "name": "strict date parsing > reads 2024 as YYYY",
+      "generatedName": "strict date parsing > reads 2024 as YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2024"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1704067200000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "a6234869636668a0f5ca3081",
+      "index": 16,
+      "name": "strict date parsing > reads 03 as MM",
+      "generatedName": "strict date parsing > reads 03 as MM",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "03"
+              },
+              {
+                "op": "literal",
+                "value": "MM"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1930089600000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "90e783b8d59f22ece0a0df88",
+      "index": 17,
+      "name": "strict date parsing > reads 7 as D",
+      "generatedName": "strict date parsing > reads 7 as D",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "7"
+              },
+              {
+                "op": "literal",
+                "value": "D"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1935878400000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1603512b7d586ef6e8febfb6",
+      "index": 18,
+      "name": "strict date parsing > reads 20 as ss",
+      "generatedName": "strict date parsing > reads 20 as ss",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "20"
+              },
+              {
+                "op": "literal",
+                "value": "ss"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1935792020000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b19eafff076f21c7ac9af90d",
+      "index": 19,
+      "name": "strict date parsing > reads 2 2024 as Q YYYY",
+      "generatedName": "strict date parsing > reads 2 2024 as Q YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2 2024"
+              },
+              {
+                "op": "literal",
+                "value": "Q YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1711929600000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce7fe0340e9104907555a46c",
+      "index": 20,
+      "name": "strict date parsing > reads Monday 2024 as dddd YYYY",
+      "generatedName": "strict date parsing > reads Monday 2024 as dddd YYYY",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "Monday 2024"
+              },
+              {
+                "op": "literal",
+                "value": "dddd YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1704067200000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ca5a29ac2750a45baad00fd1",
+      "index": 21,
+      "name": "strict date parsing > rejects 2014-1-6 for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects 2014-1-6 for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-1-6"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1e45bde8892f1d121a0ecf59",
+      "index": 22,
+      "name": "strict date parsing > rejects 2014-01-06 7:05:09 for YYYY-MM-DD H:m:s",
+      "generatedName": "strict date parsing > rejects 2014-01-06 7:05:09 for YYYY-MM-DD H:m:s",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06 7:05:09"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD H:m:s"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "df7fd288247dab074799a4c7",
+      "index": 23,
+      "name": "strict date parsing > rejects 2014-13-01 for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects 2014-13-01 for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-13-01"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f7e3b39e51df1568a11a028f",
+      "index": 24,
+      "name": "strict date parsing > rejects 2014-02-30 for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects 2014-02-30 for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-02-30"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "49f0c1c04bd3372ea326470b",
+      "index": 25,
+      "name": "strict date parsing > rejects 202-12-01 for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects 202-12-01 for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "202-12-01"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d47457b074e0f6c8525b8adb",
+      "index": 26,
+      "name": "strict date parsing > rejects 202304 for YYYYMMDD",
+      "generatedName": "strict date parsing > rejects 202304 for YYYYMMDD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "202304"
+              },
+              {
+                "op": "literal",
+                "value": "YYYYMMDD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7607fdc3d5e812e02d6e28c7",
+      "index": 27,
+      "name": "strict date parsing > rejects 2014-01-06  for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects 2014-01-06  for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06 "
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "19bf1d1b358a8b86a6a599dd",
+      "index": 28,
+      "name": "strict date parsing > rejects  2014-01-06 for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects  2014-01-06 for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": " 2014-01-06"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d896a53e8c6a88af83fe6425",
+      "index": 29,
+      "name": "strict date parsing > rejects 2014-01-06x for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects 2014-01-06x for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06x"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e8e80e2f18751207ba49a99d",
+      "index": 30,
+      "name": "strict date parsing > rejects 0 for ss",
+      "generatedName": "strict date parsing > rejects 0 for ss",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "0"
+              },
+              {
+                "op": "literal",
+                "value": "ss"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9234c0fc4a869fec6d8e4e79",
+      "index": 31,
+      "name": "strict date parsing > rejects 25:00 for HH:mm",
+      "generatedName": "strict date parsing > rejects 25:00 for HH:mm",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "25:00"
+              },
+              {
+                "op": "literal",
+                "value": "HH:mm"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e2f759ceeca87bdec34bf041",
+      "index": 32,
+      "name": "strict date parsing > rejects 5 January 2024 for Do MMMM YYYY",
+      "generatedName": "strict date parsing > rejects 5 January 2024 for Do MMMM YYYY",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "5 January 2024"
+              },
+              {
+                "op": "literal",
+                "value": "Do MMMM YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8b24ff9cb6f179d91d664c6a",
+      "index": 33,
+      "name": "strict date parsing > rejects 5th january 2024 for Do MMMM YYYY",
+      "generatedName": "strict date parsing > rejects 5th january 2024 for Do MMMM YYYY",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "5th january 2024"
+              },
+              {
+                "op": "literal",
+                "value": "Do MMMM YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "19f46a2178cac3621fd492a4",
+      "index": 34,
+      "name": "strict date parsing > rejects Tuesday 2024 for dddd YYYY",
+      "generatedName": "strict date parsing > rejects Tuesday 2024 for dddd YYYY",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "Tuesday 2024"
+              },
+              {
+                "op": "literal",
+                "value": "dddd YYYY"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "06c6680cb749892dfbc5e7d6",
+      "index": 35,
+      "name": "strict date parsing > rejects 2014-01-06 for ",
+      "generatedName": "strict date parsing > rejects 2014-01-06 for ",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06"
+              },
+              {
+                "op": "literal",
+                "value": ""
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "617be0a9ada96d4a57c49d21",
+      "index": 36,
+      "name": "strict date parsing > rejects 2014-01-06 for q",
+      "generatedName": "strict date parsing > rejects 2014-01-06 for q",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2014-01-06"
+              },
+              {
+                "op": "literal",
+                "value": "q"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb214e510a5124a83cd51556",
+      "index": 37,
+      "name": "strict date parsing > rejects 12/25/2020 for L",
+      "generatedName": "strict date parsing > rejects 12/25/2020 for L",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "12/25/2020"
+              },
+              {
+                "op": "literal",
+                "value": "L"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c432787d2102d926f612e73d",
+      "index": 38,
+      "name": "strict date parsing > rejects 2020-01 for YYYY-ww",
+      "generatedName": "strict date parsing > rejects 2020-01 for YYYY-ww",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2020-01"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-ww"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "42f0c90de6bafc6e57a06966",
+      "index": 39,
+      "name": "strict date parsing > rejects Invalid Date for ",
+      "generatedName": "strict date parsing > rejects Invalid Date for ",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "Invalid Date"
+              },
+              {
+                "op": "literal",
+                "value": ""
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "164c2e86db449a9ffee68dca",
+      "index": 40,
+      "name": "strict date parsing > rejects  for YYYY-MM-DD",
+      "generatedName": "strict date parsing > rejects  for YYYY-MM-DD",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": ""
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8f95cc00121a12c0b0d69127",
+      "index": 41,
+      "name": "strict date parsing > reads Unix timestamps in seconds and in milliseconds",
+      "generatedName": "strict date parsing > reads Unix timestamps in seconds and in milliseconds",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1410715640"
+              },
+              {
+                "op": "literal",
+                "value": "X"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1410715640000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1410715640579"
+              },
+              {
+                "op": "literal",
+                "value": "x"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1410715640579
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "-5"
+              },
+              {
+                "op": "literal",
+                "value": "x"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": -5
+            }
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1410715640.579"
+              },
+              {
+                "op": "literal",
+                "value": "X"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1e3"
+              },
+              {
+                "op": "literal",
+                "value": "x"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": ""
+              },
+              {
+                "op": "literal",
+                "value": "x"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d50ddb402efdd9d70fb87ccb",
+      "index": 42,
+      "name": "strict date parsing > reads a UTC offset, and accepts it only when it is the local one",
+      "generatedName": "strict date parsing > reads a UTC offset, and accepts it only when it is the local one",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2024-01-05T10:00:00+00:00"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DDTHH:mm:ssZ"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1704448800000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2024-01-05T10:00:00+0000"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DDTHH:mm:ssZZ"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1704448800000
+            }
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "parseStrict",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2024-01-05T10:00:00+05:45"
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DDTHH:mm:ssZ"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1935826215250
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "189ff816b89b9ac98e1328a8",
+      "index": 43,
+      "name": "date formatting > writes YYYY-MM-DD as 2024-02-03",
+      "generatedName": "date formatting > writes YYYY-MM-DD as 2024-02-03",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-MM-DD"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2024-02-03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f3c3e9cbddea59fcca8b4c68",
+      "index": 44,
+      "name": "date formatting > writes YY M D as 24 2 3",
+      "generatedName": "date formatting > writes YY M D as 24 2 3",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "YY M D"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "24 2 3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1034293353c857c631c5048b",
+      "index": 45,
+      "name": "date formatting > writes MMM MMMM as Feb February",
+      "generatedName": "date formatting > writes MMM MMMM as Feb February",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "MMM MMMM"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "Feb February"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d40b4f79404d3ef2f5de72de",
+      "index": 46,
+      "name": "date formatting > writes d dd ddd dddd as 6 Sa Sat Saturday",
+      "generatedName": "date formatting > writes d dd ddd dddd as 6 Sa Sat Saturday",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "d dd ddd dddd"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "6 Sa Sat Saturday"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7693f2b248d149c0dbbe5d36",
+      "index": 47,
+      "name": "date formatting > writes H HH h hh as 15 15 3 03",
+      "generatedName": "date formatting > writes H HH h hh as 15 15 3 03",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "H HH h hh"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "15 15 3 03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "11bb45495188071223023083",
+      "index": 48,
+      "name": "date formatting > writes m mm s ss SSS as 4 04 5 05 067",
+      "generatedName": "date formatting > writes m mm s ss SSS as 4 04 5 05 067",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "m mm s ss SSS"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "4 04 5 05 067"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0ef20d95c24776f7c804fbbf",
+      "index": 49,
+      "name": "date formatting > writes a A as pm PM",
+      "generatedName": "date formatting > writes a A as pm PM",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "a A"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "pm PM"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b70b9e95c4f6fcc414f1bc34",
+      "index": 50,
+      "name": "date formatting > writes Do [of] MMMM as 3rd of February",
+      "generatedName": "date formatting > writes Do [of] MMMM as 3rd of February",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "Do [of] MMMM"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "3rd of February"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cf51b22a0f4b203b72fc5e38",
+      "index": 51,
+      "name": "date formatting > writes Q as 1",
+      "generatedName": "date formatting > writes Q as 1",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "Q"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a3a38a92a2a12fb0dfae3a4c",
+      "index": 52,
+      "name": "date formatting > writes k kk as 15 15",
+      "generatedName": "date formatting > writes k kk as 15 15",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "k kk"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "15 15"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3ad05d14a1d2328ebf3191f7",
+      "index": 53,
+      "name": "date formatting > writes W WW GGGG as 5 05 2024",
+      "generatedName": "date formatting > writes W WW GGGG as 5 05 2024",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "W WW GGGG"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "5 05 2024"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d8f7042bb6629a65a13e858a",
+      "index": 54,
+      "name": "date formatting > writes [YYYY] YYYY as YYYY 2024",
+      "generatedName": "date formatting > writes [YYYY] YYYY as YYYY 2024",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "[YYYY] YYYY"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "YYYY 2024"
+          }
+        }
+      ]
+    },
+    {
+      "id": "87fae772d31051cb385dc729",
+      "index": 55,
+      "name": "date formatting > writes x as 1706943845067",
+      "generatedName": "date formatting > writes x as 1706972645067",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "x"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1706972645067"
+          }
+        }
+      ]
+    },
+    {
+      "id": "56c1018b899bbf964a2b94ee",
+      "index": 56,
+      "name": "date formatting > writes X as 1706943845",
+      "generatedName": "date formatting > writes X as 1706972645",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "X"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1706972645"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b2154f1f123c6d3d8bf28d15",
+      "index": 57,
+      "name": "date formatting > writes Y YYY as Y 24Y",
+      "generatedName": "date formatting > writes Y YYY as Y 24Y",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "Y YYY"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "Y 24Y"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7021cb4c49483d63a7bb98f2",
+      "index": 58,
+      "name": "date formatting > writes S SS as S SS",
+      "generatedName": "date formatting > writes S SS as S SS",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "S SS"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "S SS"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a4af8c7ee989244136988cfa",
+      "index": 59,
+      "name": "date formatting > writes the UTC offset",
+      "generatedName": "date formatting > writes the UTC offset",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "Z"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "+00:00"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "ZZ"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "+0000"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": ""
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2024-02-03T15:04:05+00:00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ec0f62e525536a6a50b012ab",
+      "index": 60,
+      "name": "date formatting > writes ordinals, midnight, and ISO weeks at the edges of a year",
+      "generatedName": "date formatting > writes ordinals, midnight, and ISO weeks at the edges of a year",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "array",
+            "items": [
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1704067200000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1704153600000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1704240000000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1704326400000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1704931200000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1705017600000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1705104000000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1705795200000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1705881600000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1705968000000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              },
+              {
+                "op": "format",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1706659200000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": "Do"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": "1st"
+              },
+              {
+                "op": "literal",
+                "value": "2nd"
+              },
+              {
+                "op": "literal",
+                "value": "3rd"
+              },
+              {
+                "op": "literal",
+                "value": "4th"
+              },
+              {
+                "op": "literal",
+                "value": "11th"
+              },
+              {
+                "op": "literal",
+                "value": "12th"
+              },
+              {
+                "op": "literal",
+                "value": "13th"
+              },
+              {
+                "op": "literal",
+                "value": "21st"
+              },
+              {
+                "op": "literal",
+                "value": "22nd"
+              },
+              {
+                "op": "literal",
+                "value": "23rd"
+              },
+              {
+                "op": "literal",
+                "value": "31st"
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1704069000000
+                }
+              },
+              {
+                "op": "literal",
+                "value": "k h a"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "24 12 am"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1609632000000
+                }
+              },
+              {
+                "op": "literal",
+                "value": "GGGG-[W]WW"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2020-W53"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1735516800000
+                }
+              },
+              {
+                "op": "literal",
+                "value": "GGGG-[W]WW"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2025-W01"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1767225600000
+                }
+              },
+              {
+                "op": "literal",
+                "value": "W"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fdcac2abd467973f771b968d",
+      "index": 61,
+      "name": "date formatting > has no output for tokens that need dayjs plugins Mermaid does not load",
+      "generatedName": "date formatting > has no output for tokens that need dayjs plugins Mermaid does not load",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "w"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "ww"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "wo"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "gggg"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "z"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "zzz"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "YYYY-ww"
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              },
+              {
+                "op": "literal",
+                "value": "[w] YYYY"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "w 2024"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b9750c98343ab1a3eafe1b67",
+      "index": 62,
+      "name": "date formatting > reports an invalid date",
+      "generatedName": "date formatting > reports an invalid date",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "format",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "number",
+                  "value": "NaN"
+                }
+              },
+              {
+                "op": "literal",
+                "value": "YYYY"
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "Invalid Date"
+          }
+        }
+      ]
+    },
+    {
+      "id": "10ac21b2723ab5dbe9936324",
+      "index": 63,
+      "name": "date arithmetic > adds calendar days and weeks, whatever the length of the day",
+      "generatedName": "date arithmetic > adds calendar days and weeks, whatever the length of the day",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1604188800000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 1
+              },
+              {
+                "op": "literal",
+                "value": "d"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1604275200000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1709942400000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 2
+              },
+              {
+                "op": "literal",
+                "value": "d"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1710115200000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1356998400000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 2
+              },
+              {
+                "op": "literal",
+                "value": "w"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1358208000000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1356998400000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 1.5
+              },
+              {
+                "op": "literal",
+                "value": "d"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1357171200000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1356998400000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 0.4
+              },
+              {
+                "op": "literal",
+                "value": "d"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1356998400000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1356998400000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 0.5
+              },
+              {
+                "op": "literal",
+                "value": "w"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1357344000000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "d5d7f551ee9f0159d75f934c",
+      "index": 65,
+      "name": "date arithmetic > adds months and years, keeping to the end of a shorter month",
+      "generatedName": "date arithmetic > adds months and years, keeping to the end of a shorter month",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706659200000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 1
+              },
+              {
+                "op": "literal",
+                "value": "M"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1709164800000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1703980800000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 2
+              },
+              {
+                "op": "literal",
+                "value": "M"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1709164800000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1711756800000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 11
+              },
+              {
+                "op": "literal",
+                "value": "M"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1740700800000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1709164800000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 1
+              },
+              {
+                "op": "literal",
+                "value": "y"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1740700800000
+            }
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "add",
+            "args": [
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1705276800000
+                }
+              },
+              {
+                "op": "literal",
+                "value": 1.5
+              },
+              {
+                "op": "literal",
+                "value": "M"
+              }
+            ]
+          },
+          "expected": {
+            "op": "date",
+            "time": {
+              "op": "literal",
+              "value": 1707955200000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "703c4676ba757816dcfbdc1d",
+      "index": 66,
+      "name": "date arithmetic > gives an invalid date beyond the range of dates",
+      "generatedName": "date arithmetic > gives an invalid date beyond the range of dates",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "isNaN",
+            "base": {
+              "op": "getTime",
+              "base": {
+                "op": "add",
+                "args": [
+                  {
+                    "op": "date",
+                    "time": {
+                      "op": "literal",
+                      "value": 1704067200000
+                    }
+                  },
+                  {
+                    "op": "literal",
+                    "value": 99999999
+                  },
+                  {
+                    "op": "literal",
+                    "value": "y"
+                  }
+                ]
+              }
+            }
+          },
+          "expected": {
+            "op": "literal",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "16f416def135c7418be1ed32",
+      "index": 67,
+      "name": "date arithmetic > reads durations",
+      "generatedName": "date arithmetic > reads durations",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseDuration",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1.5d"
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1.5
+              },
+              {
+                "op": "literal",
+                "value": "d"
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseDuration",
+            "args": [
+              {
+                "op": "literal",
+                "value": " 3M "
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 3
+              },
+              {
+                "op": "literal",
+                "value": "M"
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseDuration",
+            "args": [
+              {
+                "op": "literal",
+                "value": "500ms"
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 500
+              },
+              {
+                "op": "literal",
+                "value": "ms"
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseDuration",
+            "args": [
+              {
+                "op": "literal",
+                "value": "3dX"
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "number",
+                "value": "NaN"
+              },
+              {
+                "op": "literal",
+                "value": "ms"
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "parseDuration",
+            "args": [
+              {
+                "op": "literal",
+                "value": "-1d"
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "number",
+                "value": "NaN"
+              },
+              {
+                "op": "literal",
+                "value": "ms"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "18e3edf044c1317aa404043b",
+      "index": 68,
+      "name": "axis formats > writes %Y-%m-%d as 2024-02-03",
+      "generatedName": "axis formats > writes %Y-%m-%d as 2024-02-03",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%Y-%m-%d"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2024-02-03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1d1b00d542363b09f949ad8f",
+      "index": 69,
+      "name": "axis formats > writes %a %A %b %B as Sat Saturday Feb February",
+      "generatedName": "axis formats > writes %a %A %b %B as Sat Saturday Feb February",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%a %A %b %B"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "Sat Saturday Feb February"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2d4e975971086b10bb64900a",
+      "index": 70,
+      "name": "axis formats > writes %H:%M:%S.%L as 15:04:05.067",
+      "generatedName": "axis formats > writes %H:%M:%S.%L as 15:04:05.067",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%H:%M:%S.%L"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "15:04:05.067"
+          }
+        }
+      ]
+    },
+    {
+      "id": "15117948f4a3bcde1761ac54",
+      "index": 71,
+      "name": "axis formats > writes %I %p as 03 PM",
+      "generatedName": "axis formats > writes %I %p as 03 PM",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%I %p"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "03 PM"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7959a48ceddc5c330f231f47",
+      "index": 72,
+      "name": "axis formats > writes %e|%-d|%_d|%0e as  3|3| 3|03",
+      "generatedName": "axis formats > writes %e|%-d|%_d|%0e as  3|3| 3|03",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%e|%-d|%_d|%0e"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": " 3|3| 3|03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1e45c312f99119150e45a1eb",
+      "index": 73,
+      "name": "axis formats > writes %j as 034",
+      "generatedName": "axis formats > writes %j as 034",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%j"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "034"
+          }
+        }
+      ]
+    },
+    {
+      "id": "33735821a136b711746774a0",
+      "index": 74,
+      "name": "axis formats > writes %U %W %V as 04 05 05",
+      "generatedName": "axis formats > writes %U %W %V as 04 05 05",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%U %W %V"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "04 05 05"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a1202241e686b1d82dcc362e",
+      "index": 75,
+      "name": "axis formats > writes %u %w as 6 6",
+      "generatedName": "axis formats > writes %u %w as 6 6",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%u %w"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "6 6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6c1350f859ea1fed6b42a9a9",
+      "index": 76,
+      "name": "axis formats > writes %y %G %g as 24 2024 24",
+      "generatedName": "axis formats > writes %y %G %g as 24 2024 24",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%y %G %g"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "24 2024 24"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2e2edf30fc0160562a75bd4f",
+      "index": 77,
+      "name": "axis formats > writes %q as 1",
+      "generatedName": "axis formats > writes %q as 1",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%q"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1849a614e5a1adcf32485358",
+      "index": 78,
+      "name": "axis formats > writes %x as 2/3/2024",
+      "generatedName": "axis formats > writes %x as 2/3/2024",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%x"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2/3/2024"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2b402ff4b1b7c3a9d07d139a",
+      "index": 79,
+      "name": "axis formats > writes %X as 3:04:05 PM",
+      "generatedName": "axis formats > writes %X as 3:04:05 PM",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%X"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "3:04:05 PM"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d3461dfc28df629d373fafb2",
+      "index": 80,
+      "name": "axis formats > writes %c as 2/3/2024, 3:04:05 PM",
+      "generatedName": "axis formats > writes %c as 2/3/2024, 3:04:05 PM",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%c"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "2/3/2024, 3:04:05 PM"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9b996fdf491821cdf34ad6c4",
+      "index": 81,
+      "name": "axis formats > writes %f as 067000",
+      "generatedName": "axis formats > writes %f as 067000",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%f"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "067000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6dd7f95fc7b725b91ae61b8a",
+      "index": 82,
+      "name": "axis formats > writes %%Y %k % as %Y k ",
+      "generatedName": "axis formats > writes %%Y %k % as %Y k ",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%%Y %k %"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "%Y k "
+          }
+        }
+      ]
+    },
+    {
+      "id": "e3f43bb3102763b44ea4ccf9",
+      "index": 83,
+      "name": "axis formats > writes %s as 1706943845",
+      "generatedName": "axis formats > writes %s as 1706972645",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%s"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1706972645"
+          }
+        }
+      ]
+    },
+    {
+      "id": "4fa4dec7b6f8e660b343771a",
+      "index": 84,
+      "name": "axis formats > writes %Q as 1706943845067",
+      "generatedName": "axis formats > writes %Q as 1706972645067",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%Q"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1706972645067
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "1706972645067"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bde66167dd38c988a3f354de",
+      "index": 85,
+      "name": "axis formats > numbers weeks from the first Sunday, the first Monday, and by ISO rules",
+      "generatedName": "axis formats > numbers weeks from the first Sunday, the first Monday, and by ISO rules",
+      "assertions": [
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%U %W %V %G"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1672531200000
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "01 00 52 2022"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%U %W %V %G"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1735516800000
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "52 53 01 2025"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "timeFormat",
+            "args": [
+              {
+                "op": "literal",
+                "value": "%U %W %V"
+              },
+              {
+                "op": "date",
+                "time": {
+                  "op": "literal",
+                  "value": 1704067200000
+                }
+              }
+            ]
+          },
+          "expected": {
+            "op": "literal",
+            "value": "00 01 01"
+          }
+        }
+      ]
+    },
+    {
+      "id": "af87bd344dd0032304285ecc",
+      "index": 86,
+      "name": "axis ticks > picks round steps for the span",
+      "generatedName": "axis ticks > picks round steps for the span",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": 1388534400000
+              },
+              {
+                "op": "literal",
+                "value": 1392854400000
+              },
+              {
+                "op": "literal",
+                "value": 10
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1388880000000
+              },
+              {
+                "op": "literal",
+                "value": 1389484800000
+              },
+              {
+                "op": "literal",
+                "value": 1390089600000
+              },
+              {
+                "op": "literal",
+                "value": 1390694400000
+              },
+              {
+                "op": "literal",
+                "value": 1391299200000
+              },
+              {
+                "op": "literal",
+                "value": 1391904000000
+              },
+              {
+                "op": "literal",
+                "value": 1392508800000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": 1704877200000
+              },
+              {
+                "op": "literal",
+                "value": 1704909600000
+              },
+              {
+                "op": "literal",
+                "value": 10
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704877200000
+              },
+              {
+                "op": "literal",
+                "value": 1704880800000
+              },
+              {
+                "op": "literal",
+                "value": 1704884400000
+              },
+              {
+                "op": "literal",
+                "value": 1704888000000
+              },
+              {
+                "op": "literal",
+                "value": 1704891600000
+              },
+              {
+                "op": "literal",
+                "value": 1704895200000
+              },
+              {
+                "op": "literal",
+                "value": 1704898800000
+              },
+              {
+                "op": "literal",
+                "value": 1704902400000
+              },
+              {
+                "op": "literal",
+                "value": 1704906000000
+              },
+              {
+                "op": "literal",
+                "value": 1704909600000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": -2208988800000
+              },
+              {
+                "op": "literal",
+                "value": 1577836800000
+              },
+              {
+                "op": "literal",
+                "value": 10
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": -2208988800000
+              },
+              {
+                "op": "literal",
+                "value": -1893456000000
+              },
+              {
+                "op": "literal",
+                "value": -1577923200000
+              },
+              {
+                "op": "literal",
+                "value": -1262304000000
+              },
+              {
+                "op": "literal",
+                "value": -946771200000
+              },
+              {
+                "op": "literal",
+                "value": -631152000000
+              },
+              {
+                "op": "literal",
+                "value": -315619200000
+              },
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "literal",
+                "value": 315532800000
+              },
+              {
+                "op": "literal",
+                "value": 631152000000
+              },
+              {
+                "op": "literal",
+                "value": 946684800000
+              },
+              {
+                "op": "literal",
+                "value": 1262304000000
+              },
+              {
+                "op": "literal",
+                "value": 1577836800000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1722384000000
+              },
+              {
+                "op": "literal",
+                "value": 7
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706745600000
+              },
+              {
+                "op": "literal",
+                "value": 1709251200000
+              },
+              {
+                "op": "literal",
+                "value": 1711929600000
+              },
+              {
+                "op": "literal",
+                "value": 1714521600000
+              },
+              {
+                "op": "literal",
+                "value": 1717200000000
+              },
+              {
+                "op": "literal",
+                "value": 1719792000000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "literal",
+                "value": 71000
+              },
+              {
+                "op": "literal",
+                "value": 10
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "literal",
+                "value": 5000
+              },
+              {
+                "op": "literal",
+                "value": 10000
+              },
+              {
+                "op": "literal",
+                "value": 15000
+              },
+              {
+                "op": "literal",
+                "value": 20000
+              },
+              {
+                "op": "literal",
+                "value": 25000
+              },
+              {
+                "op": "literal",
+                "value": 30000
+              },
+              {
+                "op": "literal",
+                "value": 35000
+              },
+              {
+                "op": "literal",
+                "value": 40000
+              },
+              {
+                "op": "literal",
+                "value": 45000
+              },
+              {
+                "op": "literal",
+                "value": 50000
+              },
+              {
+                "op": "literal",
+                "value": 55000
+              },
+              {
+                "op": "literal",
+                "value": 60000
+              },
+              {
+                "op": "literal",
+                "value": 65000
+              },
+              {
+                "op": "literal",
+                "value": 70000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "literal",
+                "value": 30
+              },
+              {
+                "op": "literal",
+                "value": 10
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "literal",
+                "value": 2
+              },
+              {
+                "op": "literal",
+                "value": 4
+              },
+              {
+                "op": "literal",
+                "value": 6
+              },
+              {
+                "op": "literal",
+                "value": 8
+              },
+              {
+                "op": "literal",
+                "value": 10
+              },
+              {
+                "op": "literal",
+                "value": 12
+              },
+              {
+                "op": "literal",
+                "value": 14
+              },
+              {
+                "op": "literal",
+                "value": 16
+              },
+              {
+                "op": "literal",
+                "value": 18
+              },
+              {
+                "op": "literal",
+                "value": 20
+              },
+              {
+                "op": "literal",
+                "value": 22
+              },
+              {
+                "op": "literal",
+                "value": 24
+              },
+              {
+                "op": "literal",
+                "value": 26
+              },
+              {
+                "op": "literal",
+                "value": 28
+              },
+              {
+                "op": "literal",
+                "value": 30
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "579c7f7034c5f952c88aa7fc",
+      "index": 87,
+      "name": "axis ticks > follows a tick interval and the weekday that weeks start on",
+      "generatedName": "axis ticks > follows a tick interval and the weekday that weeks start on",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1week"
+              },
+              {
+                "op": "literal",
+                "value": "monday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1704672000000
+              },
+              {
+                "op": "literal",
+                "value": 1705276800000
+              },
+              {
+                "op": "literal",
+                "value": 1705881600000
+              },
+              {
+                "op": "literal",
+                "value": 1706486400000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1week"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704585600000
+              },
+              {
+                "op": "literal",
+                "value": 1705190400000
+              },
+              {
+                "op": "literal",
+                "value": 1705795200000
+              },
+              {
+                "op": "literal",
+                "value": 1706400000000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1week"
+              },
+              {
+                "op": "literal",
+                "value": "thursday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704326400000
+              },
+              {
+                "op": "literal",
+                "value": 1704931200000
+              },
+              {
+                "op": "literal",
+                "value": 1705536000000
+              },
+              {
+                "op": "literal",
+                "value": 1706140800000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "10day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1704931200000
+              },
+              {
+                "op": "literal",
+                "value": 1705795200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1month"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1712016000000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706745600000
+              },
+              {
+                "op": "literal",
+                "value": 1709251200000
+              },
+              {
+                "op": "literal",
+                "value": 1711929600000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "6hour"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1704153600000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1704088800000
+              },
+              {
+                "op": "literal",
+                "value": 1704110400000
+              },
+              {
+                "op": "literal",
+                "value": 1704132000000
+              },
+              {
+                "op": "literal",
+                "value": 1704153600000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "15minute"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704099900000
+              },
+              {
+                "op": "literal",
+                "value": 1704103200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 1704100500000
+              },
+              {
+                "op": "literal",
+                "value": 1704101400000
+              },
+              {
+                "op": "literal",
+                "value": 1704102300000
+              },
+              {
+                "op": "literal",
+                "value": 1704103200000
+              }
+            ]
+          }
+        },
+        {
+          "matcher": "toBeLessThanOrEqual",
+          "actual": {
+            "op": "length",
+            "base": {
+              "op": "intervalTicks",
+              "args": [
+                {
+                  "op": "literal",
+                  "value": "2week"
+                },
+                {
+                  "op": "literal",
+                  "value": "monday"
+                },
+                {
+                  "op": "literal",
+                  "value": 1704067200000
+                },
+                {
+                  "op": "literal",
+                  "value": 1706659200000
+                },
+                {
+                  "op": "literal",
+                  "value": 100
+                }
+              ]
+            }
+          },
+          "expected": {
+            "op": "literal",
+            "value": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "0bcca161cc2b729d5878e648",
+      "index": 88,
+      "name": "axis ticks > declines intervals it does not know and ones that ask for too many ticks",
+      "generatedName": "axis ticks > declines intervals it does not know and ones that ask for too many ticks",
+      "assertions": [
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": ""
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1decade"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1year"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "0day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "01day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1 day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1days"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1.5day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "-1day"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 100
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "1second"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 1000
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBeUndefined",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "99999999second"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 1704067200000
+              },
+              {
+                "op": "literal",
+                "value": 1706659200000
+              },
+              {
+                "op": "literal",
+                "value": 1000
+              }
+            ]
+          },
+          "expected": {
+            "op": "undefined"
+          }
+        },
+        {
+          "matcher": "toBe",
+          "actual": {
+            "op": "length",
+            "base": {
+              "op": "intervalTicks",
+              "args": [
+                {
+                  "op": "literal",
+                  "value": "1day"
+                },
+                {
+                  "op": "literal",
+                  "value": "nonsense"
+                },
+                {
+                  "op": "literal",
+                  "value": 1704067200000
+                },
+                {
+                  "op": "literal",
+                  "value": 1706659200000
+                },
+                {
+                  "op": "literal",
+                  "value": 100
+                }
+              ]
+            }
+          },
+          "expected": {
+            "op": "literal",
+            "value": 31
+          }
+        }
+      ]
+    },
+    {
+      "id": "d9793f0d8469e8d02a76aac9",
+      "index": 89,
+      "name": "axis ticks > stops filtered tick searches when dates overflow",
+      "generatedName": "axis ticks > stops filtered tick searches when dates overflow",
+      "assertions": [
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "autoTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": -8640000000000000
+              },
+              {
+                "op": "literal",
+                "value": -8639999999880000
+              },
+              {
+                "op": "literal",
+                "value": 4
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": []
+          }
+        },
+        {
+          "matcher": "toEqual",
+          "actual": {
+            "op": "intervalTicks",
+            "args": [
+              {
+                "op": "literal",
+                "value": "2second"
+              },
+              {
+                "op": "literal",
+                "value": "sunday"
+              },
+              {
+                "op": "literal",
+                "value": 8639999999999000
+              },
+              {
+                "op": "literal",
+                "value": 8640000000000000
+              },
+              {
+                "op": "literal",
+                "value": 10
+              }
+            ]
+          },
+          "expected": {
+            "op": "array",
+            "items": [
+              {
+                "op": "literal",
+                "value": 8640000000000000
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "manual": [
+    {
+      "id": "aa062ba5ed872b906de44355",
+      "index": 64,
+      "name": "date arithmetic > adds exact hours, minutes, seconds, and milliseconds"
+    }
+  ]
+}

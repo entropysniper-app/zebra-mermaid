@@ -1,0 +1,13 @@
+import {readFileSync,mkdirSync} from 'node:fs';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
+import {createRequire} from 'node:module';
+import assert from 'node:assert/strict';
+const root=fileURLToPath(new URL('../..',import.meta.url)),up=resolve(root,'.research/pele');
+const require=createRequire(resolve(up,'package.json')),out=resolve(root,'target/test-parity/class-members-reference.mjs');
+mkdirSync(resolve(root,'target/test-parity'),{recursive:true});
+await require('esbuild').build({stdin:{contents:"export {ClassMember} from './src/diagrams/class/members.ts';",resolveDir:up,sourcefile:'class-members-reference.ts'},bundle:true,format:'esm',platform:'node',outfile:out,logLevel:'silent'});
+const {ClassMember}=await import(pathToFileURL(out));
+const data=JSON.parse(readFileSync(resolve(root,'tests/upstream/ir/class-members.json'),'utf8'));
+for(const r of data.records)for(const a of r.assertions)assert.equal(new ClassMember(a.input,a.kind).getDisplayDetails()[a.key],a.expected,r.name);
+console.log(`${data.records.length} class member tests preserve their assertions against Pele`);

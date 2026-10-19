@@ -16,6 +16,7 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_label, style, Icons, Label, Measure, Span};
 use crate::theme::Role;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 const STUB: f64 = 12.0;
 const CORNER: f64 = 6.0;
@@ -277,16 +278,16 @@ fn path_data(p: &[f64], start_trim: f64, end_trim: f64) -> String {
         let after = math::hypot(xs[i + 1] - xs[i], ys[i + 1] - ys[i]);
         let r = js::min(js::min(CORNER, before / 2.0), after / 2.0);
         if r < 0.5 {
-            d.push_str(&format!("L{},{}", num(xs[i]), num(ys[i])));
+            write!(d, "L{},{}", num(xs[i]), num(ys[i])).unwrap();
             continue;
         }
         let in_x = xs[i] - ((xs[i] - xs[i - 1]) / before) * r;
         let in_y = ys[i] - ((ys[i] - ys[i - 1]) / before) * r;
         let out_x = xs[i] + ((xs[i + 1] - xs[i]) / after) * r;
         let out_y = ys[i] + ((ys[i + 1] - ys[i]) / after) * r;
-        d.push_str(&format!("L{},{}Q{},{} {},{}", num(in_x), num(in_y), num(xs[i]), num(ys[i]), num(out_x), num(out_y)));
+        write!(d, "L{},{}Q{},{} {},{}", num(in_x), num(in_y), num(xs[i]), num(ys[i]), num(out_x), num(out_y)).unwrap();
     }
-    d.push_str(&format!("L{},{}", num(xs[n - 1]), num(ys[n - 1])));
+    write!(d, "L{},{}", num(xs[n - 1]), num(ys[n - 1])).unwrap();
     d
 }
 
@@ -306,7 +307,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     let half = icon_size / 2.0;
     // Pele draws the built-in icons in the text color. Zebra gives the icons of a diagram its
     // first chart color, which is the accent unless the caller set series colors.
-    let glyph_color = if ctx.resolved() { ctx.series(0) } else { "var(--_fg)".to_string() };
+    let glyph_color = if ctx.resolved() { ctx.series(0) } else { std::borrow::Cow::Borrowed("var(--_fg)") };
 
     let nodes: Vec<&super::ArchNode> = model.nodes.values().collect();
     let groups: Vec<&super::ArchGroup> = model.groups.values().collect();
@@ -578,19 +579,19 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
         if points.len() < 4 {
             continue;
         }
-        let id = esc_text(&format!("{}-{}", edge.lhs_id, edge.rhs_id));
+        let id = esc_text(&format!("{}-{}", edge.lhs_id, edge.rhs_id)).into_owned();
         let start_trim = if edge.lhs_into && !s.wire { trim_length + s.gap } else { 0.0 };
         let end_trim = if edge.rhs_into && !e.wire { trim_length + e.gap } else { 0.0 };
-        edges_out.push_str(&format!(
+        write!(edges_out, 
             "<g class=\"pele-edge\" data-id=\"{}\"><path d=\"{}\"/>",
             id,
             path_data(&points, start_trim, end_trim)
-        ));
+        ).unwrap();
         if edge.lhs_into {
-            edges_out.push_str(&marker("arrow_point", s.x + s.dx * s.gap, s.y + s.dy * s.gap, -s.dx, -s.dy, arrow));
+            write!(edges_out, "{}", marker("arrow_point", s.x + s.dx * s.gap, s.y + s.dy * s.gap, -s.dx, -s.dy, arrow)).unwrap();
         }
         if edge.rhs_into {
-            edges_out.push_str(&marker("arrow_point", e.x + e.dx * e.gap, e.y + e.dy * e.gap, -e.dx, -e.dy, arrow));
+            write!(edges_out, "{}", marker("arrow_point", e.x + e.dx * e.gap, e.y + e.dy * e.gap, -e.dx, -e.dy, arrow)).unwrap();
         }
         edges_out.push_str("</g>");
         let mut best = 0usize;
@@ -647,7 +648,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             max_x = js::max(max_x, x + w / 2.0);
             min_y = js::min(min_y, y - label.height / 2.0);
             max_y = js::max(max_y, y + label.height / 2.0);
-            labels_out.push_str(&edge_label_svg(&format!("{}-{}", edge.lhs_id, edge.rhs_id), label, x, y, "", icons, patch));
+            write!(labels_out, "{}", edge_label_svg(&format!("{}-{}", edge.lhs_id, edge.rhs_id), label, x, y, "", icons, patch)).unwrap();
         }
     }
 
@@ -695,15 +696,15 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
                 head.push_str(&icon_slot(icon, start, cy - badge / 2.0, badge, icons, &glyph_color));
                 text_x += badge + 6.0;
             }
-            head.push_str(&label_svg(
+            write!(head, "{}", label_svg(
                 label,
                 text_x + label.width / 2.0,
                 cy,
                 &format!(" class=\"pele-cluster-label\" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")),
                 icons,
-            ));
+            )).unwrap();
         }
-        clusters.push_str(&format!(
+        write!(clusters, 
             "<g class=\"pele-cluster\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" {} stroke=\"{}\"/>{}</g>",
             esc_text(&group.id),
             num(x),
@@ -714,7 +715,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             group_fill,
             ctx.paint(Role::GroupStroke, "var(--_b)"),
             head
-        ));
+        ).unwrap();
     }
 
     let mut nodes_out = String::new();
@@ -723,13 +724,13 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     for (i, node) in nodes.iter().enumerate() {
         let at = format!("data-id=\"{}\" transform=\"translate({},{})\"", esc_text(&node.id), num(center_x(i)), num(ys[node_row[i]]));
         if node.kind == ArchNodeKind::Junction {
-            nodes_out.push_str(&format!(
+            write!(nodes_out, 
                 "<g class=\"pele-node pele-junction\" {}><circle cy=\"{}\" r=\"{}\" fill=\"{}\"/></g>",
                 at,
                 num(half),
                 js::to_string(DOT),
                 ctx.paint(Role::Line, "var(--_l)")
-            ));
+            ).unwrap();
             continue;
         }
         let mut inner = String::new();
@@ -741,9 +742,9 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             let lines = js::max(1.0, ((icon_size - 4.0) / line_height).floor());
             // `lines` is at least 1 and at most the icon size, so it is a small whole number.
             let fitted = fit(&text, icon_size - 8.0, lines as usize, &m);
-            inner = label_svg(&fitted, 0.0, half, &format!(" class=\"pele-icon-text\" font-size=\"{}\"", js::to_string(text_size)), icons);
+            inner = label_svg(&fitted, 0.0, half, &format!(" class=\"pele-icon-text\" font-size=\"{}\"", js::to_string(text_size)), icons).to_string();
         }
-        nodes_out.push_str(&format!(
+        write!(nodes_out, 
             "<g class=\"pele-node pele-service\" {}><rect x=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",
             at,
             num(-half),
@@ -754,7 +755,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             ctx.paint(Role::NodeStroke, "var(--_b)"),
             inner,
             label_svg(&labels[i], 0.0, icon_size + LABEL_GAP + labels[i].height / 2.0, " class=\"pele-label\"", icons)
-        ));
+        ).unwrap();
     }
 
     let title_max = if tight { title_room(options) } else { 4000.0 };
@@ -766,27 +767,27 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     let oy = js::round(pad + title_height - min_y);
     let mut body = String::new();
     if !clusters.is_empty() {
-        body.push_str(&format!("<g class=\"pele-clusters\">{}</g>", clusters));
+        write!(body, "<g class=\"pele-clusters\">{}</g>", clusters).unwrap();
     }
     if !edges_out.is_empty() {
-        body.push_str(&format!(
+        write!(body, 
             "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</g>",
             ctx.paint(Role::Line, "var(--_l)"),
             edges_out
-        ));
+        ).unwrap();
     }
     if !labels_out.is_empty() {
         // Pele lets edge labels take the text color. Zebra writes them in the secondary text
         // color, as its edge labels are.
         let fill = if ctx.resolved() { format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")) } else { String::new() };
-        body.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\"{}>{}</g>", js::to_string(small), fill, labels_out));
+        write!(body, "<g class=\"pele-edge-labels\" font-size=\"{}\"{}>{}</g>", js::to_string(small), fill, labels_out).unwrap();
     }
     if !nodes_out.is_empty() {
-        body.push_str(&format!("<g class=\"pele-nodes\">{}</g>", nodes_out));
+        write!(body, "<g class=\"pele-nodes\">{}</g>", nodes_out).unwrap();
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !body.is_empty() {
-        content.push_str(&format!("<g transform=\"translate({},{})\">{}</g>", js::to_string(ox), js::to_string(oy), body));
+        write!(content, "<g transform=\"translate({},{})\">{}</g>", js::to_string(ox), js::to_string(oy), body).unwrap();
     }
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered { svg: svg_document("architecture", width, height, size, ctx, acc, &content), width, height, links: Vec::new() }

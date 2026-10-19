@@ -1,0 +1,1407 @@
+{
+  "source": "tests/compat/class/classTypes.spec.ts",
+  "sourceSha256": "c0ad49b956b16e364c6bc51fa4f8150074a3b88e6290d7dd36a78b4212edbca2",
+  "records": [
+    {
+      "id": "903a59cd27c7bd764326b86e",
+      "index": 0,
+      "name": "given text representing a method,  > when method has no parameters > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTime()",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime()"
+        }
+      ]
+    },
+    {
+      "id": "49b37b9de7e5b9b0b89f2f48",
+      "index": 1,
+      "name": "given text representing a method,  > when method has no parameters > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTime()",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTime()"
+        }
+      ]
+    },
+    {
+      "id": "d5cc8654ae376fcc3eac6854",
+      "index": 2,
+      "name": "given text representing a method,  > when method has no parameters > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTime()",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTime()"
+        }
+      ]
+    },
+    {
+      "id": "ac5ca16d1c54fae075c22ae7",
+      "index": 3,
+      "name": "given text representing a method,  > when method has no parameters > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTime()",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTime()"
+        }
+      ]
+    },
+    {
+      "id": "0c0a45ae7f33bcf1ec9e5166",
+      "index": 4,
+      "name": "given text representing a method,  > when method has no parameters > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTime()",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTime()"
+        }
+      ]
+    },
+    {
+      "id": "faac13f5567e9dfbb6dffd6d",
+      "index": 5,
+      "name": "given text representing a method,  > when method has no parameters > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTime()$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime()"
+        },
+        {
+          "input": "getTime()$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "8cf21e42b1956402a10f7a56",
+      "index": 6,
+      "name": "given text representing a method,  > when method has no parameters > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTime()*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime()"
+        },
+        {
+          "input": "getTime()*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "9b2f8cb2c6545ddfd7b855e7",
+      "index": 7,
+      "name": "given text representing a method,  > when method has single parameter value > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTime(int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(int)"
+        }
+      ]
+    },
+    {
+      "id": "e496ee440c45fca51189b7d3",
+      "index": 8,
+      "name": "given text representing a method,  > when method has single parameter value > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTime(int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTime(int)"
+        }
+      ]
+    },
+    {
+      "id": "7ddd548fcd4796fd2985fe9e",
+      "index": 9,
+      "name": "given text representing a method,  > when method has single parameter value > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTime(int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTime(int)"
+        }
+      ]
+    },
+    {
+      "id": "3726dee130dcdffa6ec2cdbd",
+      "index": 10,
+      "name": "given text representing a method,  > when method has single parameter value > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTime(int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTime(int)"
+        }
+      ]
+    },
+    {
+      "id": "dbee3fc4a367d4f3161bdb4d",
+      "index": 11,
+      "name": "given text representing a method,  > when method has single parameter value > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTime(int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTime(int)"
+        }
+      ]
+    },
+    {
+      "id": "30f5848fa08bb0c7ba98c563",
+      "index": 12,
+      "name": "given text representing a method,  > when method has single parameter value > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTime(int)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(int)"
+        },
+        {
+          "input": "getTime(int)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "cf6159524b82777d33de2355",
+      "index": 13,
+      "name": "given text representing a method,  > when method has single parameter value > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTime(int)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(int)"
+        },
+        {
+          "input": "getTime(int)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "2e2aeec8c868f112ef698659",
+      "index": 14,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTime(int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(int count)"
+        }
+      ]
+    },
+    {
+      "id": "22e27989c9b0bed5ce34ddad",
+      "index": 15,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTime(int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTime(int count)"
+        }
+      ]
+    },
+    {
+      "id": "2a6146dc3cfe5643b8126277",
+      "index": 16,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTime(int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTime(int count)"
+        }
+      ]
+    },
+    {
+      "id": "09eac0b965ac4ba321acb8b8",
+      "index": 17,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTime(int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTime(int count)"
+        }
+      ]
+    },
+    {
+      "id": "de0dce48aec8a5ddec745ce2",
+      "index": 18,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTime(int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTime(int count)"
+        }
+      ]
+    },
+    {
+      "id": "f5bbd6a1c6da98eddbb837b7",
+      "index": 19,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTime(int count)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(int count)"
+        },
+        {
+          "input": "getTime(int count)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "f0b2ccd453cabc80da2176bf",
+      "index": 20,
+      "name": "given text representing a method,  > when method has single parameter type and name (type first) > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTime(int count)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(int count)"
+        },
+        {
+          "input": "getTime(int count)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "0fdd30e63a67e555e1576d39",
+      "index": 21,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTime(count int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(count int)"
+        }
+      ]
+    },
+    {
+      "id": "7ac9c4bbfd4205c207a9d3a1",
+      "index": 22,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTime(count int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTime(count int)"
+        }
+      ]
+    },
+    {
+      "id": "ccfef8c8bb8d1bbbc5e4d162",
+      "index": 23,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTime(count int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTime(count int)"
+        }
+      ]
+    },
+    {
+      "id": "7ac9a59b25fea64fc27f7eab",
+      "index": 24,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTime(count int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTime(count int)"
+        }
+      ]
+    },
+    {
+      "id": "fb5181820a7a05e118077040",
+      "index": 25,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTime(count int)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTime(count int)"
+        }
+      ]
+    },
+    {
+      "id": "433a450c815fb3ab62a504ac",
+      "index": 26,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTime(count int)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(count int)"
+        },
+        {
+          "input": "getTime(count int)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "ad85821bae76c165d587ba42",
+      "index": 27,
+      "name": "given text representing a method,  > when method has single parameter type and name (name first) > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTime(count int)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(count int)"
+        },
+        {
+          "input": "getTime(count int)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "a27f0fd1ba5029e62ba4f3ac",
+      "index": 28,
+      "name": "given text representing a method,  > when method has multiple parameters > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTime(string text, int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(string text, int count)"
+        }
+      ]
+    },
+    {
+      "id": "00ef51e573ac0f1763d473e0",
+      "index": 29,
+      "name": "given text representing a method,  > when method has multiple parameters > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTime(string text, int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTime(string text, int count)"
+        }
+      ]
+    },
+    {
+      "id": "f21778c3d261c998475d6f10",
+      "index": 30,
+      "name": "given text representing a method,  > when method has multiple parameters > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTime(string text, int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTime(string text, int count)"
+        }
+      ]
+    },
+    {
+      "id": "592ef00ef61a8b31e099b841",
+      "index": 31,
+      "name": "given text representing a method,  > when method has multiple parameters > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTime(string text, int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTime(string text, int count)"
+        }
+      ]
+    },
+    {
+      "id": "892ccb274adc721908af767b",
+      "index": 32,
+      "name": "given text representing a method,  > when method has multiple parameters > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTime(string text, int count)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTime(string text, int count)"
+        }
+      ]
+    },
+    {
+      "id": "7f7e29a5b1bcd5d60d708bf1",
+      "index": 33,
+      "name": "given text representing a method,  > when method has multiple parameters > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTime(string text, int count)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(string text, int count)"
+        },
+        {
+          "input": "getTime(string text, int count)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "d7806577e1aa9776dc57a098",
+      "index": 34,
+      "name": "given text representing a method,  > when method has multiple parameters > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTime(string text, int count)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime(string text, int count)"
+        },
+        {
+          "input": "getTime(string text, int count)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "cb40c08eb1055e839c7abe0e",
+      "index": 35,
+      "name": "given text representing a method,  > when method has return type > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTime() DateTime",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime() : DateTime"
+        }
+      ]
+    },
+    {
+      "id": "34e6a2036798b87c710466f0",
+      "index": 36,
+      "name": "given text representing a method,  > when method has return type > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTime() DateTime",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTime() : DateTime"
+        }
+      ]
+    },
+    {
+      "id": "aba09c0e78afab248c5577e0",
+      "index": 37,
+      "name": "given text representing a method,  > when method has return type > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTime() DateTime",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTime() : DateTime"
+        }
+      ]
+    },
+    {
+      "id": "b71b82c169b65fafbfa770e1",
+      "index": 38,
+      "name": "given text representing a method,  > when method has return type > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTime() DateTime",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTime() : DateTime"
+        }
+      ]
+    },
+    {
+      "id": "7b8457b8ffa18eed0ccc60c5",
+      "index": 39,
+      "name": "given text representing a method,  > when method has return type > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTime() DateTime",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTime() : DateTime"
+        }
+      ]
+    },
+    {
+      "id": "868b22a913b9b818af967df8",
+      "index": 40,
+      "name": "given text representing a method,  > when method has return type > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTime() DateTime$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime() : DateTime"
+        },
+        {
+          "input": "getTime() DateTime$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "d8123d9d18ac9975053e7bf6",
+      "index": 41,
+      "name": "given text representing a method,  > when method has return type > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTime()  DateTime*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime() : DateTime"
+        },
+        {
+          "input": "getTime()  DateTime*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "616a73670d9441df97d92089",
+      "index": 42,
+      "name": "given text representing a method,  > when method parameter is generic > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTimes(List~T~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<T>)"
+        }
+      ]
+    },
+    {
+      "id": "3c9f107d7b911aafdf3e7c51",
+      "index": 43,
+      "name": "given text representing a method,  > when method parameter is generic > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTimes(List~T~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTimes(List<T>)"
+        }
+      ]
+    },
+    {
+      "id": "1dd51912d05925cceff00316",
+      "index": 44,
+      "name": "given text representing a method,  > when method parameter is generic > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTimes(List~T~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTimes(List<T>)"
+        }
+      ]
+    },
+    {
+      "id": "1349f49a025711d3dcf05260",
+      "index": 45,
+      "name": "given text representing a method,  > when method parameter is generic > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTimes(List~T~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTimes(List<T>)"
+        }
+      ]
+    },
+    {
+      "id": "d74339e42b000b148a70db20",
+      "index": 46,
+      "name": "given text representing a method,  > when method parameter is generic > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTimes(List~T~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTimes(List<T>)"
+        }
+      ]
+    },
+    {
+      "id": "5abdacd1f1de03e91014ccda",
+      "index": 47,
+      "name": "given text representing a method,  > when method parameter is generic > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTimes(List~T~)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<T>)"
+        },
+        {
+          "input": "getTimes(List~T~)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "ec4cced34bed1ecfedd0e35c",
+      "index": 48,
+      "name": "given text representing a method,  > when method parameter is generic > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTimes(List~T~)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<T>)"
+        },
+        {
+          "input": "getTimes(List~T~)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "2d1a6563f159076acd9a7723",
+      "index": 49,
+      "name": "given text representing a method,  > when method parameter contains two generic > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTimes(List~T~, List~OT~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<T>, List<OT>)"
+        }
+      ]
+    },
+    {
+      "id": "e067988b8b145571e314b6df",
+      "index": 50,
+      "name": "given text representing a method,  > when method parameter contains two generic > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTimes(List~T~, List~OT~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTimes(List<T>, List<OT>)"
+        }
+      ]
+    },
+    {
+      "id": "657d31e08e753a397f841d71",
+      "index": 51,
+      "name": "given text representing a method,  > when method parameter contains two generic > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTimes(List~T~, List~OT~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTimes(List<T>, List<OT>)"
+        }
+      ]
+    },
+    {
+      "id": "09e4f00b751a57864d515436",
+      "index": 52,
+      "name": "given text representing a method,  > when method parameter contains two generic > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTimes(List~T~, List~OT~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTimes(List<T>, List<OT>)"
+        }
+      ]
+    },
+    {
+      "id": "acda0e054a1d5ac4183ffb7d",
+      "index": 53,
+      "name": "given text representing a method,  > when method parameter contains two generic > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTimes(List~T~, List~OT~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTimes(List<T>, List<OT>)"
+        }
+      ]
+    },
+    {
+      "id": "b26769acfcdd74d83729163b",
+      "index": 54,
+      "name": "given text representing a method,  > when method parameter contains two generic > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTimes(List~T~, List~OT~)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<T>, List<OT>)"
+        },
+        {
+          "input": "getTimes(List~T~, List~OT~)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "6c272dd338f08cbf5e2ad5f9",
+      "index": 55,
+      "name": "given text representing a method,  > when method parameter contains two generic > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTimes(List~T~, List~OT~)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<T>, List<OT>)"
+        },
+        {
+          "input": "getTimes(List~T~, List~OT~)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "8c25400897bddd0fde383730",
+      "index": 56,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTimetableList(List~List~T~~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimetableList(List<List<T>>)"
+        }
+      ]
+    },
+    {
+      "id": "4dbd216cfb4923f37f176353",
+      "index": 57,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTimetableList(List~List~T~~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTimetableList(List<List<T>>)"
+        }
+      ]
+    },
+    {
+      "id": "9df5e32f26ad419924ab3886",
+      "index": 58,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTimetableList(List~List~T~~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTimetableList(List<List<T>>)"
+        }
+      ]
+    },
+    {
+      "id": "14b2bd9a1f746006060fa7ce",
+      "index": 59,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTimetableList(List~List~T~~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTimetableList(List<List<T>>)"
+        }
+      ]
+    },
+    {
+      "id": "0f8ba3bd33ca55762bc7a338",
+      "index": 60,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTimetableList(List~List~T~~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTimetableList(List<List<T>>)"
+        }
+      ]
+    },
+    {
+      "id": "9430145f69e47db67213f171",
+      "index": 61,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTimetableList(List~List~T~~)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimetableList(List<List<T>>)"
+        },
+        {
+          "input": "getTimetableList(List~List~T~~)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "9946e4efdf7ee6c259737696",
+      "index": 62,
+      "name": "given text representing a method,  > when method parameter is a nested generic > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTimetableList(List~List~T~~)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimetableList(List<List<T>>)"
+        },
+        {
+          "input": "getTimetableList(List~List~T~~)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "389bbaed6aa20aa1655a9227",
+      "index": 63,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTimes(List~K, V~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<K, V>)"
+        }
+      ]
+    },
+    {
+      "id": "235c8aa90294b51df4d392bd",
+      "index": 64,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTimes(List~K, V~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTimes(List<K, V>)"
+        }
+      ]
+    },
+    {
+      "id": "565e9971afb7748d0bec381a",
+      "index": 65,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTimes(List~K, V~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTimes(List<K, V>)"
+        }
+      ]
+    },
+    {
+      "id": "c3fc7dfb6f430adb5eddc83c",
+      "index": 66,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTimes(List~K, V~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTimes(List<K, V>)"
+        }
+      ]
+    },
+    {
+      "id": "0ac6c1d1f3708aec6d38f5b9",
+      "index": 67,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTimes(List~K, V~)",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTimes(List<K, V>)"
+        }
+      ]
+    },
+    {
+      "id": "4346126fe241dcbc44ef08bc",
+      "index": 68,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTimes(List~K, V~)$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<K, V>)"
+        },
+        {
+          "input": "getTimes(List~K, V~)$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "e270f2098a14c9a95bb15ac9",
+      "index": 69,
+      "name": "given text representing a method,  > when method parameter is a composite generic > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTimes(List~K, V~)*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes(List<K, V>)"
+        },
+        {
+          "input": "getTimes(List~K, V~)*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "21bfc06f49ff9547e0a93297",
+      "index": 70,
+      "name": "given text representing a method,  > when method return type is generic > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTimes() List~T~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes() : List<T>"
+        }
+      ]
+    },
+    {
+      "id": "0b764c02ecc6888ed0bef113",
+      "index": 71,
+      "name": "given text representing a method,  > when method return type is generic > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTimes() List~T~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTimes() : List<T>"
+        }
+      ]
+    },
+    {
+      "id": "a9fecdfb4736234b142daa61",
+      "index": 72,
+      "name": "given text representing a method,  > when method return type is generic > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTimes() List~T~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTimes() : List<T>"
+        }
+      ]
+    },
+    {
+      "id": "e829050d6f0e109a0f41782e",
+      "index": 73,
+      "name": "given text representing a method,  > when method return type is generic > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTimes() List~T~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTimes() : List<T>"
+        }
+      ]
+    },
+    {
+      "id": "5551b517fd32d677a6fc5507",
+      "index": 74,
+      "name": "given text representing a method,  > when method return type is generic > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTimes() List~T~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTimes() : List<T>"
+        }
+      ]
+    },
+    {
+      "id": "b9e5440bf3513a4e94d0860f",
+      "index": 75,
+      "name": "given text representing a method,  > when method return type is generic > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTimes() List~T~$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes() : List<T>"
+        },
+        {
+          "input": "getTimes() List~T~$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "1029eaded4030d926e385834",
+      "index": 76,
+      "name": "given text representing a method,  > when method return type is generic > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTimes() List~T~*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimes() : List<T>"
+        },
+        {
+          "input": "getTimes() List~T~*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "eeb9531a3899d9db9526b49c",
+      "index": 77,
+      "name": "given text representing a method,  > when method return type is a nested generic > should parse correctly",
+      "assertions": [
+        {
+          "input": "getTimetableList() List~List~T~~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimetableList() : List<List<T>>"
+        }
+      ]
+    },
+    {
+      "id": "cfdc047df7b8a7069a451772",
+      "index": 78,
+      "name": "given text representing a method,  > when method return type is a nested generic > should handle public visibility",
+      "assertions": [
+        {
+          "input": "+getTimetableList() List~List~T~~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "+getTimetableList() : List<List<T>>"
+        }
+      ]
+    },
+    {
+      "id": "953b32f358b36a29d57e7c7c",
+      "index": 79,
+      "name": "given text representing a method,  > when method return type is a nested generic > should handle private visibility",
+      "assertions": [
+        {
+          "input": "-getTimetableList() List~List~T~~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "-getTimetableList() : List<List<T>>"
+        }
+      ]
+    },
+    {
+      "id": "e6e71ead3f5cbd49a2a4696f",
+      "index": 80,
+      "name": "given text representing a method,  > when method return type is a nested generic > should handle protected visibility",
+      "assertions": [
+        {
+          "input": "#getTimetableList() List~List~T~~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "#getTimetableList() : List<List<T>>"
+        }
+      ]
+    },
+    {
+      "id": "aab7062d5350e6a88c2941b9",
+      "index": 81,
+      "name": "given text representing a method,  > when method return type is a nested generic > should handle internal visibility",
+      "assertions": [
+        {
+          "input": "~getTimetableList() List~List~T~~",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "~getTimetableList() : List<List<T>>"
+        }
+      ]
+    },
+    {
+      "id": "3f197ebdbbb8cd3071d18964",
+      "index": 82,
+      "name": "given text representing a method,  > when method return type is a nested generic > should return correct css for static classifier",
+      "assertions": [
+        {
+          "input": "getTimetableList() List~List~T~~$",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimetableList() : List<List<T>>"
+        },
+        {
+          "input": "getTimetableList() List~List~T~~$",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "231097a97210e40c11dca114",
+      "index": 83,
+      "name": "given text representing a method,  > when method return type is a nested generic > should return correct css for abstract classifier",
+      "assertions": [
+        {
+          "input": "getTimetableList() List~List~T~~*",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTimetableList() : List<List<T>>"
+        },
+        {
+          "input": "getTimetableList() List~List~T~~*",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    },
+    {
+      "id": "51ff3817bb01ecf844a7f986",
+      "index": 84,
+      "name": "given text representing a method,  > --uncategorized tests-- > member name should handle double colons",
+      "assertions": [
+        {
+          "input": "std::map ~int,string~ pMap;",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "std::map <int,string> pMap;"
+        }
+      ]
+    },
+    {
+      "id": "6a2751a2f939a1fc4af6870a",
+      "index": 85,
+      "name": "given text representing a method,  > --uncategorized tests-- > member name should handle generic type",
+      "assertions": [
+        {
+          "input": "getTime~T~(this T, int seconds)$ DateTime",
+          "kind": "method",
+          "key": "displayText",
+          "expected": "getTime<T>(this T, int seconds) : DateTime"
+        },
+        {
+          "input": "getTime~T~(this T, int seconds)$ DateTime",
+          "kind": "method",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "0bad5a1ddc3d6b3b422571b8",
+      "index": 86,
+      "name": "given text representing an attribute > when the attribute has no modifiers > should parse the display text correctly",
+      "assertions": [
+        {
+          "input": "name String",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "name String"
+        },
+        {
+          "input": "name String",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": ""
+        }
+      ]
+    },
+    {
+      "id": "8b2e8b5e516f434de177b165",
+      "index": 87,
+      "name": "given text representing an attribute > when the attribute has public \"+\" modifier > should parse the display text correctly",
+      "assertions": [
+        {
+          "input": "+name String",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "+name String"
+        },
+        {
+          "input": "+name String",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": ""
+        }
+      ]
+    },
+    {
+      "id": "c1a2775c27d3841751d595b7",
+      "index": 88,
+      "name": "given text representing an attribute > when the attribute has protected \"#\" modifier > should parse the display text correctly",
+      "assertions": [
+        {
+          "input": "#name String",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "#name String"
+        },
+        {
+          "input": "#name String",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": ""
+        }
+      ]
+    },
+    {
+      "id": "bd3556828d4f2ddccab164f9",
+      "index": 89,
+      "name": "given text representing an attribute > when the attribute has private \"-\" modifier > should parse the display text correctly",
+      "assertions": [
+        {
+          "input": "-name String",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "-name String"
+        },
+        {
+          "input": "-name String",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": ""
+        }
+      ]
+    },
+    {
+      "id": "21bbad149e91ae320db10f63",
+      "index": 90,
+      "name": "given text representing an attribute > when the attribute has internal \"~\" modifier > should parse the display text correctly",
+      "assertions": [
+        {
+          "input": "~name String",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "~name String"
+        },
+        {
+          "input": "~name String",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": ""
+        }
+      ]
+    },
+    {
+      "id": "3573613b6c2841542daa597b",
+      "index": 91,
+      "name": "given text representing an attribute > when the attribute has static \"$\" modifier > should parse the display text correctly and apply static css style",
+      "assertions": [
+        {
+          "input": "name String$",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "name String"
+        },
+        {
+          "input": "name String$",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": "text-decoration:underline;"
+        }
+      ]
+    },
+    {
+      "id": "b30d5abae543c8d2e876a6f2",
+      "index": 92,
+      "name": "given text representing an attribute > when the attribute has abstract \"*\" modifier > should parse the display text correctly and apply abstract css style",
+      "assertions": [
+        {
+          "input": "name String*",
+          "kind": "attribute",
+          "key": "displayText",
+          "expected": "name String"
+        },
+        {
+          "input": "name String*",
+          "kind": "attribute",
+          "key": "cssStyle",
+          "expected": "font-style:italic;"
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 //! flow collections, quoted and plain scalars, and block scalars. Ported line by line from
 //! Pele `src/util/yaml.ts`, including the places where it is more lenient than js-yaml.
 
+use std::borrow::Cow;
+
 use super::value::{ConfigMap, ConfigValue};
 use crate::util::chars::{char_at, char_before, is_space};
 use crate::util::js;
@@ -28,15 +30,25 @@ impl YamlError {
 
 type Result<T> = std::result::Result<T, YamlError>;
 
-struct Reader {
-    lines: Vec<String>,
+/// The lines of the document. They borrow the text until one is rewritten, as the reader
+/// does with a sequence entry that opens a mapping.
+struct Reader<'a> {
+    lines: Vec<Cow<'a, str>>,
     i: usize,
 }
 
-impl Reader {
-    fn new(src: &str) -> Self {
-        let normalized = src.replace("\r\n", "\n").replace('\r', "\n");
-        Reader { lines: normalized.split('\n').map(str::to_string).collect(), i: 0 }
+impl<'a> Reader<'a> {
+    /// `normalized` has had its `\r\n` and `\r` turned into `\n`.
+    fn new(normalized: &'a str) -> Self {
+        Reader { lines: normalized.split('\n').map(Cow::Borrowed).collect(), i: 0 }
+    }
+
+    /// The current line from byte `from`, as text that outlives moves of the reader.
+    fn line_from(&self, from: usize) -> Cow<'a, str> {
+        match &self.lines[self.i] {
+            Cow::Borrowed(s) => Cow::Borrowed(&s[from..]),
+            Cow::Owned(s) => Cow::Owned(s[from..].to_string()),
+        }
     }
 
     fn skip_blank(&mut self) {
@@ -228,10 +240,10 @@ fn scalar(raw: &str) -> ConfigValue {
 }
 
 /// Folds the line breaks of a scalar: blanks around a break go, one break becomes a space,
-/// and each further break stays.
-fn fold(text: &str) -> String {
+/// and each further break stays. Text without a break is borrowed.
+fn fold(text: &str) -> Cow<'_, str> {
     if !text.contains('\n') {
-        return text.to_string();
+        return Cow::Borrowed(text);
     }
     let lines: Vec<&str> = text.split('\n').collect();
     let last = lines.len() - 1;
@@ -280,7 +292,7 @@ fn fold(text: &str) -> String {
             out.push('\n');
         }
     }
-    out
+    Cow::Owned(out)
 }
 
 fn escape(e: char) -> Option<char> {
@@ -330,7 +342,8 @@ fn drop_escaped_breaks(body: &str) -> String {
 }
 
 fn unquote_double(body: &str) -> Result<String> {
-    let s = fold(&drop_escaped_breaks(body));
+    let dropped = drop_escaped_breaks(body);
+    let s = fold(&dropped);
     let mut out = String::with_capacity(s.len());
     let mut chars = s.char_indices().peekable();
     // A high surrogate from a `\u` escape, waiting for the low one that may follow it.
@@ -455,7 +468,7 @@ fn flow(s: &str, pos: usize, stops: &str, depth: usize) -> Result<(ConfigValue, 
                 value = v;
                 pos = p;
             }
-            out.insert(key.to_js_string(), value);
+            out.insert(key.into_js_string(), value);
             pos = skip(s, pos, false);
             separated = b.get(pos) == Some(&b',');
             if separated {
@@ -554,7 +567,7 @@ fn strip_comment(s: &str) -> &str {
     s
 }
 
-fn block_scalar(r: &mut Reader, header: &str, parent_indent: isize) -> String {
+fn block_scalar(r: &mut Reader<'_>, header: &str, parent_indent: isize) -> String {
     let folded = header.starts_with('>');
     let chomp = if header.contains('-') {
         '-'
@@ -567,7 +580,7 @@ fn block_scalar(r: &mut Reader, header: &str, parent_indent: isize) -> String {
     let mut indent: Option<isize> = explicit.map(|d| parent_indent + (d - b'0') as isize);
     let mut out: Vec<String> = Vec::new();
     while r.i < r.lines.len() {
-        let line = &r.lines[r.i];
+        let line: &str = &r.lines[r.i];
         if js::trim(line).is_empty() {
             out.push(String::new());
             r.i += 1;
@@ -650,7 +663,7 @@ fn is_block_header(rest: &str) -> bool {
     }
 }
 
-fn inline_value(r: &mut Reader, rest: &str, indent: isize) -> Result<ConfigValue> {
+fn inline_value(r: &mut Reader<'_>, rest: &str, indent: isize) -> Result<ConfigValue> {
     let first = rest.as_bytes().first().copied();
     if (first == Some(b'|') || first == Some(b'>')) && is_block_header(rest) {
         return Ok(ConfigValue::String(block_scalar(r, rest, indent)));
@@ -691,9 +704,10 @@ fn inline_value(r: &mut Reader, rest: &str, indent: isize) -> Result<ConfigValue
             }
         }
     }
-    let mut text = js::trim(strip_comment(rest)).to_string();
+    // A plain scalar is borrowed until a further line continues it.
+    let mut text: Cow<'_, str> = Cow::Borrowed(js::trim(strip_comment(rest)));
     while r.i < r.lines.len() {
-        let line = &r.lines[r.i];
+        let line: &str = &r.lines[r.i];
         if js::trim(line).is_empty() {
             let mut j = r.i;
             while j < r.lines.len() && js::trim(&r.lines[j]).is_empty() {
@@ -702,18 +716,20 @@ fn inline_value(r: &mut Reader, rest: &str, indent: isize) -> Result<ConfigValue
             if j >= r.lines.len() || lead(&r.lines[j]) as isize <= indent {
                 break;
             }
-            text.push_str(&"\n".repeat(j - r.i));
+            let breaks = j - r.i;
+            text.to_mut().push_str(&"\n".repeat(breaks));
             r.i = j;
             continue;
         }
         if lead(line) as isize <= indent {
             break;
         }
-        let more = js::trim(strip_comment(line)).to_string();
+        let more = js::trim(strip_comment(line));
+        let text = text.to_mut();
         if !text.ends_with('\n') {
             text.push(' ');
         }
-        text.push_str(&more);
+        text.push_str(more);
         r.i += 1;
     }
     Ok(scalar(&text))
@@ -723,7 +739,7 @@ fn is_seq_line(line: &str) -> bool {
     line == "-" || line.starts_with("- ")
 }
 
-fn block(r: &mut Reader, min_indent: usize, depth: usize) -> Result<ConfigValue> {
+fn block(r: &mut Reader<'_>, min_indent: usize, depth: usize) -> Result<ConfigValue> {
     if depth > MAX_DEPTH {
         return Err(YamlError::new("YAML: nesting is too deep"));
     }
@@ -735,7 +751,7 @@ fn block(r: &mut Reader, min_indent: usize, depth: usize) -> Result<ConfigValue>
     if indent < min_indent {
         return Ok(ConfigValue::Null);
     }
-    let line = r.lines[r.i][indent..].to_string();
+    let line = r.line_from(indent);
 
     if is_seq_line(&line) {
         let mut out = Vec::new();
@@ -744,7 +760,7 @@ fn block(r: &mut Reader, min_indent: usize, depth: usize) -> Result<ConfigValue>
             if r.i >= r.lines.len() || r.indent()? != indent {
                 break;
             }
-            let cur = r.lines[r.i][indent..].to_string();
+            let cur = r.line_from(indent);
             if !is_seq_line(&cur) {
                 break;
             }
@@ -755,7 +771,7 @@ fn block(r: &mut Reader, min_indent: usize, depth: usize) -> Result<ConfigValue>
                 r.i += 1;
                 out.push(block(r, indent + 1, depth + 1)?);
             } else if split_key(body).is_some() {
-                r.lines[r.i] = format!("{}{}", " ".repeat(indent + pad), js::trim_start(rest));
+                r.lines[r.i] = Cow::Owned(format!("{}{}", " ".repeat(indent + pad), js::trim_start(rest)));
                 out.push(block(r, indent + pad, depth + 1)?);
             } else {
                 r.i += 1;
@@ -783,14 +799,14 @@ fn block(r: &mut Reader, min_indent: usize, depth: usize) -> Result<ConfigValue>
         if k > indent {
             return Err(YamlError::new("YAML: bad indentation of a mapping entry"));
         }
-        let cur = r.lines[r.i][indent..].to_string();
+        let cur = r.line_from(indent);
         let Some((raw_key, length)) = split_key(&cur) else {
             return Err(YamlError::new("YAML: can not read a block mapping entry"));
         };
-        let key = flow(raw_key, 0, "", 0)?.0.to_js_string();
-        let rest = cur[length..].to_string();
+        let key = flow(raw_key, 0, "", 0)?.0.into_js_string();
+        let rest = &cur[length..];
         r.i += 1;
-        if js::trim(strip_comment(&rest)).is_empty() {
+        if js::trim(strip_comment(rest)).is_empty() {
             r.skip_blank();
             if r.i < r.lines.len() {
                 let next = r.indent()?;
@@ -805,7 +821,7 @@ fn block(r: &mut Reader, min_indent: usize, depth: usize) -> Result<ConfigValue>
                 out.insert(key, ConfigValue::Null);
             }
         } else {
-            let value = inline_value(r, js::trim(&rest), indent as isize)?;
+            let value = inline_value(r, js::trim(rest), indent as isize)?;
             out.insert(key, value);
         }
     }
@@ -826,7 +842,9 @@ pub fn parse_yaml(src: &str) -> std::result::Result<ConfigValue, YamlError> {
             Err(err) => return Err(err),
         }
     }
-    let mut r = Reader::new(src);
+    let normalized: Cow<'_, str> =
+        if src.contains('\r') { Cow::Owned(src.replace("\r\n", "\n").replace('\r', "\n")) } else { Cow::Borrowed(src) };
+    let mut r = Reader::new(&normalized);
     let value = block(&mut r, 0, 0)?;
     r.skip_blank();
     if r.i < r.lines.len() && js::trim(&r.lines[r.i]) != "..." {

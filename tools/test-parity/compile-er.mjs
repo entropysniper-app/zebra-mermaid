@@ -21,6 +21,7 @@ class Unsupported extends Error{}
 const expressions=new WeakMap();let actions=[];
 const literal=value=>{
  if(value===undefined)return{op:'undefined'};
+ if(typeof value==='number'&&(!Number.isFinite(value)||Object.is(value,-0)))throw new Unsupported('non-finite or negative-zero literal requires typed encoding');
  if(value!==null&&(typeof value==='object'||typeof value==='function')&&expressions.has(value))return expressions.get(value);
  if(Array.isArray(value))return{op:'array',items:value.map(literal)};
  if(Object.prototype.toString.call(value)==='[object Map]')return{op:'map',entries:[...value].map(([k,v])=>[literal(k),literal(v)])};
@@ -79,7 +80,7 @@ const erDiagram={parser};const suites=[];const hooks=[];const registered=[];
 function describe(name,fn){suites.push(name);hooks.push([]);fn();hooks.pop();suites.pop();}
 function register(mode,name,fn){registered.push({name,fullName:[...suites,name].join(' > '),fn,hooks:hooks.flat(),mode});}
 function it(name,fn){register('run',name,fn)}it.skip=(name,fn)=>register('skip',name,fn);it.todo=name=>register('todo',name,()=>{});
-it.each=rows=>(name,fn)=>{for(const row of rows){const args=Array.isArray(row)?row:[row];register('run',format(name,...args),()=>fn(...args));}};
+it.each=rows=>(name,fn)=>{for(const row of rows){const args=Array.isArray(row)?row:[row];register('run',format(name,...args),()=>{inspect(fn);return fn(...args)});}};
 // Imports are removed by their parsed source spans, not a regex that might alter a string.
 const ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 let executable=source;for(const statement of [...ast.statements].reverse())if(ts.isImportDeclaration(statement))executable=executable.slice(0,statement.getStart(ast))+executable.slice(statement.end);

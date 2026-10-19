@@ -1,0 +1,117 @@
+{
+  "baseline": "Pele-style Class render cache already enabled; baseline binaries are frozen. Class baseline allocation/CPU data are reused from the preceding verified snapshot; Agentflow baseline was separately sampled before this change.",
+  "strictTestSummary": {
+    "total": 6810,
+    "mapped": 2634,
+    "unmapped": 4176,
+    "passed": 2629,
+    "failed": 0,
+    "skipped": 5,
+    "unverified": 0
+  },
+  "workspace": {
+    "passed": 3015,
+    "failed": 0,
+    "ignored": 5
+  },
+  "renderRatioVsCacheBaseline": 1.0040246251935288,
+  "renderChangePercent": 0.40246251935287525,
+  "allocations": [
+    {
+      "case": "stress: class/50 1,600 classDefs applied to 1,600 classes",
+      "before": {
+        "engine": "rust",
+        "case": "stress: class/50 1,600 classDefs applied to 1,600 classes",
+        "allocations": 2665803,
+        "reallocations": 30513,
+        "requestedBytes": 198718810,
+        "peakAdditionalLiveBytes": 106818676,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: class/50 1,600 classDefs applied to 1,600 classes",
+        "allocations": 107403,
+        "reallocations": 30513,
+        "requestedBytes": 70885210,
+        "peakAdditionalLiveBytes": 31428276,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "reductionPercent": {
+        "allocations": 95.97108263438821,
+        "requestedBytes": 64.32888763776312,
+        "peakAdditionalLiveBytes": 70.57792028802155
+      }
+    },
+    {
+      "case": "stress: class/51 a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+      "before": {
+        "engine": "rust",
+        "case": "stress: class/51 a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+        "allocations": 4079208,
+        "reallocations": 7317,
+        "requestedBytes": 133926943,
+        "peakAdditionalLiveBytes": 125884267,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: class/51 a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+        "allocations": 84209,
+        "reallocations": 7317,
+        "requestedBytes": 42705703,
+        "peakAdditionalLiveBytes": 35010200,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "reductionPercent": {
+        "allocations": 97.93565319542421,
+        "requestedBytes": 68.11268737762498,
+        "peakAdditionalLiveBytes": 72.18858175501788
+      }
+    },
+    {
+      "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+      "before": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "allocations": 198265,
+        "reallocations": 21210,
+        "requestedBytes": 37058250,
+        "peakAdditionalLiveBytes": 11241459,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "allocations": 195265,
+        "reallocations": 21210,
+        "requestedBytes": 37062922,
+        "peakAdditionalLiveBytes": 11270131,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "reductionPercent": {
+        "allocations": 1.5131263712707788,
+        "requestedBytes": -0.012607179238099953,
+        "peakAdditionalLiveBytes": -0.25505586063161445
+      }
+    }
+  ]
+}

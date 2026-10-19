@@ -68,6 +68,10 @@ pub fn tokenize(src: &str) -> Vec<Token> {
     let mut dir_ends = [0; 4];
     let mut line_end = None;
     let mut last_dirs: [Option<(usize, usize)>; 4] = [None; 4];
+    let mut next_tilde = None;
+    let mut next_whitespace = None;
+    let mut tilde_line_end = None;
+    let mut last_tilde = None;
     let emit = |out: &mut Vec<Token>, kind: u8, start: usize, end: usize| out.push(Token { kind, text: src[start..end].into(), start });
     while p < n {
         let start = p;
@@ -138,12 +142,20 @@ pub fn tokenize(src: &str) -> Vec<Token> {
                     emit(&mut out, ATTRIBUTE_KEY, start, p);
                     continue;
                 }
-                let whitespace_end = src[p..].find(is_space).map_or(n, |i| p + i);
-                let tilde = src[p..whitespace_end].find('~').map(|i| p + i);
-                if let Some(first) = tilde {
-                    let line_end = src[p..].find(['\n', '\r', '\u{2028}', '\u{2029}']).map_or(n, |i| p + i);
-                    if let Some(last) = src[p..line_end].rfind('~').map(|i| p + i) {
-                        if last > first {
+                if next_tilde.is_none_or(|position| position < p) {
+                    next_tilde = Some(src[p..].find('~').map_or(n, |offset| p + offset));
+                }
+                if let Some(first) = next_tilde.filter(|&position| position < n) {
+                    if next_whitespace.is_none_or(|position| position < p) {
+                        next_whitespace = Some(src[p..].find(is_space).map_or(n, |offset| p + offset));
+                    }
+                    if first < next_whitespace.unwrap() {
+                        if tilde_line_end.is_none_or(|end| end < p) {
+                            let end = src[p..].find(['\n', '\r', '\u{2028}', '\u{2029}']).map_or(n, |offset| p + offset);
+                            tilde_line_end = Some(end);
+                            last_tilde = src[p..end].rfind('~').map(|offset| p + offset);
+                        }
+                        if let Some(last) = last_tilde.filter(|&last| last > first) {
                             p = last + 1;
                             while let Some(c) = char_at(src, p).filter(|&c| !is_space(c)) {
                                 p += c.len_utf8();

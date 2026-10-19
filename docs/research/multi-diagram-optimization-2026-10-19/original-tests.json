@@ -1,0 +1,1575 @@
+{
+  "summary": {
+    "total": 6810,
+    "mapped": 2634,
+    "unmapped": 4176,
+    "passed": 2629,
+    "failed": 0,
+    "skipped": 5,
+    "unverified": 0
+  },
+  "execution": {
+    "isolated": true,
+    "timeoutBasis": "Original per-test Vitest timeout; process startup included, no added grace period"
+  },
+  "executables": [
+    {
+      "binary": "lib",
+      "sha256": "4f14f9a97a1782ffa7be63acd941e74eec19324bcd6755b87527bb4dd0632d76"
+    },
+    {
+      "binary": "upstream_parity",
+      "sha256": "5004001354b79e84f4fe150f85935ee6e5b11c1d9d039a1f1bdb62d691e8f156"
+    }
+  ],
+  "stress": [
+    {
+      "id": "421d309620bc36f243e206e3",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > long line that mentions direction",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_000",
+      "state": "passed"
+    },
+    {
+      "id": "fec60de74c2c25d81c2f006e",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one line of direction words",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_001",
+      "state": "passed"
+    },
+    {
+      "id": "e03648030391dea3d2558133",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > direction followed by blank lines, many times",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_002",
+      "state": "passed"
+    },
+    {
+      "id": "4ded90980a38239ac01076e2",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > many lines that each mention direction",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_003",
+      "state": "passed"
+    },
+    {
+      "id": "3f82a95fdc81b264a2cb9855",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > direction after a long run of spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_004",
+      "state": "passed"
+    },
+    {
+      "id": "ec5d6be4da3444b7cb313ccb",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 50,000 spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_005",
+      "state": "passed"
+    },
+    {
+      "id": "da26c491d67bcbe1f1e2c158",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > spaces before a lone dash",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_006",
+      "state": "passed"
+    },
+    {
+      "id": "47f061f5fc0f18093dfafc27",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > spaces before a lone dash, many times",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_007",
+      "state": "passed"
+    },
+    {
+      "id": "5c652c8e838dc8ee7db3189a",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > spaces before a run of dots that closes nothing",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_008",
+      "state": "passed"
+    },
+    {
+      "id": "5ef6a4c0b24e86db175fe661",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > spaces before dashes that reach no arrow",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_009",
+      "state": "passed"
+    },
+    {
+      "id": "481a2a1b76b1764e710bac97",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > spaces before a lone percent sign",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_010",
+      "state": "passed"
+    },
+    {
+      "id": "3759dbb30435a16a5bebbf9c",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > spaces before a directive opener, many times",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_011",
+      "state": "passed"
+    },
+    {
+      "id": "32dc55ef596cf9fc523bf83e",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > edge text of spaces before a lone dash",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_012",
+      "state": "passed"
+    },
+    {
+      "id": "f8a01663cc531304322a115a",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > edge text of spaced dashes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_013",
+      "state": "passed"
+    },
+    {
+      "id": "071cf1c9ea1fc22433c74200",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > edge text of spaces before dashes that reach no arrow",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_014",
+      "state": "passed"
+    },
+    {
+      "id": "8fdc847c68ec248cafda808f",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > edge text of spaced words",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_015",
+      "state": "passed"
+    },
+    {
+      "id": "466eae79d8b4cc6d1d4b0f95",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > run of link ids",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_016",
+      "state": "passed"
+    },
+    {
+      "id": "a32f29186f084e3e636e6144",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > run of at signs before a brace",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_017",
+      "state": "passed"
+    },
+    {
+      "id": "471182fe763f3b60636537d5",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > unclosed quotes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_018",
+      "state": "passed"
+    },
+    {
+      "id": "695574b5f558a30f0ad7d439",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > unclosed markdown string",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_019",
+      "state": "passed"
+    },
+    {
+      "id": "ae2cdcfe3e59bfceedb3adfa",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > label of comment lines",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_020",
+      "state": "passed"
+    },
+    {
+      "id": "740bc85f7e2be1a51f7ad9bf",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > ellipse label of comment lines",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_021",
+      "state": "passed"
+    },
+    {
+      "id": "4aca0a09a212bc25d7e3295c",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > trapezoid label of comment lines",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_022",
+      "state": "passed"
+    },
+    {
+      "id": "7ab3cb699e6f929cf0d62486",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > nested openers",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_023",
+      "state": "passed"
+    },
+    {
+      "id": "ce0a70a22a7167ff5da5d7ce",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > unclosed metadata",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_024",
+      "state": "passed"
+    },
+    {
+      "id": "88695bd3128bc9c4331f77d4",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > accTitle with no colon, many times",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_025",
+      "state": "passed"
+    },
+    {
+      "id": "63b991a5f5a8b889257a68e9",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > unclosed multi-line description",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_026",
+      "state": "passed"
+    },
+    {
+      "id": "70998c8b56bfa633255cd7b2",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 10,000 comment lines",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_027",
+      "state": "passed"
+    },
+    {
+      "id": "dcbb3f056a65f336bb36a0e7",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > braces followed by spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_028",
+      "state": "passed"
+    },
+    {
+      "id": "0fae77fd925ac8cddc4d9b04",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > style statement of colons and hashes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_029",
+      "state": "passed"
+    },
+    {
+      "id": "322502db3d94e7a2984077e4",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > style list of 10,000 declarations",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_030",
+      "state": "passed"
+    },
+    {
+      "id": "dc209cd487145a3b738e363e",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > class statement with 10,000 ids and classes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_031",
+      "state": "passed"
+    },
+    {
+      "id": "30c27467e446b0ef0c7c8979",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 20,000 class names on one node",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_032",
+      "state": "passed"
+    },
+    {
+      "id": "33d42720cd2c1a0ae378df4c",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > linkStyle with 10,000 indexes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_033",
+      "state": "passed"
+    },
+    {
+      "id": "7fb49a0d4cecc6899f490328",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 20,000 nested flows",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_034",
+      "state": "passed"
+    },
+    {
+      "id": "1f6a7a21e268a59b84f602fe",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 3,000 nested flows, rendered",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_035",
+      "state": "passed"
+    },
+    {
+      "id": "e20781e32c899da87314badc",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 3,000 nested collapsed flows",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_036",
+      "state": "passed"
+    },
+    {
+      "id": "df3630610cdef4e5c8a7602a",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 1,500 nested flows crossed by 1,000 edges",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_037",
+      "state": "passed"
+    },
+    {
+      "id": "420a02902cbd42a220520385",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 sibling flows",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_038",
+      "state": "passed"
+    },
+    {
+      "id": "995a240de81eb0bf9a4ff6f6",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 flows that list the same nodes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_039",
+      "state": "passed"
+    },
+    {
+      "id": "b2a53816adf689eb1ff5b33b",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one flow of 10,000 nodes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_040",
+      "state": "passed"
+    },
+    {
+      "id": "cfe5c28dcc746f694c6cf223",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > unclosed flows",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_041",
+      "state": "passed"
+    },
+    {
+      "id": "e40e841cbf4ac911fd242c84",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 3,000 flows that each name the next one",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_042",
+      "state": "passed"
+    },
+    {
+      "id": "88318b5ffdf1ff15dccb6178",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 2,000 flows that each name the one before",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_043",
+      "state": "passed"
+    },
+    {
+      "id": "06e0846b546400c16e66ddf6",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 3,000 global blocks after a flow of 3,000 nodes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_044",
+      "state": "passed"
+    },
+    {
+      "id": "b764d1d2e5860a0416570721",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 connectors",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_045",
+      "state": "passed"
+    },
+    {
+      "id": "6ce974b6ac65fb38ade6015a",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 metadata blocks on one node",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_046",
+      "state": "passed"
+    },
+    {
+      "id": "eb4481943aeb7eeeda40feef",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 metadata blocks on one edge",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_047",
+      "state": "passed"
+    },
+    {
+      "id": "1380f087c6e498ae8c8a8d58",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one metadata block of 5,000 lines with trailing commas",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_048",
+      "state": "passed"
+    },
+    {
+      "id": "f20a904f0c2eb09b108cbaac",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > metadata of nested brackets",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_049",
+      "state": "passed"
+    },
+    {
+      "id": "3faad29732a2c5103ebad58e",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > metadata of quotes and commas",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_050",
+      "state": "passed"
+    },
+    {
+      "id": "b0f7f5c765d26424748f34f2",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 4,000 nodes with a removed shape",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_051",
+      "state": "passed"
+    },
+    {
+      "id": "972c6a03a0fe0126322314eb",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 3,000 nodes with an unsupported shape",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_052",
+      "state": "passed"
+    },
+    {
+      "id": "4dea12f52954525acee05a1f",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one 50,000 character label",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_053",
+      "state": "passed"
+    },
+    {
+      "id": "9939d0a517a37c1e5bc29171",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > label of emphasis markers",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_054",
+      "state": "passed"
+    },
+    {
+      "id": "747fc357cb2e06c371da86ba",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > label of entities and line breaks",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_055",
+      "state": "passed"
+    },
+    {
+      "id": "281f9f9c1830be9cc74a9ccd",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one 50,000 character edge label",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_056",
+      "state": "passed"
+    },
+    {
+      "id": "a15a3dc3ea3e50ed23bc73c9",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one 50,000 character id",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_057",
+      "state": "passed"
+    },
+    {
+      "id": "35e5ed52def6b65feb218f44",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 nodes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_058",
+      "state": "passed"
+    },
+    {
+      "id": "f5d2e036dd069f993eccc1dd",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > chain of 5,000",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_059",
+      "state": "passed"
+    },
+    {
+      "id": "f91193f251879a025af321a6",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > one statement chaining 5,000",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_060",
+      "state": "passed"
+    },
+    {
+      "id": "6de839525f1ab4056041112b",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > star of 5,000",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_061",
+      "state": "passed"
+    },
+    {
+      "id": "cf86f61e764bfaa5f1394798",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > fan-out of 150 by 150",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_062",
+      "state": "passed"
+    },
+    {
+      "id": "ca0ec9a0b9d3224eb4903dd4",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 2,000 parallel edges and 2,000 self-loops",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_063",
+      "state": "passed"
+    },
+    {
+      "id": "229ec513041a604812bfa39d",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > complete graph of 50",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_064",
+      "state": "passed"
+    },
+    {
+      "id": "0d9be9467002a4c897548fe3",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 1,200 nodes that each point at their own flow",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_065",
+      "state": "passed"
+    },
+    {
+      "id": "d0d747524567ee3fed13c2ff",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 5,000 edges between a flow and a node inside it",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_066",
+      "state": "passed"
+    },
+    {
+      "id": "58c2d675b6e44d046bc60469",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > 2,000 edges between flows",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::agentflow::upstream_stress::case_067",
+      "state": "passed"
+    },
+    {
+      "id": "af6777f31c570bd4845d3291",
+      "file": "tests/agentflow/stress.test.ts",
+      "name": "agentflow worst cases > refuses source over the default limit",
+      "upstreamMode": "run",
+      "timeoutMs": 60000,
+      "target": "diagrams::agentflow::upstream_stress::case_068",
+      "state": "passed"
+    },
+    {
+      "id": "3574cf0b96512c221f1da205",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > long line that mentions direction",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_000",
+      "state": "passed"
+    },
+    {
+      "id": "fe6ac20f28b982c64e4ea6fd",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > direction on every line, never valid",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_001",
+      "state": "passed"
+    },
+    {
+      "id": "3655a23d0aa473715b333f39",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > direction followed by a run of blank lines",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_002",
+      "state": "passed"
+    },
+    {
+      "id": "62dce227202ad5f19963917a",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > many directions on one line",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_003",
+      "state": "passed"
+    },
+    {
+      "id": "1d38dae443f26abcde28d09a",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > one line of spaced words",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_004",
+      "state": "passed"
+    },
+    {
+      "id": "74782ed8d2e4663354d3f3f1",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > whitespace run with no line break",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_005",
+      "state": "passed"
+    },
+    {
+      "id": "e80788592691289b2c7bcd1e",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > blank lines between statements",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_006",
+      "state": "passed"
+    },
+    {
+      "id": "a962d5b3b72baf920039ff99",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > accTitle with no colon, many times",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_007",
+      "state": "passed"
+    },
+    {
+      "id": "a1ae9318160dbd53fe2dcbda",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > accDescr followed by spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_008",
+      "state": "passed"
+    },
+    {
+      "id": "54b50086f52ff0e6e2728972",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > unclosed accDescr block",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_009",
+      "state": "passed"
+    },
+    {
+      "id": "2cff2ca1de2c18bd0f4a0ff0",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > call followed by spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_010",
+      "state": "passed"
+    },
+    {
+      "id": "c9a7e579f1193e759b2608a5",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > callback arguments with no closing parenthesis",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_011",
+      "state": "passed"
+    },
+    {
+      "id": "4873356fe7f818195d1c55a5",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > empty call parentheses over spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_012",
+      "state": "passed"
+    },
+    {
+      "id": "f9c5099051431b27bd9d794b",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > unclosed string",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_013",
+      "state": "passed"
+    },
+    {
+      "id": "74a13f4b57d1e97af69235ff",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > unclosed generic",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_014",
+      "state": "passed"
+    },
+    {
+      "id": "69f3ea939046178ad4c53a3f",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > unclosed backtick name",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_015",
+      "state": "passed"
+    },
+    {
+      "id": "01ad3e3f2344da6b01bfa48c",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > label of colons",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_016",
+      "state": "passed"
+    },
+    {
+      "id": "dcd625962405009f9695fad6",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > label of semicolons and colons",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_017",
+      "state": "passed"
+    },
+    {
+      "id": "a8e7fcd9cbf6504fed42f58f",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > runs of dashes and dots",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_018",
+      "state": "passed"
+    },
+    {
+      "id": "cf7d6f3ee4264099dce3a8f6",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > runs of relation ends",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_019",
+      "state": "passed"
+    },
+    {
+      "id": "f3b5b06f7b5a6a349301dae5",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > class name of 25,000 parts",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_020",
+      "state": "passed"
+    },
+    {
+      "id": "80b484f3c5110d1c9edcc99c",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > class name of 25,000 words",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_021",
+      "state": "passed"
+    },
+    {
+      "id": "1bfc3b7a51e6761200c0ec09",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > namespace name of 12,000 parts",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_022",
+      "state": "passed"
+    },
+    {
+      "id": "169f1341c6cf53166f3242b4",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > namespace name of 3,000 parts, rendered",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_023",
+      "state": "passed"
+    },
+    {
+      "id": "7d82520d05a389f40d248b28",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 4,000 nested namespaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_024",
+      "state": "passed"
+    },
+    {
+      "id": "06ee660ba520751bfc64c179",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 2,000 nested namespaces, rendered",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_025",
+      "state": "passed"
+    },
+    {
+      "id": "617b48370a72b0f7bace362a",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > unclosed nested namespaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_026",
+      "state": "passed"
+    },
+    {
+      "id": "1a93c732720c7dfc83ebb928",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > closing braces with nothing open",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_027",
+      "state": "passed"
+    },
+    {
+      "id": "398ff28ced8584fd6c5cbc1f",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > namespace keyword repeated",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_028",
+      "state": "passed"
+    },
+    {
+      "id": "34c869dae957d5ee3bab1763",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 5,000 sibling namespaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_029",
+      "state": "passed"
+    },
+    {
+      "id": "bcd5abc76799b2e5df918214",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > class with 10,000 members",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_030",
+      "state": "passed"
+    },
+    {
+      "id": "c058c51e05bb105f27720547",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > member of opening parentheses",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_031",
+      "state": "passed"
+    },
+    {
+      "id": "150c7d78d3f7ce13a0ac8eab",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > member of nested parentheses",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_032",
+      "state": "passed"
+    },
+    {
+      "id": "6bd683cd066865562d361cbb",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > member of tildes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_033",
+      "state": "passed"
+    },
+    {
+      "id": "fa481035b2f9d5a1b1fb9336",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > member of tildes and commas",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_034",
+      "state": "passed"
+    },
+    {
+      "id": "28bf28e2743befbd40eae791",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > method parser on parentheses and line breaks",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_035",
+      "state": "passed"
+    },
+    {
+      "id": "d3ff3b87475ca26f02a529ee",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > generic types of commas",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_036",
+      "state": "passed"
+    },
+    {
+      "id": "0264476cb8a7bbdc28bbf8c5",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > one 50,000 character member",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_037",
+      "state": "passed"
+    },
+    {
+      "id": "39fc55f5d01c3ee1ad5d2411",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > one 50,000 character note",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_038",
+      "state": "passed"
+    },
+    {
+      "id": "d08e465937673877e969b02c",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > note of emphasis markers and breaks",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_039",
+      "state": "passed"
+    },
+    {
+      "id": "804c64f038858e4f40f7fcc0",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > label of entities",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_040",
+      "state": "passed"
+    },
+    {
+      "id": "bc67b9f79761a89a9abb3091",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 5,000 classes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_041",
+      "state": "passed"
+    },
+    {
+      "id": "ac1e1ed16b0cf4e24f4049ac",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > chain of 4,000",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_042",
+      "state": "passed"
+    },
+    {
+      "id": "53cb243eb391de3cd955d419",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > star of 4,000 with cardinalities",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_043",
+      "state": "passed"
+    },
+    {
+      "id": "b8e021f6f1fdadc2d98dc41c",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 2,000 parallel relations and 2,000 self relations",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_044",
+      "state": "passed"
+    },
+    {
+      "id": "6cbfa47fa30d991115ebabe9",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > complete graph of 50",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_045",
+      "state": "passed"
+    },
+    {
+      "id": "841cb408a3c7a122dd0cd03c",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 3,000 lollipop interfaces on one class",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_046",
+      "state": "passed"
+    },
+    {
+      "id": "f0f0c63ffbbf7aa4f65885f5",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 3,000 notes for one class",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_047",
+      "state": "passed"
+    },
+    {
+      "id": "736d6e086f7b7a657962b700",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > style with 12,000 declarations",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_048",
+      "state": "passed"
+    },
+    {
+      "id": "169a0c1db8409049a82ed3c9",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 3,000 classDefs applied to 100 classes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_049",
+      "state": "passed"
+    },
+    {
+      "id": "4b993cd090578b6d338ae5de",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > 1,600 classDefs applied to 1,600 classes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_050",
+      "state": "passed"
+    },
+    {
+      "id": "f8e556c70b9925c592bcf0a0",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > a classDef of 5,000 declarations on 800 classes, each with a style of its own",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_051",
+      "state": "passed"
+    },
+    {
+      "id": "3d9689fe9baac5da3c6cf3d8",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > cssClass with 12,000 ids",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_052",
+      "state": "passed"
+    },
+    {
+      "id": "87b9f8e36787c488366d1811",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > link wrapped in layers of entity encoding",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_053",
+      "state": "passed"
+    },
+    {
+      "id": "2f0cbe1018fbb44de1519903",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > annotation statements for one class",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::class::upstream_stress::case_054",
+      "state": "passed"
+    },
+    {
+      "id": "8412d044daca0473858f3d34",
+      "file": "tests/class/stress.test.ts",
+      "name": "class diagram worst cases > refuses source over the default limit",
+      "upstreamMode": "run",
+      "timeoutMs": 60000,
+      "target": "diagrams::class::upstream_stress::case_055",
+      "state": "passed"
+    },
+    {
+      "id": "42bb7cb1da28ff8d22d4b302",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > one 50,000 character message",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_000",
+      "state": "passed"
+    },
+    {
+      "id": "eec6f841726a49cdf28ff580",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > one wrapped 50,000 character message",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_001",
+      "state": "passed"
+    },
+    {
+      "id": "a6dd30780723112faaaa7a79",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > one 50,000 character note without spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_002",
+      "state": "passed"
+    },
+    {
+      "id": "1cedfcffc051a11926c68059",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > message of line breaks and entities",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_003",
+      "state": "passed"
+    },
+    {
+      "id": "a39853f334fc179ff7211732",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > participant name of 50,000 characters",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_004",
+      "state": "passed"
+    },
+    {
+      "id": "7b4257cbee63de0cef9b65fb",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > participant name followed by spaces, no alias",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_005",
+      "state": "passed"
+    },
+    {
+      "id": "674692a7279527bc92df67e4",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > participant line of comment markers before a colon",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_006",
+      "state": "passed"
+    },
+    {
+      "id": "0cd19ebd825c0cd18fe0d18a",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > many participant lines that end in a colon",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_007",
+      "state": "passed"
+    },
+    {
+      "id": "8a89b221ad8f88ef99f58204",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > alias marker repeated",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_008",
+      "state": "passed"
+    },
+    {
+      "id": "79b39cf9bcc8a083da22a739",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > config object never closed",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_009",
+      "state": "passed"
+    },
+    {
+      "id": "ccd409a6ecd27b9858538b5c",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > config object of nested brackets",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_010",
+      "state": "passed"
+    },
+    {
+      "id": "9a7ed14e94ea0c02a72be36d",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > config braces repeated",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_011",
+      "state": "passed"
+    },
+    {
+      "id": "bc40b6127d764d4ad56bd636",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > actor name of dashes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_012",
+      "state": "passed"
+    },
+    {
+      "id": "e1131eaa2969ccb7b0a1e76d",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > actor name of dashes and letters",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_013",
+      "state": "passed"
+    },
+    {
+      "id": "800fdca8be2af89dd9cba966",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > actor name of slashes and parentheses",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_014",
+      "state": "passed"
+    },
+    {
+      "id": "d5ac28d0f6d4b4f2746247d7",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > digits without a following space",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_015",
+      "state": "passed"
+    },
+    {
+      "id": "e774491aa187b765c6cb2ee6",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > dotted numbers",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_016",
+      "state": "passed"
+    },
+    {
+      "id": "3a59571c4a28176b68b64bec",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > menu keywords followed by spaces",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_017",
+      "state": "passed"
+    },
+    {
+      "id": "c5c16def2819348e4c9b3e66",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > title keyword repeated",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_018",
+      "state": "passed"
+    },
+    {
+      "id": "f057a9d9b1b14acdecff5597",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > accessible description never closed",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_019",
+      "state": "passed"
+    },
+    {
+      "id": "b871744f0820eee0d21d1cc2",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > accessible description opened and closed",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_020",
+      "state": "passed"
+    },
+    {
+      "id": "e8d95111a75c040676bf4e9d",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > comment markers",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_021",
+      "state": "passed"
+    },
+    {
+      "id": "6130c4c831f1b6102befa9ae",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > whitespace",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_022",
+      "state": "passed"
+    },
+    {
+      "id": "d1cd01c25f4a565cabb54676",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > box with a long color function",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_023",
+      "state": "passed"
+    },
+    {
+      "id": "6527db294bdc34db3bdcd80f",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > box of parentheses",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_024",
+      "state": "passed"
+    },
+    {
+      "id": "b7e2fdd7e7f05c99b087358d",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > links with a huge JSON object",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_025",
+      "state": "passed"
+    },
+    {
+      "id": "c36dc3f74a40f5423c843da2",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > links with deeply nested JSON",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_026",
+      "state": "passed"
+    },
+    {
+      "id": "7710d1480951a4aad83efabb",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > autonumber with enormous numbers",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_027",
+      "state": "passed"
+    },
+    {
+      "id": "9745eba687548b96545c2f81",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 8,000 messages between two participants",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_028",
+      "state": "passed"
+    },
+    {
+      "id": "d27060a5081f27d478c2b1de",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 4,000 participants",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_029",
+      "state": "passed"
+    },
+    {
+      "id": "6f7cb5207e83b3e3a3e13470",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 2,500 participants and messages across all of them",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_030",
+      "state": "passed"
+    },
+    {
+      "id": "ed9d73e902782cf0d01bd16b",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 1,500 participants with a long message between each pair of ends",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_031",
+      "state": "passed"
+    },
+    {
+      "id": "1c01092c01e8d926dfcbaaaf",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 10,000 nested loops",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_032",
+      "state": "passed"
+    },
+    {
+      "id": "fb3d064e247f28e536eff655",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 3,000 nested blocks, rendered",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_033",
+      "state": "passed"
+    },
+    {
+      "id": "b66e194eec8413fb7e7f251e",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > alt with 10,000 else sections",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_034",
+      "state": "passed"
+    },
+    {
+      "id": "e1d9334b20f111447ea6d865",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > par with 5,000 sections of messages",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_035",
+      "state": "passed"
+    },
+    {
+      "id": "509570d6e7964749d63ec39b",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 5,000 nested activations",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_036",
+      "state": "passed"
+    },
+    {
+      "id": "b4e376143ea911043f31e215",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 8,000 explicit activations never closed",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_037",
+      "state": "passed"
+    },
+    {
+      "id": "d82b095f23d35ccbf56bae66",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 4,000 notes over a span",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_038",
+      "state": "passed"
+    },
+    {
+      "id": "a63854065516be4dd3fb67e8",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 5,000 self messages",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_039",
+      "state": "passed"
+    },
+    {
+      "id": "2f75a866f449096e8560860d",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 2,000 creations without a message",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_040",
+      "state": "passed"
+    },
+    {
+      "id": "abb5f8ceb46593b2bb95eda6",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 1,000 created and destroyed participants",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_041",
+      "state": "passed"
+    },
+    {
+      "id": "afe6ef409bbeca219a8ddc29",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 1,500 boxes",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_042",
+      "state": "passed"
+    },
+    {
+      "id": "c8273d206013f5a492ea1ec5",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 3,000 central connections with numbers",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_043",
+      "state": "passed"
+    },
+    {
+      "id": "3151b6c7f370b27a0b2105f3",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > 3,000 deactivations of an idle participant",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_044",
+      "state": "passed"
+    },
+    {
+      "id": "fed29ac30c601f800b7f2964",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > invalid characters",
+      "upstreamMode": "run",
+      "timeoutMs": 30000,
+      "target": "diagrams::sequence::upstream_stress::case_045",
+      "state": "passed"
+    },
+    {
+      "id": "f130710893b4ca53b98f458a",
+      "file": "tests/sequence/stress.test.ts",
+      "name": "sequence worst cases > refuses source over the default limit",
+      "upstreamMode": "run",
+      "timeoutMs": 60000,
+      "target": "diagrams::sequence::upstream_stress::case_046",
+      "state": "passed"
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 
 use crate::svg::builder::num;
 use crate::util::js;
+use std::fmt::Write as _;
 
 pub(super) const RIGHT: u32 = 1;
 pub(super) const LEFT: u32 = 2;
@@ -153,7 +154,7 @@ pub(super) fn draw_arrow(mask: u32, w: f64, h: f64, attrs: &str) -> String {
         if i > 0 {
             points.push(' ');
         }
-        points.push_str(&format!("{},{}", num(p[i]), num(p[i + 1])));
+        write!(points, "{},{}", num(p[i]), num(p[i + 1])).unwrap();
         i += 2;
     }
     format!("<polygon points=\"{}\" stroke-linejoin=\"round\"{}/>", points, attrs)

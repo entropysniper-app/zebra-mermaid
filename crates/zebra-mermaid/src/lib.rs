@@ -30,9 +30,13 @@ pub mod theme;
 pub mod util;
 pub mod zebra;
 
-#[cfg(all(test, feature = "er"))]
+#[cfg(all(test, any(feature = "er", feature = "class", feature = "flowchart", feature = "sequence")))]
 #[path = "../tests/upstream/support.rs"]
 mod upstream_support;
+
+#[cfg(all(test, any(feature = "class", feature = "sequence", feature = "agentflow")))]
+#[path = "../tests/upstream/stress.rs"]
+mod upstream_stress;
 
 pub use cache::{CacheStats, RenderCache};
 pub use config::{Config, ConfigMap, ConfigValue};

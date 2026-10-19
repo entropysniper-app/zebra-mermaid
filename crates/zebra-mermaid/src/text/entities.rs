@@ -5,7 +5,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
-use crate::util::js;
+use crate::util::{js, strs};
 
 const NAMED: &str = "amp:38,lt:60,gt:62,quot:34,apos:39,nbsp:160,iexcl:161,cent:162,pound:163,curren:164,yen:165,sect:167,\
 copy:169,laquo:171,not:172,reg:174,deg:176,plusmn:177,sup2:178,sup3:179,micro:181,para:182,middot:183,\
@@ -61,7 +61,7 @@ pub(crate) const CLOSE: &str = "\u{b6}\u{df}";
 fn decode_placeholders(text: &str) -> String {
     let mut out = String::new();
     let mut last = 0;
-    let mut from = text.find(OPEN);
+    let mut from = strs::find(text, OPEN);
     while let Some(f) = from {
         let after_open = f + OPEN.len();
         // `text.indexOf('¶', from + 2)`.
@@ -94,7 +94,7 @@ fn decode_placeholders(text: &str) -> String {
             }
             last = end;
         }
-        from = text[after_stop..].find(OPEN).map(|k| k + after_stop);
+        from = strs::find(&text[after_stop..], OPEN).map(|k| k + after_stop);
     }
     if last == 0 {
         text.to_string()
@@ -187,14 +187,19 @@ fn decode_references(text: &str) -> String {
 /// Turns Mermaid's `#35;` / `#quot;` codes (as hidden by `encode_entities`) and HTML entities
 /// into characters.
 pub fn decode_entities(text: &str) -> String {
+    decode_entities_cow(text).into_owned()
+}
+
+/// [`decode_entities`], borrowing the text when it has nothing to decode.
+pub fn decode_entities_cow(text: &str) -> Cow<'_, str> {
     let mut text: Cow<'_, str> = Cow::Borrowed(text);
-    if text.contains(CLOSE) {
+    if strs::contains(&text, CLOSE) {
         text = Cow::Owned(decode_placeholders(&text));
     }
     if text.contains('&') {
         text = Cow::Owned(decode_references(&text));
     }
-    text.into_owned()
+    text
 }
 
 #[cfg(test)]

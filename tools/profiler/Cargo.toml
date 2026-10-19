@@ -1,0 +1,20 @@
+[package]
+name = "zebra-mermaid-profiler"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+description = "Development-only allocation instrumentation; never linked into the renderer"
+
+[[bin]]
+name = "zebra-mermaid-memory-check"
+path = "src/memory.rs"
+
+[dependencies]
+zebra-mermaid = { path = "../../crates/zebra-mermaid", features = ["all-diagrams"] }
+zebra-mermaid-ffi = { path = "../../crates/zebra-mermaid-ffi", features = ["all-diagrams"] }
+serde_json.workspace = true
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"

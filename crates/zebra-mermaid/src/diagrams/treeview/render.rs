@@ -15,6 +15,7 @@ use crate::text::{layout_label, style, Label};
 use crate::theme::Role;
 use crate::util::chars::is_space;
 use crate::util::js;
+use std::fmt::Write as _;
 
 const ICON_GAP: f64 = 6.0;
 const DESC_GAP: f64 = 16.0;
@@ -199,14 +200,14 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         let r = js::min(ELBOW, tick - gx);
         let mut d = format!("M{},{}V{}", num(gx), num(top + row.top + row.height - 2.0), num(last - r));
         if r > 0.0 {
-            d.push_str(&format!("Q{},{} {},{}H{}", num(gx), num(last), num(gx + r), num(last), num(tick)));
+            write!(d, "Q{},{} {},{}H{}", num(gx), num(last), num(gx + r), num(last), num(tick)).unwrap();
         }
         let mut i = 0;
         while i + 1 < children.len() && tick > gx {
-            d.push_str(&format!("M{},{}H{}", num(gx), num(top + rows[row_of[children[i]]].cy), num(tick)));
+            write!(d, "M{},{}H{}", num(gx), num(top + rows[row_of[children[i]]].cy), num(tick)).unwrap();
             i += 1;
         }
-        guides.push_str(&format!("<path d=\"{}\"/>", d));
+        write!(guides, "<path d=\"{}\"/>", d).unwrap();
     }
 
     let baseline = size * 0.35;
@@ -226,7 +227,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
             } else {
                 "fill=\"var(--_c)\" fill-opacity=\"0.14\"".to_string()
             };
-            inner.push_str(&format!(
+            write!(inner, 
                 "<rect class=\"pele-tree-highlight\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" {}/>",
                 num(x),
                 num(top + row.top + 1.0),
@@ -234,7 +235,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 num(row.height - 2.0),
                 RADIUS,
                 fill
-            ));
+            ).unwrap();
         }
         if let Some(icon) = &row.icon {
             let name = icon.strip_prefix(BUILTIN_PACK).and_then(|rest| rest.strip_prefix(':')).unwrap_or("");
@@ -246,7 +247,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 Some(markup) => markup,
                 None => format!("<path d=\"{}\" stroke=\"{}\" stroke-width=\"1.5\"/>", outline, muted),
             };
-            inner.push_str(&format!(
+            write!(inner, 
                 "<svg class=\"pele-icon\" data-icon=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",
                 esc_text(icon),
                 num(inset + row.x),
@@ -254,7 +255,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 num(icon_size),
                 num(icon_size),
                 drawn
-            ));
+            ).unwrap();
         }
         let weight = if directory { " font-weight=\"var(--_hw)\"" } else { "" };
         if let Some(label) = &row.label {
@@ -265,13 +266,13 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 &format!(" class=\"pele-label\"{}", weight),
             ));
         } else if !row.text.is_empty() {
-            inner.push_str(&format!(
+            write!(inner, 
                 "<text class=\"pele-label\" x=\"{}\" y=\"{}\"{} xml:space=\"preserve\">{}</text>",
                 num(inset + row.label_x),
                 num(cy + baseline),
                 weight,
                 esc(&row.text)
-            ));
+            ).unwrap();
         }
         if let Some(description) = &row.description {
             inner.push_str(&left_label_svg(
@@ -281,33 +282,33 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 &format!(" class=\"pele-tree-description\" font-style=\"italic\" fill=\"{}\"", muted),
             ));
         } else if let Some(description) = node.description.as_deref().filter(|d| !d.is_empty()) {
-            inner.push_str(&format!(
+            write!(inner, 
                 "<text class=\"pele-tree-description\" x=\"{}\" y=\"{}\" font-style=\"italic\" fill=\"{}\" xml:space=\"preserve\">{}</text>",
                 num(inset + desc_x),
                 num(cy + baseline),
                 muted,
                 esc(&decode_entities(description))
-            ));
+            ).unwrap();
         }
-        body.push_str(&format!(
+        write!(body, 
             "<g class=\"pele-node pele-tree-{}{}\" data-id=\"{}\">{}</g>",
             if directory { "dir" } else { "file" },
             class_names(node.css_class.as_deref().unwrap_or("")),
             esc_text(&node.name),
             inner
-        ));
+        ).unwrap();
     }
 
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons());
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons()).to_string();
     if !guides.is_empty() {
         // The guides connect each folder to its entries.
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-tree-guides\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\">{}</g>",
             ctx.paint(Role::Line, "var(--_b)"),
             num(line_thickness),
             guides
-        ));
+        ).unwrap();
     }
     content.push_str(&body);
 

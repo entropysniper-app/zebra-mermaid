@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 use crate::svg::builder::num;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 /// A laid out shape or boundary: top-left corner, size, and the shared shape it is drawn as.
 /// `id` stands for the object identity Pele compares boxes by.
@@ -403,15 +404,15 @@ fn path(points: &[f64], start_trim: f64, end_trim: f64) -> String {
             (points[i + 2] - x + points[i + 3] - y).abs() / 2.0,
         );
         let start = if truthy(ix) { format!("H{}", num(x - ix * r)) } else { format!("V{}", num(y - iy * r)) };
-        d.push_str(&format!("{}Q{},{} {},{}", start, num(x), num(y), num(x + ox * r), num(y + oy * r)));
+        write!(d, "{}Q{},{} {},{}", start, num(x), num(y), num(x + ox * r), num(y + oy * r)).unwrap();
         i += 2;
     }
     let lx = js::sign(points[n - 2] - points[n - 4]);
     let ly = js::sign(points[n - 1] - points[n - 3]);
     if truthy(lx) {
-        d.push_str(&format!("H{}", num(points[n - 2] - lx * end_trim)));
+        write!(d, "H{}", num(points[n - 2] - lx * end_trim)).unwrap();
     } else {
-        d.push_str(&format!("V{}", num(points[n - 1] - ly * end_trim)));
+        write!(d, "V{}", num(points[n - 1] - ly * end_trim)).unwrap();
     }
     d
 }

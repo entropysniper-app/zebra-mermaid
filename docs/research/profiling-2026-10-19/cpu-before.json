@@ -1,0 +1,386 @@
+{
+  "method": "External sample: 5 seconds at 1 ms interval; 7 second render loop. Inclusive frame counts include descendants and recursive occurrences and must not be added as exclusive CPU percentages. Raw captures stay under ignored target/.",
+  "cases": [
+    {
+      "case": "tree: 50 nodes",
+      "threadSamples": 3177,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3160
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::render::draw",
+          "count": 2382
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 2344
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::render::render_variant",
+          "count": 2337
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::render::render_variant::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 2337
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 747
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 719
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parse",
+          "count": 715
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout",
+          "count": 369
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::layered",
+          "count": 308
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 307
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::route_path",
+          "count": 263
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parser::Parser::node",
+          "count": 194
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parser::Parser::styled_vertex",
+          "count": 179
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::graph::build",
+          "count": 168
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::lexer::Lexer::run",
+          "count": 136
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::model::FlowchartModel::vertex",
+          "count": 131
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::model::FlowchartModel::add_link",
+          "count": 126
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 117
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::marker",
+          "count": 107
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::label_svg",
+          "count": 58
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::lexer::Lexer::emit",
+          "count": 48
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 43
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::lexer::Lexer::node_string",
+          "count": 43
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc_text",
+          "count": 38
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::assign_tracks::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 36
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::build",
+          "count": 31
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::SideReach::add",
+          "count": 28
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parser::Parser::text",
+          "count": 23
+        },
+        {
+          "symbol": "zebra_mermaid::text::entities::decode_entities",
+          "count": 19
+        }
+      ],
+      "rawSha256": "45c2e2cfbaaf28cf1da095a82bb7fb8530525f8db7d0a0ca4c0280aff32f9384"
+    },
+    {
+      "case": "mesh: 500 nodes, 200 extra labelled edges",
+      "threadSamples": 3641,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3622
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::render::draw",
+          "count": 3233
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 3226
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::render::render_variant",
+          "count": 3221
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::render::render_variant::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 3221
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::layered",
+          "count": 2144
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout",
+          "count": 1759
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::route_path",
+          "count": 426
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 356
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 351
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parse",
+          "count": 346
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::reduce_crossings::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 209
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 200
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::graph::build",
+          "count": 98
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::model::FlowchartModel::add_link",
+          "count": 95
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::marker",
+          "count": 81
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parser::Parser::node",
+          "count": 69
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::lexer::Lexer::run",
+          "count": 62
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::parser::Parser::styled_vertex",
+          "count": 59
+        },
+        {
+          "symbol": "zebra_mermaid::util::math::hypot_all",
+          "count": 58
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 57
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::model::FlowchartModel::vertex",
+          "count": 54
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::edge_label_svg",
+          "count": 53
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc_text",
+          "count": 48
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::label_svg",
+          "count": 47
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::snap::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 40
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::assign_tracks::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 40
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 27
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::flowchart::lexer::Lexer::node_string",
+          "count": 26
+        },
+        {
+          "symbol": "zebra_mermaid::text::entities::decode_entities",
+          "count": 25
+        }
+      ],
+      "rawSha256": "c33e12a2cc0d8f00fdda78f8e44f80355ee688ec8325154a144ac224804d02ff"
+    },
+    {
+      "case": "corpus: agentflow-docs",
+      "threadSamples": 3535,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3517
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::draw",
+          "count": 1728
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 1711
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 1707
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 1653
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::statement",
+          "count": 625
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::run",
+          "count": 429
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout",
+          "count": 427
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::vertex",
+          "count": 320
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::layered",
+          "count": 310
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::attach",
+          "count": 251
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::graph::build",
+          "count": 246
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::emit_mode",
+          "count": 237
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::render",
+          "count": 216
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 204
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::node",
+          "count": 204
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::put",
+          "count": 202
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::styled_vertex",
+          "count": 161
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 135
+        },
+        {
+          "symbol": "zebra_mermaid::config::yaml::flow",
+          "count": 132
+        },
+        {
+          "symbol": "zebra_mermaid::config::yaml::parse_yaml",
+          "count": 106
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_subgraph",
+          "count": 105
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::route_path",
+          "count": 102
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::tint",
+          "count": 88
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::node_string",
+          "count": 88
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_link",
+          "count": 81
+        },
+        {
+          "symbol": "zebra_mermaid::preprocess::preprocess",
+          "count": 75
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 74
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::label_svg",
+          "count": 68
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::push_mapping",
+          "count": 60
+        }
+      ],
+      "rawSha256": "a4acc6f0530857744fdd5334bd17b1cf2bbaaec87dec0eab4f79e5ed8872e04a"
+    }
+  ]
+}

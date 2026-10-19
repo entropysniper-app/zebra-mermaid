@@ -16,7 +16,7 @@ fn trim_colon(text: &str) -> String {
 }
 struct Parser<'a> {
     src: &'a str,
-    t: Vec<Token>,
+    t: Vec<Token<'a>>,
     i: usize,
     lex_error: Option<String>,
 }
@@ -25,7 +25,7 @@ impl Parser<'_> {
         self.t.get(self.i).map_or(END, |t| t.kind)
     }
     fn take(&mut self) -> String {
-        let s = self.t.get(self.i).map_or_else(String::new, |t| t.text.clone());
+        let s = self.t.get(self.i).map_or_else(String::new, |t| t.text.to_string());
         self.i += 1;
         s
     }
@@ -107,7 +107,7 @@ pub fn parse(src: &str, db: &mut StateModel) -> Result<(), Error> {
             HIDE_EMPTY => Stmt::Text(p.take()),
             scale => {
                 p.i += 1;
-                let value = p.t[p.i - 1].text.clone();
+                let value = p.t[p.i - 1].text.to_string();
                 p.expect(WIDTH)?;
                 Stmt::Text(value)
             }

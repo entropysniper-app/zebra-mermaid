@@ -24,10 +24,15 @@ pub struct GraphNode {
     pub asset_width: Option<f64>,
     pub asset_height: Option<f64>,
     pub constraint: Option<String>,
+    pub color_index: Option<usize>,
+    pub metadata: Option<Box<crate::ConfigMap>>,
 }
 #[derive(Debug, Clone)]
 pub struct GraphEdge {
     pub id: String,
+    pub user_id: bool,
+    pub animate: Option<bool>,
+    pub animation: Option<String>,
     pub start: String,
     pub end: String,
     pub label: String,
@@ -60,6 +65,30 @@ pub fn build(model: &FlowchartModel, default_curve: Option<&str>) -> FlowGraph {
         for child in &sg.nodes {
             if model.subgraphs.iter().any(|s| &s.id == child) {
                 group_parent.insert(child.clone(), sg.id.clone());
+            }
+        }
+    }
+    // Parser order closes nested groups before their parents. Palette slots instead
+    // follow source order: a parent precedes its children, without shifting on collapse.
+    let mut children: IndexMap<&str, Vec<&str>> = IndexMap::new();
+    for sg in &model.subgraphs {
+        if let Some(parent) = group_parent.get(&sg.id) {
+            children.entry(parent).or_default().push(&sg.id);
+        }
+    }
+    let mut declaration_index: IndexMap<&str, usize> = IndexMap::new();
+    for sg in &model.subgraphs {
+        if group_parent.contains_key(&sg.id) {
+            continue;
+        }
+        let mut pending = vec![sg.id.as_str()];
+        while let Some(id) = pending.pop() {
+            if declaration_index.contains_key(id) {
+                continue;
+            }
+            declaration_index.insert(id, declaration_index.len());
+            if let Some(children) = children.get(id) {
+                pending.extend(children.iter().rev().copied());
             }
         }
     }
@@ -127,6 +156,8 @@ pub fn build(model: &FlowchartModel, default_curve: Option<&str>) -> FlowGraph {
             shape: if is_group { "rect" } else { "collapsedGroup" }.into(),
             dir: sg.dir.clone(),
             is_group,
+            color_index: declaration_index.get(sg.id.as_str()).copied(),
+            metadata: (is_group && !sg.metadata.is_empty()).then(|| Box::new(sg.metadata.clone())),
             ..Default::default()
         });
         by_id.insert(sg.id.clone(), nodes.len() - 1);
@@ -182,6 +213,8 @@ pub fn build(model: &FlowchartModel, default_curve: Option<&str>) -> FlowGraph {
             asset_width: vertex.asset_width,
             asset_height: vertex.asset_height,
             constraint: vertex.constraint.clone(),
+            color_index: None,
+            metadata: None,
         });
         by_id.insert(vertex.id.clone(), nodes.len() - 1);
     }
@@ -206,6 +239,9 @@ pub fn build(model: &FlowchartModel, default_curve: Option<&str>) -> FlowGraph {
         styles.extend(e.styles.iter().cloned());
         edges.push(GraphEdge {
             id: if e.id.is_empty() { format!("L_{start}_{end}_{i}") } else { e.id.clone() },
+            user_id: e.user_id,
+            animate: e.animate,
+            animation: e.animation.clone(),
             start: start.clone(),
             end: end.clone(),
             label: e.text.clone(),

@@ -17,6 +17,7 @@ use crate::theme::Role;
 use crate::util::js;
 use crate::{Config, Error};
 use indexmap::IndexMap;
+use std::fmt::Write as _;
 struct Row {
     key: Label,
     value: Label,
@@ -66,12 +67,12 @@ fn start_text(label: &Label, x: f64, top: f64, attrs: &str) -> String {
             if span.icon.is_some() || span.text.is_empty() {
                 continue;
             }
-            body.push_str(&format!(
+            write!(body, 
                 "<tspan{}{}>{}</tspan>",
                 if first { format!(" x=\"{}\" y=\"{}\"", num(x), num(y)) } else { String::new() },
                 span_style(span.style & !shared),
                 esc(&span.text)
-            ));
+            ).unwrap();
             first = false;
         }
         y += label.line_height;
@@ -315,14 +316,14 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
         );
         if !v.rows.is_empty() {
             let divider = top + v.head_height;
-            body.push_str(&format!(
+            write!(body, 
                 "<path class=\"pele-divider\" d=\"M{},{}H{}\" stroke=\"{}\"{}/>",
                 num(left),
                 num(divider),
                 num(-left),
                 ctx.paint(Role::InnerStroke, "var(--_b)"),
                 st.line
-            ));
+            ).unwrap();
             let mut y = divider + 10.0;
             let mut row_svg = String::new();
             for row in &v.rows {
@@ -340,18 +341,18 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 ));
                 y += row.height + 2.0;
             }
-            body.push_str(&format!("<g class=\"pele-fields\" font-size=\"{}\">{row_svg}</g>", js::to_string(v.rows[0].key.size)));
+            write!(body, "<g class=\"pele-fields\" font-size=\"{}\">{row_svg}</g>", js::to_string(v.rows[0].key.size)).unwrap();
         }
         let classes = v.node.classes.join(" ");
         let classes = classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&classes);
-        node_svg.push_str(&format!(
+        write!(node_svg, 
             "<g class=\"pele-node {}{}\" data-id=\"{}\" transform=\"translate({},{})\">{body}</g>",
             if v.requirement { "pele-requirement" } else { "pele-element" },
             class_names(classes),
             esc_text(&v.node.name),
             num(nodes[i].x + ox),
             num(nodes[i].y + oy)
-        ));
+        ).unwrap();
     }
     let mut edge_svg = String::new();
     let mut labels_svg = String::new();
@@ -405,31 +406,31 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
             }
             route_path(&route, None, start_trim, 0.0, default_reach(start_trim), default_reach(0.0))
         };
-        edge_svg.push_str(&format!(
+        write!(edge_svg, 
             "<g class=\"pele-edge pele-relationship-{}\" data-id=\"{}\"><path d=\"{}\"{}/>{}</g>",
             if *contains { "contains" } else { "arrow" },
             esc_text(id),
             path.d,
             if *contains { "" } else { " stroke-dasharray=\"5 4\"" },
             if *contains { contains_marker(path.sx, path.sy, path.sdx, path.sdy) } else { arrow(path.ex, path.ey, path.edx, path.edy) }
-        ));
-        labels_svg.push_str(&edge_label_svg(id, label, lx, ly, "", None, ctx.paint(Role::Background, "var(--_bg)")));
+        ).unwrap();
+        write!(labels_svg, "{}", edge_label_svg(id, label, lx, ly, "", None, ctx.paint(Role::Background, "var(--_bg)"))).unwrap();
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !edge_svg.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edge_svg}</g>",
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
     if !labels_svg.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edge-labels\" font-size=\"{}\" fill=\"{}\">{labels_svg}</g>",
             js::to_string(small),
             ctx.paint(Role::SecondaryText, "var(--_m)")
-        ));
+        ).unwrap();
     }
-    content.push_str(&format!("<g class=\"pele-nodes\">{node_svg}</g>"));
+    write!(content, "<g class=\"pele-nodes\">{node_svg}</g>").unwrap();
     Ok(Rendered {
         svg: svg_document(
             "requirement",

@@ -6,6 +6,18 @@ mod members;
 mod parser;
 mod render;
 mod tokens;
+#[cfg(test)]
+#[path = "../../../tests/upstream/class_graph.rs"]
+mod upstream_graph;
+#[cfg(test)]
+#[path = "../../../tests/upstream/class_members.rs"]
+mod upstream_members;
+#[cfg(test)]
+#[path = "../../../tests/upstream/class_parser.rs"]
+mod upstream_parser;
+#[cfg(test)]
+#[path = "../../../tests/upstream/class_stress_generated.rs"]
+mod upstream_stress;
 use super::ParseInput;
 use crate::{
     text::entities::decode_entities,
@@ -15,6 +27,7 @@ use crate::{
 use indexmap::{IndexMap, IndexSet};
 pub use members::Member;
 pub(crate) use render::render;
+use std::sync::Arc;
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct ClassNode {
@@ -25,7 +38,10 @@ pub struct ClassNode {
     pub methods: Vec<Member>,
     pub members: Vec<Member>,
     pub annotations: Vec<String>,
-    pub styles: Vec<String>,
+    /// Immutable declarations shared by classes styled by the same classDef.
+    /// Serialization remains an ordered array of strings, including duplicates.
+    /// A sized String keeps each Arc handle thin in high-fan-out declaration lists.
+    pub styles: Vec<Arc<String>>,
     pub parent: Option<String>,
     pub link: Option<String>,
     pub link_target: Option<String>,
@@ -83,6 +99,9 @@ pub struct ClassModel {
     pub acc_descr: Option<String>,
     namespace_stack: Vec<String>,
     tags: IndexMap<String, IndexSet<String>>,
+    #[cfg(test)]
+    #[cfg_attr(feature = "serde", serde(skip))]
+    calls: Option<Vec<(&'static str, Vec<String>)>>,
 }
 impl Default for ClassModel {
     fn default() -> Self {
@@ -99,6 +118,8 @@ impl Default for ClassModel {
             acc_descr: None,
             namespace_stack: vec![],
             tags: IndexMap::new(),
+            #[cfg(test)]
+            calls: None,
         }
     }
 }
@@ -192,7 +213,7 @@ impl ClassModel {
         for id in ids {
             self.style_classes.entry(id.clone()).or_default().extend(styles.iter().cloned());
             if let Some(tagged) = self.tags.get(id) {
-                let parts: Vec<String> = styles.iter().flat_map(|s| s.split(',').map(str::to_owned)).collect();
+                let parts: Vec<Arc<String>> = styles.iter().flat_map(|s| s.split(',').map(|part| Arc::new(part.to_owned()))).collect();
                 for name in tagged {
                     if let Some(node) = self.classes.get_mut(name) {
                         node.styles.extend(parts.iter().cloned());
@@ -202,6 +223,10 @@ impl ClassModel {
         }
     }
     fn tooltip(&mut self, ids: &str, tip: String) {
+        #[cfg(test)]
+        if let Some(calls) = &mut self.calls {
+            calls.push(("setTooltip", vec![ids.into(), tip.clone()]));
+        }
         for id in ids.split(',') {
             if let Some(node) = self.classes.get_mut(split_name(id).0) {
                 node.tooltip = Some(tip.clone());
@@ -209,6 +234,12 @@ impl ClassModel {
         }
     }
     fn link(&mut self, ids: &str, link: &str, target: Option<String>) {
+        #[cfg(test)]
+        if let Some(calls) = &mut self.calls {
+            let mut args = vec![ids.into(), link.into()];
+            args.extend(target.iter().cloned());
+            calls.push(("setLink", args));
+        }
         let url = decode_entities(link);
         let url = js::trim(&url);
         for id in ids.split(',') {
@@ -219,7 +250,13 @@ impl ClassModel {
         }
         self.css_class(ids, "clickable");
     }
-    fn callback(&mut self, ids: &str) {
+    fn callback(&mut self, ids: &str, _name: &str, _arguments: Option<&str>) {
+        #[cfg(test)]
+        if let Some(calls) = &mut self.calls {
+            let mut args = vec![ids.into(), _name.into()];
+            args.extend(_arguments.map(str::to_owned));
+            calls.push(("setClickEvent", args));
+        }
         for id in ids.split(',') {
             if let Some(node) = self.classes.get_mut(split_name(id).0) {
                 node.callback = true;

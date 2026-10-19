@@ -4,7 +4,8 @@ import{gzipSync}from'node:zlib';
 const {machine,...r}=JSON.parse(readFileSync('target/bench/comparison.json','utf8'));
 // Keep runtime versions for reproducibility; omit machine metadata from older reports.
 r.runtime=Object.fromEntries(['node','rustc'].flatMap(key=>{const value=(r.runtime??machine)?.[key];return value===undefined?[]:[[key,value]]}));
-const enabled=r.enabledTypes.length,date=r.createdAt.slice(0,10),dest=`docs/research/benchmark-${date}-${enabled}-types`;
+const suffix=process.env.BENCH_REPORT_SUFFIX??'';if(suffix&&!/^-[a-z0-9-]+$/.test(suffix))throw Error('Invalid report suffix');
+const enabled=r.enabledTypes.length,date=r.createdAt.slice(0,10),directory=`benchmark-${date}-${enabled}-types${suffix}`,dest=`docs/research/${directory}`;
 mkdirSync(dest,{recursive:true});writeFileSync(`${dest}/comparison.json`,JSON.stringify(r,null,2)+'\n');
 for(const file of['cases.json',...['pele','rust'].flatMap(e=>[1,2,3].map(i=>`${e}-${i}.json`))])writeFileSync(`${dest}/${file}.gz`,gzipSync(readFileSync(`target/bench/${file}`),{level:9}));
 const valid=r.rows.filter(c=>c.eligible),docs=valid.filter(c=>c.name.startsWith('corpus:')&&c.name.endsWith('-docs'));
@@ -18,5 +19,5 @@ s+='\n## 仅解析\n\n| case | 有效输入 | pele parse ms | zebra-mermaid pars
 for(const c of valid)s+=`| ${c.name} | ${c.renderInputs} | ${c.parse.peleMs.toFixed(5)} | ${c.parse.rustMs.toFixed(5)} | ${c.parse.rustOverPele.toFixed(3)} |\n`;
 s+='\n## 进程启动与单图渲染\n\n同一张四节点流程图，预运行后各测 30 次，交替启动顺序，验证完整 SVG 一致。\n\n| 运行方式 | 中位耗时 ms | 最小–最大 ms |\n| --- | ---: | ---: |\n';
 for(const[k,v]of Object.entries(r.cold))s+=`| ${k==='rust'?'Rust CLI':'Node + Pele 参照脚本'} | ${v.medianMs.toFixed(3)} | ${v.minMs.toFixed(3)}–${v.maxMs.toFixed(3)} |\n`;
-s+=`\n该项包含进程创建、模块加载、输入输出及一次渲染，使用已热的文件系统缓存。Node 参照脚本不是 Pele 官方 CLI，不能把启动时间比值当成渲染算法加速倍数。\n\n## 体积、限制及数据\n\n- Rust ${enabled} 类 CLI：${r.size.rustCliBytes.toLocaleString('en-US')} bytes（未单独 strip）；Pele JS bundle：${r.size.peleBundleBytes.toLocaleString('en-US')} bytes。两者分发形式不同，不据此声称部署体积优势。\n- 尚未测量峰值内存、分配次数及其他平台。测试结果中的慢项应保留，不能泛称 Rust 全面更快。\n- 图类型和基准覆盖完成，不等于 6,810 项原始测试已经全部 1:1 移植；后者单独统计。\n- [汇总 JSON](research/benchmark-${date}-${enabled}-types/comparison.json) 及同目录的输入和六份原始运行报告保留样本、重复次数、逐输入校验与运行时版本。\n- 输入 SHA-256：\`${r.inputSha256}\`。\n\n\`\`\`sh\nnode tools/bench/cases.mjs\nCARGO_TARGET_DIR=target node tools/bench/run.mjs\nnode tools/bench/compare.mjs\n\`\`\`\n`;
+s+=`\n该项包含进程创建、模块加载、输入输出及一次渲染，使用已热的文件系统缓存。Node 参照脚本不是 Pele 官方 CLI，不能把启动时间比值当成渲染算法加速倍数。\n\n## 体积、限制及数据\n\n- Rust ${enabled} 类 CLI：${r.size.rustCliBytes.toLocaleString('en-US')} bytes（未单独 strip）；Pele JS bundle：${r.size.peleBundleBytes.toLocaleString('en-US')} bytes。两者分发形式不同，不据此声称部署体积优势。\n- CPU/分配与峰值存活内存的分阶段实测见 [Class 与 Agentflow 优化报告](PROFILING-CLASS-AGENTFLOW.zh-CN.md)。尚未覆盖其他平台；慢项保留，不泛称 Rust 全面更快。\n- 图类型和基准覆盖完成，不等于 6,810 项原始测试已经全部 1:1 移植；后者单独统计。\n- [汇总 JSON](research/${directory}/comparison.json) 及同目录的输入和六份原始运行报告保留样本、重复次数、逐输入校验与运行时版本。\n- 输入 SHA-256：\`${r.inputSha256}\`。\n\n\`\`\`sh\nnode tools/bench/cases.mjs\nCARGO_TARGET_DIR=target node tools/bench/run.mjs\nnode tools/bench/compare.mjs\n\`\`\`\n`;
 writeFileSync('docs/BENCHMARK.zh-CN.md',s);console.log(JSON.stringify({enabled,consistent,total:r.rows.length,success,reject,renderGeometricMean:gm},null,2));

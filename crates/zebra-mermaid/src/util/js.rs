@@ -90,6 +90,12 @@ pub fn to_string(x: f64) -> String {
     if x.is_infinite() {
         return if x > 0.0 { "Infinity".into() } else { "-Infinity".into() };
     }
+    // Every integer in the safe-integer range has its exact decimal spelling in JS.
+    // Dimensions, font sizes and ticks usually take this path; avoid constructing and
+    // splitting an exponential string before reconstructing the same integer.
+    if x.abs() <= 9_007_199_254_740_991.0 && x.fract() == 0.0 {
+        return (x as i64).to_string();
+    }
     if x < 0.0 {
         return format!("-{}", to_string(-x));
     }

@@ -23,6 +23,7 @@ use crate::theme::Role;
 use crate::util::{js, math};
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
+use std::fmt::Write as _;
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Kind {
     Actor,
@@ -51,7 +52,7 @@ fn literal(s: &str) -> String {
     let mut out = String::new();
     for c in s.chars() {
         if matches!(c, '&' | '<' | '>' | '\\') {
-            out.push_str(&format!("&#{};", c as u32));
+            write!(out, "&#{};", c as u32).unwrap();
         } else {
             out.push(c);
         }
@@ -151,7 +152,7 @@ fn trim(kind: &str) -> f64 {
 }
 fn mark(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str, bg: &str) -> String {
     if kind != "extension" {
-        return marker(kind, x, y, dx, dy, color);
+        return marker(kind, x, y, dx, dy, color).to_string();
     }
     let bx = x - dx * 12.0;
     let by = y - dy * 12.0;
@@ -176,13 +177,13 @@ fn figure(v: &View, ctx: &RenderCtx, surface: &str) -> String {
     let mut radius = 9.0;
     let mut out=match n.actor_type.as_deref(){Some("hollow")=>{radius=8.0;format!("<circle cy=\"-21\" r=\"8\" fill=\"{bg}\" stroke=\"{border}\"{shape}/><path d=\"M-20,-9H20V0H5.5L20,15.5L12,25.5L0,12L-12,25.5L-20,15.5L-5.5,0H-20Z\" fill=\"{bg}\" stroke=\"{border}\" stroke-linejoin=\"round\"{shape}/>")},Some("awesome")=>format!("<path d=\"M0,-30A11,11 0 1 1 0,-8A11,11 0 1 1 0,-30ZM-20,25C-20,9 -12,-3 0,-3C12,-3 20,9 20,25C20,28 18,30 15,30H-15C-18,30 -20,28 -20,25Z\" fill=\"{border}\"{shape}/>"),Some("icon")=>{head = -14.0;radius=12.0;let icon=n.icon.as_deref().unwrap_or("");format!("<rect x=\"-22\" y=\"-26\" width=\"44\" height=\"44\" rx=\"{RADIUS}\"{surface}{shape}/><svg class=\"pele-icon\" data-icon=\"{}\" x=\"-14\" y=\"-18\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",esc_text(icon),ctx.icons().map_or_else(String::new,|i|i.markup(icon).to_string()))},_=>format!("<circle cy=\"-21\" r=\"9\"{surface}{shape}/><path d=\"M0,-12V10M-14,-3H14M0,10L-12,30M0,10L12,30\"{line}/>")};
     if n.business {
-        out.push_str(&format!(
+        write!(out, 
             "<path class=\"pele-business\" d=\"M{},{}L{},{}\"{line}/>",
             num(0.12 * radius),
             num(head + 0.99 * radius),
             num(0.92 * radius),
             num(head - 0.39 * radius)
-        ));
+        ).unwrap();
     }
     out
 }
@@ -220,7 +221,7 @@ fn title_x(c: &CNode, width: f64, crossings: &Crossings) -> f64 {
 }
 fn left_label(label: &Label, x: f64, cy: f64, attrs: &str, icons: Option<&Icons>) -> String {
     if label.lines.len() < 2 {
-        return label_svg(label, x + label.width / 2.0, cy, attrs, icons);
+        return label_svg(label, x + label.width / 2.0, cy, attrs, icons).to_string();
     }
     let mut out = String::new();
     for i in 0..label.lines.len() {
@@ -228,13 +229,13 @@ fn left_label(label: &Label, x: f64, cy: f64, attrs: &str, icons: Option<&Icons>
         line.lines = vec![label.lines[i].clone()];
         line.widths = vec![label.widths[i]];
         line.height = label.line_height;
-        out.push_str(&label_svg(
+        write!(out, "{}", label_svg(
             &line,
             x + label.widths[i] / 2.0,
             cy - label.height / 2.0 + (i as f64 + 0.5) * label.line_height,
             attrs,
             icons,
-        ));
+        )).unwrap();
     }
     out
 }
@@ -445,7 +446,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     label_svg(&v.label, title_x(c, v.label.width, &crossings), y + 8.0 + v.label.height / 2.0, &title_attrs, icons)
                 )
             };
-            clusters.push_str(&format!("<g class=\"pele-cluster pele-boundary{classes}\" data-id=\"{id}\">{body}</g>"));
+            write!(clusters, "<g class=\"pele-cluster pele-boundary{classes}\" data-id=\"{id}\">{body}</g>").unwrap();
             continue;
         }
         let body;
@@ -474,17 +475,17 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             let mut cells = String::new();
             let mut lines = format!("M{},{}H{}", num(x0), num(y), num(x0 + w));
             if v.key_w > 0.0 {
-                lines.push_str(&format!("M{},{}V{}", num(x0 + v.key_w), num(y), num(h / 2.0)));
+                write!(lines, "M{},{}V{}", num(x0 + v.key_w), num(y), num(h / 2.0)).unwrap();
             }
             for (key, value) in &v.rows {
                 let rh = js::max(value.height, js::round(small * 1.5)) + 8.0;
-                cells.push_str(&label_svg(
+                write!(cells, "{}", label_svg(
                     key,
                     x0 + 10.0 + key.width / 2.0,
                     y + rh / 2.0,
                     &format!(" class=\"pele-json-key\" fill=\"{muted}\""),
                     icons,
-                ));
+                )).unwrap();
                 cells.push_str(&left_label(
                     value,
                     x0 + v.key_w + 10.0,
@@ -508,14 +509,14 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                         let q = at / (w / 2.0);
                         h / 2.0 * (1.0 - q * q).sqrt()
                     };
-                    outline.push_str(&format!(
+                    write!(outline, 
                         "<path class=\"pele-business\" d=\"M{},{}L{},{}\" fill=\"none\" stroke=\"{border}\"{}/>",
                         num(from),
                         num(arc(from)),
                         num(to),
                         num(-arc(to)),
                         v.style.line
-                    ));
+                    ).unwrap();
                 }
             } else if n.shape == "note" {
                 kind = "pele-note";
@@ -552,11 +553,11 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                 )
             );
         }
-        nodes_out.push_str(&format!(
+        write!(nodes_out, 
             "<g class=\"pele-node {kind}{classes}\" data-id=\"{id}\" transform=\"translate({},{})\">{body}</g>",
             num(c.x),
             num(c.y)
-        ));
+        ).unwrap();
     }
     let mut edges_out = String::new();
     let mut labels_out = String::new();
@@ -642,7 +643,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             .strip_prefix("default relationship relationship-")
             .map(|s| s.split_once(' ').map_or("", |(_, rest)| rest))
             .unwrap_or(&e.classes);
-        edges_out.push_str(&format!(
+        write!(edges_out, 
             "<g class=\"pele-edge pele-{}{}\" data-id=\"{}\"{}><path d=\"{}\"{}/>{}{}</g>",
             e.kind,
             class_names(clean),
@@ -652,7 +653,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             if dashes.is_empty() { String::new() } else { format!(" stroke-dasharray=\"{dashes}\"") },
             mark(&e.tail, path.sx, path.sy, path.sdx, path.sdy, &color, bg),
             mark(&e.head, path.ex, path.ey, path.edx, path.edy, &color, bg)
-        ));
+        ).unwrap();
         if label.width > 0.0 {
             let semantic = matches!(e.kind.as_str(), "include" | "extend");
             let attrs = format!(
@@ -660,23 +661,23 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                 if semantic { format!(" fill=\"{muted}\"") } else { String::new() },
                 st.as_ref().map_or("", |s| s.text.as_str())
             );
-            labels_out.push_str(&edge_label_svg(&e.id, label, ce.label_x, ce.label_y, &attrs, icons, bg));
+            write!(labels_out, "{}", edge_label_svg(&e.id, label, ce.label_x, ce.label_y, &attrs, icons, bg)).unwrap();
         }
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !clusters.is_empty() {
-        content.push_str(&format!("<g class=\"pele-clusters\">{clusters}</g>"));
+        write!(content, "<g class=\"pele-clusters\">{clusters}</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edges_out}</g>",
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
     if !labels_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)));
+        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)).unwrap();
     }
-    content.push_str(&format!("<g class=\"pele-nodes\">{nodes_out}</g>"));
+    write!(content, "<g class=\"pele-nodes\">{nodes_out}</g>").unwrap();
     Ok(Rendered {
         svg: svg_document(
             "usecase",

@@ -19,6 +19,7 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_label, style, Label};
 use crate::theme::Role;
 use crate::util::js;
+use std::fmt::Write as _;
 
 const DOT: f64 = 7.0;
 const STEP: f64 = 44.0;
@@ -52,7 +53,7 @@ fn tag_width(tag: &Label) -> f64 {
 /// The color of branch `lane`: Pele's series color in CSS mode, Zebra's branch color (its
 /// `chart_series`) in resolved mode.
 fn branch_color(ctx: &RenderCtx, lane: usize) -> String {
-    ctx.theming.series_line(lane as i64)
+    ctx.theming.series_line(lane as i64).into_owned()
 }
 
 fn symbol(ctx: &RenderCtx, kind: u8, x: f64, y: f64, color: &str) -> String {
@@ -334,16 +335,16 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let cy = py(from + along / 2.0, c);
             b.grow(px(-LABEL_GAP, c), py(-LABEL_GAP, c), px(-LABEL_GAP, c), py(-LABEL_GAP, c));
             b.grow(px(end + TAIL, c), py(end + TAIL, c), px(end + TAIL, c), py(end + TAIL, c));
-            branches.push_str(&format!(
+            write!(branches, 
                 "<g class=\"pele-branch\" data-id=\"{}\"><path class=\"pele-lane\" d=\"M{}L{}\" stroke=\"{}\" stroke-dasharray=\"2 4\"/>",
                 esc_text(&model.lanes[i]),
                 point(-LABEL_GAP, c),
                 point(end + TAIL, c),
                 color
-            ));
+            ).unwrap();
             if !name.lines.is_empty() {
                 b.grow(cx - w / 2.0, cy - h / 2.0, cx + w / 2.0, cy + h / 2.0);
-                branches.push_str(&format!(
+                write!(branches, 
                     "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\"/>",
                     num(cx - w / 2.0),
                     num(cy - h / 2.0),
@@ -351,9 +352,9 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                     num(h),
                     RADIUS,
                     color
-                ));
+                ).unwrap();
                 let text = ctx.theming.text_on(&color, "var(--_bg)");
-                branches.push_str(&label_svg(name, cx, cy, &format!(" class=\"pele-label\" fill=\"{}\"", text), None));
+                write!(branches, "{}", label_svg(name, cx, cy, &format!(" class=\"pele-label\" fill=\"{}\"", text), None)).unwrap();
             }
             branches.push_str("</g>");
         }
@@ -401,12 +402,12 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let c1 = cross[parent.lane];
             let m1 = parent.m;
             if parent.lane == view.lane {
-                lines.push_str(&format!(
+                write!(lines, 
                     "<path class=\"pele-edge\" d=\"M{}L{}\" stroke=\"{}\"/>",
                     point(m1, c1),
                     point(m2, c2),
                     branch_color(ctx, view.lane)
-                ));
+                ).unwrap();
                 continue;
             }
             let merged = j > 0 && commit.kind == commit_type::MERGE;
@@ -414,11 +415,11 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let mut d = format!("M{}", point(m1, c1));
             if m2 <= m1 {
                 let mid = (m1 + m2) / 2.0;
-                d.push_str(&format!("C{} {} {}", point(mid, c1), point(mid, c2), point(m2, c2)));
+                write!(d, "C{} {} {}", point(mid, c1), point(mid, c2), point(m2, c2)).unwrap();
             } else if !merged && !busy(view.lane, m1, m2) {
                 // Leaves the parent at once and runs along the child's lane.
                 let s = js::min(CURVE, m2 - m1);
-                d.push_str(&format!("C{} {} {}L{}", point(m1 + s / 2.0, c1), point(m1 + s / 2.0, c2), point(m1 + s, c2), point(m2, c2)));
+                write!(d, "C{} {} {}L{}", point(m1 + s / 2.0, c1), point(m1 + s / 2.0, c2), point(m1 + s, c2), point(m2, c2)).unwrap();
             } else {
                 // Turns in just before the child, or before its tags when it comes from their side.
                 let to = if parent.lane < view.lane && m2 - lead[index] > m1 { m2 - lead[index] } else { m2 };
@@ -430,20 +431,20 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                     // takes that.
                     along = if c1 > c2 { c2 + hi[view.lane] + GAP / 2.0 } else { c2 - lo[view.lane] - GAP / 2.0 };
                     s = js::min(CURVE, (to - m1) / 2.0);
-                    d.push_str(&format!("C{} {} {}", point(m1 + s / 2.0, c1), point(m1 + s / 2.0, along), point(m1 + s, along)));
+                    write!(d, "C{} {} {}", point(m1 + s / 2.0, c1), point(m1 + s / 2.0, along), point(m1 + s, along)).unwrap();
                 }
-                d.push_str(&format!(
+                write!(d, 
                     "L{}C{} {} {}",
                     point(to - s, along),
                     point(to - s / 2.0, along),
                     point(to - s / 2.0, c2),
                     point(to, c2)
-                ));
+                ).unwrap();
                 if to < m2 {
-                    d.push_str(&format!("L{}", point(m2, c2)));
+                    write!(d, "L{}", point(m2, c2)).unwrap();
                 }
             }
-            curves.push_str(&format!(
+            write!(curves, 
                 "<path class=\"pele-edge{}\" d=\"{}\" stroke=\"{}\"{}/>",
                 if merged {
                     " pele-edge-merge"
@@ -455,7 +456,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 d,
                 branch_color(ctx, if merged { parent.lane } else { view.lane }),
                 if picked { " stroke-dasharray=\"4 3\"" } else { "" }
-            ));
+            ).unwrap();
         }
     }
 
@@ -493,19 +494,19 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 let ay = if vertical { y } else { y + DOT + 3.0 + k };
                 let reach = HALF * w + k;
                 b.grow(ax - reach, if flip { ay - reach } else { ay - k }, ax + k, if flip { ay + k } else { ay + reach });
-                body.push_str(&format!(
+                write!(body, 
                     "<g class=\"pele-commit-label\" transform=\"rotate({} {} {})\">{}{}</g>",
                     if flip { 45 } else { -45 },
                     num(ax),
                     num(ay),
                     back(ax - w / 2.0, ay),
                     label_svg(label, ax - w / 2.0, ay, "", None)
-                ));
+                ).unwrap();
             } else {
                 let cx = if vertical { x - DOT - 6.0 - w / 2.0 } else { x };
                 let cy = if vertical { y } else { y + DOT + 6.0 + h / 2.0 };
                 b.grow(cx - w / 2.0, cy - h / 2.0, cx + w / 2.0, cy + h / 2.0);
-                body.push_str(&format!("<g class=\"pele-commit-label\">{}{}</g>", back(cx, cy), label_svg(label, cx, cy, "", None)));
+                write!(body, "<g class=\"pele-commit-label\">{}{}</g>", back(cx, cy), label_svg(label, cx, cy, "", None)).unwrap();
             }
         }
 
@@ -522,7 +523,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             offset += if vertical { w + 4.0 } else { h + 3.0 };
             b.grow(left, cy - h / 2.0, left + w, cy + h / 2.0);
             let outline = ctx.paint(Role::FaintText, "var(--_b)");
-            body.push_str(&format!(
+            write!(body, 
                 "<g class=\"pele-tag\"><path d=\"M{},{}L{},{}H{}V{}H{}Z\" fill=\"{}\" stroke=\"{}\" stroke-linejoin=\"round\"/><circle cx=\"{}\" cy=\"{}\" r=\"1.5\" fill=\"{}\"/>{}</g>",
                 num(left),
                 num(cy),
@@ -543,17 +544,17 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                     &format!(" fill=\"{}\"", ctx.paint(Role::Text, "var(--_fg)")),
                     None
                 )
-            ));
+            ).unwrap();
         }
 
         let merge = if commit.kind == commit_type::MERGE && kind != commit_type::MERGE { " pele-commit-merge" } else { "" };
-        commits.push_str(&format!(
+        write!(commits, 
             "<g class=\"pele-commit pele-commit-{}{}\" data-id=\"{}\">{}</g>",
             CLASSES.get(kind as usize).unwrap_or(&CLASSES[0]),
             merge,
             esc_text(&commit.id),
             body
-        ));
+        ).unwrap();
     }
 
     if b.min_x > b.max_x {
@@ -567,25 +568,25 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
     let dx = pad - b.min_x + (inner - (b.max_x - b.min_x)) / 2.0;
     let dy = pad + title_height - b.min_y;
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!("<g transform=\"translate({},{})\">", num(dx), num(dy)));
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, "<g transform=\"translate({},{})\">", num(dx), num(dy)).unwrap();
     if !branches.is_empty() {
-        content.push_str(&format!("<g class=\"pele-branches\" fill=\"none\" font-size=\"{}\">{}</g>", js::to_string(medium), branches));
+        write!(content, "<g class=\"pele-branches\" fill=\"none\" font-size=\"{}\">{}</g>", js::to_string(medium), branches).unwrap();
     }
     if !curves.is_empty() || !lines.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edges\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\">{}{}</g>",
             curves, lines
-        ));
+        ).unwrap();
     }
     if !commits.is_empty() {
         // The group's fill is the color of the commit ids, the only text that inherits it.
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-commits\" font-size=\"{}\" fill=\"{}\">{}</g>",
             js::to_string(small),
             ctx.paint(Role::Text, "var(--_m)"),
             commits
-        ));
+        ).unwrap();
     }
     content.push_str("</g>");
 

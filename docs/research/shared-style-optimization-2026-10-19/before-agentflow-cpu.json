@@ -1,0 +1,132 @@
+{
+  "method": "External sample: 5 seconds at 1 ms interval; 7 second render loop. Inclusive frame counts include descendants and recursive occurrences and must not be added as exclusive CPU percentages. Raw captures stay under ignored target/.",
+  "cases": [
+    {
+      "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+      "threadSamples": 3776,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3770
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 3477
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 3474
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_global",
+          "count": 3049
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 277
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::draw",
+          "count": 273
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::statement",
+          "count": 96
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::node",
+          "count": 74
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::styled_vertex",
+          "count": 72
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::run",
+          "count": 64
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 44
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 39
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::graph::build",
+          "count": 36
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::push_mapping",
+          "count": 34
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::tint",
+          "count": 33
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::vertex",
+          "count": 29
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::emit_mode",
+          "count": 29
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::layered",
+          "count": 28
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout",
+          "count": 19
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::node_string",
+          "count": 15
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 12
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_subgraph",
+          "count": 11
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::label_svg",
+          "count": 11
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc_text",
+          "count": 8
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::link",
+          "count": 5
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::scan",
+          "count": 5
+        },
+        {
+          "symbol": "zebra_mermaid::theme::resolved::Theming::series",
+          "count": 4
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::shape_size",
+          "count": 3
+        },
+        {
+          "symbol": "zebra_mermaid::preprocess::preprocess",
+          "count": 2
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc",
+          "count": 2
+        }
+      ],
+      "rawSha256": "87a9f714d7a1a45b025d9d67d66c7a0031b9d914ea6d1f86989af3ea13506590"
+    }
+  ]
+}

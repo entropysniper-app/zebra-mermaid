@@ -16,6 +16,7 @@ use crate::text::entities::decode_entities;
 use crate::text::{layout_label, style, Label};
 use crate::theme::Role;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 pub(crate) fn render(model: &PacketModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
     turn_to_fit(ctx.options, |down| Ok(draw(model, config, ctx, down)))
@@ -146,7 +147,7 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
             let first = block.start % bits_per_row;
             let x = left + (if descending { bits_per_row - first - count } else { first }) * bit_width;
             let w = count * bit_width - gap;
-            fields.push_str(&format!(
+            write!(fields, 
                 "<g class=\"pele-node\" data-id=\"{}-{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 js::to_string(block.start),
                 js::to_string(block.end),
@@ -157,9 +158,9 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
                 RADIUS,
                 fill,
                 stroke
-            ));
+            ).unwrap();
             if down {
-                fields.push_str(&label_svg(&labels[index][i], x + w / 2.0, y + row_height / 2.0, "", ctx.icons()));
+                write!(fields, "{}", label_svg(&labels[index][i], x + w / 2.0, y + row_height / 2.0, "", ctx.icons())).unwrap();
             } else {
                 let max = w - 6.0;
                 let text = fits
@@ -171,13 +172,13 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
                     .as_ref();
                 if let Some(text) = text.filter(|t| t.size <= row_height) {
                     let font = if text.size == label_size { String::new() } else { format!(" font-size=\"{}\"", num(text.size)) };
-                    fields.push_str(&format!(
+                    write!(fields, 
                         "<text x=\"{}\" y=\"{}\"{}>{}</text>",
                         num(x + w / 2.0),
                         num(y + row_height / 2.0 + text.size * 0.35),
                         font,
                         esc(&text.text)
-                    ));
+                    ).unwrap();
                 }
             }
             fields.push_str("</g>");
@@ -187,14 +188,14 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
             let leading = js::to_string(if descending { block.end } else { block.start });
             let trailing = js::to_string(if descending { block.start } else { block.end });
             if count == 1.0 {
-                bits.push_str(&format!(
+                write!(bits, 
                     "<text x=\"{}\" y=\"{}\" text-anchor=\"middle\">{}</text>",
                     num(x + w / 2.0),
                     num(y - 4.0),
                     leading
-                ));
+                ).unwrap();
             } else {
-                bits.push_str(&format!(
+                write!(bits, 
                     "<text x=\"{}\" y=\"{}\">{}</text><text x=\"{}\" y=\"{}\" text-anchor=\"end\">{}</text>",
                     num(x),
                     num(y - 4.0),
@@ -202,7 +203,7 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
                     num(x + w),
                     num(y - 4.0),
                     trailing
-                ));
+                ).unwrap();
             }
         }
     }
@@ -211,29 +212,29 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
     let total_height = (rows_height + title_height + 2.0 * pad).ceil();
     let mut content = String::new();
     if !fields.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-packet-fields\" font-size=\"{}\" text-anchor=\"middle\">{}</g>",
             js::to_string(label_size),
             fields
-        ));
+        ).unwrap();
     }
     if !bits.is_empty() {
         // Bit numbers are captions of the fields.
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-packet-bits\" font-size=\"{}\" fill=\"{}\">{}</g>",
             js::to_string(bit_size),
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             bits
-        ));
+        ).unwrap();
     }
     // Mermaid puts a packet's title under it.
-    content.push_str(&label_svg(
+    write!(content, "{}", label_svg(
         &title,
         total_width / 2.0,
         total_height - pad - title.height / 2.0,
         " class=\"pele-title\" font-weight=\"var(--_tw)\"",
         ctx.icons(),
-    ));
+    )).unwrap();
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered {

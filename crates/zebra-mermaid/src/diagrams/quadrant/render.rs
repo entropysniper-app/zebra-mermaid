@@ -17,6 +17,7 @@ use crate::svg::theme::{class_names, resolve_style, RADIUS};
 use crate::text::{layout_label, style, Label, Measure};
 use crate::theme::Role;
 use crate::util::js;
+use std::fmt::Write as _;
 
 const GAP: f64 = 4.0;
 const CAREFUL: usize = 300;
@@ -121,7 +122,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         let cx = x + tile_w / 2.0;
         let cy = if has_points { y + text_top + text.height / 2.0 } else { y + tile_h / 2.0 };
         taken.extend_from_slice(&[cx - text.width / 2.0, cy - text.height / 2.0, cx + text.width / 2.0, cy + text.height / 2.0]);
-        quadrants.push_str(&format!(
+        write!(quadrants, 
             "<g class=\"pele-quadrant\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"/>{}</g>",
             k + 1,
             num(x),
@@ -130,14 +131,14 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
             num(tile_h),
             RADIUS,
             label_svg(&text, cx, cy, &format!(" class=\"pele-label\" fill=\"{}\" stroke=\"none\"", on_region), None)
-        ));
+        ).unwrap();
     }
 
     let mut axes = String::new();
     if has_x {
         let y = if x_below { top + h + x_pad + x_height / 2.0 } else { top - x_pad - x_height / 2.0 };
-        axes.push_str(&label_svg(&x_left, if x_right.height > 0.0 { left + w / 4.0 } else { left + x_left.width / 2.0 }, y, "", None));
-        axes.push_str(&label_svg(&x_right, left + (w * 3.0) / 4.0, y, "", None));
+        write!(axes, "{}", label_svg(&x_left, if x_right.height > 0.0 { left + w / 4.0 } else { left + x_left.width / 2.0 }, y, "", None)).unwrap();
+        write!(axes, "{}", label_svg(&x_right, left + (w * 3.0) / 4.0, y, "", None)).unwrap();
     }
     if has_y {
         let x = if y_right { left + w + y_pad + y_height / 2.0 } else { left - y_pad - y_height / 2.0 };
@@ -241,38 +242,38 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         if careful {
             taken.extend_from_slice(&[tx - half_w, ty - half_h, tx + half_w, ty + half_h]);
         }
-        labels.push_str(&label_svg(text, tx, ty, " class=\"pele-label\"", None));
+        write!(labels, "{}", label_svg(text, tx, ty, " class=\"pele-label\"", None)).unwrap();
     }
 
     // Mermaid puts each new point under the ones before it.
     let mut content =
-        label_svg(&title, width / 2.0, title_pad / 2.0 + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!(
+        label_svg(&title, width / 2.0, title_pad / 2.0 + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, 
         "<g class=\"pele-quadrants\" fill=\"{}\" stroke=\"{}\">{}</g>",
         region,
         ctx.paint(Role::GroupStroke, "var(--_b)"),
         quadrants
-    ));
+    ).unwrap();
     if !axes.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-axis-labels\" font-size=\"{}\" fill=\"{}\">{}</g>",
             js::to_string(axis_size),
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             axes
-        ));
+        ).unwrap();
     }
     if !dots.is_empty() {
         circles.reverse();
         // Pele lets the point labels take the root's text color; in resolved mode they take the
         // color that reads on the quadrants they lie over.
         let label_fill = if ctx.resolved() { format!(" fill=\"{}\"", on_region) } else { String::new() };
-        content.push_str(&format!("<g class=\"pele-points\" fill=\"{}\">{}</g>", fill, circles.concat()));
-        content.push_str(&format!(
+        write!(content, "<g class=\"pele-points\" fill=\"{}\">{}</g>", fill, circles.concat()).unwrap();
+        write!(content, 
             "<g class=\"pele-point-labels\" font-size=\"{}\"{}>{}</g>",
             js::to_string(point_size),
             label_fill,
             labels
-        ));
+        ).unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

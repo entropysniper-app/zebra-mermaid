@@ -29,6 +29,8 @@ use crate::util::{
 };
 use crate::{Config, ConfigMap, ConfigValue, Error};
 use indexmap::IndexMap;
+use std::collections::HashMap;
+use std::fmt::Write as _;
 struct Line {
     text: String,
     width: f64,
@@ -75,29 +77,73 @@ struct End {
 fn number(c: &ConfigMap, key: &str, fallback: f64) -> f64 {
     c.get(key).and_then(ConfigValue::as_f64).filter(|n| *n > 0.0).map_or(fallback, |n| js::min(n, 2000.0))
 }
-fn class_style(model: &ClassModel, cls: &ClassNode) -> ResolvedStyle {
-    let mut kept = IndexMap::<String, String>::new();
-    let mut keep = |decl: &str| {
-        let one = resolve_style(&[decl]);
-        if !one.shape.is_empty() || !one.text.is_empty() {
-            if let Some((prop, _)) = decl.split_once(':') {
-                kept.insert(js::trim(prop).to_lowercase(), decl.into());
+// Match Pele's per-draw declaration and CSS-class caches. Borrow declarations from the
+// immutable model; property slots preserve first-insertion order while replacing the last
+// effective value without allocating or hashing a property name on every repeated style.
+#[derive(Default)]
+struct ClassStyles<'a> {
+    effects: HashMap<&'a str, Option<usize>>,
+    properties: HashMap<String, usize>,
+    from_defs: HashMap<&'a str, Vec<(usize, &'a str)>>,
+    kept: Vec<(usize, &'a str)>,
+    slots: Vec<Option<usize>>,
+}
+impl<'a> ClassStyles<'a> {
+    fn keep(&mut self, declaration: &'a str) {
+        let property = if let Some(property) = self.effects.get(declaration) {
+            *property
+        } else {
+            let style = resolve_style(&[declaration]);
+            let property = if style.shape.is_empty() && style.text.is_empty() {
+                None
+            } else {
+                declaration.split_once(':').map(|(name, _)| {
+                    let name = js::trim(name).to_lowercase();
+                    let next = self.properties.len();
+                    let id = *self.properties.entry(name).or_insert(next);
+                    if id == self.slots.len() {
+                        self.slots.push(None);
+                    }
+                    id
+                })
+            };
+            self.effects.insert(declaration, property);
+            property
+        };
+        if let Some(property) = property {
+            if let Some(index) = self.slots[property] {
+                self.kept[index].1 = declaration;
+            } else {
+                self.slots[property] = Some(self.kept.len());
+                self.kept.push((property, declaration));
             }
         }
-    };
-    for name in cls.css_classes.split(' ') {
-        if let Some(styles) = model.style_classes.get(name) {
-            for s in styles {
-                for part in s.split(',') {
-                    keep(part);
+    }
+    fn resolve(&mut self, model: &'a ClassModel, class: &'a ClassNode) -> ResolvedStyle {
+        self.kept.clear();
+        self.slots.fill(None);
+        if let Some(base) = self.from_defs.get(class.css_classes.as_str()) {
+            self.kept.extend_from_slice(base);
+            for (index, (property, _)) in self.kept.iter().enumerate() {
+                self.slots[*property] = Some(index);
+            }
+        } else {
+            for name in class.css_classes.split(' ') {
+                if let Some(styles) = model.style_classes.get(name) {
+                    for declaration in styles {
+                        for part in declaration.split(',') {
+                            self.keep(part);
+                        }
+                    }
                 }
             }
+            self.from_defs.insert(&class.css_classes, self.kept.clone());
         }
+        for declaration in &class.styles {
+            self.keep(declaration);
+        }
+        resolve_style(&self.kept.iter().map(|(_, declaration)| *declaration).collect::<Vec<_>>())
     }
-    for s in &cls.styles {
-        keep(s);
-    }
-    resolve_style(&kept.values().collect::<Vec<_>>())
 }
 pub(crate) fn render(db: &ClassModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
     let fitted = |down| tighten(ctx.options, |tight| draw(db, config, ctx, down, tight));
@@ -144,6 +190,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         }
     }
     let mut views = vec![];
+    let mut styles = ClassStyles::default();
     let mut nodes = vec![];
     for (i, node) in graph.iter().enumerate() {
         let (v, mut c) = if node.group {
@@ -164,7 +211,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             };
             (v, c)
         } else if let Some(cls) = node.class {
-            let st = class_style(db, cls);
+            let st = styles.resolve(db, cls);
             let font_size = st.font_size.unwrap_or(size);
             let member_size = js::round(font_size * 0.875);
             let line_h = js::round(member_size * 1.5);
@@ -504,7 +551,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             if struck {
                 struck_titles.push_str(&struck_title(&v.label, tx + ox, ty, &attrs, &id, |j| graph[j].parent, i, None, ctx.theming));
             }
-            clusters.push_str(&format!("<g class=\"pele-cluster pele-namespace\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"{} stroke=\"{}\"/>{}</g>",num(x-w/2.0),num(y-h/2.0),num(w),num(h),ctx.paint(Role::GroupFill,"var(--_a)"),if ctx.resolved(){""}else{" fill-opacity=\"0.5\""},ctx.paint(Role::GroupStroke,"var(--_b)"),if struck{String::new()}else{label_svg(&v.label,tx+ox,ty,&attrs,None)}));
+            write!(clusters, "<g class=\"pele-cluster pele-namespace\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"{} stroke=\"{}\"/>{}</g>",num(x-w/2.0),num(y-h/2.0),num(w),num(h),ctx.paint(Role::GroupFill,"var(--_a)"),if ctx.resolved(){""}else{" fill-opacity=\"0.5\""},ctx.paint(Role::GroupStroke,"var(--_b)"),if struck{String::new()}else{label_svg(&v.label,tx+ox,ty,&attrs,None).to_string()}).unwrap();
             continue;
         }
         let at = format!(" transform=\"translate({},{})\"", num(x), num(y));
@@ -514,12 +561,12 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             let r = w / 2.0;
             let t = -h / 2.0;
             let stroke = ctx.paint(Role::WarningText, "var(--_b)");
-            nodes_out.push_str(&format!("<g class=\"pele-node pele-note\" data-id=\"{id}\"{at}><path d=\"M{},{}H{}L{},{}V{}H{}Z\" fill=\"{}\" stroke=\"{stroke}\" stroke-linejoin=\"round\"/><path d=\"M{},{}V{}H{}\" fill=\"none\" stroke=\"{stroke}\" stroke-linejoin=\"round\"/>{}</g>",num(-r),num(t),num(r-8.0),num(r),num(t+8.0),num(-t),num(-r),ctx.paint(Role::WarningBackground,"var(--_a)"),num(r-8.0),num(t),num(t+8.0),num(r),label_svg(&v.label,0.0,0.0,&format!(" class=\"pele-label\" font-size=\"{}\"{}",js::to_string(small),if ctx.resolved(){format!(" fill=\"{}\"",ctx.paint(Role::WarningText,"var(--_fg)"))}else{String::new()}),ctx.icons())));
+            write!(nodes_out, "<g class=\"pele-node pele-note\" data-id=\"{id}\"{at}><path d=\"M{},{}H{}L{},{}V{}H{}Z\" fill=\"{}\" stroke=\"{stroke}\" stroke-linejoin=\"round\"/><path d=\"M{},{}V{}H{}\" fill=\"none\" stroke=\"{stroke}\" stroke-linejoin=\"round\"/>{}</g>",num(-r),num(t),num(r-8.0),num(r),num(t+8.0),num(-t),num(-r),ctx.paint(Role::WarningBackground,"var(--_a)"),num(r-8.0),num(t),num(t+8.0),num(r),label_svg(&v.label,0.0,0.0,&format!(" class=\"pele-label\" font-size=\"{}\"{}",js::to_string(small),if ctx.resolved(){format!(" fill=\"{}\"",ctx.paint(Role::WarningText,"var(--_fg)"))}else{String::new()}),ctx.icons())).unwrap();
         } else {
-            nodes_out.push_str(&format!(
+            write!(nodes_out, 
                 "<g class=\"pele-node pele-interface\" data-id=\"{id}\"{at}>{}</g>",
                 label_svg(&v.label, 0.0, 0.0, &format!(" class=\"pele-label\" font-size=\"{}\"", js::to_string(small)), ctx.icons())
-            ));
+            ).unwrap();
         }
     }
     let (mut edges_out, mut labels_out) = (String::new(), String::new());
@@ -572,16 +619,16 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             _ => "",
         };
         let color = ctx.paint(Role::Arrow, "var(--_l)");
-        edges_out.push_str(&format!(
+        write!(edges_out, 
             "<g class=\"pele-edge {}\" data-id=\"{}\"><path d=\"{}\"{attrs}/>{}{}</g>",
             if edge.pattern == "dotted" { "pele-note-edge" } else { "pele-relation" },
             esc_text(&edge.id),
             path.d,
             markers::draw(edge.tail, path.sx, path.sy, path.sdx, path.sdy, color),
             markers::draw(edge.head, path.ex, path.ey, path.edx, path.edy, color)
-        ));
+        ).unwrap();
         if label.width > 0.0 {
-            labels_out.push_str(&edge_label_svg(
+            write!(labels_out, "{}", edge_label_svg(
                 &edge.id,
                 label,
                 e.label_x + ox,
@@ -589,42 +636,42 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 "",
                 ctx.icons(),
                 ctx.paint(Role::Background, "var(--_bg)"),
-            ));
+            )).unwrap();
         }
     }
     let mut cards_out = String::new();
     for (text, x, y) in cards {
-        cards_out.push_str(&format!(
+        write!(cards_out, 
             "<text class=\"pele-cardinality\" x=\"{}\" y=\"{}\" text-anchor=\"middle\">{}</text>",
             num(x + ox),
             num(y + oy + tiny * 0.35),
             esc(&text)
-        ));
+        ).unwrap();
     }
     let mut content = String::new();
     if !clusters.is_empty() {
-        content.push_str(&format!("<g class=\"pele-clusters\">{clusters}</g>"));
+        write!(content, "<g class=\"pele-clusters\">{clusters}</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edges_out}</g>",
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
     if !struck_titles.is_empty() {
-        content.push_str(&format!("<g class=\"pele-cluster-titles\">{struck_titles}</g>"));
+        write!(content, "<g class=\"pele-cluster-titles\">{struck_titles}</g>").unwrap();
     }
     if !labels_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)));
+        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)).unwrap();
     }
     if !cards_out.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-cardinalities\" font-size=\"{}\" fill=\"{}\">{cards_out}</g>",
             js::to_string(tiny),
             ctx.paint(Role::SecondaryText, "var(--_m)")
-        ));
+        ).unwrap();
     }
-    content.push_str(&format!("<g class=\"pele-nodes\">{nodes_out}</g>"));
+    write!(content, "<g class=\"pele-nodes\">{nodes_out}</g>").unwrap();
     let titled = with_title(db.title.as_deref(), &m, size, pad, width, height, content);
     Ok(Rendered {
         svg: svg_document(
@@ -672,7 +719,7 @@ fn class_svg(
     let second = first + v.attributes_h;
     if v.h > v.title_h {
         let stroke = st.stroke.as_ref().map_or_else(String::new, |s| format!(" style=\"stroke:{}\"", esc(s)));
-        body.push_str(&format!(
+        write!(body, 
             "<path class=\"pele-divider\" d=\"M{},{}H{}M{},{}H{}\" fill=\"none\" stroke=\"{}\"{stroke}/>",
             num(left),
             num(first),
@@ -681,27 +728,27 @@ fn class_svg(
             num(second),
             num(-left),
             ctx.paint(Role::InnerStroke, "var(--_b)")
-        ));
+        ).unwrap();
     }
     let mut y = top + 8.0;
     for annotation in &v.annotations {
-        body.push_str(&format!(
+        write!(body, 
             "<text class=\"pele-annotation\" x=\"0\" y=\"{}\" text-anchor=\"middle\" font-size=\"{}\" fill=\"{}\">{}</text>",
             num(y + tiny_h / 2.0 + tiny * 0.35),
             js::to_string(tiny),
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             esc(annotation)
-        ));
+        ).unwrap();
         y += tiny_h;
     }
     let title_size = if v.font_size == size { String::new() } else { format!(" font-size=\"{}\"", num(v.font_size)) };
-    body.push_str(&label_svg(
+    write!(body, "{}", label_svg(
         &v.label,
         0.0,
         (y + first - 8.0) / 2.0,
         &format!(" class=\"pele-label\"{title_size} font-weight=\"var(--_hw)\"{}", st.text),
         ctx.icons(),
-    ));
+    )).unwrap();
     let lines = |list: &[Line], kind: &str, from: f64| {
         let mut out = String::new();
         let mut baseline = from + 6.0 + line_h / 2.0 + member_size * 0.35;
@@ -720,23 +767,23 @@ fn class_svg(
             } else {
                 format!("\"{}", st.text)
             };
-            out.push_str(&format!(
+            write!(out, 
                 "<text class=\"pele-member pele-{kind}{mark} x=\"{}\" y=\"{}\">{}</text>",
                 num(left + 12.0),
                 num(baseline),
                 esc(&line.text)
-            ));
+            ).unwrap();
             baseline += line_h;
         }
         out
     };
     if !v.attributes.is_empty() || !v.methods.is_empty() {
-        body.push_str(&format!(
+        write!(body, 
             "<g class=\"pele-members\" font-size=\"{}\">{}{}</g>",
             js::to_string(member_size),
             lines(&v.attributes, "attribute", first),
             lines(&v.methods, "method", second)
-        ));
+        ).unwrap();
     }
     if let Some(t) = cls.tooltip.as_ref().filter(|s| !s.is_empty()) {
         body = format!("<title>{}</title>{body}", esc_text(t));

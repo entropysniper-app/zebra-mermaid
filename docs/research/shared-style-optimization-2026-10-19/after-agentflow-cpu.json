@@ -1,0 +1,132 @@
+{
+  "method": "External sample: 5 seconds at 1 ms interval; 7 second render loop. Inclusive frame counts include descendants and recursive occurrences and must not be added as exclusive CPU percentages. Raw captures stay under ignored target/.",
+  "cases": [
+    {
+      "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+      "threadSamples": 3788,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3780
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 3457
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 3453
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_global",
+          "count": 3036
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::draw",
+          "count": 312
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 310
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::statement",
+          "count": 98
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::run",
+          "count": 81
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::styled_vertex",
+          "count": 71
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::node",
+          "count": 70
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 58
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 47
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::graph::build",
+          "count": 40
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::emit_mode",
+          "count": 36
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::tint",
+          "count": 35
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::layered",
+          "count": 34
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::node_string",
+          "count": 30
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::push_mapping",
+          "count": 28
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::vertex",
+          "count": 25
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout",
+          "count": 24
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_subgraph",
+          "count": 16
+        },
+        {
+          "symbol": "zebra_mermaid::theme::resolved::Theming::series",
+          "count": 15
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_global::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 14
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::label_svg",
+          "count": 13
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 11
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::scan",
+          "count": 5
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc_text",
+          "count": 5
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::link",
+          "count": 3
+        },
+        {
+          "symbol": "zebra_mermaid::preprocess::preprocess",
+          "count": 2
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 2
+        }
+      ],
+      "rawSha256": "f160379506723e1237a328a9fca0d0fa9bbb680201067ac32e8702c02fc1b01b"
+    }
+  ]
+}

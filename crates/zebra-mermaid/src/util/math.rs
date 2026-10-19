@@ -125,7 +125,6 @@ pub fn hypot(a: f64, b: f64) -> f64 {
 pub fn hypot_all(values: &[f64]) -> f64 {
     let mut max: f64 = 0.0;
     let mut nan = false;
-    let mut abs = Vec::with_capacity(values.len());
     for &v in values {
         let a = v.abs();
         if a.is_nan() {
@@ -133,7 +132,6 @@ pub fn hypot_all(values: &[f64]) -> f64 {
         } else if a > max {
             max = a;
         }
-        abs.push(a);
     }
     if max == f64::INFINITY {
         return f64::INFINITY;
@@ -144,10 +142,12 @@ pub fn hypot_all(values: &[f64]) -> f64 {
     if max == 0.0 {
         return 0.0;
     }
+    // The magnitudes are read again rather than kept: `abs` is exact, and a buffer for two
+    // values would cost an allocation on every edge drawn.
     let mut sum = 0.0;
     let mut compensation = 0.0;
-    for a in abs {
-        let n = a / max;
+    for &v in values {
+        let n = v.abs() / max;
         let summand = n * n - compensation;
         let preliminary = sum + summand;
         compensation = (preliminary - sum) - summand;

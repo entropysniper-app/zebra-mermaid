@@ -29,6 +29,7 @@ use crate::theme::color::mix_hex;
 use crate::theme::Role;
 use crate::util::js;
 use crate::util::url::{linked, sanitize_url, LinkInfo};
+use std::fmt::Write as _;
 
 const PAIR_SHIFT: f64 = 7.0;
 const NARROW_GAP: f64 = 36.0;
@@ -234,17 +235,17 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
         if end_arrow && careful {
             taken.extend_from_slice(&[r.ex - ARROW, r.ey - ARROW, r.ex + ARROW, r.ey + ARROW]);
         }
-        edges_out.push_str(&format!(
+        write!(edges_out, 
             "<g class=\"pele-edge\" data-id=\"{}\"{}><path d=\"{}\"/>",
             esc_text(&format!("{}-{}", rel.from, rel.to)),
             st.line,
             r.d
-        ));
+        ).unwrap();
         if start_arrow {
-            edges_out.push_str(&marker("arrow_point", r.sx, r.sy, r.sdx, r.sdy, &color));
+            write!(edges_out, "{}", marker("arrow_point", r.sx, r.sy, r.sdx, r.sdy, &color)).unwrap();
         }
         if end_arrow {
-            edges_out.push_str(&marker("arrow_point", r.ex, r.ey, r.edx, r.edy, &color));
+            write!(edges_out, "{}", marker("arrow_point", r.ex, r.ey, r.edx, r.edy, &color)).unwrap();
         }
         edges_out.push_str("</g>");
         routes.push(r);
@@ -339,26 +340,26 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             taken.extend_from_slice(&[cx - lw / 2.0, top, cx + lw / 2.0, top + lh]);
         }
         grow(cx - lw / 2.0, top, cx + lw / 2.0, top + lh);
-        labels_out.push_str(&format!("<g class=\"pele-edge-label\" data-id=\"{}\">", esc_text(&id)));
+        write!(labels_out, "<g class=\"pele-edge-label\" data-id=\"{}\">", esc_text(&id)).unwrap();
         if let Some(descr) = rel.descr.as_deref().filter(|d| !d.is_empty()) {
-            labels_out.push_str(&format!("<title>{}</title>", esc_text(descr)));
+            write!(labels_out, "<title>{}</title>", esc_text(descr)).unwrap();
         }
-        labels_out.push_str(&format!(
+        write!(labels_out, 
             "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"3\" fill=\"{}\"/>",
             num(cx - lw / 2.0),
             num(top),
             num(lw),
             num(lh),
             ctx.paint(Role::Background, "var(--_bg)")
-        ));
-        let body = label_svg(&label, cx, top + label.height / 2.0, &format!("{}{}", rel_text_fill, st.text), None)
+        ).unwrap();
+        let body = label_svg(&label, cx, top + label.height / 2.0, &format!("{}{}", rel_text_fill, st.text), None).to_string()
             + &label_svg(
                 &techn,
                 cx,
                 top + label.height + techn.height / 2.0,
                 &format!(" class=\"pele-c4-techn\" fill=\"{}\"{}", ctx.paint(Role::MutedText, "var(--_m)"), st.text),
                 None,
-            );
+            ).to_string();
         labels_out.push_str(&link(body, rel.link.as_deref(), &id, &mut links, options));
         labels_out.push_str("</g>");
     }
@@ -399,7 +400,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &format!(" class=\"pele-c4-descr\" font-size=\"{}\" fill=\"{}\"{}", small_s, muted, st.text),
             ));
             let node = boundary.node_type.as_deref().is_some_and(|t| !t.is_empty());
-            clusters.push_str(&format!(
+            write!(clusters, 
                 "<g class=\"pele-cluster pele-c4-{}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}{}/>",
                 if node { "node" } else { "boundary" },
                 esc_text(&el.alias),
@@ -412,7 +413,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 ctx.paint(Role::GroupStroke, "var(--_b)"),
                 if node { "" } else { " stroke-dasharray=\"6 4\"" },
                 st.shape
-            ));
+            ).unwrap();
             clusters.push_str(&link(text, el.link.as_deref(), &el.alias, &mut links, options));
             clusters.push_str("</g>");
         }
@@ -446,34 +447,34 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 y + labels[0].height / 2.0,
                 &format!(" class=\"pele-c4-type\" font-size=\"{}\"{}", type_size, muted),
                 None,
-            );
+            ).to_string();
             y += labels[0].height;
-            text.push_str(&label_svg(
+            write!(text, "{}", label_svg(
                 &labels[1],
                 dx,
                 y + labels[1].height / 2.0,
                 &format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"{}", st.text),
                 None,
-            ));
+            )).unwrap();
             y += labels[1].height;
-            text.push_str(&label_svg(
+            write!(text, "{}", label_svg(
                 &labels[2],
                 dx,
                 y + labels[2].height / 2.0,
                 &format!(" class=\"pele-c4-techn\" font-size=\"{}\"{}", small_s, muted),
                 None,
-            ));
+            )).unwrap();
             y += labels[2].height + 4.0;
-            text.push_str(&label_svg(
+            write!(text, "{}", label_svg(
                 &labels[3],
                 dx,
                 y + labels[3].height / 2.0,
                 &format!(" class=\"pele-c4-descr\" font-size=\"{}\"{}", small_s, st.text),
                 None,
-            ));
+            )).unwrap();
             let outline =
                 draw_shape(form, w, h, &format!(" fill=\"{}\"{}{}", fill, stroke, st.shape), &format!("{}{}", stroke, st.line), theming);
-            nodes_out.push_str(&format!(
+            write!(nodes_out, 
                 "<g class=\"pele-node pele-shape-{} pele-c4-{}{}\" data-id=\"{}\" transform=\"translate({},{})\">",
                 form,
                 shape.kind,
@@ -481,7 +482,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 esc_text(&el.alias),
                 num(node.bx.x + w / 2.0),
                 num(node.bx.y + h / 2.0)
-            ));
+            ).unwrap();
             nodes_out.push_str(&link(outline + &text, el.link.as_deref(), &el.alias, &mut links, options));
             nodes_out.push_str("</g>");
         }
@@ -495,23 +496,23 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     let ox = pad - min_x + (inner - (max_x - min_x)) / 2.0;
     let oy = pad + title_height - min_y;
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!("<g transform=\"translate({},{})\">", num(ox), num(oy)));
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, "<g transform=\"translate({},{})\">", num(ox), num(oy)).unwrap();
     if !clusters.is_empty() {
-        content.push_str(&format!("<g class=\"pele-clusters\">{}</g>", clusters));
+        write!(content, "<g class=\"pele-clusters\">{}</g>", clusters).unwrap();
     }
     if !edges_out.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{}</g>",
             ctx.paint(Role::Line, "var(--_l)"),
             edges_out
-        ));
+        ).unwrap();
     }
     if !nodes_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-nodes\">{}</g>", nodes_out));
+        write!(content, "<g class=\"pele-nodes\">{}</g>", nodes_out).unwrap();
     }
     if !labels_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\">{}</g>", small_s, labels_out));
+        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{}</g>", small_s, labels_out).unwrap();
     }
     content.push_str("</g>");
 

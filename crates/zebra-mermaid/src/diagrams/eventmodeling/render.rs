@@ -16,6 +16,7 @@ use crate::theme::Role;
 use crate::util::js;
 use crate::{Config, Error};
 use indexmap::{IndexMap, IndexSet};
+use std::fmt::Write as _;
 
 fn series(kind: EntityKind) -> Option<i64> {
     match kind {
@@ -45,7 +46,7 @@ fn lines(rows: &[String], x: f64, y: f64, step: f64, attrs: &str) -> String {
     let mut body = String::new();
     for (i, row) in rows.iter().enumerate() {
         if !row.is_empty() {
-            body.push_str(&format!("<tspan x=\"{}\" y=\"{}\">{}</tspan>", num(x), num(y + i as f64 * step), esc(row)));
+            write!(body, "<tspan x=\"{}\" y=\"{}\">{}</tspan>", num(x), num(y + i as f64 * step), esc(row)).unwrap();
         }
     }
     if body.is_empty() {
@@ -153,7 +154,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     for (i, band) in bands.iter_mut().enumerate() {
         band.y = y;
         band.h += 24.0;
-        lanes.push_str(&format!("<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&format!(" class=\"pele-cluster-label\" font-size=\"{}\" font-weight=\"var(--_hw)\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::SecondaryText,"var(--_m)")),None)));
+        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&format!(" class=\"pele-cluster-label\" font-size=\"{}\" font-weight=\"var(--_hw)\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::SecondaryText,"var(--_m)")),None)).unwrap();
         y += band.h + 8.0;
     }
     let mut bottom = if bands.is_empty() { top } else { y - 8.0 };
@@ -185,19 +186,19 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             item.y + 10.0 + item.name.height / 2.0,
             &format!(" class=\"pele-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"", js::to_string(name_size)),
             None,
-        ) + &lines(
+        ).to_string() + &lines(
             &item.data,
             item.x + 12.0,
             item.y + 10.0 + item.name.height + 6.0 + mono_step / 2.0 + mono * 0.35,
             mono_step,
             &format!(" class=\"pele-em-data\" font-family=\"{FONT_MONO}\" font-size=\"{}\"", js::to_string(mono)),
         );
-        nodes.push_str(&format!(
+        write!(nodes, 
             "<g class=\"pele-node pele-em-{}{}\" data-id=\"{}\">{shape}{text}</g>",
             b.kind.as_str(),
             if b.reset { " pele-em-reset" } else { "" },
             esc_text(&b.id)
-        ));
+        ).unwrap();
     }
     let mut edges = String::new();
     let trim = marker_trim("arrow_point");
@@ -249,12 +250,12 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             };
             (d, marker("arrow_point", tx, ty, 0.0, dir, ctx.paint(Role::Arrow, "var(--_l)")))
         };
-        edges.push_str(&format!(
+        write!(edges, 
             "<g class=\"pele-edge\" data-id=\"{}-{}\"><path d=\"{d}\" fill=\"none\" stroke=\"{}\"/>{head}</g>",
             esc_text(&model.boxes[r.source].id),
             esc_text(&model.boxes[r.target].id),
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
     let names: IndexMap<&str, &str> = model.boxes.iter().map(|b| (b.id.as_str(), b.name.as_str())).collect();
     let mut cards = String::new();
@@ -264,7 +265,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
         let w = js::max(head.width, widest(&rows, &m, small, 0)) + 24.0;
         let h = 20.0 + head.height + rows.len() as f64 * small_step;
         let cy = bottom + if cards.is_empty() && bands.is_empty() { 0.0 } else { 8.0 };
-        cards.push_str(&format!("<g class=\"pele-em-{kind}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",esc_text(frame),num(left),num(cy),num(w),num(h),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&head,left+12.0+head.width/2.0,cy+10.0+head.height/2.0,&format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),lines(&rows,left+12.0,cy+10.0+head.height+small_step/2.0+small*0.35,small_step,&format!(" font-size=\"{}\"",js::to_string(small)))));
+        write!(cards, "<g class=\"pele-em-{kind}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",esc_text(frame),num(left),num(cy),num(w),num(h),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&head,left+12.0+head.width/2.0,cy+10.0+head.height/2.0,&format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),lines(&rows,left+12.0,cy+10.0+head.height+small_step/2.0+small*0.35,small_step,&format!(" font-size=\"{}\"",js::to_string(small)))).unwrap();
         bottom = cy + h;
         cards_right = js::max(cards_right, w);
     };
@@ -281,7 +282,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     }
     let width = (js::max(js::max(if bands.is_empty() { 0.0 } else { lane_width }, cards_right), title.width) + 2.0 * pad).ceil();
     let height = (bottom + pad).ceil();
-    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
         + &lanes
         + &edges
         + &nodes
@@ -357,7 +358,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
         let h = 20.0 + name.height + data.as_ref().map_or(0.0, |d| d.height + 6.0);
         let cy = y + lane.height + 12.0;
         let frame = format!("x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\"", num(pad), num(cy), num(w), num(h));
-        nodes.push_str(&format!("<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\">{}<g class=\"pele-node pele-em-{}{}\" data-id=\"{}\"><rect {frame} fill=\"{}\" stroke=\"{}\"/>{}{}<text class=\"pele-em-frame\" x=\"{}\" y=\"{}\" text-anchor=\"end\" font-size=\"{}\" fill=\"{}\">{}</text>{}</g></g>",esc_text(&model.lanes[b.lane].label),left_label_svg(&lane,pad+12.0,y,&format!(" class=\"pele-cluster-label\" font-size=\"{}\" font-weight=\"var(--_hw)\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::SecondaryText,"var(--_m)"))),b.kind.as_str(),if b.reset{" pele-em-reset"}else{""},esc_text(&b.id),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),series(b.kind).map_or_else(String::new,|i|{let c=ctx.series(i);format!("<rect {frame} fill=\"{c}\" fill-opacity=\"0.22\" stroke=\"{c}\"/>")}),label_svg(&name,pad+12.0+name.width/2.0,cy+10.0+name.height/2.0,&format!(" class=\"pele-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),num(pad+w-12.0),num(cy+10.0+small),js::to_string(mono),ctx.paint(Role::SecondaryText,"var(--_m)"),esc(&b.id),data.as_ref().map_or_else(String::new,|d|lines(&label_rows(d),pad+12.0,cy+10.0+name.height+6.0+d.line_height/2.0+mono*0.35,d.line_height,&format!(" class=\"pele-em-data\" font-family=\"{FONT_MONO}\" font-size=\"{}\"",js::to_string(mono))))));
+        write!(nodes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\">{}<g class=\"pele-node pele-em-{}{}\" data-id=\"{}\"><rect {frame} fill=\"{}\" stroke=\"{}\"/>{}{}<text class=\"pele-em-frame\" x=\"{}\" y=\"{}\" text-anchor=\"end\" font-size=\"{}\" fill=\"{}\">{}</text>{}</g></g>",esc_text(&model.lanes[b.lane].label),left_label_svg(&lane,pad+12.0,y,&format!(" class=\"pele-cluster-label\" font-size=\"{}\" font-weight=\"var(--_hw)\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::SecondaryText,"var(--_m)"))),b.kind.as_str(),if b.reset{" pele-em-reset"}else{""},esc_text(&b.id),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),series(b.kind).map_or_else(String::new,|i|{let c=ctx.series(i);format!("<rect {frame} fill=\"{c}\" fill-opacity=\"0.22\" stroke=\"{c}\"/>")}),label_svg(&name,pad+12.0+name.width/2.0,cy+10.0+name.height/2.0,&format!(" class=\"pele-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),num(pad+w-12.0),num(cy+10.0+small),js::to_string(mono),ctx.paint(Role::SecondaryText,"var(--_m)"),esc(&b.id),data.as_ref().map_or_else(String::new,|d|lines(&label_rows(d),pad+12.0,cy+10.0+name.height+6.0+d.line_height/2.0+mono*0.35,d.line_height,&format!(" class=\"pele-em-data\" font-family=\"{FONT_MONO}\" font-size=\"{}\"",js::to_string(mono))))).unwrap();
         placed.push(VerticalPlaced { y: cy, h, w, lane: lane.width });
         width = js::max(width, w + gutter);
         bottom = cy + h;
@@ -389,12 +390,12 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
                 marker("arrow_point", pad + t.w, to, -1.0, 0.0, ctx.paint(Role::Arrow, "var(--_l)")),
             )
         };
-        edges.push_str(&format!(
+        write!(edges, 
             "<g class=\"pele-edge\" data-id=\"{}-{}\"><path d=\"{d}\" fill=\"none\" stroke=\"{}\"/>{head}</g>",
             esc_text(&model.boxes[r.source].id),
             esc_text(&model.boxes[r.target].id),
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
     let names: IndexMap<&str, &str> = model.boxes.iter().map(|b| (b.id.as_str(), b.name.as_str())).collect();
     let mut card = |kind: &str, heading: &str, frame: &str, raw: &str| {
@@ -402,7 +403,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
         let body = literal(raw, small, 0);
         let w = js::max(card_width, js::max(head.width + 24.0, body.width + 24.0));
         let h = 20.0 + head.height + body.height;
-        cards.push_str(&format!("<g class=\"pele-em-{kind}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",esc_text(frame),num(pad),num(y),num(w),num(h),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&head,pad+12.0+head.width/2.0,y+10.0+head.height/2.0,&format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),lines(&label_rows(&body),pad+12.0,y+10.0+head.height+body.line_height/2.0+small*0.35,body.line_height,&format!(" font-size=\"{}\"",js::to_string(small)))));
+        write!(cards, "<g class=\"pele-em-{kind}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",esc_text(frame),num(pad),num(y),num(w),num(h),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&head,pad+12.0+head.width/2.0,y+10.0+head.height/2.0,&format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),lines(&label_rows(&body),pad+12.0,y+10.0+head.height+body.line_height/2.0+small*0.35,body.line_height,&format!(" font-size=\"{}\"",js::to_string(small)))).unwrap();
         bottom = y + h;
         y = bottom + 8.0;
         width = js::max(width, w);
@@ -415,7 +416,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
     }
     let total_width = (width + 2.0 * pad).ceil();
     let height = (bottom + pad).ceil();
-    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
         + &edges
         + &nodes
         + &cards;

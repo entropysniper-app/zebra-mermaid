@@ -15,6 +15,7 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_label, style, Label};
 use crate::theme::Role;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 const DEFAULT_STAGES: [&str; 4] = ["Genesis", "Custom Built", "Product", "Commodity"];
 /// Mermaid's canvas has this much room around the plot on every side.
@@ -65,7 +66,7 @@ fn start_label(label: &Label, x: f64, y: f64, attrs: &str) -> String {
                 continue;
             }
             let pos = if first { format!(" x=\"{}\" y=\"{}\"", num(x), num(baseline)) } else { String::new() };
-            body.push_str(&format!("<tspan{}{}>{}</tspan>", pos, span_style(span.style & !shared), esc(&span.text)));
+            write!(body, "<tspan{}{}>{}</tspan>", pos, span_style(span.style & !shared), esc(&span.text)).unwrap();
             first = false;
         }
         baseline += label.line_height;
@@ -138,7 +139,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     let mut ext = Extent { min_x: 0.0, min_y: 0.0, max_x: plot_w, max_y: plot_h };
     let centered = |ext: &mut Extent, label: &Label, cx: f64, cy: f64, attrs: &str| -> String {
         ext.grow(cx - label.width / 2.0, cy - label.height / 2.0, cx + label.width / 2.0, cy + label.height / 2.0);
-        label_svg(label, cx, cy, attrs, icons)
+        label_svg(label, cx, cy, attrs, icons).to_string()
     };
     let starting = |ext: &mut Extent, label: &Label, x: f64, y: f64, attrs: &str| -> String {
         ext.grow(x, y - label.size, x + label.width, y - label.size + label.height + 4.0);
@@ -169,12 +170,12 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         };
         previous = end;
         if index > 0 {
-            frame.push_str(&format!(
+            write!(frame, 
                 "<path class=\"pele-wardley-stage\" d=\"M{},0V{}\" stroke=\"{}\" stroke-dasharray=\"4 4\"/>",
                 num(start * plot_w),
                 num(plot_h),
                 ctx.paint(Role::InnerStroke, "var(--_b)")
-            ));
+            ).unwrap();
         }
         let label = text(stage, small, js::max(48.0, (end - start).abs() * plot_w - 12.0), 0);
         stage_labels.push_str(&centered(
@@ -193,17 +194,17 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     if show_grid {
         for i in 1..4 {
             let i = i as f64;
-            frame.push_str(&format!(
+            write!(frame, 
                 "<path class=\"pele-wardley-grid\" d=\"M{},0V{}M0,{}H{}\" stroke=\"{}\" stroke-dasharray=\"2 6\"/>",
                 num((plot_w * i) / 4.0),
                 num(plot_h),
                 num((plot_h * i) / 4.0),
                 num(plot_w),
                 ctx.paint(Role::InnerStroke, "var(--_b)")
-            ));
+            ).unwrap();
         }
     }
-    frame.push_str(&format!("<path class=\"pele-wardley-axis\" d=\"M0,0V{}H{}\" stroke=\"{}\"/>", num(plot_h), num(plot_w), line));
+    write!(frame, "<path class=\"pele-wardley-axis\" d=\"M0,0V{}H{}\" stroke=\"{}\"/>", num(plot_h), num(plot_w), line).unwrap();
     let x_title = text(model.axes.x_label.as_deref().unwrap_or("Evolution"), small, default_width, 0);
     let y_title = text(model.axes.y_label.as_deref().unwrap_or("Visibility"), small, default_width, 0);
     // Pele lets the axis titles take the text color; Zebra writes axis text in the secondary
@@ -211,13 +212,13 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     let axis_attrs =
         format!(" class=\"pele-wardley-axis-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"{}", small_s, own_fill(Role::SecondaryText));
     let mut axis_labels = centered(&mut ext, &x_title, plot_w / 2.0, stage_bottom + 6.0 + x_title.height / 2.0, &axis_attrs);
-    axis_labels.push_str(&label_svg(
+    write!(axis_labels, "{}", label_svg(
         &y_title,
         -16.0,
         plot_h / 2.0,
         &format!("{} transform=\"rotate(-90 -16 {})\"", axis_attrs, num(plot_h / 2.0)),
         None,
-    ));
+    )).unwrap();
     ext.grow(-16.0 - y_title.height / 2.0, 0.0, 0.0, 0.0);
     let legend_top = stage_bottom + 6.0 + x_title.height + 10.0;
 
@@ -253,7 +254,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             positions[p].y = top - SQUARE / 6.0;
         }
         ext.grow(left - PIPELINE_PAD, top, right + PIPELINE_PAD, top + 4.0 * R);
-        pipelines.push_str(&format!(
+        write!(pipelines, 
             "<g class=\"pele-wardley-pipeline\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
             esc_text(&pipeline.node_id),
             num(left - PIPELINE_PAD),
@@ -263,15 +264,15 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             RADIUS,
             ctx.paint(Role::GroupFill, "var(--_s)"),
             ctx.paint(Role::GroupStroke, "var(--_b)")
-        ));
+        ).unwrap();
         if parts.len() > 1 {
-            pipelines.push_str(&format!(
+            write!(pipelines, 
                 "<path d=\"M{},{}H{}\" stroke=\"{}\" stroke-dasharray=\"4 4\"/>",
                 num(left),
                 num(y),
                 num(right),
                 line
-            ));
+            ).unwrap();
         }
         pipelines.push_str("</g>");
     }
@@ -351,12 +352,12 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         let mut y2 = ty - uy * end;
         let mut heads = String::new();
         if matches!(link.flow, Some(Flow::Forward | Flow::Bidirectional)) {
-            heads.push_str(&marker("arrow_point", x2, y2, ux, uy, arrow));
+            write!(heads, "{}", marker("arrow_point", x2, y2, ux, uy, arrow)).unwrap();
             x2 -= ux * trim;
             y2 -= uy * trim;
         }
         if matches!(link.flow, Some(Flow::Backward | Flow::Bidirectional)) {
-            heads.push_str(&marker("arrow_point", x1, y1, -ux, -uy, arrow));
+            write!(heads, "{}", marker("arrow_point", x1, y1, -ux, -uy, arrow)).unwrap();
             x1 += ux * trim;
             y1 += uy * trim;
         }
@@ -380,7 +381,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 ),
             );
         }
-        links.push_str(&format!(
+        write!(links, 
             "<g class=\"pele-edge{}\" data-id=\"{}-{}\"><path d=\"M{},{}L{},{}\" stroke=\"{}\"{}/>{}{}</g>",
             if link.dashed { " pele-wardley-dashed" } else { "" },
             esc_text(&link.source),
@@ -393,7 +394,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             if link.dashed { " stroke-dasharray=\"6 6\"" } else { "" },
             heads,
             caption
-        ));
+        ).unwrap();
     }
 
     // Evolution: a dashed arrow to where the component is heading, drawn as an open circle.
@@ -424,7 +425,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             );
         }
         ext.grow(tx - R, ty - R, tx + R, ty + R);
-        trends.push_str(&format!(
+        write!(trends, 
             "<g class=\"pele-wardley-trend\" data-id=\"{}\">{}<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" stroke=\"{}\"/></g>",
             esc_text(&trend.node_id),
             arrow_out,
@@ -433,7 +434,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             js::to_string(R),
             ctx.paint(Role::Background, "var(--_bg)"),
             accent
-        ));
+        ).unwrap();
     }
 
     let mut nodes = String::new();
@@ -457,7 +458,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 "build" => ctx.paint(Role::NodeFill, "var(--_s)"),
                 _ => ctx.paint(Role::Background, "var(--_bg)"),
             };
-            shape.push_str(&format!(
+            write!(shape, 
                 "<circle class=\"pele-wardley-{}\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 strategy,
                 num(x),
@@ -465,12 +466,12 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 js::to_string(2.0 * R),
                 fill,
                 node_stroke
-            ));
+            ).unwrap();
         }
         if strategy == Some("market") {
             let bx = tri * math::cos(PI / 6.0);
             let by = y + tri * math::sin(PI / 6.0);
-            shape.push_str(&format!(
+            write!(shape, 
                 "<path d=\"M{},{}L{},{}H{}Z\" fill=\"none\" stroke=\"{}\"/>",
                 num(x),
                 num(y - tri),
@@ -478,19 +479,19 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 num(by),
                 num(x + bx),
                 node_stroke
-            ));
+            ).unwrap();
             for (cx, cy) in [(x, y - tri), (x - bx, by), (x + bx, by)] {
-                shape.push_str(&format!(
+                write!(shape, 
                     "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                     num(cx),
                     num(cy),
                     num(dot),
                     node_fill,
                     node_stroke
-                ));
+                ).unwrap();
             }
         } else if node.is_pipeline_parent {
-            shape.push_str(&format!(
+            write!(shape, 
                 "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 num(x - SQUARE / 2.0),
                 num(y - SQUARE / 2.0),
@@ -498,26 +499,26 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 js::to_string(SQUARE),
                 node_fill,
                 node_stroke
-            ));
+            ).unwrap();
         } else if !anchor {
-            shape.push_str(&format!(
+            write!(shape, 
                 "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 num(x),
                 num(y),
                 js::to_string(R),
                 node_fill,
                 node_stroke
-            ));
+            ).unwrap();
         }
         if node.inertia == Some(true) {
             let offset = (if node.is_pipeline_parent { SQUARE / 2.0 } else { R }) + 10.0 + if strategy.is_some() { R + 4.0 } else { 0.0 };
-            shape.push_str(&format!(
+            write!(shape, 
                 "<rect class=\"pele-wardley-inertia\" x=\"{}\" y=\"{}\" width=\"4\" height=\"{}\" fill=\"{}\"/>",
                 num(x + offset),
                 num(y - R),
                 js::to_string(2.0 * R),
                 line
-            ));
+            ).unwrap();
         }
         let ox = node.label_offset_x.map(|v| clamp(v, -5000.0, 5000.0));
         let oy = node.label_offset_y.map(|v| clamp(v, -5000.0, 5000.0));
@@ -577,13 +578,13 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         } else {
             "component"
         };
-        nodes.push_str(&format!(
+        write!(nodes, 
             "<g class=\"pele-node pele-wardley-{}\" data-id=\"{}\">{}{}</g>",
             kind,
             esc_text(&node.id),
             shape,
             caption
-        ));
+        ).unwrap();
     }
 
     let mut annotations = String::new();
@@ -597,17 +598,17 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             let y = project_y(cy);
             let r = js::max(10.0, label.width / 2.0 + 4.0);
             ext.grow(x - r, y - r, x + r, y + r);
-            marks.push_str(&format!(
+            write!(marks, 
                 "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
                 num(x),
                 num(y),
                 num(r),
                 ctx.paint(Role::Background, "var(--_bg)"),
                 line
-            ));
-            marks.push_str(&label_svg(&label, x, y, &format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"", tiny_s), None));
+            ).unwrap();
+            write!(marks, "{}", label_svg(&label, x, y, &format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"", tiny_s), None)).unwrap();
         }
-        annotations.push_str(&format!("<g class=\"pele-wardley-annotation\" data-id=\"{}\">{}</g>", esc_text(&number), marks));
+        write!(annotations, "<g class=\"pele-wardley-annotation\" data-id=\"{}\">{}</g>", esc_text(&number), marks).unwrap();
     }
     let mut listed: Vec<_> = model.annotations.iter().filter(|a| a.text.as_deref().is_some_and(|t| !t.is_empty())).collect();
     listed.sort_by(|a, b| (a.number - b.number).partial_cmp(&0.0).unwrap_or(std::cmp::Ordering::Equal));
@@ -639,7 +640,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             rows.push_str(&start_label(l, bx + 10.0, y + l.line_height / 2.0 + small * 0.35, &format!(" font-size=\"{}\"", small_s)));
             y += l.height;
         }
-        annotations.push_str(&format!(
+        write!(annotations, 
             "<g class=\"pele-wardley-annotations\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>{}</g>",
             num(bx),
             num(by),
@@ -649,7 +650,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             ctx.paint(Role::Background, "var(--_bg)"),
             ctx.paint(Role::InnerStroke, "var(--_b)"),
             rows
-        ));
+        ).unwrap();
     }
 
     let mut notes = String::new();
@@ -687,7 +688,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         ext.grow(x, y - half - 8.0, x + FORCE_WIDTH, y + half + 8.0);
         let label = text(name, tiny + 1.0, 160.0, style::BOLD);
         let caption = centered(ext, &label, x + FORCE_WIDTH / 2.0, y + half + 8.0 + 12.0, &force_attrs);
-        forces.push_str(&format!(
+        write!(forces, 
             "<g class=\"pele-wardley-{}\" data-id=\"{}\"><path d=\"{}\" fill=\"{}\" stroke=\"{}\"/>{}</g>",
             if forward { "accelerator" } else { "deaccelerator" },
             esc_text(name),
@@ -695,7 +696,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             ctx.paint(Role::NodeFill, "var(--_s)"),
             node_stroke,
             caption
-        ));
+        ).unwrap();
     };
     for a in &model.accelerators {
         force(&mut ext, &a.name, a.x, a.y, true);
@@ -714,17 +715,17 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     let total_width = (right - left + 2.0 * pad).ceil();
     let total_height = (ext.max_y - ext.min_y + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, tx + plot_w / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!("<g transform=\"translate({},{})\">", num(tx), num(ty)));
-    content.push_str(&format!("<g class=\"pele-wardley-frame\" fill=\"none\">{}</g>", frame));
+        label_svg(&title, tx + plot_w / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, "<g transform=\"translate({},{})\">", num(tx), num(ty)).unwrap();
+    write!(content, "<g class=\"pele-wardley-frame\" fill=\"none\">{}</g>", frame).unwrap();
     content.push_str(&stage_labels);
     content.push_str(&axis_labels);
     content.push_str(&pipelines);
     if !links.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edges\" fill=\"none\">{}</g>", links));
+        write!(content, "<g class=\"pele-edges\" fill=\"none\">{}</g>", links).unwrap();
     }
     if !trends.is_empty() {
-        content.push_str(&format!("<g class=\"pele-wardley-trends\" fill=\"none\">{}</g>", trends));
+        write!(content, "<g class=\"pele-wardley-trends\" fill=\"none\">{}</g>", trends).unwrap();
     }
     content.push_str(&nodes);
     content.push_str(&annotations);

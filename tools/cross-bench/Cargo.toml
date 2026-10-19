@@ -1,0 +1,20 @@
+[package]
+name = "zebra-mermaid-cross-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# An isolated development workspace: the comparison engine never enters runtime dependencies.
+[workspace]
+
+[dependencies]
+zebra-mermaid = { path = "../../crates/zebra-mermaid", features = ["all-diagrams"] }
+mermaid-rs-renderer = { path = "../../.research/mermaid-rs-renderer", default-features = false }
+serde_json = "=1.0.154"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+
+[lints.rust]
+unsafe_code = "forbid"

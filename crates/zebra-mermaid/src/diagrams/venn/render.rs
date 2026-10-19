@@ -17,6 +17,7 @@ use crate::text::{layout_label, style, Label};
 use crate::theme::color::mix_hex;
 use crate::theme::Role;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 const RADIUS: f64 = 100.0;
 const MAX_GROWTH: f64 = 1.6;
@@ -226,12 +227,12 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         circles.iter().map(|c| Circle { id: c.id.clone(), x: c.x * scale + ox, y: c.y * scale + oy, r: c.r * scale }).collect();
 
     let no_style = ResolvedStyle::default();
-    let colors: Vec<String> = (0..placed.len()).map(|i| ctx.series(i as i64)).collect();
+    let colors: Vec<String> = (0..placed.len()).map(|i| ctx.series(i as i64).into_owned()).collect();
     let mut sets = String::new();
     for (i, c) in placed.iter().enumerate() {
         let color = &colors[i];
         let style = regions.get(&vec![c.id.clone()]).map_or(&no_style, |r| &r.style);
-        sets.push_str(&format!(
+        write!(sets, 
             "<circle class=\"pele-venn-set\" data-id=\"{}\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" fill-opacity=\"0.2\" stroke=\"{}\"{}/>",
             esc_text(&c.id),
             num(c.x),
@@ -240,7 +241,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
             color,
             color,
             style.shape
-        ));
+        ).unwrap();
     }
 
     // In resolved mode a region's own label takes a color that reads on what is drawn under it:
@@ -266,16 +267,16 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
     let mut overlaps = String::new();
     let mut labels = String::new();
     for region in regions.values() {
-        let id = esc_text(&region.sets.join("|"));
+        let id = esc_text(&region.sets.join("|")).into_owned();
         // An overlap is only drawn when a style gives it a look of its own; otherwise the circles show it.
         if region.sets.len() > 1 && !region.style.shape.is_empty() {
             let outline: Vec<&Circle> = region.inside.iter().map(|&i| &placed[i]).collect();
             let d = region_path(&outline, |v| num(v).to_string());
             if !d.is_empty() {
-                overlaps.push_str(&format!(
+                write!(overlaps, 
                     "<path class=\"pele-venn-overlap\" data-id=\"{}\" d=\"{}\" fill=\"none\"{}/>",
                     id, d, region.style.shape
-                ));
+                ).unwrap();
             }
         }
         let mut total = 0.0;
@@ -304,19 +305,19 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
                     style_of(std::slice::from_ref(id)).text
                 ),
             };
-            content.push_str(&label_svg(&line.label, x, y + line.label.height / 2.0, &attrs, None));
+            write!(content, "{}", label_svg(&line.label, x, y + line.label.height / 2.0, &attrs, None)).unwrap();
             y += line.label.height;
         }
-        labels.push_str(&format!("<g class=\"pele-venn-region\" data-id=\"{}\">{}</g>", id, content));
+        write!(labels, "<g class=\"pele-venn-region\" data-id=\"{}\">{}</g>", id, content).unwrap();
     }
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!("<g class=\"pele-venn-sets\">{}</g>", sets));
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, "<g class=\"pele-venn-sets\">{}</g>", sets).unwrap();
     if !overlaps.is_empty() {
-        content.push_str(&format!("<g class=\"pele-venn-overlaps\">{}</g>", overlaps));
+        write!(content, "<g class=\"pele-venn-overlaps\">{}</g>", overlaps).unwrap();
     }
     if !labels.is_empty() {
-        content.push_str(&format!("<g class=\"pele-venn-labels\">{}</g>", labels));
+        write!(content, "<g class=\"pele-venn-labels\">{}</g>", labels).unwrap();
     }
     Ok(Rendered { svg: svg_document("venn", width, height, size, ctx, Accessible::default(), &content), width, height, links: Vec::new() })
 }

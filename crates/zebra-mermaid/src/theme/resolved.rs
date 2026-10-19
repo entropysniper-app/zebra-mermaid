@@ -257,26 +257,26 @@ impl Theming {
     }
 
     /// The fill of data series `index`: Pele's `seriesColor` in CSS mode, the chart palette in
-    /// resolved mode.
-    pub fn series(&self, index: i64) -> String {
+    /// resolved mode. Borrowed unless a caller's palette has to be written into the expression.
+    pub fn series(&self, index: i64) -> std::borrow::Cow<'_, str> {
         match self.mode {
             ColorMode::Css => {
                 let k = index.rem_euclid(8) as usize;
                 if self.pele_defaults {
-                    crate::svg::theme::series_color(index)
+                    std::borrow::Cow::Borrowed(crate::svg::theme::series_color(index))
                 } else {
-                    format!("var(--pele-series-{},{})", k + 1, self.resolved.chart_color(index))
+                    std::borrow::Cow::Owned(format!("var(--pele-series-{},{})", k + 1, self.resolved.chart_color(index)))
                 }
             }
-            ColorMode::Resolved => self.resolved.chart_color(index).to_string(),
+            ColorMode::Resolved => std::borrow::Cow::Borrowed(self.resolved.chart_color(index)),
         }
     }
 
     /// The line color of series `index` (branches, curves): Pele's `seriesColor` in CSS mode.
-    pub fn series_line(&self, index: i64) -> String {
+    pub fn series_line(&self, index: i64) -> std::borrow::Cow<'_, str> {
         match self.mode {
             ColorMode::Css => self.series(index),
-            ColorMode::Resolved => self.resolved.line_color(index).to_string(),
+            ColorMode::Resolved => std::borrow::Cow::Borrowed(self.resolved.line_color(index)),
         }
     }
 
@@ -289,15 +289,15 @@ impl Theming {
     }
 
     /// The fallbacks written into the root's custom properties in CSS mode.
-    pub(crate) fn css_root_style(&self) -> String {
+    pub(crate) fn css_root_style(&self) -> std::borrow::Cow<'_, str> {
         if self.pele_defaults {
-            return crate::svg::theme::ROOT_STYLE.to_string();
+            return std::borrow::Cow::Borrowed(crate::svg::theme::ROOT_STYLE);
         }
         let t = &self.resolved;
-        format!(
+        std::borrow::Cow::Owned(format!(
             "--_bg:var(--pele-bg,{});--_fg:var(--pele-fg,{});--_m:var(--pele-muted,{});--_l:var(--pele-line,{});--_s:var(--pele-surface,{});--_a:var(--pele-surface-alt,{});--_b:var(--pele-border,{});--_c:var(--pele-accent,{});color:var(--_fg)",
             t.background, t.text, t.secondary_text, t.line, t.node_fill, t.group_header, t.node_stroke, t.accent
-        )
+        ))
     }
 
     /// The fallback of Pele's `--pele-critical` in CSS mode.
@@ -356,6 +356,8 @@ mod tests {
         let css = Theming::pele();
         assert_eq!(css.paint(Role::GroupStroke, "var(--_b)"), "var(--_b)");
         assert_eq!(css.series(9), "var(--pele-series-2,#f58518)");
+        let dark = Theming::new(ColorMode::Css, MermaidThemeMode::Dark, None, CanvasBackground::Transparent);
+        assert_eq!(dark.series(1), format!("var(--pele-series-2,{})", dark.resolved.chart_color(1)));
         let resolved = Theming::new(ColorMode::Resolved, MermaidThemeMode::Light, None, CanvasBackground::Opaque);
         assert_eq!(resolved.paint(Role::Background, "var(--_bg)"), "#FFFFFF");
     }

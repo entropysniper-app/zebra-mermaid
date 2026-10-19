@@ -11,15 +11,15 @@ impl Adapter for ErAdapter {
     fn parse(&mut self, source: &str) -> Result<(), String> {
         parser::parse(source, &mut self.0).map_err(|e| e.message)
     }
-    fn root(&self, key: &str) -> Result<Value, String> {
+    fn root(&self, key: &str) -> Result<Option<Value>, String> {
         let db = &self.0;
-        Ok(match key{
+        Ok(Some(match key{
   "entities"=>upstream_support::map(db.entities.iter().map(|(k,e)|(k.clone(),json!({"id":e.id,"label":e.label,"alias":e.alias,"cssClasses":e.classes,"cssStyles":e.styles,"attributes":e.attributes.iter().map(|a|json!({"type":a.kind,"name":a.name,"keys":a.keys,"comment":a.comment})).collect::<Vec<_>>()})))),
   "relationships"=>json!(db.relationships.iter().map(|r|json!({"entityA":r.a,"entityB":r.b,"roleA":r.role,"relSpec":{"cardA":r.card_a.to_uppercase(),"cardB":r.card_b.to_uppercase(),"relType":if r.identifying{"IDENTIFYING"}else{"NON_IDENTIFYING"}}})).collect::<Vec<_>>()),
   "classes"=>upstream_support::map(db.classes.iter().map(|(id,c)|(id.clone(),json!({"id":id,"styles":c.styles,"textStyles":c.text_styles})))),
   "accTitle"=>json!(db.acc_title.as_deref().unwrap_or("")),"accDescr"=>json!(db.acc_descr.as_deref().unwrap_or("")),
   _=>return Err(format!("unknown ER adapter root {key}")),
- })
+ }))
     }
 }
 fn run_case(id: &str) {

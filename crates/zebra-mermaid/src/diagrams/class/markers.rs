@@ -45,7 +45,7 @@ pub fn draw(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) -> String
             )
         }
         "lollipop" => format!("<circle class=\"pele-marker\" cx=\"{}\" cy=\"{}\" r=\"5\"/>", num(x - dx * 5.0), num(y - dy * 5.0)),
-        "dependency" => marker("arrow_point", x, y, dx, dy, color),
+        "dependency" => marker("arrow_point", x, y, dx, dy, color).to_string(),
         _ => String::new(),
     }
 }

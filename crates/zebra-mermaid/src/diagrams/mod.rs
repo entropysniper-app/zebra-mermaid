@@ -123,8 +123,8 @@ impl<'a> RenderCtx<'a> {
         self.theming.paint(role, css)
     }
 
-    /// The fill of data series `index`.
-    pub fn series(&self, index: i64) -> String {
+    /// The fill of data series `index`. See [`Theming::series`].
+    pub fn series(&self, index: i64) -> std::borrow::Cow<'a, str> {
         self.theming.series(index)
     }
 

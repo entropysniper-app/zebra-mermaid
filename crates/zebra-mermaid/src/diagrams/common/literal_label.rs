@@ -4,6 +4,7 @@ use crate::svg::builder::{esc, label_svg, num, shared_style, span_style, text_st
 use crate::text::{Label, Measure, Span};
 use crate::util::chars::is_space;
 use crate::util::js;
+use std::fmt::Write as _;
 
 /// Literal labels, including filenames and protocol fields, must retain every character but
 /// the spaces a line breaks at. Long words can break between code points; measurement stays
@@ -163,7 +164,7 @@ pub fn left_label_svg(label: &Label, x: f64, top: f64, attrs: &str) -> String {
                 size: label.size,
                 line_height: label.line_height,
             };
-            body.push_str(&label_svg(&single, x + width / 2.0, cy, attrs, None));
+            write!(body, "{}", label_svg(&single, x + width / 2.0, cy, attrs, None)).unwrap();
             continue;
         }
         let mut text = String::new();
@@ -172,17 +173,17 @@ pub fn left_label_svg(label: &Label, x: f64, top: f64, attrs: &str) -> String {
             if own.is_empty() {
                 text.push_str(&esc(&span.text));
             } else {
-                text.push_str(&format!("<tspan{}>{}</tspan>", own, esc(&span.text)));
+                write!(text, "<tspan{}>{}</tspan>", own, esc(&span.text)).unwrap();
             }
         }
         if !text.is_empty() {
-            body.push_str(&format!(
+            write!(body, 
                 "{} x=\"{}\" y=\"{}\" text-anchor=\"start\" xml:space=\"preserve\">{}</text>",
                 open,
                 num(x),
                 num(cy + label.size * 0.35),
                 text
-            ));
+            ).unwrap();
         }
     }
     body

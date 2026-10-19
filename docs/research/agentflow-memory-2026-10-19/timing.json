@@ -1,0 +1,75 @@
+{
+  "method": "Three independent processes per version, alternating order, five warm-ups then a >=3 second full-render loop. Report median of three loop means; this stress-specific metric is separate from the original Pele benchmark table. No sampler or allocation counters in timing.",
+  "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+  "beforeMs": 52.8454649122807,
+  "afterMs": 9.572085191082802,
+  "afterOverBefore": 0.18113352218533244,
+  "runs": [
+    {
+      "before": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "batches": 57,
+        "elapsedMs": 3012.1915,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "svgBytesPerBatch": 985192,
+        "msPerBatch": 52.8454649122807
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "batches": 319,
+        "elapsedMs": 3005.834709,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "svgBytesPerBatch": 985192,
+        "msPerBatch": 9.422679338557995
+      }
+    },
+    {
+      "after": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "batches": 313,
+        "elapsedMs": 3000.096,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "svgBytesPerBatch": 985192,
+        "msPerBatch": 9.58497124600639
+      },
+      "before": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "batches": 57,
+        "elapsedMs": 3009.472666,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "svgBytesPerBatch": 985192,
+        "msPerBatch": 52.79776607017544
+      }
+    },
+    {
+      "before": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "batches": 57,
+        "elapsedMs": 3015.399709,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "svgBytesPerBatch": 985192,
+        "msPerBatch": 52.90174928070175
+      },
+      "after": {
+        "engine": "rust",
+        "case": "stress: agentflow/44 3,000 global blocks after a flow of 3,000 nodes",
+        "batches": 314,
+        "elapsedMs": 3005.63475,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "svgBytesPerBatch": 985192,
+        "msPerBatch": 9.572085191082802
+      }
+    }
+  ]
+}

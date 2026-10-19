@@ -6,9 +6,8 @@
 //! its other end. The nesting is walked level by level from a queue, never by recursion, so a
 //! deeply nested input cannot exhaust the stack.
 
-use std::collections::HashMap;
-
 use super::layered::{layered, ledge, lnode, orient, rank, Kind, LEdge, LNode, LayeredOptions};
+use crate::util::hash::IndexedMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
@@ -111,8 +110,8 @@ struct Level {
     edges: Vec<LevelEdge>,
     ports: Vec<PortEdge>,
     /// Edge index * 2 (+1 for the head end) → index into `ports`.
-    port_of: HashMap<usize, usize>,
-    routes: HashMap<usize, Vec<f64>>,
+    port_of: IndexedMap<usize, usize>,
+    routes: IndexedMap<usize, Vec<f64>>,
     x: f64,
     y: f64,
 }
@@ -192,8 +191,8 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
         items: Vec::new(),
         edges: Vec::new(),
         ports: Vec::new(),
-        port_of: HashMap::new(),
-        routes: HashMap::new(),
+        port_of: IndexedMap::default(),
+        routes: IndexedMap::default(),
         x: 0.0,
         y: 0.0,
     };
@@ -226,8 +225,9 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
         while q < order.len() {
             let id = order[q].id;
             let dir = order[q].dir;
-            let items = order[q].items.clone();
-            for item in items {
+            // The items are read by index: a group among them adds a level to `order`.
+            for k in 0..order[q].items.len() {
+                let item = order[q].items[k];
                 placed[item] = true;
                 depth[item] = if id < 0 { 0 } else { depth[id as usize] + 1 };
                 if nodes[item].is_group {
@@ -653,7 +653,7 @@ fn build(
     let level = &order[q];
     let vertical = level.dir == Dir::TB || level.dir == Dir::BT;
     let start = start_side(level.dir);
-    let mut local: HashMap<usize, usize> = HashMap::with_capacity(level.items.len());
+    let mut local: IndexedMap<usize, usize> = IndexedMap::with_capacity_and_hasher(level.items.len(), Default::default());
     let mut lnodes: Vec<LNode> = Vec::with_capacity(level.items.len() + level.ports.len());
     let mut ledges: Vec<LEdge> = Vec::with_capacity(level.edges.len() + level.ports.len());
     for (i, &item) in level.items.iter().enumerate() {

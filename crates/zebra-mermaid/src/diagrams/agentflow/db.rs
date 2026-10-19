@@ -10,6 +10,11 @@ use crate::{
     ConfigMap, ConfigValue, DiagramType, Error, ErrorCode,
 };
 use indexmap::{IndexMap, IndexSet};
+#[derive(Clone, Debug)]
+struct Membership {
+    ordinal: usize,
+    owner: usize,
+}
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct AgentflowModel {
@@ -34,12 +39,23 @@ pub struct AgentflowModel {
     pub configured_direction: Option<String>,
     lookup: IndexMap<String, usize>,
     global_nodes: IndexSet<String>,
-    members: IndexSet<String>,
+    // A member belongs to exactly one flow. The owner lets a global block update only
+    // affected flows; ordinals retain serialized order despite swap_remove.
+    #[cfg_attr(feature = "serde", serde(serialize_with = "serialize_members"))]
+    members: IndexMap<String, Membership>,
+    #[cfg_attr(feature = "serde", serde(skip))]
+    next_member: usize,
     edge_by_id: IndexMap<String, usize>,
     pair_count: IndexMap<String, usize>,
     sub_count: usize,
     bare_mappings: IndexSet<usize>,
     first_mapping: IndexMap<String, usize>,
+}
+#[cfg(feature = "serde")]
+fn serialize_members<S: serde::Serializer>(members: &IndexMap<String, Membership>, serializer: S) -> Result<S::Ok, S::Error> {
+    let mut ordered: Vec<_> = members.iter().collect();
+    ordered.sort_unstable_by_key(|(_, member)| member.ordinal);
+    serializer.collect_seq(ordered.into_iter().map(|(id, _)| id))
 }
 fn unquote(s: &str) -> String {
     s.strip_prefix('"').and_then(|s| s.strip_suffix('"')).unwrap_or(s).to_owned()
@@ -477,8 +493,16 @@ impl AgentflowModel {
         }
         let id = id.unwrap_or_else(|| format!("subGraph{}", self.sub_count));
         self.sub_count += 1;
-        let nodes: Vec<_> = items.into_iter().filter(|n| n != &id && !self.global_nodes.contains(n) && !self.members.contains(n)).collect();
-        self.members.extend(nodes.iter().cloned());
+        let nodes: Vec<_> =
+            items.into_iter().filter(|n| n != &id && !self.global_nodes.contains(n) && !self.members.contains_key(n)).collect();
+        let owner = self.lookup.get(&id).copied().unwrap_or(self.subgraphs.len());
+        self.members.reserve(nodes.len());
+        for node in &nodes {
+            if let indexmap::map::Entry::Vacant(entry) = self.members.entry(node.clone()) {
+                entry.insert(Membership { ordinal: self.next_member, owner });
+                self.next_member += 1;
+            }
+        }
         if let Some(&i) = self.lookup.get(&id) {
             let s = &mut self.subgraphs[i];
             s.nodes.extend(nodes);
@@ -503,27 +527,47 @@ impl AgentflowModel {
         id
     }
     pub fn add_global(&mut self, list: &[DocItem]) {
-        let mut release = false;
+        let mut first = None;
+        let mut owners = Vec::new();
         for entry in list {
-            let values: Vec<&String> = match entry {
-                DocItem::Text(s) => vec![s],
-                DocItem::Nodes(v) => v.iter().collect(),
-                _ => vec![],
+            let nodes = match entry {
+                DocItem::Text(text) => std::slice::from_ref(text),
+                DocItem::Nodes(nodes) => nodes.as_slice(),
+                DocItem::Dir(_) => &[],
             };
-            for s in values {
-                let id = js::trim(s);
+            for text in nodes {
+                let id = js::trim(text);
                 if id.is_empty() {
                     continue;
                 }
                 self.global_nodes.insert(id.into());
-                if self.members.shift_remove(id) {
-                    release = true;
+                if let Some(member) = self.members.swap_remove(id) {
+                    if let Some((owner, _)) = first {
+                        if owners.is_empty() {
+                            owners.push(owner);
+                        }
+                        owners.push(member.owner);
+                    } else {
+                        first = Some((member.owner, id));
+                    }
                 }
             }
         }
-        if release {
-            for s in &mut self.subgraphs {
-                s.nodes.retain(|id| !self.global_nodes.contains(id));
+        if let Some((owner, id)) = first {
+            if owners.is_empty() {
+                // The common one-node block needs neither a temporary allocation nor
+                // a hash lookup for every surviving node. Vec::remove preserves order.
+                let nodes = &mut self.subgraphs[owner].nodes;
+                if let Some(index) = nodes.iter().position(|node| node == id) {
+                    nodes.remove(index);
+                }
+            } else {
+                // Batch removals filter each affected flow only once.
+                owners.sort_unstable();
+                owners.dedup();
+                for owner in owners {
+                    self.subgraphs[owner].nodes.retain(|id| !self.global_nodes.contains(id));
+                }
             }
         }
     }

@@ -13,6 +13,7 @@ use crate::text::{layout_label, style, Icons, Label, Measure, Span};
 use crate::theme::Role;
 use crate::util::js;
 use crate::util::url::{link_url, rel_attr, safe_url, LinkInfo};
+use std::fmt::Write as _;
 
 const COLUMN_GAP: f64 = 12.0;
 const COLUMN_PAD: f64 = 8.0;
@@ -100,14 +101,14 @@ fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>,
     for (i, line) in label.lines.iter().enumerate() {
         let cy = y + (i as f64 + 0.5) * label.line_height;
         if line.len() == 1 && line[0].icon.is_none() {
-            out.push_str(&format!(
+            write!(out, 
                 "<text{} x=\"{}\" y=\"{}\"{}>{}</text>",
                 text_style(attrs, line[0].style),
                 num(x),
                 num(cy + label.size * 0.35),
                 if end { " text-anchor=\"end\"" } else { "" },
                 esc(&line[0].text)
-            ));
+            ).unwrap();
         } else {
             let width = label.widths[i];
             let one = Label {
@@ -119,7 +120,7 @@ fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>,
                 line_height: label.line_height,
             };
             let half = (if end { -width } else { width }) / 2.0;
-            out.push_str(&label_svg(&one, x + half, cy, attrs, icons));
+            write!(out, "{}", label_svg(&one, x + half, cy, attrs, icons)).unwrap();
         }
     }
     out
@@ -269,14 +270,14 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
             icons,
             false,
         ));
-        body.push_str(&format!(
+        write!(body, 
             "<text class=\"pele-count\" x=\"{}\" y=\"{}\" text-anchor=\"end\" font-size=\"{}\" fill=\"{}\">{}</text>",
             js::to_string(edge),
             num(COLUMN_PAD + line / 2.0 + small * 0.35),
             js::to_string(small),
             muted,
             section.items.len()
-        ));
+        ).unwrap();
         if let Some(icon) = section.node.icon.as_deref().filter(|&i| has(Some(i))) {
             body.push_str(&icon_svg(icon, edge - count_widths[index] - ICON_GAP - glyph, COLUMN_PAD + (line - glyph) / 2.0, glyph, icons));
         }
@@ -295,11 +296,11 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                 ctx.paint(Role::NodeStroke, "var(--_b)")
             );
             if let Some(color) = &color {
-                inner.push_str(&format!(
+                write!(inner, 
                     "<path class=\"pele-priority\" d=\"M2.5,5V{}\" fill=\"none\" {} stroke-width=\"3\" stroke-linecap=\"round\"/>",
                     num(card.height - 5.0),
                     color
-                ));
+                ).unwrap();
             }
             inner.push_str(&text_block(&card.label, CARD_PAD, CARD_PAD, " class=\"pele-label\"", icons, false));
             if let Some(icon) = item.icon.as_deref().filter(|&i| has(Some(i))) {
@@ -321,7 +322,7 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                         ));
                     }
                     Some(href) => {
-                        inner.push_str(&format!("<a href=\"{}\" target=\"_blank\"{}>", esc(&href), rel_attr(options)));
+                        write!(inner, "<a href=\"{}\" target=\"_blank\"{}>", esc(&href), rel_attr(options)).unwrap();
                         inner.push_str(&text_block(
                             &card.ticket,
                             CARD_PAD,
@@ -345,7 +346,7 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                     true,
                 ));
             }
-            body.push_str(&format!(
+            write!(body, 
                 "<g class=\"pele-node pele-card{}{}\" data-id=\"{}\" transform=\"translate({},{})\" font-size=\"{}\">{}</g>",
                 if color.is_none() { String::new() } else { format!(" pele-priority-{}", priority.replacen(' ', "-", 1)) },
                 class_names(item.css_classes.as_deref().unwrap_or("")),
@@ -354,24 +355,24 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                 num(y),
                 js::to_string(small),
                 inner
-            ));
+            ).unwrap();
             y += card.height + CARD_GAP;
         }
 
-        out.push_str(&format!(
+        write!(out, 
             "<g class=\"pele-cluster pele-column{}\" data-id=\"{}\" transform=\"translate({},{})\">{}</g>",
             class_names(section.node.css_classes.as_deref().unwrap_or("")),
             esc_text(&section.node.id),
             num(left + (index as f64 % per_row) * (column_width + COLUMN_GAP)),
             num(pad + title_height + row_top),
             body
-        ));
+        ).unwrap();
     }
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (board_height + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     content.push_str(&out);
 
     Ok(Rendered {

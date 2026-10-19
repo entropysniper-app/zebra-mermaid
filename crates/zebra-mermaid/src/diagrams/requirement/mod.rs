@@ -3,6 +3,9 @@ mod lexer;
 mod parser;
 mod render;
 mod tokens;
+#[cfg(test)]
+#[path = "../../../tests/upstream/requirement_stress_generated.rs"]
+mod upstream_stress;
 use super::ParseInput;
 use crate::{DiagramType, Error};
 use indexmap::IndexMap;

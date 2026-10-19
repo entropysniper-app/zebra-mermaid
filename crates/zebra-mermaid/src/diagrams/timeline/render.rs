@@ -13,6 +13,7 @@ use crate::svg::theme::RADIUS;
 use crate::text::{style, Label};
 use crate::theme::Role;
 use crate::util::js;
+use std::fmt::Write as _;
 
 const PAD_X: f64 = 12.0;
 const PAD_Y: f64 = 8.0;
@@ -116,11 +117,11 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     // the secondary text color, the neutral of Zebra's palette.
     let color_of = |group: &Group, period: usize| -> String {
         if group.section >= 0 {
-            ctx.series(group.section)
+            ctx.series(group.section).into_owned()
         } else if has_sections {
             ctx.paint(Role::SecondaryText, "var(--_m)").to_string()
         } else {
-            ctx.series(if multicolor { period as i64 } else { 0 })
+            ctx.series(if multicolor { period as i64 } else { 0 }).into_owned()
         }
     };
 
@@ -160,10 +161,10 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     let header = |group: &Group, label: &Label, x: f64, y: f64, w: f64, h: f64| -> String {
         let fill = ctx.series(group.section);
         rect(x, y, w, h, &format!(" fill=\"{}\"", fill))
-            + &label_svg(label, x + w / 2.0, y + h / 2.0, &format!(" font-weight=\"var(--_hw)\"{}", on_color(&fill)), None)
+            + &label_svg(label, x + w / 2.0, y + h / 2.0, &format!(" font-weight=\"var(--_hw)\"{}", on_color(&fill)), None).to_string()
     };
     let period = |labels: &[Label], i: usize, color: &str, x: f64, y: f64, h: f64| -> String {
-        rect(x, y, col_w, h, &format!(" fill=\"{}\"", color)) + &label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None)
+        rect(x, y, col_w, h, &format!(" fill=\"{}\"", color)) + &label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None).to_string()
     };
     let event = |label: &Label, color: &str, x: f64, y: f64, h: f64| -> String {
         format!(
@@ -221,16 +222,16 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 for label in &event_labels[i] {
                     let eh = event_height(label);
                     last = ey + eh / 2.0;
-                    d.push_str(&format!("M{},{}H{}", num(spine_x), num(last), num(events_x)));
+                    write!(d, "M{},{}H{}", num(spine_x), num(last), num(events_x)).unwrap();
                     cards.push_str(&event(label, &color, events_x, ey, eh));
                     ey += eh + EVENT_GAP;
                 }
                 if !cards.is_empty() {
-                    d.push_str(&format!("M{},{}H{}V{}", num(axis_x), num(cy), num(spine_x), num(last)));
+                    write!(d, "M{},{}H{}V{}", num(axis_x), num(cy), num(spine_x), num(last)).unwrap();
                 }
                 body.push_str(&open_period(i));
                 body.push_str(&period(&period_labels, i, &color, left, y, h));
-                body.push_str(&format!("<path class=\"pele-edge\" d=\"{}\"{}/>", d, line));
+                write!(body, "<path class=\"pele-edge\" d=\"{}\"{}/>", d, line).unwrap();
                 body.push_str(&dot(axis_x, cy, &color));
                 body.push_str(&cards);
                 body.push_str("</g>");
@@ -304,7 +305,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 for event_label in &event_labels[i] {
                     let eh = event_height(event_label);
                     if ey > events_y {
-                        d.push_str(&format!("M{},{}V{}", num(cx), num(ey - EVENT_GAP), num(ey)));
+                        write!(d, "M{},{}V{}", num(cx), num(ey - EVENT_GAP), num(ey)).unwrap();
                     }
                     cards.push_str(&event(event_label, &color, x, ey, eh));
                     ey += eh + EVENT_GAP;
@@ -312,7 +313,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 bottom = js::max(bottom, ey - EVENT_GAP);
                 body.push_str(&open_period(i));
                 body.push_str(&period(&period_labels, i, &color, x, periods_y, chip_h));
-                body.push_str(&format!("<path class=\"pele-edge\" d=\"{}\"{}/>", d, line));
+                write!(body, "<path class=\"pele-edge\" d=\"{}\"{}/>", d, line).unwrap();
                 body.push_str(&dot(cx, axis_y, &color));
                 body.push_str(&cards);
                 body.push_str("</g>");
@@ -340,7 +341,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = js::max(height, pad * 2.0).ceil();
     let content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None) + &body;
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string() + &body;
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered {
         svg: svg_document("timeline", total_width, total_height, size, ctx, acc, &content),

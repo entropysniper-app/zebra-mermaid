@@ -3,12 +3,17 @@
 
 pub mod source_map;
 
+#[cfg(test)]
+#[path = "../../tests/upstream/preprocess.rs"]
+mod upstream_tests;
+
 use crate::config::{json, merge, yaml, Config, ConfigMap, ConfigValue};
 use crate::error::Error;
 use crate::text::entities::{CLOSE, OPEN};
 use crate::util::chars::{char_at, is_space, is_word_byte};
-use crate::util::js;
+use crate::util::{js, strs};
 use source_map::{Builder, SourceMap, StepMap};
+use std::borrow::Cow;
 
 #[derive(Debug, Clone)]
 pub struct Preprocessed {
@@ -27,9 +32,9 @@ pub struct Preprocessed {
 }
 
 /// `/\r\n?/g` → `\n`.
-fn normalize_breaks(source: &str) -> (String, StepMap) {
+fn normalize_breaks(source: &str) -> (Cow<'_, str>, StepMap) {
     if !source.contains('\r') {
-        return (source.to_string(), StepMap::identity(source.len()));
+        return (Cow::Borrowed(source), StepMap::identity(source.len()));
     }
     let b = source.as_bytes();
     let mut out = Builder::new(source);
@@ -46,7 +51,8 @@ fn normalize_breaks(source: &str) -> (String, StepMap) {
         }
     }
     out.copy(last, b.len());
-    out.finish()
+    let (text, map) = out.finish();
+    (Cow::Owned(text), map)
 }
 
 /// Rewrites `="..."` to `='...'` inside `<word ...>` tags, up to the last `>`. The text keeps
@@ -294,10 +300,12 @@ fn for_each_directive<'a>(text: &'a str, mut f: impl FnMut(usize, &Directive<'a>
     }
 }
 
-fn directives(text: &str, config: &mut ConfigMap) -> Result<(String, StepMap), Error> {
-    if !text.contains("%%{") {
-        return Ok((text.to_string(), StepMap::identity(text.len())));
+fn directives(text: Cow<'_, str>, config: &mut ConfigMap) -> Result<(String, StepMap), Error> {
+    if !strs::contains(&text, "%%{") {
+        let len = text.len();
+        return Ok((text.into_owned(), StepMap::identity(len)));
     }
+    let text = &*text;
     let normalized = js::trim(text).replace('\'', "\"");
     let mut failure = None;
     for_each_directive(&normalized, |_, d| {
@@ -329,11 +337,11 @@ fn directives(text: &str, config: &mut ConfigMap) -> Result<(String, StepMap), E
 }
 
 /// `text.replace(/^\s*%%(?!{)[^\n]+\n?/gm, '').trimStart()`, as two mapped steps.
-fn cleanup_comments(text: &str) -> (String, Vec<StepMap>) {
+pub(crate) fn cleanup_comments(text: &str) -> (String, Vec<StepMap>) {
     let mut out = Builder::new(text);
     let b = text.as_bytes();
     let mut last = 0;
-    if text.contains("%%") {
+    if strs::contains(text, "%%") {
         let mut p = 0;
         let mut line_start = true;
         while p < b.len() {
@@ -357,12 +365,14 @@ fn cleanup_comments(text: &str) -> (String, Vec<StepMap>) {
         }
     }
     out.copy(last, text.len());
-    let (removed, first) = out.finish();
+    let (mut removed, first) = out.finish();
     let start = removed.len() - js::trim_start(&removed).len();
-    let mut trim = Builder::new(&removed);
-    trim.copy(start, removed.len());
-    let (trimmed, second) = trim.finish();
-    (trimmed, vec![first, second])
+    // The trimmed text is the same buffer with its start cut off, mapped as a copied run.
+    let second = StepMap::suffix(removed.len(), start);
+    if start > 0 {
+        removed.drain(..start);
+    }
+    (removed, vec![first, second])
 }
 
 /// Mermaid's `text.replace(/keyword.*:\S*#.*;/g, ...)`, done in one pass: on a line where the
@@ -446,7 +456,10 @@ pub fn encode_entities(text: &str) -> (String, SourceMap) {
     let mut map = SourceMap::default();
     if !text.contains('#') {
         map.push(StepMap::identity(text.len()));
-        return (text.to_string(), map);
+        // Room for the line break a parser's input ends with, so it is not grown again.
+        let mut copy = String::with_capacity(text.len() + 1);
+        copy.push_str(text);
+        return (copy, map);
     }
     let (a, m1) = drop_color_semicolons(text, "style");
     let (b, m2) = drop_color_semicolons(&a, "classDef");
@@ -466,14 +479,14 @@ pub fn preprocess(source: &str) -> Result<Preprocessed, Error> {
     let mut map = SourceMap::default();
     let (text, step) = normalize_breaks(source);
     map.push(step);
-    let text = if text.contains('<') { quote_attributes(&text) } else { text };
+    let text = if text.contains('<') { Cow::Owned(quote_attributes(&text)) } else { text };
 
     let mut config = ConfigMap::new();
     let mut title = None;
     let mut line_offset = 0;
 
     let mut text = text;
-    let front = if text.contains("---") { match_front_matter(&text) } else { None };
+    let front = if strs::contains(&text, "---") { match_front_matter(&text) } else { None };
     if let Some(front) = front {
         let body = if front.indent.is_empty() {
             front.body.clone()
@@ -503,10 +516,10 @@ pub fn preprocess(source: &str) -> Result<Preprocessed, Error> {
         b.copy(front.length, text.len());
         let (rest, step) = b.finish();
         map.push(step);
-        text = rest;
+        text = Cow::Owned(rest);
     }
 
-    let (with_comments, step) = directives(&text, &mut config)?;
+    let (with_comments, step) = directives(text, &mut config)?;
     map.push(step);
     let with_comments_map = map.clone();
     let (cleaned, steps) = cleanup_comments(&with_comments);

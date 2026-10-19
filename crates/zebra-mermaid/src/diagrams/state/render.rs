@@ -25,6 +25,7 @@ use crate::util::{
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum K {
     State,
@@ -185,7 +186,7 @@ fn divide(items: &[usize], bounds: [f64; 4], nodes: &[CNode], views: &[View], pa
         for k in 1..sorted.len() {
             let at = num((hi(sorted[k - 1], x) + lo(sorted[k], x)) / 2.0 + pad);
             let d = if x { format!("{at},{}V{}", num(top), num(bottom)) } else { format!("{},{at}H{}", num(left), num(right)) };
-            out.push_str(&format!("<path class=\"pele-divider\" d=\"M{d}\"/>"));
+            write!(out, "<path class=\"pele-divider\" d=\"M{d}\"/>").unwrap();
         }
         return;
     }
@@ -571,14 +572,14 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                     ),
                 );
                 if v.title_h > 0.0 {
-                    body.push_str(&format!("<path d=\"M{},{}H{}\"{rule}{}/>", num(left), num(top + v.title_h), num(left + c.w), st.line));
-                    body.push_str(&label_svg(
+                    write!(body, "<path d=\"M{},{}H{}\"{rule}{}/>", num(left), num(top + v.title_h), num(left + c.w), st.line).unwrap();
+                    write!(body, "{}", label_svg(
                         &v.label,
                         title_x(c, v.label.width, &crossings) + pad,
                         top + v.title_h / 2.0,
                         &format!(" class=\"pele-cluster-label\"{}", st.text),
                         icons,
-                    ));
+                    )).unwrap();
                 }
                 divide(&children[i], [left, top + v.title_h, left + c.w, top + c.h], &nodes, &views, pad, &mut dividers);
             }
@@ -608,26 +609,26 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             _ => {
                 body = rect(-w / 2.0, -h / 2.0, w, h, &format!(" rx=\"{}\"{surface}{}", num(js::min(10.0, h / 2.0)), st.shape));
                 if v.kind == K::State {
-                    body.push_str(&label_svg(&v.label, 0.0, 0.0, &label_attrs, icons));
+                    write!(body, "{}", label_svg(&v.label, 0.0, 0.0, &label_attrs, icons)).unwrap();
                 } else {
                     let mut at = 10.0 - h / 2.0 + v.label.height;
-                    body.push_str(&format!(
+                    write!(body, 
                         "<path d=\"M{},{}H{}\"{rule}{}/>{}",
                         num(-w / 2.0),
                         num(at + 6.0),
                         num(w / 2.0),
                         st.line,
                         label_svg(&v.label, 0.0, at - v.label.height / 2.0, &label_attrs, icons)
-                    ));
+                    ).unwrap();
                     at += 14.0;
                     for l in &v.lines {
-                        body.push_str(&label_svg(
+                        write!(body, "{}", label_svg(
                             l,
                             0.0,
                             at + l.height / 2.0,
                             &format!(" class=\"pele-state-description\" font-size=\"{}\"{}", js::to_string(small), st.text),
                             icons,
-                        ));
+                        )).unwrap();
                         at += l.height;
                     }
                 }
@@ -757,30 +758,30 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         } else {
             "pele-transition".into()
         };
-        edges_out.push_str(&format!(
+        write!(edges_out, 
             "<g class=\"pele-edge {class}\" data-id=\"{}\"><path d=\"{}\"/>{}</g>",
             esc_text(&edge.id),
             path.d,
             marker(end_type, path.ex, path.ey, path.edx, path.edy, ctx.paint(Role::Arrow, "var(--_l)"))
-        ));
+        ).unwrap();
         if label.width > 0.0 {
-            labels_out.push_str(&edge_label_svg(&edge.id, label, ce.label_x + pad, ce.label_y + pad, "", icons, bg));
+            write!(labels_out, "{}", edge_label_svg(&edge.id, label, ce.label_x + pad, ce.label_y + pad, "", icons, bg)).unwrap();
         }
     }
     let mut content = String::new();
     if !clusters.is_empty() {
-        content.push_str(&format!("<g class=\"pele-clusters\">{clusters}</g>"));
+        write!(content, "<g class=\"pele-clusters\">{clusters}</g>").unwrap();
     }
     if !dividers.is_empty() {
-        content.push_str(&format!("<g class=\"pele-dividers\" stroke-dasharray=\"4 4\"{rule}>{dividers}</g>"));
+        write!(content, "<g class=\"pele-dividers\" stroke-dasharray=\"4 4\"{rule}>{dividers}</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edges\" fill=\"none\" stroke=\"{line}\" stroke-linecap=\"round\">{edges_out}</g>"));
+        write!(content, "<g class=\"pele-edges\" fill=\"none\" stroke=\"{line}\" stroke-linecap=\"round\">{edges_out}</g>").unwrap();
     }
     if !labels_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)));
+        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)).unwrap();
     }
-    content.push_str(&format!("<g class=\"pele-nodes\">{nodes_out}{notes_out}</g>"));
+    write!(content, "<g class=\"pele-nodes\">{nodes_out}{notes_out}</g>").unwrap();
     let titled = with_title(db.title.as_deref(), &m, size, pad, width, height, content);
     Ok(Rendered {
         svg: svg_document(

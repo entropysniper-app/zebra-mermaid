@@ -1,8 +1,10 @@
 //! Edge paths, markers, labels and self-loops. Ported from Pele `src/svg/edges.ts`.
 
-use super::builder::{esc_text, label_svg, num};
+use super::builder::{num, push_num, write_esc, write_label_svg, write_num};
 use crate::text::{Icons, Label};
+use crate::util::hash::IndexedMap;
 use crate::util::{js, math};
+use std::fmt;
 
 pub const ARROW: f64 = 8.0;
 
@@ -38,7 +40,7 @@ pub use crate::layout::layered::ease;
 /// neighbour and crosses it.
 #[derive(Debug, Default, Clone)]
 pub struct SideReach {
-    reach: std::collections::HashMap<i64, f64>,
+    reach: IndexedMap<i64, f64>,
 }
 
 impl SideReach {
@@ -196,16 +198,33 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
         last += 1;
     }
 
-    let mut d = format!("M{},{}", num(xs[0]), num(ys[0]));
+    let mut d = String::with_capacity(16 + 24 * last);
+    d.push('M');
+    push_num(&mut d, xs[0]);
+    d.push(',');
+    push_num(&mut d, ys[0]);
     let mut at_x = xs[0];
     let mut at_y = ys[0];
     let line_to = |d: &mut String, at_x: &mut f64, at_y: &mut f64, x: f64, y: f64| {
         if near(x, y, *at_x, *at_y) {
             return;
         }
-        d.push_str(&format!("L{},{}", num(x), num(y)));
+        d.push('L');
+        push_num(d, x);
+        d.push(',');
+        push_num(d, y);
         *at_x = x;
         *at_y = y;
+    };
+    // `C` and `Q` segments: pairs of coordinates, the first with the command letter.
+    let curve_to = |d: &mut String, command: char, points: &[f64]| {
+        d.push(command);
+        for (i, &p) in points.iter().enumerate() {
+            if i > 0 {
+                d.push(if i % 2 == 0 { ' ' } else { ',' });
+            }
+            push_num(d, p);
+        }
     };
     for i in 1..=last {
         let x = xs[i];
@@ -216,7 +235,7 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
             let k = along_d.abs() * ease(if down { x - at_x } else { y - at_y }, along_d);
             let ux = if down { 0.0 } else { js::sign(along_d) * k };
             let uy = if down { js::sign(along_d) * k } else { 0.0 };
-            d.push_str(&format!("C{},{} {},{} {},{}", num(at_x + ux), num(at_y + uy), num(x - ux), num(y - uy), num(x), num(y)));
+            curve_to(&mut d, 'C', &[at_x + ux, at_y + uy, x - ux, y - uy, x, y]);
             at_x = x;
             at_y = y;
             continue;
@@ -249,17 +268,20 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
         at_x = x + vx * after;
         at_y = y + vy * after;
         if stepped {
-            d.push_str(&format!("Q{},{} {},{}", num(x), num(y), num(at_x), num(at_y)));
+            curve_to(&mut d, 'Q', &[x, y, at_x, at_y]);
         } else {
-            d.push_str(&format!(
-                "C{},{} {},{} {},{}",
-                num(x - ux * before * (1.0 - HANDLE)),
-                num(y - uy * before * (1.0 - HANDLE)),
-                num(x + vx * after * (1.0 - HANDLE)),
-                num(y + vy * after * (1.0 - HANDLE)),
-                num(at_x),
-                num(at_y)
-            ));
+            curve_to(
+                &mut d,
+                'C',
+                &[
+                    x - ux * before * (1.0 - HANDLE),
+                    y - uy * before * (1.0 - HANDLE),
+                    x + vx * after * (1.0 - HANDLE),
+                    y + vy * after * (1.0 - HANDLE),
+                    at_x,
+                    at_y,
+                ],
+            );
         }
     }
     EdgePath { d, sx, sy, sdx: -sdx, sdy: -sdy, ex, ey, edx, edy }
@@ -284,8 +306,44 @@ pub fn marker_trim(kind: &str) -> f64 {
     }
 }
 
-/// Draws a marker whose tip is at (x, y), pointing along (dx, dy).
-pub fn marker(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) -> String {
+/// A marker whose tip is at (x, y), pointing along (dx, dy), written when it is formatted.
+#[derive(Clone, Copy)]
+pub struct Marker<'a> {
+    kind: &'a str,
+    x: f64,
+    y: f64,
+    dx: f64,
+    dy: f64,
+    color: &'a str,
+}
+
+impl fmt::Display for Marker<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_marker(f, self.kind, self.x, self.y, self.dx, self.dy, self.color)
+    }
+}
+
+/// Draws a marker whose tip is at (x, y), pointing along (dx, dy). The markup is written when
+/// the result is formatted; `to_string` gives it as text.
+pub fn marker<'a>(kind: &'a str, x: f64, y: f64, dx: f64, dy: f64, color: &'a str) -> Marker<'a> {
+    Marker { kind, x, y, dx, dy, color }
+}
+
+/// Writes a pair of coordinates separated by a comma.
+#[inline]
+fn write_point<W: fmt::Write + ?Sized>(out: &mut W, x: f64, y: f64) -> fmt::Result {
+    write_num(out, x)?;
+    out.write_char(',')?;
+    write_num(out, y)
+}
+
+/// Appends [`marker`] to a buffer.
+pub fn push_marker(out: &mut String, kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) {
+    let _ = write_marker(out, kind, x, y, dx, dy, color);
+}
+
+/// Writes [`marker`].
+pub fn write_marker<W: fmt::Write + ?Sized>(out: &mut W, kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) -> fmt::Result {
     let nx = -dy;
     let ny = dx;
     match kind {
@@ -293,23 +351,25 @@ pub fn marker(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) -> Stri
             let bx = x - dx * ARROW;
             let by = y - dy * ARROW;
             let half = ARROW * 0.42;
-            format!(
-                "<path class=\"pele-marker\" d=\"M{},{}L{},{}L{},{}Z\" fill=\"{}\" stroke=\"none\"/>",
-                num(x),
-                num(y),
-                num(bx + nx * half),
-                num(by + ny * half),
-                num(bx - nx * half),
-                num(by - ny * half),
-                color
-            )
+            out.write_str("<path class=\"pele-marker\" d=\"M")?;
+            write_point(out, x, y)?;
+            out.write_char('L')?;
+            write_point(out, bx + nx * half, by + ny * half)?;
+            out.write_char('L')?;
+            write_point(out, bx - nx * half, by - ny * half)?;
+            out.write_str("Z\" fill=\"")?;
+            out.write_str(color)?;
+            out.write_str("\" stroke=\"none\"/>")
         }
-        "arrow_circle" => format!(
-            "<circle class=\"pele-marker\" cx=\"{}\" cy=\"{}\" r=\"3.5\" fill=\"{}\" stroke=\"none\"/>",
-            num(x - dx * 4.0),
-            num(y - dy * 4.0),
-            color
-        ),
+        "arrow_circle" => {
+            out.write_str("<circle class=\"pele-marker\" cx=\"")?;
+            write_num(out, x - dx * 4.0)?;
+            out.write_str("\" cy=\"")?;
+            write_num(out, y - dy * 4.0)?;
+            out.write_str("\" r=\"3.5\" fill=\"")?;
+            out.write_str(color)?;
+            out.write_str("\" stroke=\"none\"/>")
+        }
         "arrow_cross" => {
             let cx = x - dx * 4.0;
             let cy = y - dy * 4.0;
@@ -318,37 +378,91 @@ pub fn marker(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) -> Stri
             let uy = (dy + ny) * a;
             let vx = (dx - nx) * a;
             let vy = (dy - ny) * a;
-            format!(
-                "<path class=\"pele-marker\" d=\"M{},{}L{},{}M{},{}L{},{}\"/>",
-                num(cx - ux),
-                num(cy - uy),
-                num(cx + ux),
-                num(cy + uy),
-                num(cx - vx),
-                num(cy - vy),
-                num(cx + vx),
-                num(cy + vy)
-            )
+            out.write_str("<path class=\"pele-marker\" d=\"M")?;
+            write_point(out, cx - ux, cy - uy)?;
+            out.write_char('L')?;
+            write_point(out, cx + ux, cy + uy)?;
+            out.write_char('M')?;
+            write_point(out, cx - vx, cy - vy)?;
+            out.write_char('L')?;
+            write_point(out, cx + vx, cy + vy)?;
+            out.write_str("\"/>")
         }
-        _ => String::new(),
+        _ => Ok(()),
+    }
+}
+
+/// An edge label on a patch of the background, written when it is formatted.
+#[derive(Clone, Copy)]
+pub struct EdgeLabelSvg<'a> {
+    id: &'a str,
+    label: &'a Label,
+    x: f64,
+    y: f64,
+    attrs: &'a str,
+    icons: Option<&'a Icons>,
+    patch: &'a str,
+}
+
+impl fmt::Display for EdgeLabelSvg<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_edge_label_svg(f, self.id, self.label, self.x, self.y, self.attrs, self.icons, self.patch)
     }
 }
 
 /// An edge label on a patch of the background, so the line does not run through the text.
-/// `patch` is the patch's fill: `ctx.paint(Role::Background, "var(--_bg)")`.
-pub fn edge_label_svg(id: &str, label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>, patch: &str) -> String {
+/// `patch` is the patch's fill: `ctx.paint(Role::Background, "var(--_bg)")`. The markup is
+/// written when the result is formatted.
+pub fn edge_label_svg<'a>(
+    id: &'a str,
+    label: &'a Label,
+    x: f64,
+    y: f64,
+    attrs: &'a str,
+    icons: Option<&'a Icons>,
+    patch: &'a str,
+) -> EdgeLabelSvg<'a> {
+    EdgeLabelSvg { id, label, x, y, attrs, icons, patch }
+}
+
+/// Appends [`edge_label_svg`] to a buffer.
+#[allow(clippy::too_many_arguments)]
+pub fn push_edge_label_svg(out: &mut String, id: &str, label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>, patch: &str) {
+    let _ = write_edge_label_svg(out, id, label, x, y, attrs, icons, patch);
+}
+
+/// Writes [`edge_label_svg`].
+#[allow(clippy::too_many_arguments)]
+pub fn write_edge_label_svg<W: fmt::Write + ?Sized>(
+    out: &mut W,
+    id: &str,
+    label: &Label,
+    x: f64,
+    y: f64,
+    attrs: &str,
+    icons: Option<&Icons>,
+    patch: &str,
+) -> fmt::Result {
     let w = label.width + 8.0;
     let h = label.height;
-    format!(
-        "<g class=\"pele-edge-label\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"3\" fill=\"{}\"/>{}</g>",
-        esc_text(id),
-        num(x - w / 2.0),
-        num(y - h / 2.0),
-        num(w),
-        num(h),
-        patch,
-        label_svg(label, x, y, attrs, icons)
-    )
+    out.write_str("<g class=\"pele-edge-label\" data-id=\"")?;
+    match crate::text::entities::decode_entities_cow(id) {
+        std::borrow::Cow::Borrowed(t) => write_esc(out, t)?,
+        std::borrow::Cow::Owned(t) => write_esc(out, &t)?,
+    }
+    out.write_str("\"><rect x=\"")?;
+    write_num(out, x - w / 2.0)?;
+    out.write_str("\" y=\"")?;
+    write_num(out, y - h / 2.0)?;
+    out.write_str("\" width=\"")?;
+    write_num(out, w)?;
+    out.write_str("\" height=\"")?;
+    write_num(out, h)?;
+    out.write_str("\" rx=\"3\" fill=\"")?;
+    out.write_str(patch)?;
+    out.write_str("\"/>")?;
+    write_label_svg(out, label, x, y, attrs, icons)?;
+    out.write_str("</g>")
 }
 
 /// The label position of a self-loop, which `loop_path` sets.
@@ -409,6 +523,16 @@ mod tests {
         let p = route_path(&[0.0, 0.0, 0.0, 0.0, 100.0, 0.0], None, 0.0, 7.0, 0.0, default_reach(7.0));
         assert_eq!(p.d, "M0,0L0,93");
         let p = route_path(&[0.0, 0.0, 0.0, 50.0, 100.0, 0.0], None, 0.0, 0.0, 0.0, 0.0);
-        assert!(p.d.starts_with("M0,0C"));
+        assert_eq!(p.d, "M0,0C0,50 50,50 50,100");
+        let p = route_path(&[0.0, 0.0, 0.0, 0.0, 40.0, 0.0, 60.0, 40.0, 1.0], Some("step"), 0.0, 0.0, 0.0, 0.0);
+        assert!(p.d.contains('Q'), "{}", p.d);
+    }
+
+    #[test]
+    fn markers() {
+        assert_eq!(marker("arrow_point", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "<path class=\"pele-marker\" d=\"M10,20L6.64,12L13.36,12Z\" fill=\"red\" stroke=\"none\"/>");
+        assert_eq!(marker("arrow_circle", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "<circle class=\"pele-marker\" cx=\"10\" cy=\"16\" r=\"3.5\" fill=\"red\" stroke=\"none\"/>");
+        assert_eq!(marker("arrow_cross", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "<path class=\"pele-marker\" d=\"M13.5,12.5L6.5,19.5M6.5,12.5L13.5,19.5\"/>");
+        assert_eq!(marker("none", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "");
     }
 }

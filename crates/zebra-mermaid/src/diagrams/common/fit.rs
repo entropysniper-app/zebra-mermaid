@@ -2,7 +2,8 @@
 
 use crate::text::label::br_end;
 use crate::text::{layout_label, Label, Measure};
-use crate::util::js;
+use crate::util::{js, strs};
+use std::borrow::Cow;
 
 /// `text.replace(/<(?!br\s*\/?>)/gi, '&lt;')`
 fn escape_tags(text: &str) -> String {
@@ -25,12 +26,12 @@ fn escape_tags(text: &str) -> String {
 /// formatting.
 pub fn plain_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8) -> Label {
     let text = raw.map(|t| {
-        let mut t = t.to_string();
+        let mut t = Cow::Borrowed(t);
         if t.contains('<') {
-            t = escape_tags(&t);
+            t = Cow::Owned(escape_tags(&t));
         }
-        if t.contains(":fa-") {
-            t = t.replace(":fa-", "&colon;fa-");
+        if strs::contains(&t, ":fa-") {
+            t = Cow::Owned(t.replace(":fa-", "&colon;fa-"));
         }
         t
     });

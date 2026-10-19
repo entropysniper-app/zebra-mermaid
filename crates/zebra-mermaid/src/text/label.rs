@@ -9,7 +9,7 @@ use super::entities::decode_entities;
 use super::measurer::style;
 use super::Measure;
 use crate::util::chars::{char_at, char_before, is_space, is_word};
-use crate::util::js;
+use crate::util::{js, strs};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Span {
@@ -226,7 +226,7 @@ fn push_text(line: &mut Vec<Span>, text: &str, style: u8) {
 }
 
 fn push_icons(line: &mut Vec<Span>, text: &str, style: u8, m: &Measure) {
-    if !text.contains(":fa-") {
+    if !strs::contains(text, ":fa-") {
         push_text(line, text, style);
         return;
     }
@@ -357,22 +357,20 @@ fn skip_while(text: &str, mut p: usize, f: impl Fn(char) -> bool) -> usize {
 }
 
 fn group_at(text: &str, s: usize) -> Option<usize> {
-    // [OPEN]*[CJK][CLOSE]*, with OPEN* giving back characters until a CJK one follows.
-    let mut starts = vec![s];
-    let mut q = s;
-    while let Some(c) = char_at(text, q) {
-        if !is_open(c) {
-            break;
-        }
-        q += c.len_utf8();
-        starts.push(q);
-    }
-    for &j in starts.iter().rev() {
+    // [OPEN]*[CJK][CLOSE]*, with OPEN* giving back characters until a CJK one follows. The
+    // candidates are tried from the end of the run of opening marks back to `s`.
+    let q = skip_while(text, s, is_open);
+    let mut j = q;
+    loop {
         if let Some(c) = char_at(text, j) {
             if is_cjk(c) {
                 return Some(skip_while(text, j + c.len_utf8(), is_close));
             }
         }
+        if j <= s {
+            break;
+        }
+        j -= char_before(text, j).map_or(1, char::len_utf8);
     }
     // [^\sCJK]+[CLOSE]*
     let e = skip_while(text, s, |c| !is_space(c) && !is_cjk(c));
@@ -383,19 +381,18 @@ fn group_at(text: &str, s: usize) -> Option<usize> {
 }
 
 fn piece_at(text: &str, p: usize) -> Option<usize> {
-    let mut spaces = vec![p];
-    let mut q = p;
-    while let Some(c) = char_at(text, q) {
-        if !is_space(c) {
-            break;
-        }
-        q += c.len_utf8();
-        spaces.push(q);
-    }
-    for &s in spaces.iter().rev() {
+    // `\s*` gives back white space until a group follows: the starts are tried from the end
+    // of the run back to `p`.
+    let q = skip_while(text, p, is_space);
+    let mut s = q;
+    loop {
         if let Some(g) = group_at(text, s) {
             return Some(skip_while(text, g, is_space));
         }
+        if s <= p {
+            break;
+        }
+        s -= char_before(text, s).map_or(1, char::len_utf8);
     }
     if q > p {
         Some(q)

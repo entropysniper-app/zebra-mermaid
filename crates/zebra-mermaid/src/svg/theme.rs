@@ -6,6 +6,7 @@ use super::builder::esc;
 use crate::util::chars::is_space;
 use crate::util::js;
 use crate::util::unicode::{is_letter_property, is_number_property};
+use std::fmt::Write as _;
 
 /// Private aliases set once on the root element, so each use is short and the public
 /// `--pele-*` tokens keep their fallbacks. The text color is set as well: an icon is drawn in
@@ -217,14 +218,14 @@ pub fn resolve_style<S: AsRef<str>>(declarations: &[S]) -> ResolvedStyle {
     let mut shape_css = String::new();
     let mut line_css = String::new();
     for (prop, value) in &shape {
-        shape_css.push_str(&format!("{}:{};", prop, value));
+        write!(shape_css, "{}:{};", prop, value).unwrap();
         if prop != "fill" && prop != "fill-opacity" {
-            line_css.push_str(&format!("{}:{};", prop, value));
+            write!(line_css, "{}:{};", prop, value).unwrap();
         }
     }
     let mut text_css = String::new();
     for (prop, value) in &text {
-        text_css.push_str(&format!("{}:{};", prop, value));
+        write!(text_css, "{}:{};", prop, value).unwrap();
     }
     let weight = text.get("font-weight");
     let size = text.get("font-size");
@@ -262,12 +263,24 @@ pub fn class_names(raw: &str) -> String {
     }
 }
 
+#[cfg(test)]
 const SERIES: [&str; 8] = ["#4c78a8", "#f58518", "#54a24b", "#e45756", "#72b7b2", "#eeca3b", "#b279a2", "#9d755d"];
 
+/// `var(--pele-series-N,color)` for each of the eight series, written out once.
+const SERIES_VARS: [&str; 8] = [
+    "var(--pele-series-1,#4c78a8)",
+    "var(--pele-series-2,#f58518)",
+    "var(--pele-series-3,#54a24b)",
+    "var(--pele-series-4,#e45756)",
+    "var(--pele-series-5,#72b7b2)",
+    "var(--pele-series-6,#eeca3b)",
+    "var(--pele-series-7,#b279a2)",
+    "var(--pele-series-8,#9d755d)",
+];
+
 /// Color for the nth data series in a chart, cycling through eight tokens.
-pub fn series_color(index: i64) -> String {
-    let k = index.rem_euclid(8) as usize;
-    format!("var(--pele-series-{},{})", k + 1, SERIES[k])
+pub fn series_color(index: i64) -> &'static str {
+    SERIES_VARS[index.rem_euclid(8) as usize]
 }
 
 #[cfg(test)]
@@ -310,5 +323,8 @@ mod tests {
     fn series() {
         assert_eq!(series_color(9), "var(--pele-series-2,#f58518)");
         assert_eq!(series_color(-1), "var(--pele-series-8,#9d755d)");
+        for (k, color) in SERIES.iter().enumerate() {
+            assert_eq!(series_color(k as i64), format!("var(--pele-series-{},{})", k + 1, color));
+        }
     }
 }

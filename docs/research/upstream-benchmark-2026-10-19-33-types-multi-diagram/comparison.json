@@ -1,0 +1,88 @@
+{
+  "createdAt": "2026-10-19T15:07:24.542Z",
+  "enabledTypes": [
+    "flowchart",
+    "sequence",
+    "class",
+    "state",
+    "er",
+    "pie",
+    "gantt",
+    "gitGraph",
+    "mindmap",
+    "timeline",
+    "journey",
+    "xychart",
+    "quadrantChart",
+    "requirement",
+    "c4",
+    "sankey",
+    "block",
+    "packet",
+    "kanban",
+    "architecture",
+    "radar",
+    "treemap",
+    "info",
+    "agentflow",
+    "usecase",
+    "railroad",
+    "treeView",
+    "venn",
+    "cynefin",
+    "wardley",
+    "swimlane",
+    "ishikawa",
+    "eventmodeling"
+  ],
+  "commit": "44da152bbb79b91f03e68016f42499bb25bf6e82",
+  "scriptSha256": "5afa837231ac555041eccae2d8b82e29414675caff0aa3ec4c48ddfaaed35ec6",
+  "inputSha256": "08dace297c7bf8746b61ddecccac2dd17f118211ad6acce5e0050fd3ccd250e7",
+  "runtime": {
+    "node": "v26.3.0"
+  },
+  "protocol": "Original scripts/bench.mjs unmodified: render(src), 1 warm-up batch, >=300 ms, >=5 samples, maximum 2000 batches, upper median; ms per full batch",
+  "rows": [
+    {
+      "case": "docs: all examples",
+      "diagrams": 114,
+      "pele": "3.2 ms",
+      "zebra-mermaid": "1.6 ms"
+    },
+    {
+      "case": "tree: 50 nodes",
+      "diagrams": 1,
+      "pele": "0.250 ms",
+      "zebra-mermaid": "0.214 ms"
+    },
+    {
+      "case": "mesh: 50 nodes, 20 extra labelled edges",
+      "diagrams": 1,
+      "pele": "0.819 ms",
+      "zebra-mermaid": "0.431 ms"
+    },
+    {
+      "case": "tree: 500 nodes",
+      "diagrams": 1,
+      "pele": "3.1 ms",
+      "zebra-mermaid": "2.2 ms"
+    },
+    {
+      "case": "mesh: 500 nodes, 200 extra labelled edges",
+      "diagrams": 1,
+      "pele": "9.9 ms",
+      "zebra-mermaid": "6.0 ms"
+    }
+  ],
+  "validation": {
+    "success": true,
+    "diagrams": 118,
+    "method": "exact SVG strings and dimensions outside timing"
+  },
+  "size": {
+    "peleMinifiedBytes": 678032,
+    "peleGzipBytes": 251692,
+    "rustCliBytes": 4922080,
+    "rustCliGzipBytes": 2270198
+  }
+}

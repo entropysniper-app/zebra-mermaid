@@ -5,14 +5,16 @@ use crate::util::{
     chars::{char_at, is_space, is_word},
     js,
 };
+use std::borrow::Cow;
+/// A token: its text borrows the source unless the lexer had to make it.
 #[derive(Clone, Debug)]
-pub struct Token {
+pub struct Token<'a> {
     pub kind: u8,
-    pub text: String,
+    pub text: Cow<'a, str>,
     pub start: usize,
 }
-pub struct Tokens {
-    pub items: Vec<Token>,
+pub struct Tokens<'a> {
+    pub items: Vec<Token<'a>>,
     pub error: Option<String>,
 }
 #[derive(Clone, Copy)]
@@ -44,12 +46,15 @@ struct Lexer<'a> {
     p: usize,
     state: State,
     stack: Vec<State>,
-    out: Vec<Token>,
+    out: Vec<Token<'a>>,
     error: Option<String>,
     dirs: [Vec<(usize, usize)>; 4],
     stereo: [Vec<(usize, usize)>; 6],
+    line_end_cache: Option<(usize, usize)>,
+    percent_cache: Option<(usize, usize)>,
+    brace_cache: Option<(usize, usize)>,
 }
-impl Lexer<'_> {
+impl<'a> Lexer<'a> {
     fn word(&self, w: &str, q: usize) -> bool {
         self.lower.get(q..).is_some_and(|s| s.starts_with(w))
     }
@@ -68,14 +73,30 @@ impl Lexer<'_> {
     fn eol(&self, q: usize) -> usize {
         self.s[q..].find('\n').map_or(self.s.len(), |i| q + i)
     }
-    fn line_end(&self, q: usize) -> usize {
-        self.s[q..].find(['\n', '\r', '\u{2028}', '\u{2029}']).map_or(self.s.len(), |i| q + i)
+    fn line_end(&mut self, position: usize) -> usize {
+        let (start, end) = self.line_end_cache.unwrap_or((usize::MAX, 0));
+        if position >= start && position <= end {
+            return end;
+        }
+        let end = self.s[position..].find(['\n', '\r', '\u{2028}', '\u{2029}']).map_or(self.s.len(), |offset| position + offset);
+        self.line_end_cache = Some((position, end));
+        end
+    }
+    fn next_brace(&mut self, position: usize) -> usize {
+        let (start, end) = self.brace_cache.unwrap_or((usize::MAX, 0));
+        if position >= start && position <= end {
+            return end;
+        }
+        let end = self.s.get(position..).and_then(|source| source.find('{')).map_or(self.s.len(), |offset| position + offset);
+        self.brace_cache = Some((position, end));
+        end
     }
     fn emit(&mut self, k: u8, end: usize) {
-        self.emit_text(k, self.s[self.p..end].into(), end);
+        let s: &'a str = self.s;
+        self.emit_text(k, Cow::Borrowed(&s[self.p..end]), end);
     }
-    fn emit_text(&mut self, kind: u8, text: String, end: usize) {
-        self.out.push(Token { kind, text, start: self.p });
+    fn emit_text(&mut self, kind: u8, text: impl Into<Cow<'a, str>>, end: usize) {
+        self.out.push(Token { kind, text: text.into(), start: self.p });
         self.p = end;
     }
     fn push(&mut self, state: State) {
@@ -87,13 +108,17 @@ impl Lexer<'_> {
             self.state = s;
         }
     }
-    fn finish(mut self, k: u8) -> Tokens {
-        self.out.push(Token { kind: k, text: String::new(), start: self.p });
+    fn finish(mut self, k: u8) -> Tokens<'a> {
+        self.out.push(Token { kind: k, text: Cow::Borrowed(""), start: self.p });
         Tokens { items: self.out, error: self.error }
     }
     fn id(&mut self, end: usize) -> bool {
-        let at = self.s[self.p..].find("%%").map(|i| self.p + i);
-        if let Some(at) = at.filter(|i| i + 2 <= end) {
+        let (start, mut at) = self.percent_cache.unwrap_or((usize::MAX, 0));
+        if self.p < start || self.p > at {
+            at = self.s[self.p..].find("%%").map_or(self.s.len(), |offset| self.p + offset);
+            self.percent_cache = Some((self.p, at));
+        }
+        if at + 2 <= end {
             if at == self.p {
                 self.p = end;
                 false
@@ -106,7 +131,7 @@ impl Lexer<'_> {
             true
         }
     }
-    fn direction(&self) -> Option<(usize, usize)> {
+    fn direction(&mut self) -> Option<(usize, usize)> {
         let end = self.line_end(self.p);
         for (k, list) in self.dirs.iter().enumerate() {
             let at = list.partition_point(|&(at, _)| at < end);
@@ -117,7 +142,7 @@ impl Lexer<'_> {
         }
         None
     }
-    fn stereotype(&self) -> Option<(usize, usize, usize)> {
+    fn stereotype(&mut self) -> Option<(usize, usize, usize)> {
         let end = self.line_end(self.p);
         for (k, list) in self.stereo.iter().enumerate() {
             let at = list.partition_point(|&(at, _)| at < end);
@@ -127,7 +152,9 @@ impl Lexer<'_> {
         }
         None
     }
-    fn run(mut self) -> Tokens {
+    fn run(mut self) -> Tokens<'a> {
+        // The source outlives the lexer: tokens borrow it.
+        let src: &'a str = self.s;
         loop {
             let n = self.s.len();
             if self.p >= n {
@@ -316,7 +343,7 @@ impl Lexer<'_> {
                             j += 1;
                         }
                         if j > self.p + 1 {
-                            self.emit_text(DESCR, js::trim(&self.s[self.p..j]).into(), j);
+                            self.emit_text(DESCR, js::trim(&src[self.p..j]), j);
                             continue;
                         }
                         if self.s[self.p..].starts_with(":::") {
@@ -360,7 +387,7 @@ impl Lexer<'_> {
                             } else {
                                 JOIN
                             },
-                            js::trim(&self.s[self.p..at]).into(),
+                            js::trim(&src[self.p..at]),
                             end,
                         );
                         self.pop();
@@ -395,13 +422,8 @@ impl Lexer<'_> {
                         let first = self.word_end(self.p);
                         let second = self.ws(first);
                         if second > first && char_at(self.s, second).is_some_and(is_word) {
-                            if let Some(brace) = self
-                                .s
-                                .get(second + 1..)
-                                .and_then(|s| s.find('{'))
-                                .map(|i| second + 1 + i)
-                                .filter(|&b| b < self.line_end(second))
-                            {
+                            let brace = self.next_brace(second + 1);
+                            if brace < self.line_end(second) {
                                 self.error = Some(format!(
                                     "Error: State name must be a single word. Found: \"{}\"",
                                     js::trim(&self.s[self.p..brace + 1])
@@ -547,8 +569,8 @@ impl Lexer<'_> {
                     if bytes.get(q) == Some(&b':') {
                         let end = self.s[q + 1..].find([':', '\n', ';']).map_or(n, |i| q + 1 + i);
                         if end > q + 1 {
-                            let raw = &self.s[self.p..end];
-                            let text = js::trim(js::slice16(raw, 2, js::len16(raw))).into();
+                            let raw = &src[self.p..end];
+                            let text = js::trim(js::slice16(raw, 2, js::len16(raw)));
                             self.emit_text(NOTE_TEXT, text, end);
                             self.pop();
                             continue;
@@ -567,7 +589,7 @@ impl Lexer<'_> {
                     let Some(end) = found else {
                         return self.finish(ERROR);
                     };
-                    self.emit_text(NOTE_TEXT, js::trim(&self.s[self.p..end]).into(), end + 8);
+                    self.emit_text(NOTE_TEXT, js::trim(&src[self.p..end]), end + 8);
                     self.pop();
                 }
                 State::Floating => {
@@ -592,7 +614,7 @@ impl Lexer<'_> {
         }
     }
 }
-pub fn tokenize(s: &str) -> Tokens {
+pub fn tokenize(s: &str) -> Tokens<'_> {
     let lower = s.to_ascii_lowercase();
     let mut l = Lexer {
         s,
@@ -604,6 +626,9 @@ pub fn tokenize(s: &str) -> Tokens {
         error: None,
         dirs: std::array::from_fn(|_| vec![]),
         stereo: std::array::from_fn(|_| vec![]),
+        line_end_cache: None,
+        percent_cache: None,
+        brace_cache: None,
     };
     let mut from = 0;
     while let Some(off) = l.lower[from..].find("direction") {

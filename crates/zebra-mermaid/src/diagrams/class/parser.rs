@@ -30,7 +30,7 @@ struct Frame {
 }
 struct Parser<'a> {
     src: &'a str,
-    t: Vec<Token>,
+    t: Vec<Token<'a>>,
     i: usize,
     db: &'a mut ClassModel,
 }
@@ -39,7 +39,7 @@ impl Parser<'_> {
         self.t.get(self.i).map_or(END, |t| t.kind)
     }
     fn take(&mut self) -> String {
-        let s = self.t.get(self.i).map_or_else(String::new, |t| t.text.clone());
+        let s = self.t.get(self.i).map_or_else(String::new, |t| t.text.to_string());
         self.i += 1;
         s
     }
@@ -279,9 +279,9 @@ impl Parser<'_> {
         match t{
   UNICODE_TEXT|ALPHA|MINUS|BQUOTE_STR=>self.class_or_relation()?,NAMESPACE=>self.namespace()?,CLASS=>{self.class()?;},MEMBER=>self.i+=1,
   ANNOTATION_START=>{self.i+=1;let ann=self.alpha()?;self.expect(ANNOTATION_END)?;let id=self.name(true)?;self.db.ensure(&id).annotations.push(ann);},
-  CALLBACK=>{self.i+=1;let id=self.name(true)?;self.expect(STR)?;self.db.callback(&id);self.tooltip(&id);},
-  LINK=>{self.i+=1;let id=self.name(true)?;self.link(&id)?;},CLICK=>{self.i+=1;let id=self.name(true)?;if self.kind()==HREF{self.i+=1;self.link(&id)?;}else{self.expect(CALLBACK_NAME)?;if self.kind()==CALLBACK_ARGS{self.i+=1;}self.db.callback(&id);self.tooltip(&id);}},
-  STYLE=>{self.i+=1;let id=self.expect(ALPHA)?;let styles=self.styles()?;if let Some(node)=self.db.classes.get_mut(&id){node.styles.extend(styles.iter().flat_map(|s|s.split(',').map(str::to_owned)));}},
+  CALLBACK=>{self.i+=1;let id=self.name(true)?;let name=self.expect(STR)?;self.db.callback(&id,&name,None);self.tooltip(&id);},
+  LINK=>{self.i+=1;let id=self.name(true)?;self.link(&id)?;},CLICK=>{self.i+=1;let id=self.name(true)?;if self.kind()==HREF{self.i+=1;self.link(&id)?;}else{let name=self.expect(CALLBACK_NAME)?;let args=if self.kind()==CALLBACK_ARGS{Some(self.take())}else{None};self.db.callback(&id,&name,args.as_deref());self.tooltip(&id);}},
+  STYLE=>{self.i+=1;let id=self.expect(ALPHA)?;let styles=self.styles()?;if let Some(node)=self.db.classes.get_mut(&id){node.styles.extend(styles.iter().flat_map(|s|s.split(',').map(|part| std::sync::Arc::new(part.to_owned()))));}},
   CSSCLASS=>{self.i+=1;let ids=self.expect(STR)?;let class=self.expect(ALPHA)?;self.db.css_class(&ids,&class);},NOTE|NOTE_FOR=>{self.note()?;},
   CLASSDEF=>{self.i+=1;let mut ids=vec![self.expect(ALPHA)?];while self.kind()==COMMA{self.i+=1;ids.push(self.expect(ALPHA)?);}let styles=self.styles()?;self.db.define_class(&ids,&styles);},
   direction_tb..=direction_lr=>{self.i+=1;self.db.direction=["TB","BT","RL","LR"][(t-direction_tb)as usize].into();},
@@ -294,6 +294,15 @@ impl Parser<'_> {
 }
 pub fn parse(src: &str, db: &mut ClassModel) -> Result<(), Error> {
     let mut p = Parser { src, t: tokenize(src), i: 0, db };
+    // The public preprocessor already trims leading whitespace. The raw parser also
+    // accepts blank lines before a diagram header, as required by the original skipped
+    // class specification. Keep original token offsets for subsequent diagnostics.
+    if p.kind() == NEWLINE {
+        let first = p.t.iter().position(|t| t.kind != NEWLINE).unwrap_or(p.t.len());
+        if p.t.get(first).is_some_and(|t| t.kind == CLASS_DIAGRAM) {
+            p.i = first;
+        }
+    }
     let header = p.kind() == CLASS_DIAGRAM;
     if header {
         p.i += 1;

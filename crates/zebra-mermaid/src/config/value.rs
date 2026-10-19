@@ -8,6 +8,7 @@
 use indexmap::IndexMap;
 
 use crate::util::js;
+use std::fmt::Write as _;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ConfigValue {
@@ -96,6 +97,14 @@ impl ConfigValue {
         }
     }
 
+    /// `String(value)`, taking the text of a string value instead of copying it.
+    pub fn into_js_string(self) -> String {
+        match self {
+            ConfigValue::String(s) => s,
+            other => other.to_js_string(),
+        }
+    }
+
     /// Compact JSON with keys in JavaScript order; NaN and infinities as `{"$number":"..."}`.
     pub fn to_json_string(&self) -> String {
         let mut out = String::new();
@@ -120,7 +129,7 @@ fn write_json_string(s: &str, out: &mut String) {
         match c {
             '"' => out.push_str("\\\""),
             '\\' => out.push_str("\\\\"),
-            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c if (c as u32) < 0x20 => write!(out, "\\u{:04x}", c as u32).unwrap(),
             c => out.push(c),
         }
     }

@@ -9,7 +9,7 @@ use crate::diagrams::{RenderCtx, Rendered};
 use crate::layout::compound::{cnode, compound_layout, direction, shift_layout, CEdge, Dir};
 use crate::layout::{lanes::lane_layout, layered::LayeredOptions};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num},
+    builder::{esc, esc_text, joined, label_svg, num, push_label_svg, push_num},
     cluster::*,
     edges::*,
     root::{svg_document, Accessible},
@@ -22,9 +22,10 @@ use crate::theme::Role;
 use crate::util::{js, url::*};
 use crate::{Config, ConfigMap, ConfigValue, Error};
 use indexmap::IndexMap;
+use std::fmt::Write;
 
-struct View {
-    node: GraphNode,
+struct View<'a> {
+    node: &'a GraphNode,
     style: ResolvedStyle,
     label: Label,
     shape: String,
@@ -82,9 +83,9 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
     let wrap = js::min(positive(flow, "wrappingWidth", 200.0), if swimlane && tight { 100.0 } else { f64::INFINITY });
     let pad = ctx.padding();
     let icons = ctx.icons();
-    let index: IndexMap<String, usize> = graph.nodes.iter().enumerate().map(|(i, n)| (n.id.clone(), i)).collect();
-    let mut views = Vec::new();
-    let mut cnodes = Vec::new();
+    let index: IndexMap<&str, usize> = graph.nodes.iter().enumerate().map(|(i, n)| (n.id.as_str(), i)).collect();
+    let mut views = Vec::with_capacity(graph.nodes.len());
+    let mut cnodes = Vec::with_capacity(graph.nodes.len());
     for node in &graph.nodes {
         let mut styles = node.compiled.clone();
         styles.extend(node.styles.iter().cloned());
@@ -134,11 +135,11 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             (label, shape, w, h, dy, cnode(w, h, -1))
         };
         c.seq = views.len() as f64;
-        views.push(View { node: node.clone(), style: st, label, shape, w, h, dy });
+        views.push(View { node, style: st, label, shape, w, h, dy });
         cnodes.push(c);
     }
     for (i, node) in graph.nodes.iter().enumerate() {
-        cnodes[i].parent = node.parent.as_ref().and_then(|p| index.get(p)).map_or(-1, |i| *i as isize);
+        cnodes[i].parent = node.parent.as_deref().and_then(|p| index.get(p)).map_or(-1, |i| *i as isize);
     }
     let root_dir = if turned { Dir::TB } else { direction(db.direction.as_deref()) };
     let sideways: Vec<bool> = (0..cnodes.len())
@@ -165,7 +166,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
     let mut labels = Vec::new();
     let mut drawn: Vec<&GraphEdge> = Vec::new();
     for edge in &graph.edges {
-        let (Some(&src), Some(&dst)) = (index.get(&edge.start), index.get(&edge.end)) else {
+        let (Some(&src), Some(&dst)) = (index.get(edge.start.as_str()), index.get(edge.end.as_str())) else {
             continue;
         };
         let label = layout_label(Some(&edge.label), edge.label_type == "markdown", &measure, edge_size, wrap, 0);
@@ -242,8 +243,8 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 cy,
                 &format!(" class=\"pele-cluster-label\" fill=\"{}\"{}", ctx.paint(Role::SecondaryText, "var(--_m)"), v.style.text),
                 icons,
-            );
-            clusters.push_str(&format!("<g class=\"pele-cluster pele-lane{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"none\" stroke=\"{}\"/><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>{}</g>",num(left),num(top),num(c.w),num(c.h),ctx.paint(Role::GroupStroke,"var(--_b)"),num(left),num(top),num(if across{c.pad_top}else{c.w}),num(if across{c.h}else{c.pad_top}),ctx.paint(Role::GroupHeader,"var(--_a)"),ctx.paint(Role::GroupStroke,"var(--_b)"),v.style.shape,if across&&!text.is_empty(){format!("<g transform=\"rotate(-90 {} {})\">{text}</g>",num(cx),num(cy))}else{text}));
+            ).to_string();
+            write!(clusters, "<g class=\"pele-cluster pele-lane{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"none\" stroke=\"{}\"/><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>{}</g>",num(left),num(top),num(c.w),num(c.h),ctx.paint(Role::GroupStroke,"var(--_b)"),num(left),num(top),num(if across{c.pad_top}else{c.w}),num(if across{c.h}else{c.pad_top}),ctx.paint(Role::GroupHeader,"var(--_a)"),ctx.paint(Role::GroupStroke,"var(--_b)"),v.style.shape,if across&&!text.is_empty(){format!("<g transform=\"rotate(-90 {} {})\">{text}</g>",num(cx),num(cy))}else{text}).unwrap();
             continue;
         }
         if c.is_group {
@@ -254,7 +255,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             if crossed {
                 struck.push_str(&struck_title(&v.label, tx, ty, &attrs, &id, |j| cnodes[j].parent, i, icons, ctx.theming));
             }
-            clusters.push_str(&format!("<g class=\"pele-cluster{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"{} stroke=\"{}\"{}/>{}</g>",num(c.x-c.w/2.0),num(c.y-c.h/2.0),num(c.w),num(c.h),ctx.paint(Role::GroupFill,"var(--_a)"),if ctx.resolved(){""}else{" fill-opacity=\"0.5\""},ctx.paint(Role::GroupStroke,"var(--_b)"),v.style.shape,if crossed{String::new()}else{label_svg(&v.label,tx,ty,&attrs,icons)}));
+            write!(clusters, "<g class=\"pele-cluster{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"{} stroke=\"{}\"{}/>{}</g>",num(c.x-c.w/2.0),num(c.y-c.h/2.0),num(c.w),num(c.h),ctx.paint(Role::GroupFill,"var(--_a)"),if ctx.resolved(){""}else{" fill-opacity=\"0.5\""},ctx.paint(Role::GroupStroke,"var(--_b)"),v.style.shape,if crossed{String::new()}else{label_svg(&v.label,tx,ty,&attrs,icons).to_string()}).unwrap();
             continue;
         }
         let inner = if let Some(img) = node.img.as_ref().filter(|s| !s.is_empty()) {
@@ -309,20 +310,28 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             let glyph = b * 0.6;
             format!("{frame}<svg class=\"pele-icon\" data-icon=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",esc_text(icon),num(-glyph/2.0),num(top+(b-glyph)/2.0),num(glyph),num(glyph),icons.map_or_else(String::new,|i|i.markup(icon).to_string()))
         } else {
-            draw_shape(
-                &v.shape,
-                v.w,
-                v.h,
-                &format!("{shape_attrs}{}", v.style.shape),
-                &format!("{line_attrs}{}", v.style.line),
-                ctx.theming,
-            )
+            draw_shape(&v.shape, v.w, v.h, &joined(&shape_attrs, &v.style.shape), &joined(&line_attrs, &v.style.line), ctx.theming)
         };
-        let mut text = label_svg(&v.label, 0.0, v.dy, &format!(" class=\"pele-label\"{}", v.style.text), icons);
-        if classes.split_whitespace().any(|s| s == "internal-link")
+        let label_attrs = joined(" class=\"pele-label\"", &v.style.text);
+        let internal = classes.split_whitespace().any(|s| s == "internal-link")
             && node.label.as_ref().is_some_and(|s| !s.is_empty())
-            && options.links != Some(false)
-        {
+            && options.links != Some(false);
+        let tooltip = node.tooltip.as_ref().filter(|s| !s.is_empty());
+        let link = node.link.as_ref().filter(|s| !s.is_empty());
+        write!(nodes_out, "<g class=\"pele-node pele-shape-{}{classes}\" data-id=\"{id}\" transform=\"translate(", v.shape).unwrap();
+        push_num(&mut nodes_out, c.x);
+        nodes_out.push(',');
+        push_num(&mut nodes_out, c.y);
+        nodes_out.push_str(")\">");
+        if !internal && tooltip.is_none() && link.is_none() {
+            // The usual node: its shape and label go straight into the output.
+            nodes_out.push_str(&inner);
+            push_label_svg(&mut nodes_out, &v.label, 0.0, v.dy, &label_attrs, icons);
+            nodes_out.push_str("</g>");
+            continue;
+        }
+        let mut text = label_svg(&v.label, 0.0, v.dy, &label_attrs, icons).to_string();
+        if internal {
             let name = decode_entities(node.label.as_deref().unwrap());
             let allowed = link_url(&sanitize_url(&name), options).is_some();
             let target = esc(&name);
@@ -333,10 +342,10 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             links.push(LinkInfo { id: node.id.clone(), href: name, internal: true });
         }
         let mut body = inner + &text;
-        if let Some(t) = node.tooltip.as_ref().filter(|s| !s.is_empty()) {
+        if let Some(t) = tooltip {
             body = format!("<title>{}</title>{body}", esc_text(t));
         }
-        if let Some(url) = node.link.as_ref().filter(|s| !s.is_empty()) {
+        if let Some(url) = link {
             body = linked(
                 &body,
                 url,
@@ -346,12 +355,8 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 &node.link_target.as_ref().filter(|s| !s.is_empty()).map_or_else(String::new, |t| format!(" target=\"{}\"", esc(t))),
             );
         }
-        nodes_out.push_str(&format!(
-            "<g class=\"pele-node pele-shape-{}{classes}\" data-id=\"{id}\" transform=\"translate({},{})\">{body}</g>",
-            v.shape,
-            num(c.x),
-            num(c.y)
-        ));
+        nodes_out.push_str(&body);
+        nodes_out.push_str("</g>");
     }
     let mut reach = side_reach();
     for (i, e) in cedges.iter().enumerate() {
@@ -418,17 +423,21 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             let classes = class_names(
                 &edge.classes.replace("edge-thickness-normal", "").replace("edge-pattern-solid", "").replace("flowchart-link", ""),
             );
-            edges_out.push_str(&format!(
-                "<g class=\"pele-edge{classes}\" data-id=\"{}\"{}><path d=\"{}\"{attrs}/>{}{}</g>",
+            write!(
+                edges_out,
+                "<g class=\"pele-edge{classes}\" data-id=\"{}\"{}><path d=\"{}\"{attrs}/>",
                 esc_text(&edge.id),
                 st.as_ref().map_or("", |s| s.line.as_str()),
                 path.d,
-                marker(&edge.arrow_start, path.sx, path.sy, path.sdx, path.sdy, &color),
-                marker(&edge.arrow_end, path.ex, path.ey, path.edx, path.edy, &color)
-            ));
+            )
+            .unwrap();
+            push_marker(&mut edges_out, &edge.arrow_start, path.sx, path.sy, path.sdx, path.sdy, &color);
+            push_marker(&mut edges_out, &edge.arrow_end, path.ex, path.ey, path.edx, path.edy, &color);
+            edges_out.push_str("</g>");
         }
         if label.width > 0.0 {
-            labels_out.push_str(&edge_label_svg(
+            push_edge_label_svg(
+                &mut labels_out,
                 &edge.id,
                 label,
                 e.label_x,
@@ -436,26 +445,40 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 st.as_ref().map_or("", |s| s.text.as_str()),
                 icons,
                 ctx.paint(Role::Background, "var(--_bg)"),
-            ));
+            );
         }
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = String::with_capacity(
+        clusters.len() + edges_out.len() + struck.len() + labels_out.len() + nodes_out.len() + 256,
+    );
+    push_label_svg(&mut content, &title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
     if !clusters.is_empty() {
-        content.push_str(&format!("<g class=\"pele-clusters\">{clusters}</g>"));
+        content.push_str("<g class=\"pele-clusters\">");
+        content.push_str(&clusters);
+        content.push_str("</g>");
     }
     if !edges_out.is_empty() {
-        content.push_str(&format!(
-            "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edges_out}</g>",
-            ctx.paint(Role::Line, "var(--_l)")
-        ));
+        content.push_str("<g class=\"pele-edges\" fill=\"none\" stroke=\"");
+        content.push_str(ctx.paint(Role::Line, "var(--_l)"));
+        content.push_str("\" stroke-linecap=\"round\">");
+        content.push_str(&edges_out);
+        content.push_str("</g>");
     }
     if !struck.is_empty() {
-        content.push_str(&format!("<g class=\"pele-cluster-titles\">{struck}</g>"));
+        content.push_str("<g class=\"pele-cluster-titles\">");
+        content.push_str(&struck);
+        content.push_str("</g>");
     }
     if !labels_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(edge_size)));
+        content.push_str("<g class=\"pele-edge-labels\" font-size=\"");
+        content.push_str(&js::to_string(edge_size));
+        content.push_str("\">");
+        content.push_str(&labels_out);
+        content.push_str("</g>");
     }
-    content.push_str(&format!("<g class=\"pele-nodes\">{nodes_out}</g>"));
+    content.push_str("<g class=\"pele-nodes\">");
+    content.push_str(&nodes_out);
+    content.push_str("</g>");
     let acc = Accessible { acc_title: db.acc_title.as_deref(), acc_descr: db.acc_descr.as_deref() };
     Ok(Rendered {
         svg: svg_document(if swimlane { "swimlane" } else { "flowchart" }, width, height, size, ctx, acc, &content),

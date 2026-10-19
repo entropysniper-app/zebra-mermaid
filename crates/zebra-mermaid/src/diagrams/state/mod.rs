@@ -4,6 +4,9 @@ mod lexer;
 mod parser;
 mod render;
 mod tokens;
+#[cfg(test)]
+#[path = "../../../tests/upstream/state_stress_generated.rs"]
+mod upstream_stress;
 use super::ParseInput;
 use crate::{util::js, Error};
 use indexmap::IndexMap;

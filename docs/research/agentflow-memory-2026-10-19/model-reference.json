@@ -1,0 +1,44 @@
+{
+  "source": "agentflow-beta TB\nflow outer\nO\nflow inner\nA\nB\nC\nend\nP\nend\nflow other\nD\nE\nF\nend\nglobal\nB\nE\nB\nX\nend\nflow inner\nG\nB\nH\nend\nglobal\nG\nend\nglobal\nD\nF\nC\nend\n",
+  "observed": {
+    "members": [
+      "A",
+      "O",
+      "inner",
+      "P",
+      "H"
+    ],
+    "globalNodes": [
+      "B",
+      "E",
+      "X",
+      "G",
+      "D",
+      "F",
+      "C"
+    ],
+    "subgraphs": [
+      [
+        "inner",
+        [
+          "A",
+          "H"
+        ]
+      ],
+      [
+        "outer",
+        [
+          "O",
+          "inner",
+          "P"
+        ]
+      ],
+      [
+        "other",
+        []
+      ]
+    ]
+  },
+  "peleVerified": true,
+  "rustContract": "global_blocks_release_multiple_owners_and_reopened_nested_flows_in_order"
+}

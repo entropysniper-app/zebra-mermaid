@@ -14,6 +14,7 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_label, style, Label};
 use crate::theme::Role;
 use crate::util::{js, math};
+use std::fmt::Write as _;
 
 /// (domain, column, row, series color)
 const QUADRANTS: [(&str, f64, f64, i64); 4] =
@@ -189,12 +190,12 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
 
     let mut fills = String::new();
     for &(name, _, _, color) in &QUADRANTS {
-        fills.push_str(&format!(
+        write!(fills, 
             "<path class=\"pele-cynefin-region\" data-id=\"{}\" d=\"{}\" fill=\"{}\" fill-opacity=\"0.14\"/>",
             name,
             region(name),
             ctx.series(color)
-        ));
+        ).unwrap();
     }
     // The wavy lines between domains divide one shape; the cliff is a drawn line.
     let divider = ctx.paint(Role::InnerStroke, "var(--_b)");
@@ -224,27 +225,27 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
     let small_s = js::to_string(small);
     let draw_block = |b: &Block| -> String {
         let mut y = b.cy - b.h / 2.0;
-        let mut out = label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None);
+        let mut out = label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None).to_string();
         y += b.title.height;
         for s in &b.subtitles {
-            out.push_str(&label_svg(
+            write!(out, "{}", label_svg(
                 s,
                 b.cx,
                 y + s.height / 2.0,
                 &format!(" class=\"pele-cynefin-subtitle\" font-size=\"{}\" font-style=\"italic\" fill=\"{}\"", small_s, secondary),
                 None,
-            ));
+            )).unwrap();
             y += s.height;
         }
         y += HEAD_GAP - ITEM_GAP;
         for item in &b.badges {
             y += ITEM_GAP;
-            out.push_str(&format!(
+            write!(out, 
                 "<g class=\"pele-node{}\"{}>",
                 if item.overflow { " pele-cynefin-overflow" } else { "" },
                 if item.overflow { String::new() } else { format!(" data-id=\"{}\"", esc_text(&item.text)) }
-            ));
-            out.push_str(&format!(
+            ).unwrap();
+            write!(out, 
                 "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>",
                 num(b.cx - item.w / 2.0),
                 num(y),
@@ -254,13 +255,13 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
                 item_fill,
                 item_stroke,
                 if item.overflow { " stroke-dasharray=\"3 2\"" } else { "" }
-            ));
+            ).unwrap();
             let attrs = format!(
                 " class=\"pele-label\" font-size=\"{}\"{}",
                 item_size_s,
                 if item.overflow { format!(" fill=\"{}\"", secondary) } else { String::new() }
             );
-            out.push_str(&label_svg(&item.label, b.cx, y + item.h / 2.0, &attrs, icons));
+            write!(out, "{}", label_svg(&item.label, b.cx, y + item.h / 2.0, &attrs, icons)).unwrap();
             out.push_str("</g>");
             y += item.h;
         }
@@ -362,7 +363,7 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
         let el = or_one(math::hypot(ex - qx, ey - qy));
         let ux = (ex - qx) / el;
         let uy = (ey - qy) / el;
-        let head = marker("arrow_point", ex, ey, ux, uy, arrow);
+        let head = marker("arrow_point", ex, ey, ux, uy, arrow).to_string();
         ex -= ux * marker_trim("arrow_point");
         ey -= uy * marker_trim("arrow_point");
 
@@ -373,9 +374,9 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
             let away = (nx.abs() * label.width) / 2.0 + (ny.abs() * label.height) / 2.0 + 6.0;
             let half = label.width / 2.0 + 4.0;
             let tx = js::min(js::max(lx + nx * away, x0 + half), js::max(right - half, x0 + half));
-            text = label_svg(&label, tx, ly + ny * away, &format!(" class=\"pele-edge-label\" font-size=\"{}\"", small_s), icons);
+            text = label_svg(&label, tx, ly + ny * away, &format!(" class=\"pele-edge-label\" font-size=\"{}\"", small_s), icons).to_string();
         }
-        edges.push_str(&format!(
+        write!(edges, 
             "<g class=\"pele-edge\" data-id=\"{}-{}\"><path d=\"M{},{}Q{},{} {},{}\" fill=\"none\" stroke=\"{}\"/>{}{}</g>",
             transition.from,
             transition.to,
@@ -388,19 +389,19 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
             line,
             head,
             text
-        ));
+        ).unwrap();
     }
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, x0 + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
-    content.push_str(&format!("<g class=\"pele-cynefin-regions\">{}</g>", fills));
+        label_svg(&title, x0 + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    write!(content, "<g class=\"pele-cynefin-regions\">{}</g>", fills).unwrap();
     content.push_str(&boundaries);
     content.push_str(&ellipse);
     content.push_str(&domains);
     if !edges.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edges\">{}</g>", edges));
+        write!(content, "<g class=\"pele-edges\">{}</g>", edges).unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

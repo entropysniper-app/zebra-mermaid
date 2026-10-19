@@ -15,6 +15,7 @@ use crate::text::entities::decode_entities;
 use crate::text::{layout_label, style};
 use crate::theme::Role;
 use crate::util::js;
+use std::fmt::Write as _;
 
 const HEADER: f64 = 28.0;
 const SIDE: f64 = 6.0;
@@ -84,17 +85,17 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                 let label = fit_text(name, if with_value { room - value_width - 12.0 } else { room }, small, small, &m, style::BOLD);
                 let baseline = y + HEADER / 2.0 + 1.0;
                 if let Some(label) = label {
-                    text.push_str(&format!(
+                    write!(text, 
                         "<text x=\"{}\" y=\"{}\" font-weight=\"var(--_hw)\"{}>{}</text>",
                         num(x + SIDE + 2.0),
                         num(baseline + small * 0.35),
                         style.text,
                         esc(&label.text)
-                    ));
+                    ).unwrap();
                 }
                 if with_value {
                     // The value is a caption beside the section's name.
-                    text.push_str(&format!(
+                    write!(text, 
                         "<text class=\"pele-value\" x=\"{}\" y=\"{}\" font-size=\"{}\" text-anchor=\"end\" fill=\"{}\"{}>{}</text>",
                         num(x + b.w - SIDE - 2.0),
                         num(baseline + tiny * 0.35),
@@ -102,15 +103,15 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                         ctx.paint(Role::SecondaryText, "var(--_m)"),
                         style.text,
                         esc(&value)
-                    ));
+                    ).unwrap();
                 }
             }
             // A section is a tint of its color, unless a class gives it a fill of its own.
             let tint = if style.shape.contains("\"fill:") || style.shape.contains(";fill:") { "" } else { " fill-opacity=\"0.12\"" };
-            sections.push_str(&format!(
+            write!(sections, 
                 "<g class=\"pele-node pele-section{}\" {}{}{} stroke=\"{}\"{}/>{}</g>",
                 classes, group, rect, tint, color, style.shape, text
-            ));
+            ).unwrap();
             continue;
         }
 
@@ -156,22 +157,22 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                 );
             }
         }
-        leaves.push_str(&format!("<g class=\"pele-node pele-leaf{}\" {}{}{}/>{}</g>", classes, group, rect, style.shape, text));
+        write!(leaves, "<g class=\"pele-node pele-leaf{}\" {}{}{}/>{}</g>", classes, group, rect, style.shape, text).unwrap();
     }
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons());
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons()).to_string();
     if !sections.is_empty() {
-        content.push_str(&format!("<g class=\"pele-sections\" font-size=\"{}\">{}</g>", js::to_string(small), sections));
+        write!(content, "<g class=\"pele-sections\" font-size=\"{}\">{}</g>", js::to_string(small), sections).unwrap();
     }
     if !leaves.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-leaves\" text-anchor=\"middle\" fill=\"{}\">{}</g>",
             ctx.paint(Role::Background, "var(--_bg)"),
             leaves
-        ));
+        ).unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

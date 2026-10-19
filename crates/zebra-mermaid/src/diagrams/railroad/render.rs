@@ -4,6 +4,7 @@
 //! explicit stacks as in Pele, so nesting depth never meets the call stack.
 
 use std::collections::HashMap;
+use std::fmt::Write as _;
 
 use super::common::fold;
 use super::{NodeId, RailroadModel, RailroadNode};
@@ -328,7 +329,7 @@ struct Painter<'a, 'c> {
 impl Painter<'_, '_> {
     fn line(&mut self, x1: f64, y: f64, x2: f64) {
         if x2 > x1 {
-            self.track.push_str(&format!("M{},{}H{}", num(x1), num(y), num(x2)));
+            write!(self.track, "M{},{}H{}", num(x1), num(y), num(x2)).unwrap();
         }
     }
 
@@ -373,7 +374,8 @@ impl Painter<'_, '_> {
                             let next = &self.boxes[kids[i + 1]];
                             let next_offset = offset + kid.down + js::max(sep, 2.0 * arc) + next.up;
                             let mid = y + offset + kid.down + js::max(sep, 2.0 * arc) / 2.0;
-                            self.track.push_str(&format!(
+                            write!(
+                                self.track,
                                 "M{},{}H{}V{}H{}V{}H{}",
                                 num(start + kid.width),
                                 num(ky),
@@ -382,18 +384,13 @@ impl Painter<'_, '_> {
                                 num(x + arc),
                                 num(y + next_offset),
                                 num(start)
-                            ));
-                            self.arrows.push_str(&format!("M{},{}l7,3.5l-7,3.5z", num(start - ARROW), num(y + next_offset - ARROW / 2.0)));
+                            )
+                            .unwrap();
+                            write!(self.arrows, "M{},{}l7,3.5l-7,3.5z", num(start - ARROW), num(y + next_offset - ARROW / 2.0)).unwrap();
                             offset = next_offset;
                         } else {
-                            self.track.push_str(&format!(
-                                "M{},{}H{}V{}H{}",
-                                num(start + kid.width),
-                                num(ky),
-                                num(right - arc),
-                                num(y),
-                                num(right)
-                            ));
+                            write!(self.track, "M{},{}H{}V{}H{}", num(start + kid.width), num(ky), num(right - arc), num(y), num(right))
+                                .unwrap();
                         }
                     }
                     reverse(&mut stack, from);
@@ -424,15 +421,15 @@ impl Painter<'_, '_> {
                             };
                             d.push_str(&self.south_to_east);
                             if kx > rail_in + arc {
-                                d.push_str(&format!("H{}", num(kx)));
+                                write!(d, "H{}", num(kx)).unwrap();
                             }
-                            d.push_str(&format!("M{},{}", num(kx + kid.width), num(ky)));
+                            write!(d, "M{},{}", num(kx + kid.width), num(ky)).unwrap();
                             if kx > rail_in + arc {
-                                d.push_str(&format!("H{}", num(rail_out - arc)));
+                                write!(d, "H{}", num(rail_out - arc)).unwrap();
                             }
                             d.push_str(&self.east_to_north);
                             if last {
-                                d.push_str(&format!("V{}{}", num(y + arc), self.north_to_east));
+                                write!(d, "V{}{}", num(y + arc), self.north_to_east).unwrap();
                             }
                             self.track.push_str(&d);
                         }
@@ -487,15 +484,17 @@ impl Painter<'_, '_> {
                         self.loop_up
                     );
                     self.track.push_str(&d);
-                    self.arrows.push_str(&format!("M{},{}l7,-3.5v7z", num(middle - ARROW / 2.0), num(loop_y)));
+                    write!(self.arrows, "M{},{}l7,-3.5v7z", num(middle - ARROW / 2.0), num(loop_y)).unwrap();
                     if !bx.text.is_empty() {
-                        self.nodes.push_str(&format!(
+                        write!(
+                            self.nodes,
                             "<text class=\"pele-edge-label pele-count\" x=\"{}\" y=\"{}\" font-size=\"12\" fill=\"{}\">{}</text>",
                             num(middle),
                             num(loop_y + COUNT_SIZE + 3.0),
                             self.ctx.paint(Role::SecondaryText, "var(--_m)"),
                             esc(&bx.text)
-                        ));
+                        )
+                        .unwrap();
                     }
                     stack.push(kid);
                     at.push(kx);
@@ -515,7 +514,8 @@ impl Painter<'_, '_> {
         let label = format!("<text x=\"{}\" y=\"{}\"{}", num(x + bx.width / 2.0), num(y + self.text_shift), space);
         let stroke_color = ctx.paint(Role::NodeStroke, "var(--_b)");
         match bx.kind {
-            Kind::Terminal => self.nodes.push_str(&format!(
+            Kind::Terminal => write!(
+                self.nodes,
                 "<g class=\"pele-node pele-terminal\">{} rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>{} font-family=\"{}\">{}</text></g>",
                 shape,
                 num(self.box_top),
@@ -525,10 +525,12 @@ impl Painter<'_, '_> {
                 label,
                 FONT_MONO,
                 esc(text)
-            )),
+            )
+            .unwrap(),
             // A non-terminal is a box on the canvas in Pele, set apart from the filled
             // terminals; in resolved mode it takes the secondary surface to stay set apart.
-            Kind::NonTerminal => self.nodes.push_str(&format!(
+            Kind::NonTerminal => write!(
+                self.nodes,
                 "<g class=\"pele-node pele-nonterminal\" data-id=\"{}\">{} rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>{}>{}</text></g>",
                 esc_text(&bx.id),
                 shape,
@@ -538,13 +540,14 @@ impl Painter<'_, '_> {
                 self.stroke,
                 label,
                 esc(text)
-            )),
+            )
+            .unwrap(),
             // A special sequence is an annotation: a dashed box that reads as empty.
             _ => {
                 let muted = ctx.paint(Role::SecondaryText, "var(--_m)");
                 // `text.slice(2, -2)`: the text between "? " and " ?".
                 let inner = &text[2..text.len() - 2];
-                self.nodes.push_str(&format!(
+                write!(self.nodes,
                     "<g class=\"pele-node pele-special\">{} rx=\"{}\" fill=\"{}\" stroke=\"{}\" stroke-dasharray=\"4 3\"{}/>{} font-style=\"italic\"><tspan fill=\"{}\">? </tspan>{}<tspan fill=\"{}\"> ?</tspan></text></g>",
                     shape,
                     RADIUS,
@@ -555,7 +558,7 @@ impl Painter<'_, '_> {
                     muted,
                     esc(inner),
                     muted
-                ));
+                ).unwrap();
             }
         }
     }
@@ -647,7 +650,7 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         } else {
             String::new()
         };
-        rules.push_str(&format!(
+        write!(rules,
             "<g class=\"pele-rule\" data-id=\"{}\"><text class=\"pele-rule-name\" x=\"{}\" y=\"{}\" font-size=\"{}\" font-weight=\"var(--_hw)\" text-anchor=\"start\">{}</text><path class=\"pele-edge pele-track\" d=\"{}\" fill=\"none\" stroke=\"{line_color}\"{}/>",
             esc_text(&rule.name),
             num(pad),
@@ -656,13 +659,10 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
             esc(&name),
             painter.track,
             stroke
-        ));
+        ).unwrap();
         if !painter.arrows.is_empty() {
-            rules.push_str(&format!(
-                "<path class=\"pele-marker\" d=\"{}\" fill=\"{}\"/>",
-                painter.arrows,
-                ctx.paint(Role::Arrow, "var(--_l)")
-            ));
+            write!(rules, "<path class=\"pele-marker\" d=\"{}\" fill=\"{}\"/>", painter.arrows, ctx.paint(Role::Arrow, "var(--_l)"))
+                .unwrap();
         }
         rules.push_str(&markers);
         rules.push_str(&painter.nodes);
@@ -675,13 +675,15 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (bottom + pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !rules.is_empty() {
-        content.push_str(&format!(
+        write!(
+            content,
             "<g class=\"pele-rules\" transform=\"translate(0.5,0.5)\" font-size=\"{}\" text-anchor=\"middle\">{}</g>",
             num(size),
             rules
-        ));
+        )
+        .unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

@@ -32,10 +32,8 @@
 //!    to let curves that cross do so at a clear angle.
 
 use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
 
-use indexmap::IndexMap;
-
+use crate::util::hash::IndexedSet;
 use crate::util::{js, math};
 
 /// What a layout node is: a real node, a bend or label of an edge, or a port on a group's
@@ -286,7 +284,7 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
     // Every edge gets a middle rank of its own when labels or parallel edges need the room.
     let mut step: i32 = 1;
     if m > 0 {
-        let mut seen: HashSet<usize> = HashSet::new();
+        let mut seen: IndexedSet<usize> = IndexedSet::default();
         for e in edges.iter() {
             let a = e.tail.min(e.head);
             let b = e.tail.max(e.head);
@@ -1599,14 +1597,16 @@ fn empty_ranks(g: &Graph) -> Option<Vec<u8>> {
 /// levels.
 fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, room: &[f64], tall: &mut [f64]) {
     let total = pieces.from.len();
-    let mut by_rank: IndexMap<usize, Vec<usize>> = IndexMap::new();
+    // The pieces of each gap, by the rank above it. Each gap is handled on its own, so the
+    // ranks are taken in order rather than in the order they are first met.
+    let mut by_rank: Vec<Vec<usize>> = vec![Vec::new(); track_count.len()];
     for k in 0..total {
         pieces.track.push(-1);
         pieces.levels.push(0);
         if (pieces.from[k] - pieces.to[k]).abs() < IN_LINE {
             continue;
         }
-        by_rank.entry(pieces.rank[k]).or_default().push(k);
+        by_rank[pieces.rank[k]].push(k);
     }
     let from = &pieces.from;
     let to = &pieces.to;
@@ -1635,10 +1635,12 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
     // down to itself through a.
     let crossings = |a: usize, b: usize| -> i32 { within(to[a], b) + within(from[b], a) };
 
+    // Where each piece stands in the list being laid, for the pieces of that list.
+    let mut place_of = vec![0usize; total];
     // Gives the pieces of one gap in `list` their tracks, and each the number of tracks that the
     // pieces it has to do with take between them, counting its own from the first of those.
     // Returns the number of tracks. The pieces come without tracks.
-    let lay = |list: &mut Vec<usize>, track: &mut Vec<i64>, levels: &mut Vec<i64>| -> i64 {
+    let lay = |list: &mut Vec<usize>, track: &mut Vec<i64>, levels: &mut Vec<i64>, place_of: &mut Vec<usize>| -> i64 {
         // A plain order to start from, and to keep where nothing says otherwise: the pieces that
         // reach furthest go first, so that those of one fan nest.
         list.sort_by(|&a, &b| num_cmp(hi_of[b] - lo_of[b], hi_of[a] - lo_of[a]).then(num_cmp(lo_of[a], lo_of[b])).then(a.cmp(&b)));
@@ -1710,11 +1712,13 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
             sequence = result.iter().map(|&i| list[i]).collect();
         }
         // Each piece takes the first track below those it should be under that has room for it.
-        let place: HashMap<usize, usize> = list.iter().enumerate().map(|(i, &k)| (k, i)).collect();
+        for (i, &k) in list.iter().enumerate() {
+            place_of[k] = i;
+        }
         let mut rows: Vec<Vec<usize>> = Vec::new();
         for &k in &sequence {
             let mut t: i64 = 0;
-            if let Some(list_above) = above.get(place[&k]) {
+            if let Some(list_above) = above.get(place_of[k]) {
                 for &i in list_above {
                     if track[list[i]] >= t {
                         t = track[list[i]] + 1;
@@ -1759,9 +1763,11 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
         rows.len() as i64
     };
 
-    // The least distance between a and b as plain curves across a gap that leaves them
-    // `height` to turn in: between points along each and the other drawn as a run of short
-    // lines.
+    // Whether a and b pass within `limit` of each other as plain curves across a gap that
+    // leaves them `height` to turn in: whether any point along either comes that near the
+    // other drawn as a run of short lines. Only the comparison is needed, so the search stops
+    // at the first point that is near enough, and a point whose squared distance is clearly
+    // beyond the limit is not measured exactly.
     const SAMPLES: usize = 16;
     let sample = |k: usize, h: f64, out: &mut [f64; 2 * SAMPLES + 2]| {
         let c = ease(to[k] - from[k], h);
@@ -1772,8 +1778,10 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
             out[2 * i + 1] = h * (3.0 * c * t * u * u + 3.0 * (1.0 - c) * t * t * u + t * t * t);
         }
     };
-    let reach = |points: &[f64; 2 * SAMPLES + 2], line: &[f64; 2 * SAMPLES + 2]| -> f64 {
-        let mut least = f64::INFINITY;
+    let reaches = |points: &[f64; 2 * SAMPLES + 2], line: &[f64; 2 * SAMPLES + 2], limit: f64| -> bool {
+        // Beyond this, the squared distance alone shows the exact distance is not under the
+        // limit: the rounding of a sum of two squares is far smaller than the margin.
+        let clear = limit * limit * (1.0 + 1e-9);
         for i in 0..=SAMPLES {
             let px = points[2 * i];
             let py = points[2 * i + 1];
@@ -1783,26 +1791,35 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
                 let denom = dx * dx + dy * dy;
                 let denom = if denom == 0.0 || denom.is_nan() { 1.0 } else { denom };
                 let t = js::max(0.0, js::min(1.0, ((px - line[2 * j]) * dx + (py - line[2 * j + 1]) * dy) / denom));
-                let d = math::hypot(px - line[2 * j] - t * dx, py - line[2 * j + 1] - t * dy);
-                if d < least {
-                    least = d;
+                let ex = px - line[2 * j] - t * dx;
+                let ey = py - line[2 * j + 1] - t * dy;
+                if ex * ex + ey * ey > clear {
+                    continue;
+                }
+                if math::hypot(ex, ey) < limit {
+                    return true;
                 }
             }
         }
-        least
+        false
     };
     let mut line_a = [0.0f64; 2 * SAMPLES + 2];
     let mut line_b = [0.0f64; 2 * SAMPLES + 2];
-    let mut nearest = |a: usize, b: usize, height: f64| -> f64 {
+    let mut near = |a: usize, b: usize, height: f64, limit: f64| -> bool {
         let h = js::max(height / 2.0, height - 2.0 * LEVEL_LEAD);
         sample(a, h, &mut line_a);
         sample(b, h, &mut line_b);
-        js::min(reach(&line_a, &line_b), reach(&line_b, &line_a))
+        reaches(&line_a, &line_b, limit) || reaches(&line_b, &line_a, limit)
     };
 
-    for (&r, all) in by_rank.iter_mut() {
+    // Whether each piece turns onto a level, for the pieces of the gap in hand.
+    let mut on_level = vec![false; total];
+    for (r, all) in by_rank.iter_mut().enumerate() {
+        if all.is_empty() {
+            continue;
+        }
         if !curved {
-            track_count[r] = lay(all, track, levels);
+            track_count[r] = lay(all, track, levels, &mut place_of);
             continue;
         }
         if all.len() > MAX_WEIGHED {
@@ -1812,18 +1829,30 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
         // such piece to be told apart from, then any two that would pass too near each other as
         // plain curves.
         let mut far: Vec<usize> = all.iter().copied().filter(|&k| wide[k] == 1).collect();
-        lay(&mut far, track, levels);
-        let mut level: HashSet<usize> = far.iter().copied().filter(|&k| levels[k] > 1).collect();
+        lay(&mut far, track, levels, &mut place_of);
+        let mut leveled = 0usize;
+        for &k in &far {
+            if levels[k] > 1 {
+                on_level[k] = true;
+                leveled += 1;
+            }
+        }
         for i in 0..all.len() {
             for j in i + 1..all.len() {
                 let a = all[i];
                 let b = all[j];
-                if (level.contains(&a) && level.contains(&b)) || !clash(a, b) || (from[a] < to[a]) != (from[b] < to[b]) {
+                if (on_level[a] && on_level[b]) || !clash(a, b) || (from[a] < to[a]) != (from[b] < to[b]) {
                     continue;
                 }
-                if nearest(a, b, room[r]) < if wide[a] == 1 || wide[b] == 1 { LEVEL_CLEAR } else { LEVEL_TOUCH } {
-                    level.insert(a);
-                    level.insert(b);
+                if near(a, b, room[r], if wide[a] == 1 || wide[b] == 1 { LEVEL_CLEAR } else { LEVEL_TOUCH }) {
+                    if !on_level[a] {
+                        on_level[a] = true;
+                        leveled += 1;
+                    }
+                    if !on_level[b] {
+                        on_level[b] = true;
+                        leveled += 1;
+                    }
                 }
             }
         }
@@ -1831,13 +1860,13 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
             track[k] = -1;
             levels[k] = 0;
         }
-        if level.is_empty() {
+        if leveled == 0 {
             continue;
         }
         let mut crossing = 0;
         let mut alongside = 0;
         // Only the number of pairs counts here, so the order of the set does not matter.
-        let turning: Vec<usize> = all.iter().copied().filter(|k| level.contains(k)).collect();
+        let turning: Vec<usize> = all.iter().copied().filter(|&k| on_level[k]).collect();
         for i in 0..turning.len() {
             for j in i + 1..turning.len() {
                 let a = turning[i];
@@ -1863,8 +1892,8 @@ fn assign_tracks(pieces: &mut Pieces, track_count: &mut [i64], curved: bool, roo
         // With them go the short pieces that could cross one of them, so that each has its
         // place among the levels and crosses none.
         let beside = |k: usize| -> bool { turning.iter().any(|&j| meet(k, j)) };
-        let mut members: Vec<usize> = all.iter().copied().filter(|&k| level.contains(&k) || (wide[k] != 1 && beside(k))).collect();
-        lay(&mut members, track, levels);
+        let mut members: Vec<usize> = all.iter().copied().filter(|&k| on_level[k] || (wide[k] != 1 && beside(k))).collect();
+        lay(&mut members, track, levels, &mut place_of);
         let mut most = 0;
         for &k in &members {
             if levels[k] > most {

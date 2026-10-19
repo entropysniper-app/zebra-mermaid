@@ -42,6 +42,7 @@ for (const file of report.files) {
       suites: test.ancestry, fullName: test.fullName, location: test.location,
       mode, upstreamResult: state,
       scope: file.path.startsWith('tests/website/') ? 'website' : /^tests\/(?:mount|zoom|browsers|entries)\.test\.ts$/.test(file.path) || file.path === 'tests/util/measurer.test.ts' ? 'host-or-packaging' : 'rust-core',
+      timeoutMs: test.options.timeout,
     });
   }
 }

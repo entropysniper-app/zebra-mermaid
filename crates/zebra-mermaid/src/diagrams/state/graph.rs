@@ -44,9 +44,13 @@ struct Draft {
     dir: Option<String>,
     color_index: Option<usize>,
 }
+struct PendingNode {
+    node: Node,
+    draft_description: bool,
+}
 struct Builder<'a> {
     db: &'a StateModel,
-    nodes: IndexMap<String, Node>,
+    nodes: IndexMap<String, PendingNode>,
     edges: Vec<Edge>,
     drafts: IndexMap<String, Draft>,
     slots: IndexMap<String, Option<usize>>,
@@ -54,7 +58,7 @@ struct Builder<'a> {
     next_slot: usize,
 }
 impl Builder<'_> {
-    fn insert(&mut self, mut node: Node) {
+    fn insert(&mut self, mut node: Node, draft_description: bool) {
         if node.id.is_empty() || matches!(node.id.as_str(), "</join></fork>" | "</choice>") {
             return;
         }
@@ -64,9 +68,9 @@ impl Builder<'_> {
             }
         }
         if node.parent.is_none() {
-            node.parent = self.nodes.get(&node.id).and_then(|n| n.parent.clone());
+            node.parent = self.nodes.get(&node.id).and_then(|pending| pending.node.parent.clone());
         }
-        self.nodes.insert(node.id.clone(), node);
+        self.nodes.insert(node.id.clone(), PendingNode { node, draft_description });
     }
     fn visit(&mut self, parent: Option<&str>, item: &State, alt: bool) {
         let id = &item.id;
@@ -95,12 +99,10 @@ impl Builder<'_> {
             }
         });
         if let Some(desc) = item.description.as_ref().filter(|s| s.truthy()) {
-            match &draft.description {
-                Description::Lines(v) => {
+            match &mut draft.description {
+                Description::Lines(lines) => {
                     draft.shape = Some("rectWithTitle".into());
-                    let mut v = v.clone();
-                    v.extend(desc.values());
-                    draft.description = Description::Lines(v);
+                    lines.extend(desc.values());
                 }
                 Description::Text(s) if !s.is_empty() => {
                     draft.shape = Some("rectWithTitle".into());
@@ -137,15 +139,14 @@ impl Builder<'_> {
                 draft.classes = format!("{} statediagram-cluster {}", draft.classes, if alt { "statediagram-cluster-alt" } else { "" });
             }
         }
-        let (label, description) = match &draft.description {
-            Description::Text(s) => (Some(s.clone()), vec![]),
-            Description::Lines(v) => (v.first().cloned(), v.get(1..).unwrap_or_default().to_vec()),
+        let label = match &draft.description {
+            Description::Text(text) => Some(text.clone()),
+            Description::Lines(lines) => lines.first().cloned(),
         };
         let mut node = Node {
             id: id.clone(),
             shape: draft.shape.clone(),
             label,
-            description,
             classes: draft.classes.clone(),
             styles: draft.styles.clone(),
             kind: draft.kind.clone(),
@@ -159,35 +160,41 @@ impl Builder<'_> {
         }
         node.parent = parent.filter(|p| *p != "root").map(str::to_owned);
         let Some(note) = &item.note else {
-            self.insert(node);
+            self.insert(node, true);
             return;
         };
         let classes = draft.classes.clone();
         let group_id = format!("{id}----parent");
         let note_id = format!("{id}----note-{}", self.counter);
         self.counter += 1;
-        self.insert(Node {
-            id: group_id.clone(),
-            shape: Some("noteGroup".into()),
-            label: Some(note.text.clone()),
-            classes,
-            kind: Some("group".into()),
-            group: true,
-            position: Some(note.position.clone()),
-            ..Default::default()
-        });
-        self.insert(Node {
-            id: note_id.clone(),
-            shape: Some("note".into()),
-            label: Some(note.text.clone()),
-            classes: "statediagram-note".into(),
-            kind: Some("node".into()),
-            parent: Some(group_id),
-            note_for: Some(id.clone()),
-            position: Some(note.position.clone()),
-            ..Default::default()
-        });
-        self.insert(node);
+        self.insert(
+            Node {
+                id: group_id.clone(),
+                shape: Some("noteGroup".into()),
+                label: Some(note.text.clone()),
+                classes,
+                kind: Some("group".into()),
+                group: true,
+                position: Some(note.position.clone()),
+                ..Default::default()
+            },
+            false,
+        );
+        self.insert(
+            Node {
+                id: note_id.clone(),
+                shape: Some("note".into()),
+                label: Some(note.text.clone()),
+                classes: "statediagram-note".into(),
+                kind: Some("node".into()),
+                parent: Some(group_id),
+                note_for: Some(id.clone()),
+                position: Some(note.position.clone()),
+                ..Default::default()
+            },
+            false,
+        );
+        self.insert(node, true);
         let (start, end) = if note.position == "left of" { (note_id, id.clone()) } else { (id.clone(), note_id) };
         self.edges.push(Edge { id: format!("{start}-{end}"), start, end, label: String::new(), dashed: true });
     }
@@ -225,7 +232,14 @@ pub fn build(db: &StateModel) -> Result<Graph, Error> {
             _ => {}
         }
     }
-    for node in b.nodes.values() {
+    let mut nodes = Vec::with_capacity(b.nodes.len());
+    for pending in b.nodes.into_values() {
+        let mut node = pending.node;
+        if pending.draft_description {
+            if let Some(Description::Lines(lines)) = b.drafts.swap_remove(&node.id).map(|draft| draft.description) {
+                node.description = lines.into_iter().skip(1).collect();
+            }
+        }
         if node.group && !node.description.is_empty() {
             return Err(Error::semantic(format!(
                 "Group nodes can only have label. Remove the additional description for node [{}]",
@@ -233,6 +247,7 @@ pub fn build(db: &StateModel) -> Result<Graph, Error> {
             ))
             .with_type(crate::DiagramType::State));
         }
+        nodes.push(node);
     }
-    Ok(Graph { nodes: b.nodes.into_values().collect(), edges: b.edges })
+    Ok(Graph { nodes, edges: b.edges })
 }

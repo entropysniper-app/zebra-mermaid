@@ -64,7 +64,7 @@ all-diagrams = [
 [dependencies]
 indexmap.workspace = true
 url.workspace = true
-serde = { workspace = true, optional = true }
+serde = { workspace = true, optional = true, features = ["rc"] }
 
 [dev-dependencies]
 zebra-mermaid = { path = ".", features = ["serde"] }

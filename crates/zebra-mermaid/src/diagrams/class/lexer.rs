@@ -5,10 +5,12 @@ use crate::util::{
     chars::{char_at, is_space, is_word},
     unicode::is_unicode_letter,
 };
+use std::borrow::Cow;
+/// A token: its text borrows the source unless the lexer had to make it.
 #[derive(Clone, Debug)]
-pub struct Token {
+pub struct Token<'a> {
     pub kind: u8,
-    pub text: String,
+    pub text: Cow<'a, str>,
     pub start: usize,
 }
 #[derive(Clone, Copy)]
@@ -32,13 +34,13 @@ struct Lexer<'a> {
     p: usize,
     state: State,
     stack: Vec<State>,
-    out: Vec<Token>,
+    out: Vec<Token<'a>>,
     dirs: [Vec<(usize, usize)>; 4],
     dir_seen: [usize; 4],
     dir_last: [Option<(usize, usize)>; 4],
     line_end: Option<usize>,
 }
-impl Lexer<'_> {
+impl<'a> Lexer<'a> {
     fn kw(&self, word: &str) -> bool {
         self.s[self.p..].starts_with(word) && !char_at(self.s, self.p + word.len()).is_some_and(is_word)
     }
@@ -52,7 +54,8 @@ impl Lexer<'_> {
         self.s[self.p..].find(c).map_or(self.s.len(), |i| self.p + i)
     }
     fn emit(&mut self, kind: u8, end: usize) -> bool {
-        self.out.push(Token { kind, text: self.s[self.p..end].into(), start: self.p });
+        let s: &'a str = self.s;
+        self.out.push(Token { kind, text: Cow::Borrowed(&s[self.p..end]), start: self.p });
         self.p = end;
         true
     }
@@ -253,7 +256,7 @@ impl Lexer<'_> {
         }
         self.common() || (c == ':' && self.emit(COLON, self.p + 1))
     }
-    fn run(mut self) -> Vec<Token> {
+    fn run(mut self) -> Vec<Token<'a>> {
         loop {
             if self.p >= self.s.len() {
                 let k = match self.state {
@@ -411,7 +414,7 @@ impl Lexer<'_> {
                 }
             }
             if !ok {
-                self.out.push(Token { kind: ERROR, text: String::new(), start: self.p });
+                self.out.push(Token { kind: ERROR, text: Cow::Borrowed(""), start: self.p });
                 return self.out;
             }
         }
@@ -419,7 +422,7 @@ impl Lexer<'_> {
         self.out
     }
 }
-pub fn tokenize(s: &str) -> Vec<Token> {
+pub fn tokenize(s: &str) -> Vec<Token<'_>> {
     let mut l = Lexer {
         s,
         p: 0,

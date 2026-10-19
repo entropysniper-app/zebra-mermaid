@@ -29,6 +29,7 @@ use crate::util::{
 };
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
+use std::fmt::Write as _;
 struct View<'a> {
     node: &'a Node,
     style: ResolvedStyle,
@@ -108,16 +109,16 @@ fn put(edge: &Edge, label: &Label, path: &EdgePath, x: f64, y: f64, ctx: &Render
     };
     let classes =
         class_names(&edge.classes.replace("edge-thickness-normal", "").replace("edge-pattern-solid", "").replace("flowchart-link", ""));
-    edges.push_str(&format!(
+    write!(edges, 
         "<g class=\"pele-edge pele-edge-{kind}{classes}\" data-id=\"{}\"{}><path d=\"{}\"{}/>{}</g>",
         esc_text(&edge.id),
         st.as_ref().map_or("", |s| s.line.as_str()),
         path.d,
         if edge.thickness.as_deref() == Some("dotted") { " stroke-dasharray=\"3 4\"" } else { "" },
         marker(&edge.head, path.ex, path.ey, path.edx, path.edy, &color)
-    ));
+    ).unwrap();
     if label.width > 0.0 {
-        labels.push_str(&edge_label_svg(
+        write!(labels, "{}", edge_label_svg(
             &edge.id,
             label,
             x,
@@ -125,7 +126,7 @@ fn put(edge: &Edge, label: &Label, path: &EdgePath, x: f64, y: f64, ctx: &Render
             st.as_ref().map_or("", |s| s.text.as_str()),
             ctx.icons(),
             ctx.paint(Role::Background, "var(--_bg)"),
-        ));
+        )).unwrap();
     }
 }
 pub(crate) fn render(db: &AgentflowModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
@@ -335,7 +336,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         let id = esc_text(&n.id);
         if c.is_group {
             let tx = cluster_title_x(c.x, c.y, c.w, c.h, v.label.width, &crossings, 20.0);
-            clusters.push_str(&format!("<g class=\"pele-cluster pele-flow{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\"{}{}/>{}</g>",num(x-c.w/2.0),num(y-c.h/2.0),num(c.w),num(c.h),tint(n.color_index.unwrap_or(7),"0.06",&v.style,ctx,true),v.style.shape,label_svg(&v.label,tx,y-c.h/2.0+8.0+v.label.height/2.0,&format!(" class=\"pele-cluster-label\" fill=\"{}\"{}",ctx.paint(Role::SecondaryText,"var(--_m)"),v.style.text),icons)));
+            write!(clusters, "<g class=\"pele-cluster pele-flow{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\"{}{}/>{}</g>",num(x-c.w/2.0),num(y-c.h/2.0),num(c.w),num(c.h),tint(n.color_index.unwrap_or(7),"0.06",&v.style,ctx,true),v.style.shape,label_svg(&v.label,tx,y-c.h/2.0+8.0+v.label.height/2.0,&format!(" class=\"pele-cluster-label\" fill=\"{}\"{}",ctx.paint(Role::SecondaryText,"var(--_m)"),v.style.text),icons)).unwrap();
             continue;
         }
         let (w, h) = (v.w, v.h);
@@ -359,7 +360,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                 ctx.theming,
             );
         }
-        let mut text = label_svg(&v.label, 0.0, v.dy, &format!(" class=\"pele-label\"{}", v.style.text), icons);
+        let mut text = label_svg(&v.label, 0.0, v.dy, &format!(" class=\"pele-label\"{}", v.style.text), icons).to_string();
         if classes.split(' ').any(|s| s == "internal-link")
             && n.label.as_ref().is_some_and(|s| !s.is_empty())
             && ctx.options.links != Some(false)
@@ -387,12 +388,12 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                 &n.link_target.as_ref().filter(|s| !s.is_empty()).map_or_else(String::new, |s| format!(" target=\"{}\"", esc(s))),
             );
         }
-        nodes_out.push_str(&format!(
+        write!(nodes_out, 
             "<g class=\"pele-node pele-shape-{}{kind}{classes}\" data-id=\"{id}\" transform=\"translate({},{})\">{body}</g>",
             v.shape,
             num(x),
             num(y)
-        ));
+        ).unwrap();
     }
     let mut edges_out = String::new();
     let mut labels_out = String::new();
@@ -422,20 +423,20 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
     for (i, (e, label, _, _)) in held.iter().enumerate() {
         put(e, label, &held_paths[i], held_labels[i].0, held_labels[i].1, ctx, &mut edges_out, &mut labels_out);
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
+    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !clusters.is_empty() {
-        content.push_str(&format!("<g class=\"pele-clusters\">{clusters}</g>"));
+        write!(content, "<g class=\"pele-clusters\">{clusters}</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        content.push_str(&format!(
+        write!(content, 
             "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edges_out}</g>",
             ctx.paint(Role::Line, "var(--_l)")
-        ));
+        ).unwrap();
     }
     if !labels_out.is_empty() {
-        content.push_str(&format!("<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(edge_size)));
+        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(edge_size)).unwrap();
     }
-    content.push_str(&format!("<g class=\"pele-nodes\">{nodes_out}</g>"));
+    write!(content, "<g class=\"pele-nodes\">{nodes_out}</g>").unwrap();
     Ok(Rendered {
         svg: svg_document(
             "agentflow",

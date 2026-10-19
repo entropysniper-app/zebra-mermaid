@@ -386,17 +386,15 @@ impl Parser<'_> {
         let id = self.take();
         match self.kind() {
             CALLBACKNAME => {
-                self.i += 1;
-                if self.kind() == CALLBACKARGS {
-                    self.i += 1;
-                }
+                let name = self.take();
+                let args = if self.kind() == CALLBACKARGS { Some(self.take()) } else { None };
                 let tooltip = if self.kind() == SPACE {
                     self.i += 1;
                     Some(self.expect(STR, "")?)
                 } else {
                     None
                 };
-                self.db.set_class(&id, "clickable");
+                self.db.set_click_event(&id, &name, args.as_deref());
                 if let Some(t) = tooltip {
                     self.db.tooltip(&id, t);
                 }
@@ -411,14 +409,14 @@ impl Parser<'_> {
                 self.link_tail(&id, &url)?;
             }
             _ => {
-                self.alpha()?;
+                let name = self.alpha()?;
                 let tooltip = if self.kind() == SPACE {
                     self.i += 1;
                     Some(self.expect(STR, "")?)
                 } else {
                     None
                 };
-                self.db.set_class(&id, "clickable");
+                self.db.set_click_event(&id, &name, None);
                 if let Some(t) = tooltip {
                     self.db.tooltip(&id, t);
                 }
