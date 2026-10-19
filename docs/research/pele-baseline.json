@@ -1,0 +1,350 @@
+{
+  "capturedAt": "2026-10-19T04:44:51.799Z",
+  "repository": "https://github.com/obsidianmd/pele",
+  "commit": "44da152bbb79b91f03e68016f42499bb25bf6e82",
+  "packageVersion": "1.6.0",
+  "mermaidTarget": "12.1.0",
+  "counts": {
+    "sourceTsFiles": 287,
+    "physicalSourceLines": 50037,
+    "testFiles": 291,
+    "compatTestFiles": 136,
+    "diagramTypes": 33,
+    "corpusFiles": 34,
+    "corpusEntries": 761,
+    "parsed": 702,
+    "rendered": 702
+  },
+  "bundle": {
+    "minifiedBytes": 678032,
+    "gzipBytes": 251692
+  },
+  "fixedRenderOptions": {
+    "now": 1792368000000,
+    "idPrefix": "baseline"
+  },
+  "tests": {
+    "scope": "npm test; excludes tests/website/**",
+    "filesPassed": 288,
+    "filesSkipped": 1,
+    "testsPassed": 6695,
+    "testsSkipped": 103,
+    "testsTodo": 2,
+    "durationSeconds": 19.74
+  },
+  "benchmark": {
+    "command": "npm run bench",
+    "engine": "Pele only; no Rust comparison",
+    "statistic": "upstream batch median; not p95 and not isolated CPU",
+    "cases": [
+      {
+        "name": "114 flowchart documentation inputs, whole batch",
+        "milliseconds": 2.9
+      },
+      {
+        "name": "50-node tree",
+        "milliseconds": 0.25
+      },
+      {
+        "name": "50-node mesh plus 20 extra labeled edges",
+        "milliseconds": 0.805
+      },
+      {
+        "name": "500-node tree",
+        "milliseconds": 3.4
+      },
+      {
+        "name": "500-node mesh plus 200 extra labeled edges",
+        "milliseconds": 9
+      }
+    ]
+  },
+  "caveats": [
+    "Corpus entries include negative examples; rendered count is an observation, not a compatibility pass rate.",
+    "The corpus includes 522 documentation entries and 239 agentflow reference records; entries are not globally deduplicated.",
+    "Node rendering uses the built-in estimated text measurer, without browser font measurement or DOM insertion.",
+    "The fixed now option applies to rendering. Parse-time behavior may depend on the host timezone; this is not a cross-runtime golden test suite.",
+    "Detailed source and SVG hashes are stored locally in .research/pele-corpus-cases.json."
+  ],
+  "corpus": [
+    {
+      "file": "agentflow-docs.json",
+      "entries": 12,
+      "parsed": 12,
+      "rendered": 12,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "agentflow-reference.json",
+      "entries": 239,
+      "parsed": 180,
+      "rendered": 180,
+      "parseErrors": {
+        "syntax": 50,
+        "semantic": 8,
+        "unsupported-diagram": 1
+      },
+      "renderErrors": {}
+    },
+    {
+      "file": "architecture-docs.json",
+      "entries": 6,
+      "parsed": 6,
+      "rendered": 6,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "block-docs.json",
+      "entries": 30,
+      "parsed": 30,
+      "rendered": 30,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "c4-docs.json",
+      "entries": 6,
+      "parsed": 6,
+      "rendered": 6,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "class-docs.json",
+      "entries": 38,
+      "parsed": 38,
+      "rendered": 38,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "cynefin-docs.json",
+      "entries": 3,
+      "parsed": 3,
+      "rendered": 3,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "er-docs.json",
+      "entries": 25,
+      "parsed": 25,
+      "rendered": 25,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "eventmodeling-docs.json",
+      "entries": 12,
+      "parsed": 12,
+      "rendered": 12,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "flowchart-docs.json",
+      "entries": 114,
+      "parsed": 114,
+      "rendered": 114,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "gantt-docs.json",
+      "entries": 11,
+      "parsed": 11,
+      "rendered": 11,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "git-docs.json",
+      "entries": 35,
+      "parsed": 35,
+      "rendered": 35,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "info-docs.json",
+      "entries": 2,
+      "parsed": 2,
+      "rendered": 2,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "ishikawa-docs.json",
+      "entries": 1,
+      "parsed": 1,
+      "rendered": 1,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "journey-docs.json",
+      "entries": 1,
+      "parsed": 1,
+      "rendered": 1,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "kanban-docs.json",
+      "entries": 3,
+      "parsed": 3,
+      "rendered": 3,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "mindmap-docs.json",
+      "entries": 13,
+      "parsed": 13,
+      "rendered": 13,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "packet-docs.json",
+      "entries": 4,
+      "parsed": 4,
+      "rendered": 4,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "pie-docs.json",
+      "entries": 2,
+      "parsed": 2,
+      "rendered": 2,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "quadrant-docs.json",
+      "entries": 3,
+      "parsed": 3,
+      "rendered": 3,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "radar-docs.json",
+      "entries": 3,
+      "parsed": 3,
+      "rendered": 3,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "railroad-docs.json",
+      "entries": 14,
+      "parsed": 14,
+      "rendered": 14,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "requirement-docs.json",
+      "entries": 9,
+      "parsed": 9,
+      "rendered": 9,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "sankey-docs.json",
+      "entries": 8,
+      "parsed": 8,
+      "rendered": 8,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "sequence-docs.json",
+      "entries": 38,
+      "parsed": 38,
+      "rendered": 38,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "state-docs.json",
+      "entries": 22,
+      "parsed": 22,
+      "rendered": 22,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "swimlane-docs.json",
+      "entries": 13,
+      "parsed": 13,
+      "rendered": 13,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "timeline-docs.json",
+      "entries": 14,
+      "parsed": 14,
+      "rendered": 14,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "treemap-docs.json",
+      "entries": 8,
+      "parsed": 8,
+      "rendered": 8,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "treeview-docs.json",
+      "entries": 13,
+      "parsed": 13,
+      "rendered": 13,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "usecase-docs.json",
+      "entries": 24,
+      "parsed": 24,
+      "rendered": 24,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "venn-docs.json",
+      "entries": 8,
+      "parsed": 8,
+      "rendered": 8,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "wardley-docs.json",
+      "entries": 19,
+      "parsed": 19,
+      "rendered": 19,
+      "parseErrors": {},
+      "renderErrors": {}
+    },
+    {
+      "file": "xychart-docs.json",
+      "entries": 8,
+      "parsed": 8,
+      "rendered": 8,
+      "parseErrors": {},
+      "renderErrors": {}
+    }
+  ],
+  "runtime": {
+    "node": "v26.3.0"
+  }
+}

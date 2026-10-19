@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = ["crates/zebra-mermaid", "crates/zebra-mermaid-cli", "crates/zebra-mermaid-ffi"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+# Only this toolchain has been verified; an older one may work but is untested.
+rust-version = "1.96"
+license = "MIT"
+description = "A pure Rust Mermaid to SVG renderer ported from Pele"
+
+[workspace.dependencies]
+indexmap = "=2.14.2"
+url = "=2.5.8"
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = { version = "=1.0.154", features = ["preserve_order", "float_roundtrip"] }
+quick-xml = "=0.42.0"
+flate2 = "=1.1.10"
+proptest = { version = "=1.12.0", default-features = false, features = ["std"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

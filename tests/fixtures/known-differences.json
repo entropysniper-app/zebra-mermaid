@@ -1,0 +1,10 @@
+{
+  "note": "Fixture cases where the Rust port intentionally differs from Pele 1.6.0. Each entry names the suite, the input, and why. Tests skip only these exact inputs and print how many were skipped.",
+  "entries": [
+    {
+      "suite": "entities",
+      "input": "ﬂ°°1.5¶ß",
+      "reason": "Pele passes a non-integral number to String.fromCodePoint, which throws a RangeError; inside render() that surfaces as the limit error 'Diagram is nested too deeply.'. Rust keeps the placeholder text. Only hand-typed private placeholder characters reach this."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[package]
+name = "zebra-mermaid-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Command line renderer for Mermaid diagrams, built on the zebra-mermaid library"
+
+[[bin]]
+name = "zebra-mermaid"
+path = "src/main.rs"
+
+[features]
+default = ["implemented"]
+implemented = ["zebra-mermaid/implemented"]
+all-diagrams = ["zebra-mermaid/all-diagrams"]
+mvp = ["zebra-mermaid/mvp"]
+standard = ["zebra-mermaid/standard"]
+
+[dependencies]
+zebra-mermaid = { path = "../zebra-mermaid", default-features = false, features = ["serde"] }
+serde = { workspace = true }
+serde_json.workspace = true
+
+[dev-dependencies]
+quick-xml.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"

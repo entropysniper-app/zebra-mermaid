@@ -1,0 +1,78 @@
+[package]
+name = "zebra-mermaid"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description.workspace = true
+
+[features]
+# The types implemented so far. It grows with each milestone until it equals `all-diagrams`;
+# see docs/IMPLEMENTATION-STATUS.md.
+default = ["implemented"]
+implemented = ["all-diagrams"]
+# Serialize parsed models and errors with serde, for fixtures and differential tests.
+serde = ["dep:serde", "indexmap/serde"]
+
+# One feature per diagram type. A build without default features renders none of them and
+# reports every type as unsupported-diagram.
+pie = []
+info = []
+flowchart = []
+sequence = []
+class = []
+state = []
+er = []
+requirement = []
+agentflow = ["flowchart"]
+usecase = []
+swimlane = ["flowchart"]
+mindmap = []
+treeView = []
+treemap = []
+packet = []
+quadrantChart = []
+radar = []
+xychart = []
+timeline = []
+journey = []
+kanban = []
+gantt = []
+gitGraph = []
+c4 = []
+architecture = []
+block = []
+sankey = []
+railroad = []
+venn = []
+cynefin = []
+wardley = []
+ishikawa = []
+eventmodeling = []
+
+# The first usable subset: flowchart, sequence, pie and info.
+mvp = ["pie", "info", "flowchart", "sequence"]
+# Common software diagrams on top of the MVP.
+standard = ["mvp", "class", "state", "er"]
+all-diagrams = [
+    "standard", "requirement", "agentflow", "usecase", "swimlane", "mindmap", "treeView",
+    "treemap", "packet", "quadrantChart", "radar", "xychart", "timeline", "journey", "kanban",
+    "gantt", "gitGraph", "c4", "architecture", "block", "sankey", "railroad", "venn", "cynefin",
+    "wardley", "ishikawa", "eventmodeling",
+]
+
+[dependencies]
+indexmap.workspace = true
+url.workspace = true
+serde = { workspace = true, optional = true }
+
+[dev-dependencies]
+zebra-mermaid = { path = ".", features = ["serde"] }
+serde = { workspace = true }
+serde_json.workspace = true
+quick-xml.workspace = true
+proptest.workspace = true
+flate2.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,19 @@
+[package]
+name = "zebra-mermaid-ffi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "C ABI (version 2) of zebra-mermaid, in the shape of Zebra's native Mermaid bridge"
+
+[lib]
+name = "zebra_mermaid_ffi"
+crate-type = ["rlib", "staticlib", "cdylib"]
+
+[features]
+default = ["implemented"]
+implemented = ["zebra-mermaid/implemented"]
+all-diagrams = ["zebra-mermaid/all-diagrams"]
+
+[dependencies]
+zebra-mermaid = { path = "../zebra-mermaid", default-features = false }

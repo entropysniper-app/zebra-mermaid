@@ -1,0 +1,48 @@
+//! Text: entity codes, width measurement, icons and label layout.
+
+pub mod entities;
+pub mod icons;
+pub mod label;
+pub mod measurer;
+mod metrics;
+
+use std::rc::Rc;
+
+pub use icons::{IconResolver, IconTable, Icons};
+pub use label::{layout_label, Label, Span, LINE_HEIGHT};
+pub use measurer::{style, MetricsMeasurer, TextMeasurer};
+
+/// What label layout measures with during one render: the host's measurer and the icons the
+/// host has. Pele keeps the icons in module state; here they travel with the measurer.
+#[derive(Clone, Copy)]
+pub struct Measure<'a> {
+    measurer: &'a dyn TextMeasurer,
+    icons: &'a Icons,
+}
+
+impl<'a> Measure<'a> {
+    pub fn new(measurer: &'a dyn TextMeasurer, icons: &'a Icons) -> Self {
+        Measure { measurer, icons }
+    }
+
+    #[inline]
+    pub fn width(&self, text: &str, size: f64, style: u8) -> f64 {
+        self.measurer.width(text, size, style)
+    }
+
+    /// The host's markup for an icon, or an empty string when it has none.
+    #[inline]
+    pub fn icon_markup(&self, name: &str) -> Rc<str> {
+        self.icons.markup(name)
+    }
+
+    #[inline]
+    pub fn icons(&self) -> &'a Icons {
+        self.icons
+    }
+
+    #[inline]
+    pub fn measurer(&self) -> &'a dyn TextMeasurer {
+        self.measurer
+    }
+}

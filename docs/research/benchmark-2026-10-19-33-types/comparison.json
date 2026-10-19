@@ -1,0 +1,1356 @@
+{
+  "createdAt": "2026-10-19T09:09:27.588Z",
+  "commit": "44da152bbb79b91f03e68016f42499bb25bf6e82",
+  "enabledTypes": [
+    "flowchart",
+    "sequence",
+    "class",
+    "state",
+    "er",
+    "pie",
+    "gantt",
+    "gitGraph",
+    "mindmap",
+    "timeline",
+    "journey",
+    "xychart",
+    "quadrantChart",
+    "requirement",
+    "c4",
+    "sankey",
+    "block",
+    "packet",
+    "kanban",
+    "architecture",
+    "radar",
+    "treemap",
+    "info",
+    "agentflow",
+    "usecase",
+    "railroad",
+    "treeView",
+    "venn",
+    "cynefin",
+    "wardley",
+    "swimlane",
+    "ishikawa",
+    "eventmodeling"
+  ],
+  "inputSha256": "3394dca947019058a8c45335c6f09ce2a0e3f938b2e8ef3af2ef03ea89ddcf90",
+  "method": {
+    "runs": 3,
+    "minimumSamples": 9,
+    "minimumSamplingMs": 300,
+    "calibrationMs": 10,
+    "mode": "css",
+    "font": "default Arial metrics",
+    "now": 1792368000000,
+    "timezone": "UTC",
+    "correctness": "Every success must match UTF-8 SVG FNV-1a-64 and dimensions; every rejection must match code, message, line and column. Successful render and expected rejection workloads are timed separately."
+  },
+  "rows": [
+    {
+      "name": "docs: all flowchart examples",
+      "diagrams": 114,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 114,
+      "rejectInputs": 0,
+      "peleDone": 114,
+      "rustDone": 114,
+      "render": {
+        "peleMs": 1.9381197499999985,
+        "rustMs": 1.507395875,
+        "ratios": [
+          0.7883418672114403,
+          0.7657727023729218,
+          0.787331510346562
+        ],
+        "rustOverPele": 0.7777619907129067
+      },
+      "parse": {
+        "peleMs": 0.44735937500000134,
+        "rustMs": 0.37395571875,
+        "ratios": [
+          0.8517274137569408,
+          0.8199238082187101,
+          0.8419573888442572
+        ],
+        "rustOverPele": 0.8359179211344322
+      }
+    },
+    {
+      "name": "tree: 50 nodes",
+      "diagrams": 1,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 1,
+      "rejectInputs": 0,
+      "peleDone": 1,
+      "rustDone": 1,
+      "render": {
+        "peleMs": 0.22957682812500124,
+        "rustMs": 0.231732421875,
+        "ratios": [
+          1.009389422127677,
+          0.9511079369183192,
+          1.0341255468476769
+        ],
+        "rustOverPele": 1.009389422127677
+      },
+      "parse": {
+        "peleMs": 0.051786621093750096,
+        "rustMs": 0.057477375,
+        "ratios": [
+          1.14416927867267,
+          1.0960904180992566,
+          1.1192512092325948
+        ],
+        "rustOverPele": 1.1098884960257949
+      }
+    },
+    {
+      "name": "mesh: 50 nodes, 20 extra labelled edges",
+      "diagrams": 1,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 1,
+      "rejectInputs": 0,
+      "peleDone": 1,
+      "rustDone": 1,
+      "render": {
+        "peleMs": 0.6496509999999915,
+        "rustMs": 0.46157943749999997,
+        "ratios": [
+          0.7418847910923033,
+          0.7071953746810639,
+          0.7353447755025486
+        ],
+        "rustOverPele": 0.7105036973698278
+      },
+      "parse": {
+        "peleMs": 0.06408398437500029,
+        "rustMs": 0.06347802734375001,
+        "ratios": [
+          1.0350172984022281,
+          0.9783406174758422,
+          1.0143727565226925
+        ],
+        "rustOverPele": 0.9905443296455413
+      }
+    },
+    {
+      "name": "tree: 500 nodes",
+      "diagrams": 1,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 1,
+      "rejectInputs": 0,
+      "peleDone": 1,
+      "rustDone": 1,
+      "render": {
+        "peleMs": 2.6986354999999094,
+        "rustMs": 2.352864625,
+        "ratios": [
+          0.9019162798738777,
+          0.8493248681763709,
+          0.8876476649032744
+        ],
+        "rustOverPele": 0.8718719608483914
+      },
+      "parse": {
+        "peleMs": 0.550736999999998,
+        "rustMs": 0.5806171875,
+        "ratios": [
+          1.1231242424249834,
+          1.018114388424811,
+          1.0740437359392998
+        ],
+        "rustOverPele": 1.0542549120542148
+      }
+    },
+    {
+      "name": "mesh: 500 nodes, 200 extra labelled edges",
+      "diagrams": 1,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 1,
+      "rejectInputs": 0,
+      "peleDone": 1,
+      "rustDone": 1,
+      "render": {
+        "peleMs": 8.777666500000123,
+        "rustMs": 5.9213125,
+        "ratios": [
+          0.7000169941111692,
+          0.6741873252988043,
+          0.668244416713548
+        ],
+        "rustOverPele": 0.6745884569663152
+      },
+      "parse": {
+        "peleMs": 0.712575500000014,
+        "rustMs": 0.64750525,
+        "ratios": [
+          0.9557934358927055,
+          0.8864485237002782,
+          0.906911675304524
+        ],
+        "rustOverPele": 0.9086830097301792
+      }
+    },
+    {
+      "name": "corpus: agentflow-docs",
+      "diagrams": 12,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 12,
+      "rejectInputs": 0,
+      "peleDone": 12,
+      "rustDone": 12,
+      "render": {
+        "peleMs": 0.46236328125000625,
+        "rustMs": 0.48230209375,
+        "ratios": [
+          1.026490153574845,
+          1.0436137033751391,
+          1.034309678221833
+        ],
+        "rustOverPele": 1.043123693659429
+      },
+      "parse": {
+        "peleMs": 0.20552603124998825,
+        "rustMs": 0.245231765625,
+        "ratios": [
+          1.233981081776056,
+          1.1950621933479482,
+          1.1409652690692764
+        ],
+        "rustOverPele": 1.1931907804258446
+      }
+    },
+    {
+      "name": "corpus: agentflow-reference",
+      "diagrams": 239,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 180,
+      "rejectInputs": 59,
+      "peleDone": 180,
+      "rustDone": 180,
+      "render": {
+        "peleMs": 3.356739750000088,
+        "rustMs": 3.04784375,
+        "ratios": [
+          0.9170432841747156,
+          0.9079773759642583,
+          0.8577963316205387
+        ],
+        "rustOverPele": 0.9079773759642583
+      },
+      "parse": {
+        "peleMs": 1.6235520000000179,
+        "rustMs": 1.4418072499999999,
+        "ratios": [
+          0.8683209063910331,
+          0.8880573273907975,
+          0.9312565192971392
+        ],
+        "rustOverPele": 0.8880573273907975
+      },
+      "rejection": {
+        "peleMs": 0.7383854375000283,
+        "rustMs": 0.29287565625,
+        "ratios": [
+          0.41228012215995247,
+          0.39287235130011483,
+          0.4027888297160365
+        ],
+        "rustOverPele": 0.3966433266094699
+      }
+    },
+    {
+      "name": "corpus: architecture-docs",
+      "diagrams": 6,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 6,
+      "rejectInputs": 0,
+      "peleDone": 6,
+      "rustDone": 6,
+      "render": {
+        "peleMs": 0.20561848437499464,
+        "rustMs": 0.12708658593750002,
+        "ratios": [
+          0.6475750653800634,
+          0.6180698506936134,
+          0.6237127453275761
+        ],
+        "rustOverPele": 0.6180698506936134
+      },
+      "parse": {
+        "peleMs": 0.11066503906250347,
+        "rustMs": 0.030962402343749997,
+        "ratios": [
+          0.29076587983110735,
+          0.278893585478411,
+          0.2799002302245875
+        ],
+        "rustOverPele": 0.27978485894052296
+      }
+    },
+    {
+      "name": "corpus: block-docs",
+      "diagrams": 30,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 30,
+      "rejectInputs": 0,
+      "peleDone": 30,
+      "rustDone": 30,
+      "render": {
+        "peleMs": 0.2397532499999926,
+        "rustMs": 0.28214778124999995,
+        "ratios": [
+          1.1975519475056522,
+          1.176825679109704,
+          1.1726201602295854
+        ],
+        "rustOverPele": 1.176825679109704
+      },
+      "parse": {
+        "peleMs": 0.08575683593749517,
+        "rustMs": 0.07734928125,
+        "ratios": [
+          0.9134324465286161,
+          0.9019605306610996,
+          0.8320056967937931
+        ],
+        "rustOverPele": 0.9019605306610996
+      }
+    },
+    {
+      "name": "corpus: c4-docs",
+      "diagrams": 6,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 6,
+      "rejectInputs": 0,
+      "peleDone": 6,
+      "rustDone": 6,
+      "render": {
+        "peleMs": 0.5516536250000286,
+        "rustMs": 0.51103515625,
+        "ratios": [
+          0.9135948122283278,
+          0.926369615082242,
+          0.9252774043153031
+        ],
+        "rustOverPele": 0.926369615082242
+      },
+      "parse": {
+        "peleMs": 0.09709342968750434,
+        "rustMs": 0.06847509765625,
+        "ratios": [
+          0.7125850239687116,
+          0.7095560099610567,
+          0.702287591518679
+        ],
+        "rustOverPele": 0.7052495506301242
+      }
+    },
+    {
+      "name": "corpus: class-docs",
+      "diagrams": 38,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 38,
+      "rejectInputs": 0,
+      "peleDone": 38,
+      "rustDone": 38,
+      "render": {
+        "peleMs": 0.8039426875000117,
+        "rustMs": 0.7348359375,
+        "ratios": [
+          0.88971998392608,
+          0.913501820885203,
+          0.9355212531086221
+        ],
+        "rustOverPele": 0.9140402032700736
+      },
+      "parse": {
+        "peleMs": 0.16843945312500352,
+        "rustMs": 0.16718164062500002,
+        "ratios": [
+          0.9844880799307881,
+          1.0487316241694566,
+          0.9818722592644963
+        ],
+        "rustOverPele": 0.9925325541215688
+      }
+    },
+    {
+      "name": "corpus: cynefin-docs",
+      "diagrams": 3,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 3,
+      "rejectInputs": 0,
+      "peleDone": 3,
+      "rustDone": 3,
+      "render": {
+        "peleMs": 0.09393912500000567,
+        "rustMs": 0.11076953125,
+        "ratios": [
+          1.19495518604866,
+          1.179162902038882,
+          1.1864374749015256
+        ],
+        "rustOverPele": 1.179162902038882
+      },
+      "parse": {
+        "peleMs": 0.017120727539063907,
+        "rustMs": 0.0071914877929687504,
+        "ratios": [
+          0.4260746733675662,
+          0.4200456888622358,
+          0.4307283653089382
+        ],
+        "rustOverPele": 0.4200456888622358
+      }
+    },
+    {
+      "name": "corpus: er-docs",
+      "diagrams": 25,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 25,
+      "rejectInputs": 0,
+      "peleDone": 25,
+      "rustDone": 25,
+      "render": {
+        "peleMs": 0.6189634999999498,
+        "rustMs": 0.705078125,
+        "ratios": [
+          1.141749075295833,
+          1.1421185376844634,
+          1.1297631565769592
+        ],
+        "rustOverPele": 1.1391271456233802
+      },
+      "parse": {
+        "peleMs": 0.1063235703124974,
+        "rustMs": 0.126449546875,
+        "ratios": [
+          1.1761959256935348,
+          1.1892898865543173,
+          1.1795900887483277
+        ],
+        "rustOverPele": 1.1892898865543173
+      }
+    },
+    {
+      "name": "corpus: eventmodeling-docs",
+      "diagrams": 12,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 12,
+      "rejectInputs": 0,
+      "peleDone": 12,
+      "rustDone": 12,
+      "render": {
+        "peleMs": 0.23508529687501323,
+        "rustMs": 0.234873703125,
+        "ratios": [
+          1.011206386441515,
+          0.9990999277588776,
+          1.0007652139448104
+        ],
+        "rustOverPele": 0.9990999277588776
+      },
+      "parse": {
+        "peleMs": 0.09141406249999307,
+        "rustMs": 0.04260400390625,
+        "ratios": [
+          0.43571720282680265,
+          0.47072862422786965,
+          0.4719521835740893
+        ],
+        "rustOverPele": 0.4660552516879253
+      }
+    },
+    {
+      "name": "corpus: flowchart-docs",
+      "diagrams": 114,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 114,
+      "rejectInputs": 0,
+      "peleDone": 114,
+      "rustDone": 114,
+      "render": {
+        "peleMs": 1.8642707500000597,
+        "rustMs": 1.525859375,
+        "ratios": [
+          0.8301233576594954,
+          0.797472828423874,
+          0.8184752000212153
+        ],
+        "rustOverPele": 0.8184752000212153
+      },
+      "parse": {
+        "peleMs": 0.45057159374999856,
+        "rustMs": 0.3707734375,
+        "ratios": [
+          0.8157318367343285,
+          0.7961494943253803,
+          0.896501412855458
+        ],
+        "rustOverPele": 0.8228957232171301
+      }
+    },
+    {
+      "name": "corpus: gantt-docs",
+      "diagrams": 11,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 11,
+      "rejectInputs": 0,
+      "peleDone": 11,
+      "rustDone": 11,
+      "render": {
+        "peleMs": 0.35693359375,
+        "rustMs": 0.29448762500000003,
+        "ratios": [
+          0.8454428770735836,
+          0.7990900979724143,
+          0.836331950752394
+        ],
+        "rustOverPele": 0.8250487770177839
+      },
+      "parse": {
+        "peleMs": 0.062151203125004884,
+        "rustMs": 0.038106689453125,
+        "ratios": [
+          0.6344550973378215,
+          0.6018237791805069,
+          0.6141932841705869
+        ],
+        "rustOverPele": 0.6131287495188293
+      }
+    },
+    {
+      "name": "corpus: git-docs",
+      "diagrams": 35,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 35,
+      "rejectInputs": 0,
+      "peleDone": 35,
+      "rustDone": 35,
+      "render": {
+        "peleMs": 1.2796197500001654,
+        "rustMs": 1.1190416875,
+        "ratios": [
+          0.8803423217721207,
+          0.8651408947168131,
+          0.8788825254532485
+        ],
+        "rustOverPele": 0.8745111096478898
+      },
+      "parse": {
+        "peleMs": 0.5532421875000182,
+        "rustMs": 0.29249804687500003,
+        "ratios": [
+          0.5242851090870406,
+          0.5207282087697441,
+          0.540029051234721
+        ],
+        "rustOverPele": 0.5286980159570539
+      }
+    },
+    {
+      "name": "corpus: info-docs",
+      "diagrams": 2,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 2,
+      "rejectInputs": 0,
+      "peleDone": 2,
+      "rustDone": 2,
+      "render": {
+        "peleMs": 0.0021868083496094926,
+        "rustMs": 0.003749420166015625,
+        "ratios": [
+          1.729285558311637,
+          1.703640447922784,
+          1.6879602182091769
+        ],
+        "rustOverPele": 1.7145627629806584
+      },
+      "parse": {
+        "peleMs": 0.0011910603637694805,
+        "rustMs": 0.00141727197265625,
+        "ratios": [
+          1.1990513691346802,
+          1.1756241029889798,
+          1.1861366719529172
+        ],
+        "rustOverPele": 1.1899245544288388
+      }
+    },
+    {
+      "name": "corpus: ishikawa-docs",
+      "diagrams": 1,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 1,
+      "rejectInputs": 0,
+      "peleDone": 1,
+      "rustDone": 1,
+      "render": {
+        "peleMs": 0.01761149023437447,
+        "rustMs": 0.0190706787109375,
+        "ratios": [
+          1.107775389626924,
+          1.0828543443595111,
+          1.0756224618982704
+        ],
+        "rustOverPele": 1.0828543443595111
+      },
+      "parse": {
+        "peleMs": 0.0031291911621091906,
+        "rustMs": 0.0025870156250000003,
+        "ratios": [
+          0.8545570171630474,
+          0.7955640561211955,
+          0.8302366760527014
+        ],
+        "rustOverPele": 0.8267362046543223
+      }
+    },
+    {
+      "name": "corpus: journey-docs",
+      "diagrams": 1,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 1,
+      "rejectInputs": 0,
+      "peleDone": 1,
+      "rustDone": 1,
+      "render": {
+        "peleMs": 0.015288859375001351,
+        "rustMs": 0.01973828125,
+        "ratios": [
+          1.3944318633668045,
+          1.283912433174778,
+          1.2602699342069175
+        ],
+        "rustOverPele": 1.2910237948995626
+      },
+      "parse": {
+        "peleMs": 0.002897959472656364,
+        "rustMs": 0.0021801555175781254,
+        "ratios": [
+          0.8096957120111968,
+          0.752307110623505,
+          0.7195859383662145
+        ],
+        "rustOverPele": 0.752307110623505
+      }
+    },
+    {
+      "name": "corpus: kanban-docs",
+      "diagrams": 3,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 3,
+      "rejectInputs": 0,
+      "peleDone": 3,
+      "rustDone": 3,
+      "render": {
+        "peleMs": 0.06108121874999739,
+        "rustMs": 0.06123876953125,
+        "ratios": [
+          1.010416849335765,
+          1.00257936538394,
+          0.9776181393063447
+        ],
+        "rustOverPele": 1.00257936538394
+      },
+      "parse": {
+        "peleMs": 0.016234945312501026,
+        "rustMs": 0.011296467773437499,
+        "ratios": [
+          0.691956443215229,
+          0.6958118771573032,
+          0.6851507360168069
+        ],
+        "rustOverPele": 0.6958118771573032
+      }
+    },
+    {
+      "name": "corpus: mindmap-docs",
+      "diagrams": 13,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 13,
+      "rejectInputs": 0,
+      "peleDone": 13,
+      "rustDone": 13,
+      "render": {
+        "peleMs": 0.08120996093749966,
+        "rustMs": 0.08830403125,
+        "ratios": [
+          1.1187319752369542,
+          1.08658516817182,
+          1.0789600744575292
+        ],
+        "rustOverPele": 1.0873546819947375
+      },
+      "parse": {
+        "peleMs": 0.01979744531250205,
+        "rustMs": 0.015619384765625001,
+        "ratios": [
+          0.7906699418939725,
+          0.7888850526522232,
+          0.7939232117621678
+        ],
+        "rustOverPele": 0.7889596116606716
+      }
+    },
+    {
+      "name": "corpus: packet-docs",
+      "diagrams": 4,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 4,
+      "rejectInputs": 0,
+      "peleDone": 4,
+      "rustDone": 4,
+      "render": {
+        "peleMs": 0.05949755859374761,
+        "rustMs": 0.0623885078125,
+        "ratios": [
+          1.0671142879487303,
+          1.0485893755488682,
+          1.0326281503458756
+        ],
+        "rustOverPele": 1.0485893755488682
+      },
+      "parse": {
+        "peleMs": 0.02760188867187452,
+        "rustMs": 0.0153046064453125,
+        "ratios": [
+          0.5611329190759542,
+          0.5544649407356277,
+          0.5544767833553154
+        ],
+        "rustOverPele": 0.5544767833553154
+      }
+    },
+    {
+      "name": "corpus: pie-docs",
+      "diagrams": 2,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 2,
+      "rejectInputs": 0,
+      "peleDone": 2,
+      "rustDone": 2,
+      "render": {
+        "peleMs": 0.023906820312497246,
+        "rustMs": 0.022863607421875,
+        "ratios": [
+          0.9386018182792637,
+          0.9563633776058079,
+          0.9462229814088774
+        ],
+        "rustOverPele": 0.9563633776058079
+      },
+      "parse": {
+        "peleMs": 0.010064860351562288,
+        "rustMs": 0.00666153955078125,
+        "ratios": [
+          0.6531913564141779,
+          0.6640927023256717,
+          0.660781875862655
+        ],
+        "rustOverPele": 0.6618611007103772
+      }
+    },
+    {
+      "name": "corpus: quadrant-docs",
+      "diagrams": 3,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 3,
+      "rejectInputs": 0,
+      "peleDone": 3,
+      "rustDone": 3,
+      "render": {
+        "peleMs": 0.05392610937499853,
+        "rustMs": 0.0523728828125,
+        "ratios": [
+          0.9739397894816068,
+          0.9711971328823762,
+          0.9856177552454468
+        ],
+        "rustOverPele": 0.9711971328823762
+      },
+      "parse": {
+        "peleMs": 0.027941082031254894,
+        "rustMs": 0.0179130859375,
+        "ratios": [
+          0.6387912828578183,
+          0.6522907018212546,
+          0.6336643924346945
+        ],
+        "rustOverPele": 0.6411020846459139
+      }
+    },
+    {
+      "name": "corpus: radar-docs",
+      "diagrams": 3,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 3,
+      "rejectInputs": 0,
+      "peleDone": 3,
+      "rustDone": 3,
+      "render": {
+        "peleMs": 0.07298746875000006,
+        "rustMs": 0.0520013046875,
+        "ratios": [
+          0.7099196777174985,
+          0.7170938804135464,
+          0.7115708339180277
+        ],
+        "rustOverPele": 0.7124689426566797
+      },
+      "parse": {
+        "peleMs": 0.04269612499999198,
+        "rustMs": 0.0182489423828125,
+        "ratios": [
+          0.42403252051021595,
+          0.4274617302589407,
+          0.43536833882766857
+        ],
+        "rustOverPele": 0.4274144874462478
+      }
+    },
+    {
+      "name": "corpus: railroad-docs",
+      "diagrams": 14,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 14,
+      "rejectInputs": 0,
+      "peleDone": 14,
+      "rustDone": 14,
+      "render": {
+        "peleMs": 0.30687109375003274,
+        "rustMs": 0.35602081249999995,
+        "ratios": [
+          1.158398900799814,
+          1.16016405504131,
+          1.217153148935798
+        ],
+        "rustOverPele": 1.16016405504131
+      },
+      "parse": {
+        "peleMs": 0.09752701562499055,
+        "rustMs": 0.0660545234375,
+        "ratios": [
+          0.6792316301203931,
+          0.6772946246144953,
+          0.6691742232316042
+        ],
+        "rustOverPele": 0.6772946246144953
+      }
+    },
+    {
+      "name": "corpus: requirement-docs",
+      "diagrams": 9,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 9,
+      "rejectInputs": 0,
+      "peleDone": 9,
+      "rustDone": 9,
+      "render": {
+        "peleMs": 0.26968490624994956,
+        "rustMs": 0.296029296875,
+        "ratios": [
+          1.1006197301622205,
+          1.1133942539658026,
+          1.0830856081177467
+        ],
+        "rustOverPele": 1.0976858178359967
+      },
+      "parse": {
+        "peleMs": 0.06042382812499625,
+        "rustMs": 0.047074054687500005,
+        "ratios": [
+          0.8119658160845608,
+          0.7854141760963281,
+          0.7790644212432201
+        ],
+        "rustOverPele": 0.7790644212432201
+      }
+    },
+    {
+      "name": "corpus: sankey-docs",
+      "diagrams": 8,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 8,
+      "rejectInputs": 0,
+      "peleDone": 8,
+      "rustDone": 8,
+      "render": {
+        "peleMs": 0.30568490625000777,
+        "rustMs": 0.2410638125,
+        "ratios": [
+          0.7810535868593161,
+          0.788602274993726,
+          0.7692186915890289
+        ],
+        "rustOverPele": 0.788602274993726
+      },
+      "parse": {
+        "peleMs": 0.05389550781249852,
+        "rustMs": 0.03490323828125,
+        "ratios": [
+          0.6181684956924163,
+          0.6525160842736756,
+          0.6476728333544906
+        ],
+        "rustOverPele": 0.6476094149196575
+      }
+    },
+    {
+      "name": "corpus: sequence-docs",
+      "diagrams": 38,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 38,
+      "rejectInputs": 0,
+      "peleDone": 38,
+      "rustDone": 38,
+      "render": {
+        "peleMs": 0.5966510312499622,
+        "rustMs": 0.657809875,
+        "ratios": [
+          1.1356418019340693,
+          1.0947769620977743,
+          1.1056941628306984
+        ],
+        "rustOverPele": 1.1025035415122173
+      },
+      "parse": {
+        "peleMs": 0.18678384375004953,
+        "rustMs": 0.16272265625,
+        "ratios": [
+          0.8405869609254887,
+          0.8711816449593588,
+          0.9092212411391906
+        ],
+        "rustOverPele": 0.8711816449593588
+      }
+    },
+    {
+      "name": "corpus: state-docs",
+      "diagrams": 22,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 22,
+      "rejectInputs": 0,
+      "peleDone": 22,
+      "rustDone": 22,
+      "render": {
+        "peleMs": 0.8464062500006548,
+        "rustMs": 0.6458879999999999,
+        "ratios": [
+          0.7988141469225752,
+          0.7315476586557963,
+          0.7658082333388944
+        ],
+        "rustOverPele": 0.7630945541806906
+      },
+      "parse": {
+        "peleMs": 0.20052474999999959,
+        "rustMs": 0.18704621875,
+        "ratios": [
+          0.9249127411911626,
+          0.9244248237519281,
+          0.9327837025105399
+        ],
+        "rustOverPele": 0.9327837025105399
+      }
+    },
+    {
+      "name": "corpus: swimlane-docs",
+      "diagrams": 13,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 13,
+      "rejectInputs": 0,
+      "peleDone": 13,
+      "rustDone": 13,
+      "render": {
+        "peleMs": 0.5291914062501064,
+        "rustMs": 0.5179622500000001,
+        "ratios": [
+          0.9659391317825227,
+          0.9943971257779414,
+          0.9582258579698739
+        ],
+        "rustOverPele": 0.9787805392954563
+      },
+      "parse": {
+        "peleMs": 0.1294147031250077,
+        "rustMs": 0.12184765624999999,
+        "ratios": [
+          1.003013400833723,
+          0.9466897121815089,
+          0.9415286927042723
+        ],
+        "rustOverPele": 0.9415286927042723
+      }
+    },
+    {
+      "name": "corpus: timeline-docs",
+      "diagrams": 14,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 14,
+      "rejectInputs": 0,
+      "peleDone": 14,
+      "rustDone": 14,
+      "render": {
+        "peleMs": 0.29013671874997726,
+        "rustMs": 0.32541406250000005,
+        "ratios": [
+          1.1223433569569117,
+          1.121588690676628,
+          1.1222101271590466
+        ],
+        "rustOverPele": 1.121588690676628
+      },
+      "parse": {
+        "peleMs": 0.057128257812493644,
+        "rustMs": 0.045973960937499996,
+        "ratios": [
+          0.8010248514885486,
+          0.8035000723326562,
+          0.8061288080262184
+        ],
+        "rustOverPele": 0.8047499205803846
+      }
+    },
+    {
+      "name": "corpus: treemap-docs",
+      "diagrams": 8,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 8,
+      "rejectInputs": 0,
+      "peleDone": 8,
+      "rustDone": 8,
+      "render": {
+        "peleMs": 0.17669465624999248,
+        "rustMs": 0.1382307890625,
+        "ratios": [
+          0.7793335402135712,
+          0.7727733524765598,
+          0.7843577001520826
+        ],
+        "rustOverPele": 0.7823144853171295
+      },
+      "parse": {
+        "peleMs": 0.08630273437501046,
+        "rustMs": 0.032411947265625005,
+        "ratios": [
+          0.36127612193627234,
+          0.36978256364546025,
+          0.3840158621982928
+        ],
+        "rustOverPele": 0.3755610699979177
+      }
+    },
+    {
+      "name": "corpus: treeview-docs",
+      "diagrams": 13,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 13,
+      "rejectInputs": 0,
+      "peleDone": 13,
+      "rustDone": 13,
+      "render": {
+        "peleMs": 0.15812631249997366,
+        "rustMs": 0.11000325781249999,
+        "ratios": [
+          0.7316021289943081,
+          0.6946167930642745,
+          0.6941095213232094
+        ],
+        "rustOverPele": 0.6956670023688708
+      },
+      "parse": {
+        "peleMs": 0.0928131484375001,
+        "rustMs": 0.045403484375000004,
+        "ratios": [
+          0.4923085554200247,
+          0.4873962885553401,
+          0.4319601609171843
+        ],
+        "rustOverPele": 0.4891923734876258
+      }
+    },
+    {
+      "name": "corpus: usecase-docs",
+      "diagrams": 24,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 24,
+      "rejectInputs": 0,
+      "peleDone": 24,
+      "rustDone": 24,
+      "render": {
+        "peleMs": 0.9077656249999109,
+        "rustMs": 0.77386975,
+        "ratios": [
+          0.8411363753723049,
+          0.8935790762227719,
+          0.8478303593557088
+        ],
+        "rustOverPele": 0.8524995094411908
+      },
+      "parse": {
+        "peleMs": 0.268395812499989,
+        "rustMs": 0.25929296874999996,
+        "ratios": [
+          1.028663627700257,
+          0.966084255692367,
+          0.972246943063381
+        ],
+        "rustOverPele": 0.966084255692367
+      }
+    },
+    {
+      "name": "corpus: venn-docs",
+      "diagrams": 8,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 8,
+      "rejectInputs": 0,
+      "peleDone": 8,
+      "rustDone": 8,
+      "render": {
+        "peleMs": 0.45077471875003994,
+        "rustMs": 0.213637375,
+        "ratios": [
+          0.46945208583690984,
+          0.4717471816402329,
+          0.48034610577829445
+        ],
+        "rustOverPele": 0.47393379911011496
+      },
+      "parse": {
+        "peleMs": 0.02475244140624966,
+        "rustMs": 0.0164009599609375,
+        "ratios": [
+          0.6646145708103468,
+          0.6625996883198955,
+          0.6646776024989859
+        ],
+        "rustOverPele": 0.6625996883198955
+      }
+    },
+    {
+      "name": "corpus: wardley-docs",
+      "diagrams": 19,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 19,
+      "rejectInputs": 0,
+      "peleDone": 19,
+      "rustDone": 19,
+      "render": {
+        "peleMs": 0.3041900937500941,
+        "rustMs": 0.277459640625,
+        "ratios": [
+          0.9111599638652982,
+          0.9129048416781788,
+          0.9028736302520846
+        ],
+        "rustOverPele": 0.9121258263359018
+      },
+      "parse": {
+        "peleMs": 0.13287565625000752,
+        "rustMs": 0.076953453125,
+        "ratios": [
+          0.5768605093906782,
+          0.5929637713923587,
+          0.5707360910689122
+        ],
+        "rustOverPele": 0.5791388377432427
+      }
+    },
+    {
+      "name": "corpus: xychart-docs",
+      "diagrams": 8,
+      "consistent": true,
+      "eligible": true,
+      "mismatches": [],
+      "renderInputs": 8,
+      "rejectInputs": 0,
+      "peleDone": 8,
+      "rustDone": 8,
+      "render": {
+        "peleMs": 0.13984928125000806,
+        "rustMs": 0.168399734375,
+        "ratios": [
+          1.2089162128148991,
+          1.2041515899817345,
+          1.1498098561963823
+        ],
+        "rustOverPele": 1.2041515899817345
+      },
+      "parse": {
+        "peleMs": 0.045863929687499194,
+        "rustMs": 0.03315633203125,
+        "ratios": [
+          0.7259527464773639,
+          0.7203696379048,
+          0.7097402220340981
+        ],
+        "rustOverPele": 0.7229282849761386
+      }
+    }
+  ],
+  "cold": {
+    "rust": {
+      "medianMs": 2.057292,
+      "minMs": 1.593875,
+      "maxMs": 2.35625,
+      "samples": [
+        1.698333,
+        2.089,
+        1.734541,
+        2.099,
+        1.595167,
+        2.080875,
+        1.70875,
+        2.026708,
+        1.593875,
+        2.294291,
+        2.057292,
+        2.076,
+        1.851583,
+        2.065667,
+        1.612,
+        2.104625,
+        1.759542,
+        2.085916,
+        1.627375,
+        2.056,
+        1.741084,
+        2.112916,
+        1.707917,
+        2.21275,
+        1.739375,
+        2.35625,
+        2.310459,
+        2.15525,
+        1.720917,
+        2.188084
+      ]
+    },
+    "nodeReference": {
+      "medianMs": 68.977583,
+      "minMs": 67.689458,
+      "maxMs": 83.754792,
+      "samples": [
+        68.598667,
+        68.746417,
+        67.738375,
+        70.306708,
+        68.586792,
+        69.020458,
+        69.076292,
+        68.549583,
+        80.324792,
+        83.754792,
+        72.199708,
+        69.086625,
+        68.502958,
+        68.530125,
+        68.977583,
+        68.759292,
+        67.689458,
+        68.15675,
+        68.825209,
+        68.542667,
+        68.405584,
+        68.770416,
+        70.81975,
+        68.951375,
+        72.632541,
+        74.715042,
+        75.883417,
+        74.657958,
+        72.347875,
+        70.381167
+      ]
+    }
+  },
+  "size": {
+    "rustCliBytes": 4919584,
+    "peleBundleBytes": 678032
+  },
+  "runtime": {
+    "node": "v26.3.0",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  }
+}
