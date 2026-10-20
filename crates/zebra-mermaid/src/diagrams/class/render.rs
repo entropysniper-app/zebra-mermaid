@@ -12,6 +12,7 @@ use crate::layout::{
     compound::{cnode, compound_layout, direction, CEdge, Dir},
     layered::LayeredOptions,
 };
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
     builder::{esc, esc_text, label_svg, num},
     cluster::*,
@@ -546,27 +547,111 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         if node.group {
             let tx = if c.is_group { cluster_title_x(c.x, c.y, c.w, c.h, v.label.width, &crossings, 20.0) } else { c.x };
             let ty = y - h / 2.0 + 8.0 + v.label.height / 2.0;
-            let attrs = format!(" class=\"pele-cluster-label\" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)"));
+            let attrs = svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"");
             let struck = c.is_group && title_crossed(c.x, c.y, c.w, c.h, v.label.width, tx, &crossings);
             if struck {
                 struck_titles.push_str(&struck_title(&v.label, tx + ox, ty, &attrs, &id, |j| graph[j].parent, i, None, ctx.theming));
             }
-            write!(clusters, "<g class=\"pele-cluster pele-namespace\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"{} stroke=\"{}\"/>{}</g>",num(x-w/2.0),num(y-h/2.0),num(w),num(h),ctx.paint(Role::GroupFill,"var(--_a)"),if ctx.resolved(){""}else{" fill-opacity=\"0.5\""},ctx.paint(Role::GroupStroke,"var(--_b)"),if struck{String::new()}else{label_svg(&v.label,tx+ox,ty,&attrs,None).to_string()}).unwrap();
+            svg_write!(
+                clusters,
+                "<g class=\"pele-cluster pele-namespace\" data-id=\"",
+                id,
+                "\"><rect x=\"",
+                num(x - w / 2.0),
+                "\" y=\"",
+                num(y - h / 2.0),
+                "\" width=\"",
+                num(w),
+                "\" height=\"",
+                num(h),
+                "\" rx=\"",
+                RADIUS,
+                "\" fill=\"",
+                ctx.paint(Role::GroupFill, "var(--_a)"),
+                "\"",
+                if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                " stroke=\"",
+                ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"/>",
+                if struck { String::new() } else { label_svg(&v.label, tx + ox, ty, &attrs, None).to_string() },
+                "</g>"
+            )
+            .unwrap();
             continue;
         }
-        let at = format!(" transform=\"translate({},{})\"", num(x), num(y));
+        let at = svg_format!(" transform=\"translate(", num(x), ",", num(y), ")\"");
         if let Some(cls) = node.class {
             nodes_out.push_str(&class_svg(v, cls, &id, &at, size, tiny, tiny_h, ctx, &mut links));
         } else if node.shape == Shape::Note {
             let r = w / 2.0;
             let t = -h / 2.0;
             let stroke = ctx.paint(Role::WarningText, "var(--_b)");
-            write!(nodes_out, "<g class=\"pele-node pele-note\" data-id=\"{id}\"{at}><path d=\"M{},{}H{}L{},{}V{}H{}Z\" fill=\"{}\" stroke=\"{stroke}\" stroke-linejoin=\"round\"/><path d=\"M{},{}V{}H{}\" fill=\"none\" stroke=\"{stroke}\" stroke-linejoin=\"round\"/>{}</g>",num(-r),num(t),num(r-8.0),num(r),num(t+8.0),num(-t),num(-r),ctx.paint(Role::WarningBackground,"var(--_a)"),num(r-8.0),num(t),num(t+8.0),num(r),label_svg(&v.label,0.0,0.0,&format!(" class=\"pele-label\" font-size=\"{}\"{}",js::to_string(small),if ctx.resolved(){format!(" fill=\"{}\"",ctx.paint(Role::WarningText,"var(--_fg)"))}else{String::new()}),ctx.icons())).unwrap();
+            svg_write!(
+                nodes_out,
+                "<g class=\"pele-node pele-note\" data-id=\"",
+                id,
+                "\"",
+                at,
+                "><path d=\"M",
+                num(-r),
+                ",",
+                num(t),
+                "H",
+                num(r - 8.0),
+                "L",
+                num(r),
+                ",",
+                num(t + 8.0),
+                "V",
+                num(-t),
+                "H",
+                num(-r),
+                "Z\" fill=\"",
+                ctx.paint(Role::WarningBackground, "var(--_a)"),
+                "\" stroke=\"",
+                stroke,
+                "\" stroke-linejoin=\"round\"/><path d=\"M",
+                num(r - 8.0),
+                ",",
+                num(t),
+                "V",
+                num(t + 8.0),
+                "H",
+                num(r),
+                "\" fill=\"none\" stroke=\"",
+                stroke,
+                "\" stroke-linejoin=\"round\"/>",
+                label_svg(
+                    &v.label,
+                    0.0,
+                    0.0,
+                    &svg_format!(
+                        " class=\"pele-label\" font-size=\"",
+                        js::to_string(small),
+                        "\"",
+                        if ctx.resolved() {
+                            svg_format!(" fill=\"", ctx.paint(Role::WarningText, "var(--_fg)"), "\"")
+                        } else {
+                            String::new()
+                        }
+                    ),
+                    ctx.icons()
+                ),
+                "</g>"
+            )
+            .unwrap();
         } else {
-            write!(nodes_out, 
-                "<g class=\"pele-node pele-interface\" data-id=\"{id}\"{at}>{}</g>",
-                label_svg(&v.label, 0.0, 0.0, &format!(" class=\"pele-label\" font-size=\"{}\"", js::to_string(small)), ctx.icons())
-            ).unwrap();
+            svg_write!(
+                nodes_out,
+                "<g class=\"pele-node pele-interface\" data-id=\"",
+                id,
+                "\"",
+                at,
+                ">",
+                label_svg(&v.label, 0.0, 0.0, &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(small), "\""), ctx.icons()),
+                "</g>"
+            )
+            .unwrap();
         }
     }
     let (mut edges_out, mut labels_out) = (String::new(), String::new());
@@ -586,15 +671,22 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             e.label_x = c.x + v.w / 2.0 + reach + 4.0 + e.label_w / 2.0;
             e.label_y = c.y;
             EdgePath {
-                d: format!(
-                    "M{},{}C{},{} {},{} {},{}",
+                d: svg_format!(
+                    "M",
                     num(x + st),
+                    ",",
                     num(y - spread),
+                    "C",
                     num(x + reach + st),
+                    ",",
                     num(y - spread),
+                    " ",
                     num(x + reach + et),
+                    ",",
                     num(y + spread),
+                    " ",
                     num(x + et),
+                    ",",
                     num(y + spread)
                 ),
                 sx: x,
@@ -619,59 +711,80 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             _ => "",
         };
         let color = ctx.paint(Role::Arrow, "var(--_l)");
-        write!(edges_out, 
-            "<g class=\"pele-edge {}\" data-id=\"{}\"><path d=\"{}\"{attrs}/>{}{}</g>",
+        svg_write!(
+            edges_out,
+            "<g class=\"pele-edge ",
             if edge.pattern == "dotted" { "pele-note-edge" } else { "pele-relation" },
+            "\" data-id=\"",
             esc_text(&edge.id),
+            "\"><path d=\"",
             path.d,
+            "\"",
+            attrs,
+            "/>",
             markers::draw(edge.tail, path.sx, path.sy, path.sdx, path.sdy, color),
-            markers::draw(edge.head, path.ex, path.ey, path.edx, path.edy, color)
-        ).unwrap();
+            markers::draw(edge.head, path.ex, path.ey, path.edx, path.edy, color),
+            "</g>"
+        )
+        .unwrap();
         if label.width > 0.0 {
-            write!(labels_out, "{}", edge_label_svg(
-                &edge.id,
-                label,
-                e.label_x + ox,
-                e.label_y + oy,
-                "",
-                ctx.icons(),
-                ctx.paint(Role::Background, "var(--_bg)"),
-            )).unwrap();
+            write!(
+                labels_out,
+                "{}",
+                edge_label_svg(&edge.id, label, e.label_x + ox, e.label_y + oy, "", ctx.icons(), ctx.paint(Role::Background, "var(--_bg)"),)
+            )
+            .unwrap();
         }
     }
     let mut cards_out = String::new();
     for (text, x, y) in cards {
-        write!(cards_out, 
-            "<text class=\"pele-cardinality\" x=\"{}\" y=\"{}\" text-anchor=\"middle\">{}</text>",
+        svg_write!(
+            cards_out,
+            "<text class=\"pele-cardinality\" x=\"",
             num(x + ox),
+            "\" y=\"",
             num(y + oy + tiny * 0.35),
-            esc(&text)
-        ).unwrap();
+            "\" text-anchor=\"middle\">",
+            esc(&text),
+            "</text>"
+        )
+        .unwrap();
     }
     let mut content = String::new();
     if !clusters.is_empty() {
-        write!(content, "<g class=\"pele-clusters\">{clusters}</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        write!(content, 
-            "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edges_out}</g>",
-            ctx.paint(Role::Line, "var(--_l)")
-        ).unwrap();
+        svg_write!(
+            content,
+            "<g class=\"pele-edges\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::Line, "var(--_l)"),
+            "\" stroke-linecap=\"round\">",
+            edges_out,
+            "</g>"
+        )
+        .unwrap();
     }
     if !struck_titles.is_empty() {
-        write!(content, "<g class=\"pele-cluster-titles\">{struck_titles}</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-cluster-titles\">", struck_titles, "</g>").unwrap();
     }
     if !labels_out.is_empty() {
-        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)).unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\">", labels_out, "</g>").unwrap();
     }
     if !cards_out.is_empty() {
-        write!(content, 
-            "<g class=\"pele-cardinalities\" font-size=\"{}\" fill=\"{}\">{cards_out}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-cardinalities\" font-size=\"",
             js::to_string(tiny),
-            ctx.paint(Role::SecondaryText, "var(--_m)")
-        ).unwrap();
+            "\" fill=\"",
+            ctx.paint(Role::SecondaryText, "var(--_m)"),
+            "\">",
+            cards_out,
+            "</g>"
+        )
+        .unwrap();
     }
-    write!(content, "<g class=\"pele-nodes\">{nodes_out}</g>").unwrap();
+    svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     let titled = with_title(db.title.as_deref(), &m, size, pad, width, height, content);
     Ok(Rendered {
         svg: svg_document(
@@ -705,50 +818,81 @@ fn class_svg(
     let member_size = js::round(v.font_size * 0.875);
     let line_h = js::round(member_size * 1.5);
     let st = &v.style;
-    let mut body = format!(
-        "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"{}/>",
+    let mut body = svg_format!(
+        "<rect x=\"",
         num(left),
+        "\" y=\"",
         num(top),
+        "\" width=\"",
         num(v.w),
+        "\" height=\"",
         num(v.h),
+        "\" rx=\"",
+        RADIUS,
+        "\" fill=\"",
         ctx.paint(Role::NodeFill, "var(--_s)"),
+        "\" stroke=\"",
         ctx.paint(Role::NodeStroke, "var(--_b)"),
-        st.shape
+        "\"",
+        st.shape,
+        "/>"
     );
     let first = top + v.title_h;
     let second = first + v.attributes_h;
     if v.h > v.title_h {
-        let stroke = st.stroke.as_ref().map_or_else(String::new, |s| format!(" style=\"stroke:{}\"", esc(s)));
-        write!(body, 
-            "<path class=\"pele-divider\" d=\"M{},{}H{}M{},{}H{}\" fill=\"none\" stroke=\"{}\"{stroke}/>",
+        let stroke = st.stroke.as_ref().map_or_else(String::new, |s| svg_format!(" style=\"stroke:", esc(s), "\""));
+        svg_write!(
+            body,
+            "<path class=\"pele-divider\" d=\"M",
             num(left),
+            ",",
             num(first),
+            "H",
             num(-left),
+            "M",
             num(left),
+            ",",
             num(second),
+            "H",
             num(-left),
-            ctx.paint(Role::InnerStroke, "var(--_b)")
-        ).unwrap();
+            "\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::InnerStroke, "var(--_b)"),
+            "\"",
+            stroke,
+            "/>"
+        )
+        .unwrap();
     }
     let mut y = top + 8.0;
     for annotation in &v.annotations {
-        write!(body, 
-            "<text class=\"pele-annotation\" x=\"0\" y=\"{}\" text-anchor=\"middle\" font-size=\"{}\" fill=\"{}\">{}</text>",
+        svg_write!(
+            body,
+            "<text class=\"pele-annotation\" x=\"0\" y=\"",
             num(y + tiny_h / 2.0 + tiny * 0.35),
+            "\" text-anchor=\"middle\" font-size=\"",
             js::to_string(tiny),
+            "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
-            esc(annotation)
-        ).unwrap();
+            "\">",
+            esc(annotation),
+            "</text>"
+        )
+        .unwrap();
         y += tiny_h;
     }
-    let title_size = if v.font_size == size { String::new() } else { format!(" font-size=\"{}\"", num(v.font_size)) };
-    write!(body, "{}", label_svg(
-        &v.label,
-        0.0,
-        (y + first - 8.0) / 2.0,
-        &format!(" class=\"pele-label\"{title_size} font-weight=\"var(--_hw)\"{}", st.text),
-        ctx.icons(),
-    )).unwrap();
+    let title_size = if v.font_size == size { String::new() } else { svg_format!(" font-size=\"", num(v.font_size), "\"") };
+    write!(
+        body,
+        "{}",
+        label_svg(
+            &v.label,
+            0.0,
+            (y + first - 8.0) / 2.0,
+            &svg_format!(" class=\"pele-label\"", title_size, " font-weight=\"var(--_hw)\"", st.text),
+            ctx.icons(),
+        )
+    )
+    .unwrap();
     let lines = |list: &[Line], kind: &str, from: f64| {
         let mut out = String::new();
         let mut baseline = from + 6.0 + line_h / 2.0 + member_size * 0.35;
@@ -763,41 +907,60 @@ fn class_svg(
                     }
                 )
             } else if line.classifier == "*" {
-                format!(" pele-abstract\" font-style=\"italic\"{}", st.text)
+                svg_format!(" pele-abstract\" font-style=\"italic\"", st.text)
             } else {
                 format!("\"{}", st.text)
             };
-            write!(out, 
-                "<text class=\"pele-member pele-{kind}{mark} x=\"{}\" y=\"{}\">{}</text>",
+            svg_write!(
+                out,
+                "<text class=\"pele-member pele-",
+                kind,
+                mark,
+                " x=\"",
                 num(left + 12.0),
+                "\" y=\"",
                 num(baseline),
-                esc(&line.text)
-            ).unwrap();
+                "\">",
+                esc(&line.text),
+                "</text>"
+            )
+            .unwrap();
             baseline += line_h;
         }
         out
     };
     if !v.attributes.is_empty() || !v.methods.is_empty() {
-        write!(body, 
-            "<g class=\"pele-members\" font-size=\"{}\">{}{}</g>",
+        svg_write!(
+            body,
+            "<g class=\"pele-members\" font-size=\"",
             js::to_string(member_size),
+            "\">",
             lines(&v.attributes, "attribute", first),
-            lines(&v.methods, "method", second)
-        ).unwrap();
+            lines(&v.methods, "method", second),
+            "</g>"
+        )
+        .unwrap();
     }
     if let Some(t) = cls.tooltip.as_ref().filter(|s| !s.is_empty()) {
-        body = format!("<title>{}</title>{body}", esc_text(t));
+        body = svg_format!("<title>", esc_text(t), "</title>", body);
     }
     if let Some(url) = cls.link.as_ref().filter(|s| !s.is_empty()) {
         let attrs = cls
             .link_target
             .as_deref()
             .filter(|s| matches!(*s, "_self" | "_blank" | "_parent" | "_top"))
-            .map_or_else(String::new, |s| format!(" target=\"{s}\""));
+            .map_or_else(String::new, |s| svg_format!(" target=\"", s, "\""));
         body = linked(&body, url, &cls.id, links, ctx.options, &attrs);
     }
-    format!(
-        "<g class=\"pele-node pele-class{}\" data-id=\"{id}\"{at}>{body}</g>",
-        class_names(cls.css_classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&cls.css_classes))
+    svg_format!(
+        "<g class=\"pele-node pele-class",
+        class_names(cls.css_classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&cls.css_classes)),
+        "\" data-id=\"",
+        id,
+        "\"",
+        at,
+        ">",
+        body,
+        "</g>"
     )
 }

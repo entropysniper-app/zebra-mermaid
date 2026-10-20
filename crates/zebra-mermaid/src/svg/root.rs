@@ -3,6 +3,7 @@
 use super::builder::{esc, esc_text};
 use super::theme::{families, RADIUS};
 use crate::diagrams::RenderCtx;
+use crate::svg::concat::{svg_format, svg_write};
 use crate::theme::{CanvasBackground, ColorMode, Role};
 use crate::util::{js, strs};
 use memchr::memmem::Finder;
@@ -134,20 +135,25 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
     let mut head = String::new();
     let mut aria = String::new();
     if let Some(t) = acc.acc_title.filter(|t| !t.is_empty()) {
-        write!(head, "<title id=\"{}-title\">{}</title>", prefix, esc_text(t)).unwrap();
-        write!(aria, " aria-labelledby=\"{}-title\"", prefix).unwrap();
+        svg_write!(head, "<title id=\"", prefix, "-title\">", esc_text(t), "</title>").unwrap();
+        svg_write!(aria, " aria-labelledby=\"", prefix, "-title\"").unwrap();
     }
     if let Some(d) = acc.acc_descr.filter(|d| !d.is_empty()) {
-        write!(head, "<desc id=\"{}-desc\">{}</desc>", prefix, esc_text(d)).unwrap();
-        write!(aria, " aria-describedby=\"{}-desc\"", prefix).unwrap();
+        svg_write!(head, "<desc id=\"", prefix, "-desc\">", esc_text(d), "</desc>").unwrap();
+        svg_write!(aria, " aria-describedby=\"", prefix, "-desc\"").unwrap();
     }
     let fit = if ctx.responsive { "max-width:100%;height:auto;" } else { "" };
     let w = js::to_string(width);
     let h = js::to_string(height);
     let canvas = |fill: &str| {
-        format!(
-            "<rect class=\"pele-canvas\" data-mermaid-canvas-background=\"opaque\" x=\"0\" y=\"0\" width=\"{w}\" height=\"{h}\" fill=\"{}\"/>",
-            esc(fill)
+        svg_format!(
+            "<rect class=\"pele-canvas\" data-mermaid-canvas-background=\"opaque\" x=\"0\" y=\"0\" width=\"",
+            w,
+            "\" height=\"",
+            h,
+            "\" fill=\"",
+            esc(fill),
+            "\"/>"
         )
     };
     let mut out = String::with_capacity(content.len() + head.len() + 900);
@@ -158,10 +164,23 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
             let rounding = searches().rounded.find(content.as_bytes()).is_some();
             let found = uses(content);
             let radius = found.radius || (rounding && has_rounded_rect(content));
-            write!(out,
-                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-{kind}\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" style=\"{fit}{}",
+            svg_write!(
+                out,
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-",
+                kind,
+                "\" viewBox=\"0 0 ",
+                w,
+                " ",
+                h,
+                "\" width=\"",
+                w,
+                "\" height=\"",
+                h,
+                "\" style=\"",
+                fit,
                 theming.css_root_style()
-            ).unwrap();
+            )
+            .unwrap();
             if radius {
                 write!(out, ";--_r:{RADIUS}").unwrap();
             }
@@ -176,12 +195,21 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
             }
             // Escape only the user-supplied font lists, rather than allocating and scanning
             // the complete declaration string. All remaining bytes are fixed or numeric.
-            write!(out,
-                ";--_fm:var(--pele-font-mono,{});font:{}px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,{})\" fill=\"var(--_fg)\" role=\"graphics-document document\" aria-roledescription=\"{kind}\"{aria}>",
+            svg_write!(
+                out,
+                ";--_fm:var(--pele-font-mono,",
                 esc(families(options.font_family_mono.as_deref(), "monospace")),
+                ");font:",
                 js::to_string(font_size),
+                "px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,",
                 esc(families(options.font_family.as_deref(), "sans-serif")),
-            ).unwrap();
+                ")\" fill=\"var(--_fg)\" role=\"graphics-document document\" aria-roledescription=\"",
+                kind,
+                "\"",
+                aria,
+                ">"
+            )
+            .unwrap();
             out.push_str(&head);
             if theming.canvas == CanvasBackground::Opaque {
                 out.push_str(&canvas("var(--_bg)"));
@@ -195,11 +223,35 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
         ColorMode::Resolved => {
             let text = theming.resolved.color(Role::Text);
             let mono = families(options.font_family_mono.as_deref(), "monospace");
-            write!(out,
-                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-{kind}\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" style=\"{fit}color:{text};font:{}px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:{}\" fill=\"{text}\" role=\"graphics-document document\" aria-roledescription=\"{kind}\"{aria}>",
+            svg_write!(
+                out,
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-",
+                kind,
+                "\" viewBox=\"0 0 ",
+                w,
+                " ",
+                h,
+                "\" width=\"",
+                w,
+                "\" height=\"",
+                h,
+                "\" style=\"",
+                fit,
+                "color:",
+                text,
+                ";font:",
                 js::to_string(font_size),
-                esc(families(options.font_family.as_deref(), "sans-serif"))
-            ).unwrap();
+                "px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:",
+                esc(families(options.font_family.as_deref(), "sans-serif")),
+                "\" fill=\"",
+                text,
+                "\" role=\"graphics-document document\" aria-roledescription=\"",
+                kind,
+                "\"",
+                aria,
+                ">"
+            )
+            .unwrap();
             out.push_str(&head);
             if theming.canvas == CanvasBackground::Opaque {
                 out.push_str(&canvas(theming.resolved.color(Role::Background)));
@@ -210,7 +262,6 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
     out.push_str("</svg>");
     out
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

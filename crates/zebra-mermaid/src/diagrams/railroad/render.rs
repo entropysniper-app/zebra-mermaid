@@ -3,6 +3,7 @@
 //! Each rule is measured into a tree of boxes bottom-up and placed top-down, both with
 //! explicit stacks as in Pele, so nesting depth never meets the call stack.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::HashMap;
 use std::fmt::Write as _;
 
@@ -415,15 +416,15 @@ impl Painter<'_, '_> {
                             self.line(kx + kid.width, y, right);
                         } else {
                             let mut d = if last {
-                                format!("M{},{}{}V{}", num(x), num(y), self.east_to_south, num(ky - arc))
+                                svg_format!("M", num(x), ",", num(y), self.east_to_south, "V", num(ky - arc))
                             } else {
-                                format!("M{},{}", num(rail_in), num(ky - arc))
+                                svg_format!("M", num(rail_in), ",", num(ky - arc))
                             };
                             d.push_str(&self.south_to_east);
                             if kx > rail_in + arc {
                                 write!(d, "H{}", num(kx)).unwrap();
                             }
-                            write!(d, "M{},{}", num(kx + kid.width), num(ky)).unwrap();
+                            svg_write!(d, "M", num(kx + kid.width), ",", num(ky)).unwrap();
                             if kx > rail_in + arc {
                                 write!(d, "H{}", num(rail_out - arc)).unwrap();
                             }
@@ -446,15 +447,19 @@ impl Painter<'_, '_> {
                     let kx = x + 2.0 * arc;
                     self.line(x, y, kx);
                     self.line(kx + self.boxes[kid].width, y, right);
-                    let d = format!(
-                        "M{},{}{}V{}{}H{}{}V{}{}",
+                    let d = svg_format!(
+                        "M",
                         num(x),
+                        ",",
                         num(y),
                         self.east_to_north,
+                        "V",
                         num(y - bx.reach + arc),
                         self.north_to_east,
+                        "H",
                         num(right - 2.0 * arc),
                         self.east_to_south,
+                        "V",
                         num(y - arc),
                         self.south_to_east
                     );
@@ -471,15 +476,19 @@ impl Painter<'_, '_> {
                     let middle = x + bx.width / 2.0;
                     self.line(x, y, kx);
                     self.line(kx + kid_w, y, right);
-                    let d = format!(
-                        "M{},{}{}V{}{}H{}{}V{}{}",
+                    let d = svg_format!(
+                        "M",
                         num(x + arc),
+                        ",",
                         num(y),
                         self.loop_down,
+                        "V",
                         num(loop_y - arc),
                         self.south_to_east,
+                        "H",
                         num(right - arc),
                         self.east_to_north,
+                        "V",
                         num(y + arc),
                         self.loop_up
                     );
@@ -509,9 +518,18 @@ impl Painter<'_, '_> {
         let ctx = self.ctx;
         let text = &bx.text;
         let space = if text.starts_with(' ') || text.ends_with(' ') || text.contains("  ") { " xml:space=\"preserve\"" } else { "" };
-        let shape =
-            format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"", num(x), num(y - self.box_top), num(bx.width), num(self.m.height));
-        let label = format!("<text x=\"{}\" y=\"{}\"{}", num(x + bx.width / 2.0), num(y + self.text_shift), space);
+        let shape = svg_format!(
+            "<rect x=\"",
+            num(x),
+            "\" y=\"",
+            num(y - self.box_top),
+            "\" width=\"",
+            num(bx.width),
+            "\" height=\"",
+            num(self.m.height),
+            "\""
+        );
+        let label = svg_format!("<text x=\"", num(x + bx.width / 2.0), "\" y=\"", num(y + self.text_shift), "\"", space);
         let stroke_color = ctx.paint(Role::NodeStroke, "var(--_b)");
         match bx.kind {
             Kind::Terminal => write!(
@@ -585,7 +603,7 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let show_markers = !matches!(config.lookup("railroad", "showMarkers"), Some(ConfigValue::Bool(false)));
     let radius = if show_markers { option(config, "markerRadius", 4.0, 50.0) } else { 0.0 };
     let stroke_width = option(config, "strokeWidth", 0.0, 20.0);
-    let stroke = if stroke_width > 0.0 { format!(" stroke-width=\"{}\"", num(stroke_width)) } else { String::new() };
+    let stroke = if stroke_width > 0.0 { svg_format!(" stroke-width=\"", num(stroke_width), "\"") } else { String::new() };
     let pad = ctx.padding();
     let arc = m.arc;
 
@@ -638,31 +656,59 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         painter.line(left + box_width, baseline, end);
         painter.place(root, left, baseline);
         let markers = if radius > 0.0 {
-            format!(
-                "<circle class=\"pele-marker pele-start\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{line_color}\"/><circle class=\"pele-marker pele-end\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{line_color}\"/>",
+            svg_format!(
+                "<circle class=\"pele-marker pele-start\" cx=\"",
                 num(pad + radius),
+                "\" cy=\"",
                 num(baseline),
+                "\" r=\"",
                 num(radius),
+                "\" fill=\"",
+                line_color,
+                "\"/><circle class=\"pele-marker pele-end\" cx=\"",
                 num(end + radius),
+                "\" cy=\"",
                 num(baseline),
-                num(radius)
+                "\" r=\"",
+                num(radius),
+                "\" fill=\"",
+                line_color,
+                "\"/>"
             )
         } else {
             String::new()
         };
-        write!(rules,
-            "<g class=\"pele-rule\" data-id=\"{}\"><text class=\"pele-rule-name\" x=\"{}\" y=\"{}\" font-size=\"{}\" font-weight=\"var(--_hw)\" text-anchor=\"start\">{}</text><path class=\"pele-edge pele-track\" d=\"{}\" fill=\"none\" stroke=\"{line_color}\"{}/>",
+        svg_write!(
+            rules,
+            "<g class=\"pele-rule\" data-id=\"",
             esc_text(&rule.name),
+            "\"><text class=\"pele-rule-name\" x=\"",
             num(pad),
+            "\" y=\"",
             num(top + head_height / 2.0 + head_size * 0.35),
+            "\" font-size=\"",
             num(head_size),
+            "\" font-weight=\"var(--_hw)\" text-anchor=\"start\">",
             esc(&name),
+            "</text><path class=\"pele-edge pele-track\" d=\"",
             painter.track,
-            stroke
-        ).unwrap();
+            "\" fill=\"none\" stroke=\"",
+            line_color,
+            "\"",
+            stroke,
+            "/>"
+        )
+        .unwrap();
         if !painter.arrows.is_empty() {
-            write!(rules, "<path class=\"pele-marker\" d=\"{}\" fill=\"{}\"/>", painter.arrows, ctx.paint(Role::Arrow, "var(--_l)"))
-                .unwrap();
+            svg_write!(
+                rules,
+                "<path class=\"pele-marker\" d=\"",
+                painter.arrows,
+                "\" fill=\"",
+                ctx.paint(Role::Arrow, "var(--_l)"),
+                "\"/>"
+            )
+            .unwrap();
         }
         rules.push_str(&markers);
         rules.push_str(&painter.nodes);
@@ -675,13 +721,16 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (bottom + pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+            .to_string();
     if !rules.is_empty() {
-        write!(
+        svg_write!(
             content,
-            "<g class=\"pele-rules\" transform=\"translate(0.5,0.5)\" font-size=\"{}\" text-anchor=\"middle\">{}</g>",
+            "<g class=\"pele-rules\" transform=\"translate(0.5,0.5)\" font-size=\"",
             num(size),
-            rules
+            "\" text-anchor=\"middle\">",
+            rules,
+            "</g>"
         )
         .unwrap();
     }
@@ -694,7 +743,6 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         links: Vec::new(),
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

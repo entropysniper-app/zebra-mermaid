@@ -7,6 +7,7 @@
 //! author gives (`UpdateElementStyle`, `UpdateRelStyle`, `$bgColor` and the like) are written
 //! as Pele writes them, in `style` attributes, so they keep precedence in both modes.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::{HashMap, HashSet};
 
 use super::layout::{layout_c4, HEAD_LEFT, HEAD_TOP};
@@ -235,12 +236,17 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
         if end_arrow && careful {
             taken.extend_from_slice(&[r.ex - ARROW, r.ey - ARROW, r.ex + ARROW, r.ey + ARROW]);
         }
-        write!(edges_out, 
-            "<g class=\"pele-edge\" data-id=\"{}\"{}><path d=\"{}\"/>",
+        svg_write!(
+            edges_out,
+            "<g class=\"pele-edge\" data-id=\"",
             esc_text(&format!("{}-{}", rel.from, rel.to)),
+            "\"",
             st.line,
-            r.d
-        ).unwrap();
+            "><path d=\"",
+            r.d,
+            "\"/>"
+        )
+        .unwrap();
         if start_arrow {
             write!(edges_out, "{}", marker("arrow_point", r.sx, r.sy, r.sdx, r.sdy, &color)).unwrap();
         }
@@ -281,7 +287,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     }
 
     // Relation text is muted in Zebra; Pele lets the label inherit the text color.
-    let rel_text_fill = if resolved { format!(" fill=\"{}\"", theming.resolved.color(Role::MutedText)) } else { String::new() };
+    let rel_text_fill = if resolved { svg_format!(" fill=\"", theming.resolved.color(Role::MutedText), "\"") } else { String::new() };
     let mut labels_out = String::new();
     for (index, rel) in db.rels.iter().enumerate() {
         let r = &routes[index];
@@ -340,26 +346,34 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             taken.extend_from_slice(&[cx - lw / 2.0, top, cx + lw / 2.0, top + lh]);
         }
         grow(cx - lw / 2.0, top, cx + lw / 2.0, top + lh);
-        write!(labels_out, "<g class=\"pele-edge-label\" data-id=\"{}\">", esc_text(&id)).unwrap();
+        svg_write!(labels_out, "<g class=\"pele-edge-label\" data-id=\"", esc_text(&id), "\">").unwrap();
         if let Some(descr) = rel.descr.as_deref().filter(|d| !d.is_empty()) {
-            write!(labels_out, "<title>{}</title>", esc_text(descr)).unwrap();
+            svg_write!(labels_out, "<title>", esc_text(descr), "</title>").unwrap();
         }
-        write!(labels_out, 
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"3\" fill=\"{}\"/>",
+        svg_write!(
+            labels_out,
+            "<rect x=\"",
             num(cx - lw / 2.0),
+            "\" y=\"",
             num(top),
+            "\" width=\"",
             num(lw),
+            "\" height=\"",
             num(lh),
-            ctx.paint(Role::Background, "var(--_bg)")
-        ).unwrap();
+            "\" rx=\"3\" fill=\"",
+            ctx.paint(Role::Background, "var(--_bg)"),
+            "\"/>"
+        )
+        .unwrap();
         let body = label_svg(&label, cx, top + label.height / 2.0, &format!("{}{}", rel_text_fill, st.text), None).to_string()
             + &label_svg(
                 &techn,
                 cx,
                 top + label.height + techn.height / 2.0,
-                &format!(" class=\"pele-c4-techn\" fill=\"{}\"{}", ctx.paint(Role::MutedText, "var(--_m)"), st.text),
+                &svg_format!(" class=\"pele-c4-techn\" fill=\"", ctx.paint(Role::MutedText, "var(--_m)"), "\"", st.text),
                 None,
-            ).to_string();
+            )
+            .to_string();
         labels_out.push_str(&link(body, rel.link.as_deref(), &id, &mut links, options));
         labels_out.push_str("</g>");
     }
@@ -367,7 +381,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     let mut clusters = String::new();
     let mut nodes_out = String::new();
     // Boundary titles are secondary text in Zebra; Pele lets the name inherit the text color.
-    let heading_fill = if resolved { format!(" fill=\"{}\"", theming.resolved.color(Role::SecondaryText)) } else { String::new() };
+    let heading_fill = if resolved { svg_format!(" fill=\"", theming.resolved.color(Role::SecondaryText), "\"") } else { String::new() };
     let small_s = js::to_string(small);
     let type_size = js::to_string(small - 1.0);
     for &g in &layout.order {
@@ -383,7 +397,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &group.labels[0],
                 x,
                 y,
-                &format!(" class=\"pele-cluster-label\" font-weight=\"var(--_hw)\"{}{}", heading_fill, st.text),
+                &svg_format!(" class=\"pele-cluster-label\" font-weight=\"var(--_hw)\"", heading_fill, st.text),
             );
             y += group.labels[0].height;
             push_left_label_svg(
@@ -391,7 +405,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &group.labels[1],
                 x,
                 y,
-                &format!(" class=\"pele-c4-type\" font-size=\"{}\" fill=\"{}\"{}", small_s, muted, st.text),
+                &svg_format!(" class=\"pele-c4-type\" font-size=\"", small_s, "\" fill=\"", muted, "\"", st.text),
             );
             y += group.labels[1].height;
             push_left_label_svg(
@@ -399,23 +413,35 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &group.labels[2],
                 x,
                 y,
-                &format!(" class=\"pele-c4-descr\" font-size=\"{}\" fill=\"{}\"{}", small_s, muted, st.text),
+                &svg_format!(" class=\"pele-c4-descr\" font-size=\"", small_s, "\" fill=\"", muted, "\"", st.text),
             );
             let node = boundary.node_type.as_deref().is_some_and(|t| !t.is_empty());
-            write!(clusters, 
-                "<g class=\"pele-cluster pele-c4-{}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}{}/>",
+            svg_write!(
+                clusters,
+                "<g class=\"pele-cluster pele-c4-",
                 if node { "node" } else { "boundary" },
+                "\" data-id=\"",
                 esc_text(&el.alias),
+                "\"><rect x=\"",
                 num(group.bx.x),
+                "\" y=\"",
                 num(group.bx.y),
+                "\" width=\"",
                 num(group.bx.w),
+                "\" height=\"",
                 num(group.bx.h),
+                "\" rx=\"",
                 RADIUS,
+                "\" fill=\"",
                 ctx.paint(Role::GroupFill, "none"),
+                "\" stroke=\"",
                 ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"",
                 if node { "" } else { " stroke-dasharray=\"6 4\"" },
-                st.shape
-            ).unwrap();
+                st.shape,
+                "/>"
+            )
+            .unwrap();
             clusters.push_str(&link(text, el.link.as_deref(), &el.alias, &mut links, options));
             clusters.push_str("</g>");
         }
@@ -429,7 +455,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             } else {
                 ((if external { "var(--_bg)" } else { "var(--_s)" }).to_string(), "var(--_b)".to_string())
             };
-            let stroke = format!(" stroke=\"{}\"{}", stroke_color, if external { " stroke-dasharray=\"4 3\"" } else { "" });
+            let stroke = svg_format!(" stroke=\"", stroke_color, "\"", if external { " stroke-dasharray=\"4 3\"" } else { "" });
             let Bx { w, h, form, .. } = node.bx;
             let labels = &node.labels;
             let dx = if form == "h-cyl" { -queue_rx(h) / 2.0 } else { 0.0 };
@@ -441,50 +467,73 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 0.0
             };
             // Zebra writes all of a shape's text in the text color.
-            let muted = format!(" fill=\"{}\"{}", ctx.paint(Role::Text, "var(--_m)"), st.text);
+            let muted = svg_format!(" fill=\"", ctx.paint(Role::Text, "var(--_m)"), "\"", st.text);
             let mut y = dy - node.text_h / 2.0;
             let mut text = label_svg(
                 &labels[0],
                 dx,
                 y + labels[0].height / 2.0,
-                &format!(" class=\"pele-c4-type\" font-size=\"{}\"{}", type_size, muted),
+                &svg_format!(" class=\"pele-c4-type\" font-size=\"", type_size, "\"", muted),
                 None,
-            ).to_string();
+            )
+            .to_string();
             y += labels[0].height;
-            write!(text, "{}", label_svg(
-                &labels[1],
-                dx,
-                y + labels[1].height / 2.0,
-                &format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"{}", st.text),
-                None,
-            )).unwrap();
+            write!(
+                text,
+                "{}",
+                label_svg(
+                    &labels[1],
+                    dx,
+                    y + labels[1].height / 2.0,
+                    &svg_format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"", st.text),
+                    None,
+                )
+            )
+            .unwrap();
             y += labels[1].height;
-            write!(text, "{}", label_svg(
-                &labels[2],
-                dx,
-                y + labels[2].height / 2.0,
-                &format!(" class=\"pele-c4-techn\" font-size=\"{}\"{}", small_s, muted),
-                None,
-            )).unwrap();
+            write!(
+                text,
+                "{}",
+                label_svg(
+                    &labels[2],
+                    dx,
+                    y + labels[2].height / 2.0,
+                    &svg_format!(" class=\"pele-c4-techn\" font-size=\"", small_s, "\"", muted),
+                    None,
+                )
+            )
+            .unwrap();
             y += labels[2].height + 4.0;
-            write!(text, "{}", label_svg(
-                &labels[3],
-                dx,
-                y + labels[3].height / 2.0,
-                &format!(" class=\"pele-c4-descr\" font-size=\"{}\"{}", small_s, st.text),
-                None,
-            )).unwrap();
+            write!(
+                text,
+                "{}",
+                label_svg(
+                    &labels[3],
+                    dx,
+                    y + labels[3].height / 2.0,
+                    &svg_format!(" class=\"pele-c4-descr\" font-size=\"", small_s, "\"", st.text),
+                    None,
+                )
+            )
+            .unwrap();
             let outline =
-                draw_shape(form, w, h, &format!(" fill=\"{}\"{}{}", fill, stroke, st.shape), &format!("{}{}", stroke, st.line), theming);
-            write!(nodes_out, 
-                "<g class=\"pele-node pele-shape-{} pele-c4-{}{}\" data-id=\"{}\" transform=\"translate({},{})\">",
+                draw_shape(form, w, h, &svg_format!(" fill=\"", fill, "\"", stroke, st.shape), &format!("{}{}", stroke, st.line), theming);
+            svg_write!(
+                nodes_out,
+                "<g class=\"pele-node pele-shape-",
                 form,
+                " pele-c4-",
                 shape.kind,
                 if external { " pele-c4-external" } else { "" },
+                "\" data-id=\"",
                 esc_text(&el.alias),
+                "\" transform=\"translate(",
                 num(node.bx.x + w / 2.0),
-                num(node.bx.y + h / 2.0)
-            ).unwrap();
+                ",",
+                num(node.bx.y + h / 2.0),
+                ")\">"
+            )
+            .unwrap();
             nodes_out.push_str(&link(outline + &text, el.link.as_deref(), &el.alias, &mut links, options));
             nodes_out.push_str("</g>");
         }
@@ -498,23 +547,28 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     let ox = pad - min_x + (inner - (max_x - min_x)) / 2.0;
     let oy = pad + title_height - min_y;
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, "<g transform=\"translate({},{})\">", num(ox), num(oy)).unwrap();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    svg_write!(content, "<g transform=\"translate(", num(ox), ",", num(oy), ")\">").unwrap();
     if !clusters.is_empty() {
-        write!(content, "<g class=\"pele-clusters\">{}</g>", clusters).unwrap();
+        svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        write!(content, 
-            "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-edges\" fill=\"none\" stroke=\"",
             ctx.paint(Role::Line, "var(--_l)"),
-            edges_out
-        ).unwrap();
+            "\" stroke-linecap=\"round\">",
+            edges_out,
+            "</g>"
+        )
+        .unwrap();
     }
     if !nodes_out.is_empty() {
-        write!(content, "<g class=\"pele-nodes\">{}</g>", nodes_out).unwrap();
+        svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     }
     if !labels_out.is_empty() {
-        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{}</g>", small_s, labels_out).unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", small_s, "\">", labels_out, "</g>").unwrap();
     }
     content.push_str("</g>");
 

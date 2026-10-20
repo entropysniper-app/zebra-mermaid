@@ -1,6 +1,7 @@
 //! Edge paths, markers, labels and self-loops. Ported from Pele `src/svg/edges.ts`.
 
 use super::builder::{num, push_num, write_esc, write_label_svg, write_num};
+use crate::svg::concat::svg_format;
 use crate::text::{Icons, Label};
 use crate::util::hash::IndexedMap;
 use crate::util::{js, math};
@@ -323,6 +324,13 @@ impl fmt::Display for Marker<'_> {
     }
 }
 
+impl super::concat::Part for Marker<'_> {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        push_marker(out, self.kind, self.x, self.y, self.dx, self.dy, self.color);
+    }
+}
+
 /// Draws a marker whose tip is at (x, y), pointing along (dx, dy). The markup is written when
 /// the result is formatted; `to_string` gives it as text.
 pub fn marker<'a>(kind: &'a str, x: f64, y: f64, dx: f64, dy: f64, color: &'a str) -> Marker<'a> {
@@ -502,7 +510,7 @@ pub fn loop_path(cx: f64, cy: f64, w: f64, h: f64, k: f64, sideways: bool, base:
         e.label_y = cy;
     }
     EdgePath {
-        d: format!("M{}C{} {} {}", at(0.0, -spread), at(reach, -spread * 2.0), at(reach, spread * 2.0), at(tx, spread + ty)),
+        d: svg_format!("M", at(0.0, -spread), "C", at(reach, -spread * 2.0), " ", at(reach, spread * 2.0), " ", at(tx, spread + ty)),
         sx: if sideways { cx - spread } else { cx + w / 2.0 },
         sy: if sideways { cy + h / 2.0 } else { cy - spread },
         sdx: if sideways { 0.0 } else { -1.0 },
@@ -513,7 +521,6 @@ pub fn loop_path(cx: f64, cy: f64, w: f64, h: f64, k: f64, sideways: bool, base:
         edy: if sideways { -reach / len } else { -spread / len },
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

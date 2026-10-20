@@ -1,5 +1,6 @@
 //! The info diagram. Ported from Pele `src/diagrams/info/`.
 
+use crate::svg::concat::svg_format;
 use std::sync::LazyLock;
 
 use crate::config::Config;
@@ -123,14 +124,16 @@ pub(crate) fn render(model: &InfoModel, _config: &Config, ctx: &RenderCtx) -> Re
 
     let width = (js::max(title.width, text.width) + 2.0 * pad).ceil();
     let height = (title_height + text.height + 2.0 * pad).ceil();
-    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
+    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+        .to_string()
         + &label_svg(
             &text,
             width / 2.0,
             pad + title_height + text.height / 2.0,
-            &format!(" class=\"pele-version\" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")),
+            &svg_format!(" class=\"pele-version\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\""),
             None,
-        ).to_string();
+        )
+        .to_string();
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Ok(Rendered { svg: svg_document("info", width, height, size, ctx, acc, &content), width, height, links: Vec::new() })
 }

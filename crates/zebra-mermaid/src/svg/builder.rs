@@ -1,9 +1,9 @@
 //! SVG text building blocks: escaping, coordinates and labels. Ported from Pele
 //! `src/svg/builder.rs`.
 
+use crate::svg::concat::svg_write;
 use std::borrow::Cow;
 use std::fmt;
-use std::fmt::Write as _;
 
 use crate::text::entities::decode_entities_cow;
 use crate::text::{style, Icons, Label};
@@ -300,15 +300,7 @@ pub fn write_label_svg<W: fmt::Write + ?Sized>(
                 if let Some(icon) = &span.icon {
                     let side = label.size * 1.1;
                     let inner = icons.map(|i| i.markup(icon)).unwrap_or_else(|| "".into());
-                    write!(extra,
-                        "<svg class=\"pele-icon\" data-icon=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",
-                        esc_text(icon),
-                        num(x),
-                        num(y - shift - side / 2.0),
-                        num(side),
-                        num(side),
-                        inner
-                    ).unwrap();
+                    svg_write!(extra, "<svg class=\"pele-icon\" data-icon=\"", esc_text(icon), "\" x=\"", num(x), "\" y=\"", num(y - shift - side / 2.0), "\" width=\"", num(side), "\" height=\"", num(side), "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", inner, "</svg>").unwrap();
                 } else if !span.text.is_empty() {
                     out.write_str("<tspan x=\"")?;
                     write_num(out, x)?;
@@ -351,6 +343,12 @@ pub fn write_label_svg<W: fmt::Write + ?Sized>(
     out.write_str(&extra)
 }
 
+impl super::concat::Part for LabelSvg<'_> {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        push_label_svg(out, self.label, self.cx, self.cy, self.attrs, self.icons);
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;

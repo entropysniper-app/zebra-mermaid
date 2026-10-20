@@ -5,6 +5,7 @@
 //! name reads on that color; commit ids are text on the node fill; tags are text on the
 //! secondary surface with a faint outline.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::HashMap;
 
 use super::{commit_type, GitCommit, GitDirection, GitModel};
@@ -57,61 +58,90 @@ fn branch_color(ctx: &RenderCtx, lane: usize) -> String {
 }
 
 fn symbol(ctx: &RenderCtx, kind: u8, x: f64, y: f64, color: &str) -> String {
-    let at = format!("cx=\"{}\" cy=\"{}\"", num(x), num(y));
+    let at = svg_format!("cx=\"", num(x), "\" cy=\"", num(y), "\"");
     if kind == commit_type::HIGHLIGHT {
-        return format!(
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"2\" fill=\"{}\"/>",
+        return svg_format!(
+            "<rect x=\"",
             num(x - DOT - 1.0),
+            "\" y=\"",
             num(y - DOT - 1.0),
+            "\" width=\"",
             js::to_string(2.0 * DOT + 2.0),
+            "\" height=\"",
             js::to_string(2.0 * DOT + 2.0),
-            color
+            "\" rx=\"2\" fill=\"",
+            color,
+            "\"/>"
         );
     }
     if kind == commit_type::MERGE {
         // A ring: its middle shows the canvas.
-        return format!(
-            "<circle {} r=\"{}\" fill=\"{}\" stroke=\"{}\" stroke-width=\"2\"/><circle {} r=\"2.5\" fill=\"{}\"/>",
+        return svg_format!(
+            "<circle ",
             at,
+            " r=\"",
             js::to_string(DOT - 1.0),
+            "\" fill=\"",
             ctx.paint(Role::Background, "var(--_bg)"),
+            "\" stroke=\"",
             color,
+            "\" stroke-width=\"2\"/><circle ",
             at,
-            color
+            " r=\"2.5\" fill=\"",
+            color,
+            "\"/>"
         );
     }
-    let dot = format!("<circle {} r=\"{}\" fill=\"{}\"/>", at, js::to_string(DOT), color);
+    let dot = svg_format!("<circle ", at, " r=\"", js::to_string(DOT), "\" fill=\"", color, "\"/>");
     // The marks of a reverse or cherry-pick are drawn on the branch color, so in resolved mode
     // they take the color that reads on it, as the branch name does.
     let mark = ctx.theming.text_on(color, "var(--_bg)");
     if kind == commit_type::REVERSE {
         return dot
-            + &format!(
-                "<path d=\"M{},{}l6,6M{},{}l6,-6\" fill=\"none\" stroke=\"{}\" stroke-width=\"1.5\" stroke-linecap=\"round\"/>",
+            + &svg_format!(
+                "<path d=\"M",
                 num(x - 3.0),
+                ",",
                 num(y - 3.0),
+                "l6,6M",
                 num(x - 3.0),
+                ",",
                 num(y + 3.0),
-                mark
+                "l6,-6\" fill=\"none\" stroke=\"",
+                mark,
+                "\" stroke-width=\"1.5\" stroke-linecap=\"round\"/>"
             );
     }
     if kind == commit_type::CHERRY_PICK {
         return dot
-            + &format!(
-                "<path d=\"M{},{}L{},{}L{},{}\" fill=\"none\" stroke=\"{}\" stroke-linejoin=\"round\"/><circle cx=\"{}\" cy=\"{}\" r=\"1.8\" fill=\"{}\"/><circle cx=\"{}\" cy=\"{}\" r=\"1.8\" fill=\"{}\"/>",
+            + &svg_format!(
+                "<path d=\"M",
                 num(x - 2.6),
+                ",",
                 num(y + 1.0),
+                "L",
                 num(x + 0.8),
+                ",",
                 num(y - 4.2),
+                "L",
                 num(x + 2.6),
+                ",",
                 num(y + 1.0),
+                "\" fill=\"none\" stroke=\"",
                 mark,
+                "\" stroke-linejoin=\"round\"/><circle cx=\"",
                 num(x - 2.6),
+                "\" cy=\"",
                 num(y + 2.2),
+                "\" r=\"1.8\" fill=\"",
                 mark,
+                "\"/><circle cx=\"",
                 num(x + 2.6),
+                "\" cy=\"",
                 num(y + 2.2),
-                mark
+                "\" r=\"1.8\" fill=\"",
+                mark,
+                "\"/>"
             );
     }
     dot
@@ -335,26 +365,40 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let cy = py(from + along / 2.0, c);
             b.grow(px(-LABEL_GAP, c), py(-LABEL_GAP, c), px(-LABEL_GAP, c), py(-LABEL_GAP, c));
             b.grow(px(end + TAIL, c), py(end + TAIL, c), px(end + TAIL, c), py(end + TAIL, c));
-            write!(branches, 
-                "<g class=\"pele-branch\" data-id=\"{}\"><path class=\"pele-lane\" d=\"M{}L{}\" stroke=\"{}\" stroke-dasharray=\"2 4\"/>",
+            svg_write!(
+                branches,
+                "<g class=\"pele-branch\" data-id=\"",
                 esc_text(&model.lanes[i]),
+                "\"><path class=\"pele-lane\" d=\"M",
                 point(-LABEL_GAP, c),
+                "L",
                 point(end + TAIL, c),
-                color
-            ).unwrap();
+                "\" stroke=\"",
+                color,
+                "\" stroke-dasharray=\"2 4\"/>"
+            )
+            .unwrap();
             if !name.lines.is_empty() {
                 b.grow(cx - w / 2.0, cy - h / 2.0, cx + w / 2.0, cy + h / 2.0);
-                write!(branches, 
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\"/>",
+                svg_write!(
+                    branches,
+                    "<rect x=\"",
                     num(cx - w / 2.0),
+                    "\" y=\"",
                     num(cy - h / 2.0),
+                    "\" width=\"",
                     num(w),
+                    "\" height=\"",
                     num(h),
+                    "\" rx=\"",
                     RADIUS,
-                    color
-                ).unwrap();
+                    "\" fill=\"",
+                    color,
+                    "\"/>"
+                )
+                .unwrap();
                 let text = ctx.theming.text_on(&color, "var(--_bg)");
-                write!(branches, "{}", label_svg(name, cx, cy, &format!(" class=\"pele-label\" fill=\"{}\"", text), None)).unwrap();
+                write!(branches, "{}", label_svg(name, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", text, "\""), None)).unwrap();
             }
             branches.push_str("</g>");
         }
@@ -402,17 +446,22 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let c1 = cross[parent.lane];
             let m1 = parent.m;
             if parent.lane == view.lane {
-                write!(lines, 
-                    "<path class=\"pele-edge\" d=\"M{}L{}\" stroke=\"{}\"/>",
+                svg_write!(
+                    lines,
+                    "<path class=\"pele-edge\" d=\"M",
                     point(m1, c1),
+                    "L",
                     point(m2, c2),
-                    branch_color(ctx, view.lane)
-                ).unwrap();
+                    "\" stroke=\"",
+                    branch_color(ctx, view.lane),
+                    "\"/>"
+                )
+                .unwrap();
                 continue;
             }
             let merged = j > 0 && commit.kind == commit_type::MERGE;
             let picked = j > 0 && !merged;
-            let mut d = format!("M{}", point(m1, c1));
+            let mut d = svg_format!("M", point(m1, c1));
             if m2 <= m1 {
                 let mid = (m1 + m2) / 2.0;
                 write!(d, "C{} {} {}", point(mid, c1), point(mid, c2), point(m2, c2)).unwrap();
@@ -433,19 +482,15 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                     s = js::min(CURVE, (to - m1) / 2.0);
                     write!(d, "C{} {} {}", point(m1 + s / 2.0, c1), point(m1 + s / 2.0, along), point(m1 + s, along)).unwrap();
                 }
-                write!(d, 
-                    "L{}C{} {} {}",
-                    point(to - s, along),
-                    point(to - s / 2.0, along),
-                    point(to - s / 2.0, c2),
-                    point(to, c2)
-                ).unwrap();
+                write!(d, "L{}C{} {} {}", point(to - s, along), point(to - s / 2.0, along), point(to - s / 2.0, c2), point(to, c2))
+                    .unwrap();
                 if to < m2 {
                     write!(d, "L{}", point(m2, c2)).unwrap();
                 }
             }
-            write!(curves, 
-                "<path class=\"pele-edge{}\" d=\"{}\" stroke=\"{}\"{}/>",
+            svg_write!(
+                curves,
+                "<path class=\"pele-edge",
                 if merged {
                     " pele-edge-merge"
                 } else if picked {
@@ -453,10 +498,15 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 } else {
                     ""
                 },
+                "\" d=\"",
                 d,
+                "\" stroke=\"",
                 branch_color(ctx, if merged { parent.lane } else { view.lane }),
-                if picked { " stroke-dasharray=\"4 3\"" } else { "" }
-            ).unwrap();
+                "\"",
+                if picked { " stroke-dasharray=\"4 3\"" } else { "" },
+                "/>"
+            )
+            .unwrap();
         }
     }
 
@@ -470,7 +520,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
         // Merges and cherry-picks carry a message Mermaid makes up; only a written one is worth
         // showing.
         let written = commit.kind < commit_type::MERGE && !commit.message.is_empty();
-        let mut body = if written { format!("<title>{}</title>", esc_text(&commit.message)) } else { String::new() };
+        let mut body = if written { svg_format!("<title>", esc_text(&commit.message), "</title>") } else { String::new() };
         body.push_str(&symbol(ctx, kind, x, y, &branch_color(ctx, view.lane)));
 
         if let Some(label) = view.label.as_ref().filter(|l| !l.lines.is_empty()) {
@@ -478,13 +528,18 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let h = label.height;
             // The patch under a commit id: Zebra's commit label background.
             let back = |cx: f64, cy: f64| -> String {
-                format!(
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"3\" fill=\"{}\"/>",
+                svg_format!(
+                    "<rect x=\"",
                     num(cx - w / 2.0 - 2.0),
+                    "\" y=\"",
                     num(cy - h / 2.0 + 2.0),
+                    "\" width=\"",
                     num(w + 4.0),
+                    "\" height=\"",
                     num(h - 4.0),
-                    ctx.paint(Role::NodeFill, "var(--_bg)")
+                    "\" rx=\"3\" fill=\"",
+                    ctx.paint(Role::NodeFill, "var(--_bg)"),
+                    "\"/>"
                 )
             };
             if rotate {
@@ -494,19 +549,25 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 let ay = if vertical { y } else { y + DOT + 3.0 + k };
                 let reach = HALF * w + k;
                 b.grow(ax - reach, if flip { ay - reach } else { ay - k }, ax + k, if flip { ay + k } else { ay + reach });
-                write!(body, 
-                    "<g class=\"pele-commit-label\" transform=\"rotate({} {} {})\">{}{}</g>",
+                svg_write!(
+                    body,
+                    "<g class=\"pele-commit-label\" transform=\"rotate(",
                     if flip { 45 } else { -45 },
+                    " ",
                     num(ax),
+                    " ",
                     num(ay),
+                    ")\">",
                     back(ax - w / 2.0, ay),
-                    label_svg(label, ax - w / 2.0, ay, "", None)
-                ).unwrap();
+                    label_svg(label, ax - w / 2.0, ay, "", None),
+                    "</g>"
+                )
+                .unwrap();
             } else {
                 let cx = if vertical { x - DOT - 6.0 - w / 2.0 } else { x };
                 let cy = if vertical { y } else { y + DOT + 6.0 + h / 2.0 };
                 b.grow(cx - w / 2.0, cy - h / 2.0, cx + w / 2.0, cy + h / 2.0);
-                write!(body, "<g class=\"pele-commit-label\">{}{}</g>", back(cx, cy), label_svg(label, cx, cy, "", None)).unwrap();
+                svg_write!(body, "<g class=\"pele-commit-label\">", back(cx, cy), label_svg(label, cx, cy, "", None), "</g>").unwrap();
             }
         }
 
@@ -523,38 +584,58 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             offset += if vertical { w + 4.0 } else { h + 3.0 };
             b.grow(left, cy - h / 2.0, left + w, cy + h / 2.0);
             let outline = ctx.paint(Role::FaintText, "var(--_b)");
-            write!(body, 
-                "<g class=\"pele-tag\"><path d=\"M{},{}L{},{}H{}V{}H{}Z\" fill=\"{}\" stroke=\"{}\" stroke-linejoin=\"round\"/><circle cx=\"{}\" cy=\"{}\" r=\"1.5\" fill=\"{}\"/>{}</g>",
+            svg_write!(
+                body,
+                "<g class=\"pele-tag\"><path d=\"M",
                 num(left),
+                ",",
                 num(cy),
+                "L",
                 num(left + NOTCH),
+                ",",
                 num(cy - h / 2.0),
+                "H",
                 num(left + w),
+                "V",
                 num(cy + h / 2.0),
+                "H",
                 num(left + NOTCH),
+                "Z\" fill=\"",
                 ctx.paint(Role::GroupHeader, "var(--_s)"),
+                "\" stroke=\"",
                 outline,
+                "\" stroke-linejoin=\"round\"/><circle cx=\"",
                 num(left + NOTCH),
+                "\" cy=\"",
                 num(cy),
+                "\" r=\"1.5\" fill=\"",
                 outline,
+                "\"/>",
                 label_svg(
                     tag,
                     left + NOTCH + 4.0 + tag.width / 2.0,
                     cy,
-                    &format!(" fill=\"{}\"", ctx.paint(Role::Text, "var(--_fg)")),
+                    &svg_format!(" fill=\"", ctx.paint(Role::Text, "var(--_fg)"), "\""),
                     None
-                )
-            ).unwrap();
+                ),
+                "</g>"
+            )
+            .unwrap();
         }
 
         let merge = if commit.kind == commit_type::MERGE && kind != commit_type::MERGE { " pele-commit-merge" } else { "" };
-        write!(commits, 
-            "<g class=\"pele-commit pele-commit-{}{}\" data-id=\"{}\">{}</g>",
+        svg_write!(
+            commits,
+            "<g class=\"pele-commit pele-commit-",
             CLASSES.get(kind as usize).unwrap_or(&CLASSES[0]),
             merge,
+            "\" data-id=\"",
             esc_text(&commit.id),
-            body
-        ).unwrap();
+            "\">",
+            body,
+            "</g>"
+        )
+        .unwrap();
     }
 
     if b.min_x > b.max_x {
@@ -568,25 +649,30 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
     let dx = pad - b.min_x + (inner - (b.max_x - b.min_x)) / 2.0;
     let dy = pad + title_height - b.min_y;
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, "<g transform=\"translate({},{})\">", num(dx), num(dy)).unwrap();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    svg_write!(content, "<g transform=\"translate(", num(dx), ",", num(dy), ")\">").unwrap();
     if !branches.is_empty() {
-        write!(content, "<g class=\"pele-branches\" fill=\"none\" font-size=\"{}\">{}</g>", js::to_string(medium), branches).unwrap();
+        svg_write!(content, "<g class=\"pele-branches\" fill=\"none\" font-size=\"", js::to_string(medium), "\">", branches, "</g>")
+            .unwrap();
     }
     if !curves.is_empty() || !lines.is_empty() {
-        write!(content, 
-            "<g class=\"pele-edges\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\">{}{}</g>",
-            curves, lines
-        ).unwrap();
+        svg_write!(content, "<g class=\"pele-edges\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\">", curves, lines, "</g>")
+            .unwrap();
     }
     if !commits.is_empty() {
         // The group's fill is the color of the commit ids, the only text that inherits it.
-        write!(content, 
-            "<g class=\"pele-commits\" font-size=\"{}\" fill=\"{}\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-commits\" font-size=\"",
             js::to_string(small),
+            "\" fill=\"",
             ctx.paint(Role::Text, "var(--_m)"),
-            commits
-        ).unwrap();
+            "\">",
+            commits,
+            "</g>"
+        )
+        .unwrap();
     }
     content.push_str("</g>");
 

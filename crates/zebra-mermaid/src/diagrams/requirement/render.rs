@@ -6,6 +6,7 @@ use crate::layout::{
     compound::{cnode, compound_layout, direction, CEdge, CNode, Dir},
     layered::LayeredOptions,
 };
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
     builder::{esc, esc_text, label_svg, num, shared_style, span_style, text_style},
     edges::{default_reach, edge_label_svg, route_path, EdgePath},
@@ -67,12 +68,16 @@ fn start_text(label: &Label, x: f64, top: f64, attrs: &str) -> String {
             if span.icon.is_some() || span.text.is_empty() {
                 continue;
             }
-            write!(body, 
-                "<tspan{}{}>{}</tspan>",
-                if first { format!(" x=\"{}\" y=\"{}\"", num(x), num(y)) } else { String::new() },
+            svg_write!(
+                body,
+                "<tspan",
+                if first { svg_format!(" x=\"", num(x), "\" y=\"", num(y), "\"") } else { String::new() },
                 span_style(span.style & !shared),
-                esc(&span.text)
-            ).unwrap();
+                ">",
+                esc(&span.text),
+                "</tspan>"
+            )
+            .unwrap();
             first = false;
         }
         y += label.line_height;
@@ -80,37 +85,53 @@ fn start_text(label: &Label, x: f64, top: f64, attrs: &str) -> String {
     if body.is_empty() {
         body
     } else {
-        format!("<text{} text-anchor=\"start\" xml:space=\"preserve\">{body}</text>", text_style(attrs, shared))
+        svg_format!("<text", text_style(attrs, shared), " text-anchor=\"start\" xml:space=\"preserve\">", body, "</text>")
     }
 }
 fn contains_marker(x: f64, y: f64, dx: f64, dy: f64) -> String {
     let cx = x - dx * 6.0;
     let cy = y - dy * 6.0;
-    format!(
-        "<circle class=\"pele-marker\" cx=\"{}\" cy=\"{}\" r=\"6\"/><path class=\"pele-marker\" d=\"M{},{}L{},{}M{},{}L{},{}\"/>",
+    svg_format!(
+        "<circle class=\"pele-marker\" cx=\"",
         num(cx),
+        "\" cy=\"",
         num(cy),
+        "\" r=\"6\"/><path class=\"pele-marker\" d=\"M",
         num(cx - dx * 6.0),
+        ",",
         num(cy - dy * 6.0),
+        "L",
         num(cx + dx * 6.0),
+        ",",
         num(cy + dy * 6.0),
+        "M",
         num(cx + dy * 6.0),
+        ",",
         num(cy - dx * 6.0),
+        "L",
         num(cx - dy * 6.0),
-        num(cy + dx * 6.0)
+        ",",
+        num(cy + dx * 6.0),
+        "\"/>"
     )
 }
 fn arrow(x: f64, y: f64, dx: f64, dy: f64) -> String {
     let bx = x - dx * 9.0;
     let by = y - dy * 9.0;
-    format!(
-        "<path class=\"pele-marker\" d=\"M{},{}L{},{}L{},{}\" stroke-linejoin=\"round\"/>",
+    svg_format!(
+        "<path class=\"pele-marker\" d=\"M",
         num(bx - dy * 4.5),
+        ",",
         num(by + dx * 4.5),
+        "L",
         num(x),
+        ",",
         num(y),
+        "L",
         num(bx + dy * 4.5),
-        num(by - dx * 4.5)
+        ",",
+        num(by - dx * 4.5),
+        "\" stroke-linejoin=\"round\"/>"
     )
 }
 fn spread(nodes: &[CNode], edges: &mut [CEdge], views: &[View]) {
@@ -285,23 +306,34 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
         let left = -v.w / 2.0;
         let top = -v.h / 2.0;
         let st = &v.style;
-        let mut body = format!(
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"{}/>{}{}",
+        let mut body = svg_format!(
+            "<rect x=\"",
             num(left),
+            "\" y=\"",
             num(top),
+            "\" width=\"",
             num(v.w),
+            "\" height=\"",
             num(v.h),
+            "\" rx=\"",
+            RADIUS,
+            "\" fill=\"",
             ctx.paint(Role::NodeFill, "var(--_s)"),
+            "\" stroke=\"",
             ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"",
             st.shape,
+            "/>",
             label_svg(
                 &v.kind,
                 0.0,
                 top + 10.0 + v.kind.height / 2.0,
-                &format!(
-                    " class=\"pele-stereotype\" font-size=\"{}\" fill=\"{}\"{}",
+                &svg_format!(
+                    " class=\"pele-stereotype\" font-size=\"",
                     js::to_string(v.kind.size),
+                    "\" fill=\"",
                     ctx.paint(Role::SecondaryText, "var(--_m)"),
+                    "\"",
                     st.text
                 ),
                 None
@@ -310,20 +342,27 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 &v.name,
                 0.0,
                 top + 10.0 + v.kind.height + v.name.height / 2.0,
-                &format!(" class=\"pele-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"{}", js::to_string(v.name.size), st.text),
+                &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(v.name.size), "\" font-weight=\"var(--_hw)\"", st.text),
                 None
             )
         );
         if !v.rows.is_empty() {
             let divider = top + v.head_height;
-            write!(body, 
-                "<path class=\"pele-divider\" d=\"M{},{}H{}\" stroke=\"{}\"{}/>",
+            svg_write!(
+                body,
+                "<path class=\"pele-divider\" d=\"M",
                 num(left),
+                ",",
                 num(divider),
+                "H",
                 num(-left),
+                "\" stroke=\"",
                 ctx.paint(Role::InnerStroke, "var(--_b)"),
-                st.line
-            ).unwrap();
+                "\"",
+                st.line,
+                "/>"
+            )
+            .unwrap();
             let mut y = divider + 10.0;
             let mut row_svg = String::new();
             for row in &v.rows {
@@ -331,28 +370,36 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                     &row.key,
                     left + 14.0,
                     y,
-                    &format!(" class=\"pele-field\" fill=\"{}\"{}", ctx.paint(Role::SecondaryText, "var(--_m)"), st.text),
+                    &svg_format!(" class=\"pele-field\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", st.text),
                 ));
                 row_svg.push_str(&start_text(
                     &row.value,
                     left + 14.0 + v.key_width + 12.0,
                     y,
-                    &format!(" class=\"pele-value\"{}", st.text),
+                    &svg_format!(" class=\"pele-value\"", st.text),
                 ));
                 y += row.height + 2.0;
             }
-            write!(body, "<g class=\"pele-fields\" font-size=\"{}\">{row_svg}</g>", js::to_string(v.rows[0].key.size)).unwrap();
+            svg_write!(body, "<g class=\"pele-fields\" font-size=\"", js::to_string(v.rows[0].key.size), "\">", row_svg, "</g>").unwrap();
         }
         let classes = v.node.classes.join(" ");
         let classes = classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&classes);
-        write!(node_svg, 
-            "<g class=\"pele-node {}{}\" data-id=\"{}\" transform=\"translate({},{})\">{body}</g>",
+        svg_write!(
+            node_svg,
+            "<g class=\"pele-node ",
             if v.requirement { "pele-requirement" } else { "pele-element" },
             class_names(classes),
+            "\" data-id=\"",
             esc_text(&v.node.name),
+            "\" transform=\"translate(",
             num(nodes[i].x + ox),
-            num(nodes[i].y + oy)
-        ).unwrap();
+            ",",
+            num(nodes[i].y + oy),
+            ")\">",
+            body,
+            "</g>"
+        )
+        .unwrap();
     }
     let mut edge_svg = String::new();
     let mut labels_svg = String::new();
@@ -388,7 +435,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 ly = cy;
             }
             EdgePath {
-                d: format!("M{}C{} {} {}", at(start_trim, -spread), at(pull, -spread), at(pull, spread), at(0.0, spread)),
+                d: svg_format!("M", at(start_trim, -spread), "C", at(pull, -spread), " ", at(pull, spread), " ", at(0.0, spread)),
                 sx: if sideways { cx - spread } else { cx + v.w / 2.0 },
                 sy: if sideways { cy + v.h / 2.0 } else { cy - spread },
                 sdx: if sideways { 0.0 } else { -1.0 },
@@ -406,31 +453,50 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
             }
             route_path(&route, None, start_trim, 0.0, default_reach(start_trim), default_reach(0.0))
         };
-        write!(edge_svg, 
-            "<g class=\"pele-edge pele-relationship-{}\" data-id=\"{}\"><path d=\"{}\"{}/>{}</g>",
+        svg_write!(
+            edge_svg,
+            "<g class=\"pele-edge pele-relationship-",
             if *contains { "contains" } else { "arrow" },
+            "\" data-id=\"",
             esc_text(id),
+            "\"><path d=\"",
             path.d,
+            "\"",
             if *contains { "" } else { " stroke-dasharray=\"5 4\"" },
-            if *contains { contains_marker(path.sx, path.sy, path.sdx, path.sdy) } else { arrow(path.ex, path.ey, path.edx, path.edy) }
-        ).unwrap();
+            "/>",
+            if *contains { contains_marker(path.sx, path.sy, path.sdx, path.sdy) } else { arrow(path.ex, path.ey, path.edx, path.edy) },
+            "</g>"
+        )
+        .unwrap();
         write!(labels_svg, "{}", edge_label_svg(id, label, lx, ly, "", None, ctx.paint(Role::Background, "var(--_bg)"))).unwrap();
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !edge_svg.is_empty() {
-        write!(content, 
-            "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{edge_svg}</g>",
-            ctx.paint(Role::Line, "var(--_l)")
-        ).unwrap();
+        svg_write!(
+            content,
+            "<g class=\"pele-edges\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::Line, "var(--_l)"),
+            "\" stroke-linecap=\"round\">",
+            edge_svg,
+            "</g>"
+        )
+        .unwrap();
     }
     if !labels_svg.is_empty() {
-        write!(content, 
-            "<g class=\"pele-edge-labels\" font-size=\"{}\" fill=\"{}\">{labels_svg}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-edge-labels\" font-size=\"",
             js::to_string(small),
-            ctx.paint(Role::SecondaryText, "var(--_m)")
-        ).unwrap();
+            "\" fill=\"",
+            ctx.paint(Role::SecondaryText, "var(--_m)"),
+            "\">",
+            labels_svg,
+            "</g>"
+        )
+        .unwrap();
     }
-    write!(content, "<g class=\"pele-nodes\">{node_svg}</g>").unwrap();
+    svg_write!(content, "<g class=\"pele-nodes\">", node_svg, "</g>").unwrap();
     Ok(Rendered {
         svg: svg_document(
             "requirement",

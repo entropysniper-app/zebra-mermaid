@@ -5,6 +5,7 @@ use crate::diagrams::common::{
     literal_label::{break_label, left_label_markup as left_label_svg, literal_label},
 };
 use crate::diagrams::{RenderCtx, Rendered};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
     builder::{esc, esc_text, label_svg, num},
     edges::{marker, marker_trim},
@@ -46,13 +47,13 @@ fn lines(rows: &[String], x: f64, y: f64, step: f64, attrs: &str) -> String {
     let mut body = String::new();
     for (i, row) in rows.iter().enumerate() {
         if !row.is_empty() {
-            write!(body, "<tspan x=\"{}\" y=\"{}\">{}</tspan>", num(x), num(y + i as f64 * step), esc(row)).unwrap();
+            svg_write!(body, "<tspan x=\"", num(x), "\" y=\"", num(y + i as f64 * step), "\">", esc(row), "</tspan>").unwrap();
         }
     }
     if body.is_empty() {
         body
     } else {
-        format!("<text{attrs} xml:space=\"preserve\">{body}</text>")
+        svg_format!("<text", attrs, " xml:space=\"preserve\">", body, "</text>")
     }
 }
 fn widest(rows: &[String], m: &Measure, size: f64, st: u8) -> f64 {
@@ -154,7 +155,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     for (i, band) in bands.iter_mut().enumerate() {
         band.y = y;
         band.h += 24.0;
-        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&format!(" class=\"pele-cluster-label\" font-size=\"{}\" font-weight=\"var(--_hw)\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::SecondaryText,"var(--_m)")),None)).unwrap();
+        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&svg_format!(" class=\"pele-cluster-label\" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\" fill=\"", ctx.paint(Role::SecondaryText,"var(--_m)"), "\""),None)).unwrap();
         y += band.h + 8.0;
     }
     let mut bottom = if bands.is_empty() { top } else { y - 8.0 };
@@ -164,19 +165,43 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
         let band = &bands[b.lane];
         item.x += left + label_column;
         item.y = band.y + (band.h - item.h) / 2.0;
-        let frame =
-            format!("x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\"", num(item.x), num(item.y), num(item.w), num(item.h));
+        let frame = svg_format!(
+            "x=\"",
+            num(item.x),
+            "\" y=\"",
+            num(item.y),
+            "\" width=\"",
+            num(item.w),
+            "\" height=\"",
+            num(item.h),
+            "\" rx=\"",
+            RADIUS,
+            "\""
+        );
         let shape = match series(b.kind) {
-            None => format!(
-                "<rect {frame} fill=\"{}\" stroke=\"{}\"/>",
+            None => svg_format!(
+                "<rect ",
+                frame,
+                " fill=\"",
                 ctx.paint(Role::Background, "var(--_bg)"),
-                ctx.paint(Role::NodeStroke, "var(--_b)")
+                "\" stroke=\"",
+                ctx.paint(Role::NodeStroke, "var(--_b)"),
+                "\"/>"
             ),
             Some(i) => {
                 let color = ctx.series(i);
-                format!(
-                    "<rect {frame} fill=\"{}\"/><rect {frame} fill=\"{color}\" fill-opacity=\"0.22\" stroke=\"{color}\"/>",
-                    ctx.paint(Role::Background, "var(--_bg)")
+                svg_format!(
+                    "<rect ",
+                    frame,
+                    " fill=\"",
+                    ctx.paint(Role::Background, "var(--_bg)"),
+                    "\"/><rect ",
+                    frame,
+                    " fill=\"",
+                    color,
+                    "\" fill-opacity=\"0.22\" stroke=\"",
+                    color,
+                    "\"/>"
                 )
             }
         };
@@ -184,21 +209,30 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             &item.name,
             item.x + item.w / 2.0,
             item.y + 10.0 + item.name.height / 2.0,
-            &format!(" class=\"pele-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"", js::to_string(name_size)),
+            &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(name_size), "\" font-weight=\"var(--_hw)\""),
             None,
-        ).to_string() + &lines(
-            &item.data,
-            item.x + 12.0,
-            item.y + 10.0 + item.name.height + 6.0 + mono_step / 2.0 + mono * 0.35,
-            mono_step,
-            &format!(" class=\"pele-em-data\" font-family=\"{FONT_MONO}\" font-size=\"{}\"", js::to_string(mono)),
-        );
-        write!(nodes, 
-            "<g class=\"pele-node pele-em-{}{}\" data-id=\"{}\">{shape}{text}</g>",
+        )
+        .to_string()
+            + &lines(
+                &item.data,
+                item.x + 12.0,
+                item.y + 10.0 + item.name.height + 6.0 + mono_step / 2.0 + mono * 0.35,
+                mono_step,
+                &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::to_string(mono), "\""),
+            );
+        svg_write!(
+            nodes,
+            "<g class=\"pele-node pele-em-",
             b.kind.as_str(),
             if b.reset { " pele-em-reset" } else { "" },
-            esc_text(&b.id)
-        ).unwrap();
+            "\" data-id=\"",
+            esc_text(&b.id),
+            "\">",
+            shape,
+            text,
+            "</g>"
+        )
+        .unwrap();
     }
     let mut edges = String::new();
     let trim = marker_trim("arrow_point");
@@ -217,7 +251,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             let ty = t.y + t.h / 2.0;
             let dir = if tx >= sx { 1.0 } else { -1.0 };
             (
-                format!("M{},{}L{},{}", num(sx), num(sy), num(tx - dir * trim), num(ty)),
+                svg_format!("M", num(sx), ",", num(sy), "L", num(tx - dir * trim), ",", num(ty)),
                 marker("arrow_point", tx, ty, dir, 0.0, ctx.paint(Role::Arrow, "var(--_l)")),
             )
         } else {
@@ -244,18 +278,44 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             let end = ty - dir * trim;
             let mid = (sy + end) / 2.0;
             let d = if sx == tx {
-                format!("M{},{}V{}", num(sx), num(sy), num(end))
+                svg_format!("M", num(sx), ",", num(sy), "V", num(end))
             } else {
-                format!("M{},{}C{},{} {},{} {},{}", num(sx), num(sy), num(sx), num(mid), num(tx), num(mid), num(tx), num(end))
+                svg_format!(
+                    "M",
+                    num(sx),
+                    ",",
+                    num(sy),
+                    "C",
+                    num(sx),
+                    ",",
+                    num(mid),
+                    " ",
+                    num(tx),
+                    ",",
+                    num(mid),
+                    " ",
+                    num(tx),
+                    ",",
+                    num(end)
+                )
             };
             (d, marker("arrow_point", tx, ty, 0.0, dir, ctx.paint(Role::Arrow, "var(--_l)")))
         };
-        write!(edges, 
-            "<g class=\"pele-edge\" data-id=\"{}-{}\"><path d=\"{d}\" fill=\"none\" stroke=\"{}\"/>{head}</g>",
+        svg_write!(
+            edges,
+            "<g class=\"pele-edge\" data-id=\"",
             esc_text(&model.boxes[r.source].id),
+            "-",
             esc_text(&model.boxes[r.target].id),
-            ctx.paint(Role::Line, "var(--_l)")
-        ).unwrap();
+            "\"><path d=\"",
+            d,
+            "\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::Line, "var(--_l)"),
+            "\"/>",
+            head,
+            "</g>"
+        )
+        .unwrap();
     }
     let names: IndexMap<&str, &str> = model.boxes.iter().map(|b| (b.id.as_str(), b.name.as_str())).collect();
     let mut cards = String::new();
@@ -265,7 +325,44 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
         let w = js::max(head.width, widest(&rows, &m, small, 0)) + 24.0;
         let h = 20.0 + head.height + rows.len() as f64 * small_step;
         let cy = bottom + if cards.is_empty() && bands.is_empty() { 0.0 } else { 8.0 };
-        write!(cards, "<g class=\"pele-em-{kind}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",esc_text(frame),num(left),num(cy),num(w),num(h),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&head,left+12.0+head.width/2.0,cy+10.0+head.height/2.0,&format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),lines(&rows,left+12.0,cy+10.0+head.height+small_step/2.0+small*0.35,small_step,&format!(" font-size=\"{}\"",js::to_string(small)))).unwrap();
+        svg_write!(
+            cards,
+            "<g class=\"pele-em-",
+            kind,
+            "\" data-id=\"",
+            esc_text(frame),
+            "\"><rect x=\"",
+            num(left),
+            "\" y=\"",
+            num(cy),
+            "\" width=\"",
+            num(w),
+            "\" height=\"",
+            num(h),
+            "\" rx=\"",
+            RADIUS,
+            "\" fill=\"",
+            ctx.paint(Role::Background, "var(--_bg)"),
+            "\" stroke=\"",
+            ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"/>",
+            label_svg(
+                &head,
+                left + 12.0 + head.width / 2.0,
+                cy + 10.0 + head.height / 2.0,
+                &svg_format!(" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\""),
+                None
+            ),
+            lines(
+                &rows,
+                left + 12.0,
+                cy + 10.0 + head.height + small_step / 2.0 + small * 0.35,
+                small_step,
+                &svg_format!(" font-size=\"", js::to_string(small), "\"")
+            ),
+            "</g>"
+        )
+        .unwrap();
         bottom = cy + h;
         cards_right = js::max(cards_right, w);
     };
@@ -282,7 +379,8 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     }
     let width = (js::max(js::max(if bands.is_empty() { 0.0 } else { lane_width }, cards_right), title.width) + 2.0 * pad).ceil();
     let height = (bottom + pad).ceil();
-    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
+    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+        .to_string()
         + &lanes
         + &edges
         + &nodes
@@ -357,8 +455,69 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
         );
         let h = 20.0 + name.height + data.as_ref().map_or(0.0, |d| d.height + 6.0);
         let cy = y + lane.height + 12.0;
-        let frame = format!("x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\"", num(pad), num(cy), num(w), num(h));
-        write!(nodes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\">{}<g class=\"pele-node pele-em-{}{}\" data-id=\"{}\"><rect {frame} fill=\"{}\" stroke=\"{}\"/>{}{}<text class=\"pele-em-frame\" x=\"{}\" y=\"{}\" text-anchor=\"end\" font-size=\"{}\" fill=\"{}\">{}</text>{}</g></g>",esc_text(&model.lanes[b.lane].label),left_label_svg(&lane,pad+12.0,y,&format!(" class=\"pele-cluster-label\" font-size=\"{}\" font-weight=\"var(--_hw)\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::SecondaryText,"var(--_m)"))),b.kind.as_str(),if b.reset{" pele-em-reset"}else{""},esc_text(&b.id),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),series(b.kind).map_or_else(String::new,|i|{let c=ctx.series(i);format!("<rect {frame} fill=\"{c}\" fill-opacity=\"0.22\" stroke=\"{c}\"/>")}),label_svg(&name,pad+12.0+name.width/2.0,cy+10.0+name.height/2.0,&format!(" class=\"pele-label\" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),num(pad+w-12.0),num(cy+10.0+small),js::to_string(mono),ctx.paint(Role::SecondaryText,"var(--_m)"),esc(&b.id),data.as_ref().map_or_else(String::new,|d|lines(&label_rows(d),pad+12.0,cy+10.0+name.height+6.0+d.line_height/2.0+mono*0.35,d.line_height,&format!(" class=\"pele-em-data\" font-family=\"{FONT_MONO}\" font-size=\"{}\"",js::to_string(mono))))).unwrap();
+        let frame =
+            svg_format!("x=\"", num(pad), "\" y=\"", num(cy), "\" width=\"", num(w), "\" height=\"", num(h), "\" rx=\"", RADIUS, "\"");
+        svg_write!(
+            nodes,
+            "<g class=\"pele-cluster pele-em-lane\" data-id=\"",
+            esc_text(&model.lanes[b.lane].label),
+            "\">",
+            left_label_svg(
+                &lane,
+                pad + 12.0,
+                y,
+                &svg_format!(
+                    " class=\"pele-cluster-label\" font-size=\"",
+                    js::to_string(small),
+                    "\" font-weight=\"var(--_hw)\" fill=\"",
+                    ctx.paint(Role::SecondaryText, "var(--_m)"),
+                    "\""
+                )
+            ),
+            "<g class=\"pele-node pele-em-",
+            b.kind.as_str(),
+            if b.reset { " pele-em-reset" } else { "" },
+            "\" data-id=\"",
+            esc_text(&b.id),
+            "\"><rect ",
+            frame,
+            " fill=\"",
+            ctx.paint(Role::Background, "var(--_bg)"),
+            "\" stroke=\"",
+            ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"/>",
+            series(b.kind).map_or_else(String::new, |i| {
+                let c = ctx.series(i);
+                svg_format!("<rect ", frame, " fill=\"", c, "\" fill-opacity=\"0.22\" stroke=\"", c, "\"/>")
+            }),
+            label_svg(
+                &name,
+                pad + 12.0 + name.width / 2.0,
+                cy + 10.0 + name.height / 2.0,
+                &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\""),
+                None
+            ),
+            "<text class=\"pele-em-frame\" x=\"",
+            num(pad + w - 12.0),
+            "\" y=\"",
+            num(cy + 10.0 + small),
+            "\" text-anchor=\"end\" font-size=\"",
+            js::to_string(mono),
+            "\" fill=\"",
+            ctx.paint(Role::SecondaryText, "var(--_m)"),
+            "\">",
+            esc(&b.id),
+            "</text>",
+            data.as_ref().map_or_else(String::new, |d| lines(
+                &label_rows(d),
+                pad + 12.0,
+                cy + 10.0 + name.height + 6.0 + d.line_height / 2.0 + mono * 0.35,
+                d.line_height,
+                &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::to_string(mono), "\"")
+            )),
+            "</g></g>"
+        )
+        .unwrap();
         placed.push(VerticalPlaced { y: cy, h, w, lane: lane.width });
         width = js::max(width, w + gutter);
         bottom = cy + h;
@@ -378,7 +537,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
         let (d, head) = if r.source.abs_diff(r.target) == 1 {
             let cx = pad + js::max(js::min(s.w, t.w) / 2.0, 12.0 + if down { t.lane } else { s.lane } + 16.0);
             (
-                format!("M{},{}V{}", num(cx), num(sy), num(ty - dir * marker_trim("arrow_point"))),
+                svg_format!("M", num(cx), ",", num(sy), "V", num(ty - dir * marker_trim("arrow_point"))),
                 marker("arrow_point", cx, ty, 0.0, dir, ctx.paint(Role::Arrow, "var(--_l)")),
             )
         } else {
@@ -386,16 +545,36 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
             let from = s.y + s.h / 2.0 - 5.0;
             let to = t.y + t.h / 2.0 + 5.0;
             (
-                format!("M{},{}H{}V{}H{}", num(pad + s.w), num(from), num(rail), num(to), num(pad + t.w + marker_trim("arrow_point"))),
+                svg_format!(
+                    "M",
+                    num(pad + s.w),
+                    ",",
+                    num(from),
+                    "H",
+                    num(rail),
+                    "V",
+                    num(to),
+                    "H",
+                    num(pad + t.w + marker_trim("arrow_point"))
+                ),
                 marker("arrow_point", pad + t.w, to, -1.0, 0.0, ctx.paint(Role::Arrow, "var(--_l)")),
             )
         };
-        write!(edges, 
-            "<g class=\"pele-edge\" data-id=\"{}-{}\"><path d=\"{d}\" fill=\"none\" stroke=\"{}\"/>{head}</g>",
+        svg_write!(
+            edges,
+            "<g class=\"pele-edge\" data-id=\"",
             esc_text(&model.boxes[r.source].id),
+            "-",
             esc_text(&model.boxes[r.target].id),
-            ctx.paint(Role::Line, "var(--_l)")
-        ).unwrap();
+            "\"><path d=\"",
+            d,
+            "\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::Line, "var(--_l)"),
+            "\"/>",
+            head,
+            "</g>"
+        )
+        .unwrap();
     }
     let names: IndexMap<&str, &str> = model.boxes.iter().map(|b| (b.id.as_str(), b.name.as_str())).collect();
     let mut card = |kind: &str, heading: &str, frame: &str, raw: &str| {
@@ -403,7 +582,44 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
         let body = literal(raw, small, 0);
         let w = js::max(card_width, js::max(head.width + 24.0, body.width + 24.0));
         let h = 20.0 + head.height + body.height;
-        write!(cards, "<g class=\"pele-em-{kind}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",esc_text(frame),num(pad),num(y),num(w),num(h),ctx.paint(Role::Background,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&head,pad+12.0+head.width/2.0,y+10.0+head.height/2.0,&format!(" font-size=\"{}\" font-weight=\"var(--_hw)\"",js::to_string(small)),None),lines(&label_rows(&body),pad+12.0,y+10.0+head.height+body.line_height/2.0+small*0.35,body.line_height,&format!(" font-size=\"{}\"",js::to_string(small)))).unwrap();
+        svg_write!(
+            cards,
+            "<g class=\"pele-em-",
+            kind,
+            "\" data-id=\"",
+            esc_text(frame),
+            "\"><rect x=\"",
+            num(pad),
+            "\" y=\"",
+            num(y),
+            "\" width=\"",
+            num(w),
+            "\" height=\"",
+            num(h),
+            "\" rx=\"",
+            RADIUS,
+            "\" fill=\"",
+            ctx.paint(Role::Background, "var(--_bg)"),
+            "\" stroke=\"",
+            ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"/>",
+            label_svg(
+                &head,
+                pad + 12.0 + head.width / 2.0,
+                y + 10.0 + head.height / 2.0,
+                &svg_format!(" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\""),
+                None
+            ),
+            lines(
+                &label_rows(&body),
+                pad + 12.0,
+                y + 10.0 + head.height + body.line_height / 2.0 + small * 0.35,
+                body.line_height,
+                &svg_format!(" font-size=\"", js::to_string(small), "\"")
+            ),
+            "</g>"
+        )
+        .unwrap();
         bottom = y + h;
         y = bottom + 8.0;
         width = js::max(width, w);
@@ -416,7 +632,8 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
     }
     let total_width = (width + 2.0 * pad).ceil();
     let height = (bottom + pad).ceil();
-    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
+    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+        .to_string()
         + &edges
         + &nodes
         + &cards;

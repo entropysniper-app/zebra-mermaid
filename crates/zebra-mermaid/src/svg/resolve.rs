@@ -8,6 +8,7 @@
 //! matched; text content cannot contain these exact attribute strings, as text is escaped.
 
 use super::builder::esc;
+use crate::svg::concat::svg_format;
 
 /// Pele's default corner radius, written as an attribute.
 const RADIUS: &str = "4";
@@ -15,13 +16,12 @@ const RADIUS: &str = "4";
 pub(crate) fn finish_resolved(content: &str, mono_family: &str) -> String {
     let mono = format!("\"{}\"", esc(mono_family));
     content
-        .replace(" rx=\"var(--pele-radius,4px)\"", &format!(" rx=\"{}\"", RADIUS))
+        .replace(" rx=\"var(--pele-radius,4px)\"", &svg_format!(" rx=\"", RADIUS, "\""))
         .replace("\"var(--_w)\"", "\"bold\"")
         .replace("\"var(--_tw)\"", "\"bold\"")
         .replace("\"var(--_hw)\"", "\"bold\"")
         .replace("\"var(--_fm)\"", &mono)
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

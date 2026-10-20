@@ -1,5 +1,6 @@
 //! Venn rendering. Ported from Pele `src/diagrams/venn/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
@@ -232,16 +233,25 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
     for (i, c) in placed.iter().enumerate() {
         let color = &colors[i];
         let style = regions.get(&vec![c.id.clone()]).map_or(&no_style, |r| &r.style);
-        write!(sets, 
-            "<circle class=\"pele-venn-set\" data-id=\"{}\" cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{}\" fill-opacity=\"0.2\" stroke=\"{}\"{}/>",
+        svg_write!(
+            sets,
+            "<circle class=\"pele-venn-set\" data-id=\"",
             esc_text(&c.id),
+            "\" cx=\"",
             num(c.x),
+            "\" cy=\"",
             num(c.y),
+            "\" r=\"",
             num(c.r),
+            "\" fill=\"",
             color,
+            "\" fill-opacity=\"0.2\" stroke=\"",
             color,
-            style.shape
-        ).unwrap();
+            "\"",
+            style.shape,
+            "/>"
+        )
+        .unwrap();
     }
 
     // In resolved mode a region's own label takes a color that reads on what is drawn under it:
@@ -260,7 +270,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         for i in sorted {
             under = mix_hex(&colors[i], &under, SET_OPACITY);
         }
-        format!(" fill=\"{}\"", t.text_on(&under))
+        svg_format!(" fill=\"", t.text_on(&under), "\"")
     };
     let text_fill = ctx.paint(Role::SecondaryText, "var(--_m)");
 
@@ -273,10 +283,17 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
             let outline: Vec<&Circle> = region.inside.iter().map(|&i| &placed[i]).collect();
             let d = region_path(&outline, |v| num(v).to_string());
             if !d.is_empty() {
-                write!(overlaps, 
-                    "<path class=\"pele-venn-overlap\" data-id=\"{}\" d=\"{}\" fill=\"none\"{}/>",
-                    id, d, region.style.shape
-                ).unwrap();
+                svg_write!(
+                    overlaps,
+                    "<path class=\"pele-venn-overlap\" data-id=\"",
+                    id,
+                    "\" d=\"",
+                    d,
+                    "\" fill=\"none\"",
+                    region.style.shape,
+                    "/>"
+                )
+                .unwrap();
             }
         }
         let mut total = 0.0;
@@ -291,33 +308,37 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         let mut content = String::new();
         for line in &region.lines {
             let attrs = match &line.id {
-                None => format!(
-                    " class=\"pele-label\"{}{}{}",
-                    if line.size == size { String::new() } else { format!(" font-size=\"{}\"", js::to_string(line.size)) },
+                None => svg_format!(
+                    " class=\"pele-label\"",
+                    if line.size == size { String::new() } else { svg_format!(" font-size=\"", js::to_string(line.size), "\"") },
                     label_fill(&region.inside),
                     region.style.text
                 ),
-                Some(id) => format!(
-                    " class=\"pele-venn-text\" data-id=\"{}\" font-size=\"{}\" fill=\"{}\"{}",
+                Some(id) => svg_format!(
+                    " class=\"pele-venn-text\" data-id=\"",
                     esc_text(id),
+                    "\" font-size=\"",
                     js::to_string(tiny),
+                    "\" fill=\"",
                     text_fill,
+                    "\"",
                     style_of(std::slice::from_ref(id)).text
                 ),
             };
             write!(content, "{}", label_svg(&line.label, x, y + line.label.height / 2.0, &attrs, None)).unwrap();
             y += line.label.height;
         }
-        write!(labels, "<g class=\"pele-venn-region\" data-id=\"{}\">{}</g>", id, content).unwrap();
+        svg_write!(labels, "<g class=\"pele-venn-region\" data-id=\"", id, "\">", content, "</g>").unwrap();
     }
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, "<g class=\"pele-venn-sets\">{}</g>", sets).unwrap();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    svg_write!(content, "<g class=\"pele-venn-sets\">", sets, "</g>").unwrap();
     if !overlaps.is_empty() {
-        write!(content, "<g class=\"pele-venn-overlaps\">{}</g>", overlaps).unwrap();
+        svg_write!(content, "<g class=\"pele-venn-overlaps\">", overlaps, "</g>").unwrap();
     }
     if !labels.is_empty() {
-        write!(content, "<g class=\"pele-venn-labels\">{}</g>", labels).unwrap();
+        svg_write!(content, "<g class=\"pele-venn-labels\">", labels, "</g>").unwrap();
     }
     Ok(Rendered { svg: svg_document("venn", width, height, size, ctx, Accessible::default(), &content), width, height, links: Vec::new() })
 }

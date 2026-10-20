@@ -8,6 +8,7 @@ use crate::diagrams::common::literal_label::{literal_label, push_left_label_svg}
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, label_svg, num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, RADIUS};
 use crate::text::entities::decode_entities;
@@ -198,16 +199,16 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         let tick = js::max(gx, inset + row.x + step - padding_x);
         let last = top + rows[row_of[last_child]].cy;
         let r = js::min(ELBOW, tick - gx);
-        let mut d = format!("M{},{}V{}", num(gx), num(top + row.top + row.height - 2.0), num(last - r));
+        let mut d = svg_format!("M", num(gx), ",", num(top + row.top + row.height - 2.0), "V", num(last - r));
         if r > 0.0 {
             write!(d, "Q{},{} {},{}H{}", num(gx), num(last), num(gx + r), num(last), num(tick)).unwrap();
         }
         let mut i = 0;
         while i + 1 < children.len() && tick > gx {
-            write!(d, "M{},{}H{}", num(gx), num(top + rows[row_of[children[i]]].cy), num(tick)).unwrap();
+            svg_write!(d, "M", num(gx), ",", num(top + rows[row_of[children[i]]].cy), "H", num(tick)).unwrap();
             i += 1;
         }
-        write!(guides, "<path d=\"{}\"/>", d).unwrap();
+        svg_write!(guides, "<path d=\"", d, "\"/>").unwrap();
     }
 
     let baseline = size * 0.35;
@@ -223,19 +224,27 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
             // A highlighted row is a selected one. Pele tints the accent; resolved output fills
             // the row with the selection color, which is made to sit under text.
             let fill = if ctx.resolved() {
-                format!("fill=\"{}\"", ctx.paint(Role::Selection, "var(--_c)"))
+                svg_format!("fill=\"", ctx.paint(Role::Selection, "var(--_c)"), "\"")
             } else {
                 "fill=\"var(--_c)\" fill-opacity=\"0.14\"".to_string()
             };
-            write!(inner, 
-                "<rect class=\"pele-tree-highlight\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" {}/>",
+            svg_write!(
+                inner,
+                "<rect class=\"pele-tree-highlight\" x=\"",
                 num(x),
+                "\" y=\"",
                 num(top + row.top + 1.0),
+                "\" width=\"",
                 num(total_width - inset + HIGHLIGHT_OVERHANG - x),
+                "\" height=\"",
                 num(row.height - 2.0),
+                "\" rx=\"",
                 RADIUS,
-                fill
-            ).unwrap();
+                "\" ",
+                fill,
+                "/>"
+            )
+            .unwrap();
         }
         if let Some(icon) = &row.icon {
             let name = icon.strip_prefix(BUILTIN_PACK).and_then(|rest| rest.strip_prefix(':')).unwrap_or("");
@@ -245,17 +254,9 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
             // one, even an empty one; `Icons::markup` cannot tell no answer from an empty one.
             let drawn = match options.icons.as_ref().and_then(|resolver| resolver.resolve(&decode_entities(icon))) {
                 Some(markup) => markup,
-                None => format!("<path d=\"{}\" stroke=\"{}\" stroke-width=\"1.5\"/>", outline, muted),
+                None => svg_format!("<path d=\"", outline, "\" stroke=\"", muted, "\" stroke-width=\"1.5\"/>"),
             };
-            write!(inner, 
-                "<svg class=\"pele-icon\" data-icon=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",
-                esc_text(icon),
-                num(inset + row.x),
-                num(cy - icon_size / 2.0),
-                num(icon_size),
-                num(icon_size),
-                drawn
-            ).unwrap();
+            svg_write!(inner, "<svg class=\"pele-icon\" data-icon=\"", esc_text(icon), "\" x=\"", num(inset + row.x), "\" y=\"", num(cy - icon_size / 2.0), "\" width=\"", num(icon_size), "\" height=\"", num(icon_size), "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", drawn, "</svg>").unwrap();
         }
         let weight = if directory { " font-weight=\"var(--_hw)\"" } else { "" };
         if let Some(label) = &row.label {
@@ -264,16 +265,22 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 label,
                 inset + row.label_x,
                 top + row.top + padding_y,
-                &format!(" class=\"pele-label\"{}", weight),
+                &svg_format!(" class=\"pele-label\"", weight),
             );
         } else if !row.text.is_empty() {
-            write!(inner, 
-                "<text class=\"pele-label\" x=\"{}\" y=\"{}\"{} xml:space=\"preserve\">{}</text>",
+            svg_write!(
+                inner,
+                "<text class=\"pele-label\" x=\"",
                 num(inset + row.label_x),
+                "\" y=\"",
                 num(cy + baseline),
+                "\"",
                 weight,
-                esc(&row.text)
-            ).unwrap();
+                " xml:space=\"preserve\">",
+                esc(&row.text),
+                "</text>"
+            )
+            .unwrap();
         }
         if let Some(description) = &row.description {
             push_left_label_svg(
@@ -281,36 +288,53 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 description,
                 inset + row.label_x,
                 top + row.top + padding_y + row.label.as_ref().map_or(0.0, |l| l.height),
-                &format!(" class=\"pele-tree-description\" font-style=\"italic\" fill=\"{}\"", muted),
+                &svg_format!(" class=\"pele-tree-description\" font-style=\"italic\" fill=\"", muted, "\""),
             );
         } else if let Some(description) = node.description.as_deref().filter(|d| !d.is_empty()) {
-            write!(inner, 
-                "<text class=\"pele-tree-description\" x=\"{}\" y=\"{}\" font-style=\"italic\" fill=\"{}\" xml:space=\"preserve\">{}</text>",
+            svg_write!(
+                inner,
+                "<text class=\"pele-tree-description\" x=\"",
                 num(inset + desc_x),
+                "\" y=\"",
                 num(cy + baseline),
+                "\" font-style=\"italic\" fill=\"",
                 muted,
-                esc(&decode_entities(description))
-            ).unwrap();
+                "\" xml:space=\"preserve\">",
+                esc(&decode_entities(description)),
+                "</text>"
+            )
+            .unwrap();
         }
-        write!(body, 
-            "<g class=\"pele-node pele-tree-{}{}\" data-id=\"{}\">{}</g>",
+        svg_write!(
+            body,
+            "<g class=\"pele-node pele-tree-",
             if directory { "dir" } else { "file" },
             class_names(node.css_class.as_deref().unwrap_or("")),
+            "\" data-id=\"",
             esc_text(&node.name),
-            inner
-        ).unwrap();
+            "\">",
+            inner,
+            "</g>"
+        )
+        .unwrap();
     }
 
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons()).to_string();
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons())
+            .to_string();
     if !guides.is_empty() {
         // The guides connect each folder to its entries.
-        write!(content, 
-            "<g class=\"pele-tree-guides\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-tree-guides\" fill=\"none\" stroke=\"",
             ctx.paint(Role::Line, "var(--_b)"),
+            "\" stroke-width=\"",
             num(line_thickness),
-            guides
-        ).unwrap();
+            "\">",
+            guides,
+            "</g>"
+        )
+        .unwrap();
     }
     content.push_str(&body);
 

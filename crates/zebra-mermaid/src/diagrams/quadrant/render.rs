@@ -12,6 +12,7 @@ use crate::diagrams::common::fit_width::cap_width;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, resolve_style, RADIUS};
 use crate::text::{layout_label, style, Label, Measure};
@@ -122,29 +123,47 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         let cx = x + tile_w / 2.0;
         let cy = if has_points { y + text_top + text.height / 2.0 } else { y + tile_h / 2.0 };
         taken.extend_from_slice(&[cx - text.width / 2.0, cy - text.height / 2.0, cx + text.width / 2.0, cy + text.height / 2.0]);
-        write!(quadrants, 
-            "<g class=\"pele-quadrant\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"/>{}</g>",
+        svg_write!(
+            quadrants,
+            "<g class=\"pele-quadrant\" data-id=\"",
             k + 1,
+            "\"><rect x=\"",
             num(x),
+            "\" y=\"",
             num(y),
+            "\" width=\"",
             num(tile_w),
+            "\" height=\"",
             num(tile_h),
+            "\" rx=\"",
             RADIUS,
-            label_svg(&text, cx, cy, &format!(" class=\"pele-label\" fill=\"{}\" stroke=\"none\"", on_region), None)
-        ).unwrap();
+            "\"/>",
+            label_svg(&text, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", on_region, "\" stroke=\"none\""), None),
+            "</g>"
+        )
+        .unwrap();
     }
 
     let mut axes = String::new();
     if has_x {
         let y = if x_below { top + h + x_pad + x_height / 2.0 } else { top - x_pad - x_height / 2.0 };
-        write!(axes, "{}", label_svg(&x_left, if x_right.height > 0.0 { left + w / 4.0 } else { left + x_left.width / 2.0 }, y, "", None)).unwrap();
+        write!(axes, "{}", label_svg(&x_left, if x_right.height > 0.0 { left + w / 4.0 } else { left + x_left.width / 2.0 }, y, "", None))
+            .unwrap();
         write!(axes, "{}", label_svg(&x_right, left + (w * 3.0) / 4.0, y, "", None)).unwrap();
     }
     if has_y {
         let x = if y_right { left + w + y_pad + y_height / 2.0 } else { left - y_pad - y_height / 2.0 };
         let turned = |text: &Label, y: f64| -> String {
             if text.height > 0.0 {
-                format!("<g transform=\"translate({},{}) rotate(-90)\">{}</g>", num(x), num(y), label_svg(text, 0.0, 0.0, "", None))
+                svg_format!(
+                    "<g transform=\"translate(",
+                    num(x),
+                    ",",
+                    num(y),
+                    ") rotate(-90)\">",
+                    label_svg(text, 0.0, 0.0, "", None),
+                    "</g>"
+                )
             } else {
                 String::new()
             }
@@ -187,16 +206,23 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
             reach: r + stroke_width.map_or(0.0, |s| js::min(js::parse_int(s, 0), 400.0) / 2.0),
             text: label(&m, Some(&point.text), point_size, 200.0),
         });
-        let own_stroke = if stroke_width.is_some() && stroke_color.is_none() { format!(" stroke=\"{}\"", fill) } else { String::new() };
-        circles.push(format!(
-            "<circle class=\"pele-point{}\" data-id=\"{}\" cx=\"{}\" cy=\"{}\" r=\"{}\"{}{}/>",
+        let own_stroke =
+            if stroke_width.is_some() && stroke_color.is_none() { svg_format!(" stroke=\"", fill, "\"") } else { String::new() };
+        circles.push(svg_format!(
+            "<circle class=\"pele-point",
             class_names(&point.class_name),
+            "\" data-id=\"",
             esc_text(&point.text.text),
+            "\" cx=\"",
             num(cx),
+            "\" cy=\"",
             num(cy),
+            "\" r=\"",
             num(r),
+            "\"",
             own_stroke,
-            resolve_style(&styles).shape
+            resolve_style(&styles).shape,
+            "/>"
         ));
     }
 
@@ -247,33 +273,49 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
 
     // Mermaid puts each new point under the ones before it.
     let mut content =
-        label_svg(&title, width / 2.0, title_pad / 2.0 + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, 
-        "<g class=\"pele-quadrants\" fill=\"{}\" stroke=\"{}\">{}</g>",
+        label_svg(&title, width / 2.0, title_pad / 2.0 + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+            .to_string();
+    svg_write!(
+        content,
+        "<g class=\"pele-quadrants\" fill=\"",
         region,
+        "\" stroke=\"",
         ctx.paint(Role::GroupStroke, "var(--_b)"),
-        quadrants
-    ).unwrap();
+        "\">",
+        quadrants,
+        "</g>"
+    )
+    .unwrap();
     if !axes.is_empty() {
-        write!(content, 
-            "<g class=\"pele-axis-labels\" font-size=\"{}\" fill=\"{}\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-axis-labels\" font-size=\"",
             js::to_string(axis_size),
+            "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
-            axes
-        ).unwrap();
+            "\">",
+            axes,
+            "</g>"
+        )
+        .unwrap();
     }
     if !dots.is_empty() {
         circles.reverse();
         // Pele lets the point labels take the root's text color; in resolved mode they take the
         // color that reads on the quadrants they lie over.
-        let label_fill = if ctx.resolved() { format!(" fill=\"{}\"", on_region) } else { String::new() };
-        write!(content, "<g class=\"pele-points\" fill=\"{}\">{}</g>", fill, circles.concat()).unwrap();
-        write!(content, 
-            "<g class=\"pele-point-labels\" font-size=\"{}\"{}>{}</g>",
+        let label_fill = if ctx.resolved() { svg_format!(" fill=\"", on_region, "\"") } else { String::new() };
+        svg_write!(content, "<g class=\"pele-points\" fill=\"", fill, "\">", circles.concat(), "</g>").unwrap();
+        svg_write!(
+            content,
+            "<g class=\"pele-point-labels\" font-size=\"",
             js::to_string(point_size),
+            "\"",
             label_fill,
-            labels
-        ).unwrap();
+            ">",
+            labels,
+            "</g>"
+        )
+        .unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

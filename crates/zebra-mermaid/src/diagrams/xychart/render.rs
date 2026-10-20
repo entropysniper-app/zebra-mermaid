@@ -13,6 +13,7 @@ use crate::diagrams::common::fit_width::cap_width;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, label_svg, num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::text::{layout_label, style, Label, Measure};
 use crate::theme::Role;
@@ -79,12 +80,16 @@ fn aligned(label: &Label, x: f64, y: f64, anchor: Anchor) -> String {
     if label.lines.len() == 1 {
         let line = &label.lines[0];
         if line.len() == 1 && line[0].icon.is_none() && line[0].style == 0 {
-            return format!(
-                "<text x=\"{}\" y=\"{}\" text-anchor=\"{}\">{}</text>",
+            return svg_format!(
+                "<text x=\"",
                 num(x),
+                "\" y=\"",
                 num(y + label.size * 0.35),
+                "\" text-anchor=\"",
                 anchor.as_str(),
-                esc(&line[0].text)
+                "\">",
+                esc(&line[0].text),
+                "</text>"
             );
         }
     }
@@ -396,9 +401,9 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     // A line across the plot at a place on the value axis.
     let rule = |v: f64| -> String {
         if horizontal {
-            format!("M{},{}V{}", num(px(0.0, v)), num(top), num(bottom))
+            svg_format!("M", num(px(0.0, v)), ",", num(top), "V", num(bottom))
         } else {
-            format!("M{},{}H{}", num(left), num(py(0.0, v)), num(right))
+            svg_format!("M", num(left), ",", num(py(0.0, v)), "H", num(right))
         }
     };
 
@@ -410,15 +415,15 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     let mut axis = String::new();
     let mut labels = String::new();
     if on(left_conf, "showAxisLine", true) {
-        write!(axis, "M{},{}V{}", num(left), num(top), num(bottom)).unwrap();
+        svg_write!(axis, "M", num(left), ",", num(top), "V", num(bottom)).unwrap();
     }
     if on(bottom_conf, "showAxisLine", true) {
-        write!(axis, "M{},{}H{}", num(left), num(bottom), num(right)).unwrap();
+        svg_write!(axis, "M", num(left), ",", num(bottom), "H", num(right)).unwrap();
     }
     for mark in &left_marks {
         let y = if horizontal { top + mark.at * plot_height } else { bottom - mark.at * plot_height };
         if left_tick != 0.0 {
-            write!(axis, "M{},{}h{}", num(left), num(y), js::to_string(-left_tick)).unwrap();
+            svg_write!(axis, "M", num(left), ",", num(y), "h", js::to_string(-left_tick)).unwrap();
         }
         if left_labels {
             labels.push_str(&aligned(&mark.label, left - left_tick - 6.0, y, Anchor::End));
@@ -427,7 +432,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     for mark in &bottom_marks {
         let at = left + mark.at * plot_width;
         if bottom_tick != 0.0 {
-            write!(axis, "M{},{}v{}", num(at), num(bottom), js::to_string(bottom_tick)).unwrap();
+            svg_write!(axis, "M", num(at), ",", num(bottom), "v", js::to_string(bottom_tick)).unwrap();
         }
         if bottom_labels {
             labels.push_str(&aligned(&mark.label, at, bottom + bottom_tick + 4.0 + mark.label.height / 2.0, Anchor::Middle));
@@ -453,7 +458,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     let mut bar = 0.0;
     for (index, plot) in plots.iter().enumerate() {
         let color = ctx.series(index as i64);
-        let id = if !plot.title.is_empty() { format!(" data-id=\"{}\"", esc_text(&plot.title)) } else { String::new() };
+        let id = if !plot.title.is_empty() { svg_format!(" data-id=\"", esc_text(&plot.title), "\"") } else { String::new() };
         // A series declared before the categories can hold more values than there are
         // categories.
         let n = if band { js::min(plot.data.len() as f64, count) as usize } else { plot.data.len() };
@@ -471,7 +476,8 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
                 let by = if horizontal { py(c, 0.0) + offset } else { py(c, to) };
                 let bw = if horizontal { (to - from) * plot_width } else { thickness - gap };
                 let bh = if horizontal { thickness - gap } else { (to - from) * plot_height };
-                write!(rects, "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"/>", num(bx), num(by), num(bw), num(bh)).unwrap();
+                svg_write!(rects, "<rect x=\"", num(bx), "\" y=\"", num(by), "\" width=\"", num(bw), "\" height=\"", num(bh), "\"/>")
+                    .unwrap();
                 if !show_values {
                     continue;
                 }
@@ -495,10 +501,21 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
                     }
                     ty = (if out > 0.0 { by } else { by + bh }) - out * (tiny_height / 2.0 + 2.0);
                 }
-                write!(outside, "<text x=\"{}\" y=\"{}\" text-anchor=\"{}\">{}</text>", num(tx), num(ty + tiny * 0.35), anchor, label)
-                    .unwrap();
+                svg_write!(
+                    outside,
+                    "<text x=\"",
+                    num(tx),
+                    "\" y=\"",
+                    num(ty + tiny * 0.35),
+                    "\" text-anchor=\"",
+                    anchor,
+                    "\">",
+                    label,
+                    "</text>"
+                )
+                .unwrap();
             }
-            write!(series, "<g class=\"pele-series pele-bars\"{} fill=\"{}\">{}</g>", id, color, rects).unwrap();
+            svg_write!(series, "<g class=\"pele-series pele-bars\"", id, " fill=\"", color, "\">", rects, "</g>").unwrap();
             continue;
         }
 
@@ -518,7 +535,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
             let visible = (0.0..=1.0).contains(&v);
             if pv.is_nan() {
                 if visible {
-                    write!(d, "M{},{}", num(px(c, v)), num(py(c, v))).unwrap();
+                    svg_write!(d, "M", num(px(c, v)), ",", num(py(c, v))).unwrap();
                 }
                 pen = visible;
             } else {
@@ -539,7 +556,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
                     let c1 = pc + (c - pc) * t1;
                     let v1 = pv + dv * t1;
                     if !pen || t0 > 0.0 {
-                        write!(d, "M{},{}", num(px(c0, v0)), num(py(c0, v0))).unwrap();
+                        svg_write!(d, "M", num(px(c0, v0)), ",", num(py(c0, v0))).unwrap();
                     }
                     write!(d, "L{},{}", num(px(c1, v1)), num(py(c1, v1))).unwrap();
                 }
@@ -553,7 +570,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
             let cx = px(c, v);
             let cy = py(c, v);
             if span >= 12.0 {
-                write!(dots, "<circle cx=\"{}\" cy=\"{}\" r=\"3\"/>", num(cx), num(cy)).unwrap();
+                svg_write!(dots, "<circle cx=\"", num(cx), "\" cy=\"", num(cy), "\" r=\"3\"/>").unwrap();
             }
             let raw = plot.point_labels.as_ref().and_then(|l| l.get(i)).map(String::as_str);
             let label = text(&m, raw, tiny, 4000.0);
@@ -566,12 +583,15 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
                 });
             }
         }
-        write!(lines, "<g class=\"pele-series pele-line\"{} fill=\"{}\">", id, color).unwrap();
+        svg_write!(lines, "<g class=\"pele-series pele-line\"", id, " fill=\"", color, "\">").unwrap();
         if !d.is_empty() {
-            write!(
+            svg_write!(
                 lines,
-                "<path d=\"{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
-                d, color
+                "<path d=\"",
+                d,
+                "\" fill=\"none\" stroke=\"",
+                color,
+                "\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"
             )
             .unwrap();
         }
@@ -581,12 +601,15 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
 
     let mut titles = String::new();
     if left_title.height > 0.0 {
-        write!(
+        svg_write!(
             titles,
-            "<g transform=\"translate({},{}) rotate(-90)\">{}</g>",
+            "<g transform=\"translate(",
             num(pad + left_title.height / 2.0),
+            ",",
             num(top + plot_height / 2.0),
-            label_svg(&left_title, 0.0, 0.0, "", None)
+            ") rotate(-90)\">",
+            label_svg(&left_title, 0.0, 0.0, "", None),
+            "</g>"
         )
         .unwrap();
     }
@@ -607,19 +630,31 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
         let y = ly + row / 2.0;
         let color = ctx.series(*index as i64);
         let plot = &plots[*index];
-        write!(legend_out, "<g class=\"pele-legend-item\" data-id=\"{}\">", esc_text(&plot.title)).unwrap();
+        svg_write!(legend_out, "<g class=\"pele-legend-item\" data-id=\"", esc_text(&plot.title), "\">").unwrap();
         if plot.kind == PlotType::Bar {
-            write!(
+            svg_write!(
                 legend_out,
-                "<rect x=\"{}\" y=\"{}\" width=\"12\" height=\"12\" rx=\"2\" fill=\"{}\"/>",
+                "<rect x=\"",
                 num(lx),
+                "\" y=\"",
                 num(y - SWATCH / 2.0),
-                color
+                "\" width=\"12\" height=\"12\" rx=\"2\" fill=\"",
+                color,
+                "\"/>"
             )
             .unwrap();
         } else {
-            write!(legend_out, "<path d=\"M{},{}h12\" stroke=\"{}\" stroke-width=\"2\" stroke-linecap=\"round\"/>", num(lx), num(y), color)
-                .unwrap();
+            svg_write!(
+                legend_out,
+                "<path d=\"M",
+                num(lx),
+                ",",
+                num(y),
+                "h12\" stroke=\"",
+                color,
+                "\" stroke-width=\"2\" stroke-linecap=\"round\"/>"
+            )
+            .unwrap();
         }
         write!(legend_out, "{}", label_svg(label, lx + SWATCH + 8.0 + label.width / 2.0, y, "", None)).unwrap();
         legend_out.push_str("</g>");
@@ -628,36 +663,48 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
 
     let small_s = js::to_string(small);
     let tiny_s = js::to_string(tiny);
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !grid.is_empty() {
-        write!(content, "<path class=\"pele-grid\" d=\"{}\" stroke=\"{}\"/>", grid, ctx.paint(Role::InnerStroke, "var(--_a)")).unwrap();
-    }
-    write!(content, "<g class=\"pele-plot\">{}{}</g>", series, lines).unwrap();
-    if !axis.is_empty() {
-        write!(content, "<path class=\"pele-axis\" d=\"{}\" fill=\"none\" stroke=\"{}\"/>", axis, ctx.paint(Role::Line, "var(--_b)"))
+        svg_write!(content, "<path class=\"pele-grid\" d=\"", grid, "\" stroke=\"", ctx.paint(Role::InnerStroke, "var(--_a)"), "\"/>")
             .unwrap();
     }
-    if !labels.is_empty() {
-        write!(
+    svg_write!(content, "<g class=\"pele-plot\">", series, lines, "</g>").unwrap();
+    if !axis.is_empty() {
+        svg_write!(
             content,
-            "<g class=\"pele-axis-labels\" font-size=\"{}\" fill=\"{}\">{}</g>",
+            "<path class=\"pele-axis\" d=\"",
+            axis,
+            "\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::Line, "var(--_b)"),
+            "\"/>"
+        )
+        .unwrap();
+    }
+    if !labels.is_empty() {
+        svg_write!(
+            content,
+            "<g class=\"pele-axis-labels\" font-size=\"",
             small_s,
+            "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
-            labels
+            "\">",
+            labels,
+            "</g>"
         )
         .unwrap();
     }
     if !titles.is_empty() {
-        write!(content, "<g class=\"pele-axis-titles\" font-size=\"{}\">{}</g>", small_s, titles).unwrap();
+        svg_write!(content, "<g class=\"pele-axis-titles\" font-size=\"", small_s, "\">", titles, "</g>").unwrap();
     }
     if !outside.is_empty() {
-        write!(content, "<g class=\"pele-data-labels\" font-size=\"{}\">{}</g>", tiny_s, outside).unwrap();
+        svg_write!(content, "<g class=\"pele-data-labels\" font-size=\"", tiny_s, "\">", outside, "</g>").unwrap();
     }
     if !point_labels.is_empty() {
-        write!(content, "<g class=\"pele-point-labels\" font-size=\"{}\">{}</g>", tiny_s, point_labels).unwrap();
+        svg_write!(content, "<g class=\"pele-point-labels\" font-size=\"", tiny_s, "\">", point_labels, "</g>").unwrap();
     }
     if !legend_out.is_empty() {
-        write!(content, "<g class=\"pele-legend\" font-size=\"{}\">{}</g>", small_s, legend_out).unwrap();
+        svg_write!(content, "<g class=\"pele-legend\" font-size=\"", small_s, "\">", legend_out, "</g>").unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

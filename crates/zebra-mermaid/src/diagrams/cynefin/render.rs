@@ -1,5 +1,6 @@
 //! Cynefin rendering. Ported from Pele `src/diagrams/cynefin/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::HashMap;
 
 use super::boundaries::{backward, cliff, curve_path, ellipse_path, forward, resolve_seed, wave, WaveOptions, FOLD, HORIZON};
@@ -179,43 +180,83 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
 
     let region = |name: &str| -> String {
         match name {
-            "complex" => format!("M{},{}L{}{}{}Z", num(x0), num(y0), at(&fold, false), forward(&fold), backward(&west)),
+            "complex" => svg_format!("M", num(x0), ",", num(y0), "L", at(&fold, false), forward(&fold), backward(&west), "Z"),
             "complicated" => {
-                format!("M{}L{},{}L{}{}{}Z", at(&fold, false), num(right), num(y0), at(&east, true), backward(&east), backward(&fold))
+                svg_format!(
+                    "M",
+                    at(&fold, false),
+                    "L",
+                    num(right),
+                    ",",
+                    num(y0),
+                    "L",
+                    at(&east, true),
+                    backward(&east),
+                    backward(&fold),
+                    "Z"
+                )
             }
-            "chaotic" => format!("M{}{}{}L{},{}Z", at(&west, false), forward(&west), forward(&drop), num(x0), num(bottom)),
-            _ => format!("M{}{}L{},{}L{}{}Z", at(&east, false), forward(&east), num(right), num(bottom), at(&drop, true), backward(&drop)),
+            "chaotic" => svg_format!("M", at(&west, false), forward(&west), forward(&drop), "L", num(x0), ",", num(bottom), "Z"),
+            _ => svg_format!(
+                "M",
+                at(&east, false),
+                forward(&east),
+                "L",
+                num(right),
+                ",",
+                num(bottom),
+                "L",
+                at(&drop, true),
+                backward(&drop),
+                "Z"
+            ),
         }
     };
 
     let mut fills = String::new();
     for &(name, _, _, color) in &QUADRANTS {
-        write!(fills, 
-            "<path class=\"pele-cynefin-region\" data-id=\"{}\" d=\"{}\" fill=\"{}\" fill-opacity=\"0.14\"/>",
+        svg_write!(
+            fills,
+            "<path class=\"pele-cynefin-region\" data-id=\"",
             name,
+            "\" d=\"",
             region(name),
-            ctx.series(color)
-        ).unwrap();
+            "\" fill=\"",
+            ctx.series(color),
+            "\" fill-opacity=\"0.14\"/>"
+        )
+        .unwrap();
     }
     // The wavy lines between domains divide one shape; the cliff is a drawn line.
     let divider = ctx.paint(Role::InnerStroke, "var(--_b)");
-    let boundaries = format!(
-        "<g class=\"pele-cynefin-boundaries\" fill=\"none\" stroke=\"{}\" stroke-dasharray=\"6 3\"><path d=\"{}\"/><path d=\"{}\"/><path d=\"{}\"/><path class=\"pele-cynefin-cliff\" d=\"{}\" stroke=\"{}\" stroke-width=\"2\" stroke-dasharray=\"none\" stroke-linecap=\"round\"/></g>",
+    let boundaries = svg_format!(
+        "<g class=\"pele-cynefin-boundaries\" fill=\"none\" stroke=\"",
         divider,
+        "\" stroke-dasharray=\"6 3\"><path d=\"",
         curve_path(&fold),
+        "\"/><path d=\"",
         curve_path(&west),
+        "\"/><path d=\"",
         curve_path(&east),
+        "\"/><path class=\"pele-cynefin-cliff\" d=\"",
         curve_path(&drop),
-        ctx.paint(Role::Line, "var(--_l)")
+        "\" stroke=\"",
+        ctx.paint(Role::Line, "var(--_l)"),
+        "\" stroke-width=\"2\" stroke-dasharray=\"none\" stroke-linecap=\"round\"/></g>"
     );
     let oval = ellipse_path(cx, cy, rx, ry);
-    let ellipse = format!(
-        "<path d=\"{}\" fill=\"{}\"/><path class=\"pele-cynefin-region\" data-id=\"confusion\" d=\"{}\" fill=\"{}\" fill-opacity=\"0.18\" stroke=\"{}\" stroke-dasharray=\"4 2\"/>",
+    let ellipse = svg_format!(
+        "<path d=\"",
         oval,
+        "\" fill=\"",
         ctx.paint(Role::Background, "var(--_bg)"),
+        "\"/><path class=\"pele-cynefin-region\" data-id=\"confusion\" d=\"",
         oval,
+        "\" fill=\"",
         ctx.series(CONFUSION_COLOR),
-        divider
+        "\" fill-opacity=\"0.18\" stroke=\"",
+        divider,
+        "\" stroke-dasharray=\"4 2\"/>"
     );
 
     let secondary = ctx.paint(Role::SecondaryText, "var(--_m)");
@@ -225,47 +266,74 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
     let small_s = js::to_string(small);
     let draw_block = |b: &Block| -> String {
         let mut y = b.cy - b.h / 2.0;
-        let mut out = label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None).to_string();
+        let mut out =
+            label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None).to_string();
         y += b.title.height;
         for s in &b.subtitles {
-            write!(out, "{}", label_svg(
-                s,
-                b.cx,
-                y + s.height / 2.0,
-                &format!(" class=\"pele-cynefin-subtitle\" font-size=\"{}\" font-style=\"italic\" fill=\"{}\"", small_s, secondary),
-                None,
-            )).unwrap();
+            write!(
+                out,
+                "{}",
+                label_svg(
+                    s,
+                    b.cx,
+                    y + s.height / 2.0,
+                    &svg_format!(
+                        " class=\"pele-cynefin-subtitle\" font-size=\"",
+                        small_s,
+                        "\" font-style=\"italic\" fill=\"",
+                        secondary,
+                        "\""
+                    ),
+                    None,
+                )
+            )
+            .unwrap();
             y += s.height;
         }
         y += HEAD_GAP - ITEM_GAP;
         for item in &b.badges {
             y += ITEM_GAP;
-            write!(out, 
-                "<g class=\"pele-node{}\"{}>",
+            svg_write!(
+                out,
+                "<g class=\"pele-node",
                 if item.overflow { " pele-cynefin-overflow" } else { "" },
-                if item.overflow { String::new() } else { format!(" data-id=\"{}\"", esc_text(&item.text)) }
-            ).unwrap();
-            write!(out, 
-                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>",
+                "\"",
+                if item.overflow { String::new() } else { svg_format!(" data-id=\"", esc_text(&item.text), "\"") },
+                ">"
+            )
+            .unwrap();
+            svg_write!(
+                out,
+                "<rect x=\"",
                 num(b.cx - item.w / 2.0),
+                "\" y=\"",
                 num(y),
+                "\" width=\"",
                 num(item.w),
+                "\" height=\"",
                 num(item.h),
+                "\" rx=\"",
                 RADIUS,
+                "\" fill=\"",
                 item_fill,
+                "\" stroke=\"",
                 item_stroke,
-                if item.overflow { " stroke-dasharray=\"3 2\"" } else { "" }
-            ).unwrap();
-            let attrs = format!(
-                " class=\"pele-label\" font-size=\"{}\"{}",
+                "\"",
+                if item.overflow { " stroke-dasharray=\"3 2\"" } else { "" },
+                "/>"
+            )
+            .unwrap();
+            let attrs = svg_format!(
+                " class=\"pele-label\" font-size=\"",
                 item_size_s,
-                if item.overflow { format!(" fill=\"{}\"", secondary) } else { String::new() }
+                "\"",
+                if item.overflow { svg_format!(" fill=\"", secondary, "\"") } else { String::new() }
             );
             write!(out, "{}", label_svg(&item.label, b.cx, y + item.h / 2.0, &attrs, icons)).unwrap();
             out.push_str("</g>");
             y += item.h;
         }
-        format!("<g class=\"pele-cynefin-domain\" data-id=\"{}\">{}</g>", b.name, out)
+        svg_format!("<g class=\"pele-cynefin-domain\" data-id=\"", b.name, "\">", out, "</g>")
     };
 
     let mut domains = String::new();
@@ -374,34 +442,47 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
             let away = (nx.abs() * label.width) / 2.0 + (ny.abs() * label.height) / 2.0 + 6.0;
             let half = label.width / 2.0 + 4.0;
             let tx = js::min(js::max(lx + nx * away, x0 + half), js::max(right - half, x0 + half));
-            text = label_svg(&label, tx, ly + ny * away, &format!(" class=\"pele-edge-label\" font-size=\"{}\"", small_s), icons).to_string();
+            text = label_svg(&label, tx, ly + ny * away, &svg_format!(" class=\"pele-edge-label\" font-size=\"", small_s, "\""), icons)
+                .to_string();
         }
-        write!(edges, 
-            "<g class=\"pele-edge\" data-id=\"{}-{}\"><path d=\"M{},{}Q{},{} {},{}\" fill=\"none\" stroke=\"{}\"/>{}{}</g>",
+        svg_write!(
+            edges,
+            "<g class=\"pele-edge\" data-id=\"",
             transition.from,
+            "-",
             transition.to,
+            "\"><path d=\"M",
             num(sx),
+            ",",
             num(sy),
+            "Q",
             num(qx),
+            ",",
             num(qy),
+            " ",
             num(ex),
+            ",",
             num(ey),
+            "\" fill=\"none\" stroke=\"",
             line,
+            "\"/>",
             head,
-            text
-        ).unwrap();
+            text,
+            "</g>"
+        )
+        .unwrap();
     }
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
     let mut content =
         label_svg(&title, x0 + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, "<g class=\"pele-cynefin-regions\">{}</g>", fills).unwrap();
+    svg_write!(content, "<g class=\"pele-cynefin-regions\">", fills, "</g>").unwrap();
     content.push_str(&boundaries);
     content.push_str(&ellipse);
     content.push_str(&domains);
     if !edges.is_empty() {
-        write!(content, "<g class=\"pele-edges\">{}</g>", edges).unwrap();
+        svg_write!(content, "<g class=\"pele-edges\">", edges, "</g>").unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

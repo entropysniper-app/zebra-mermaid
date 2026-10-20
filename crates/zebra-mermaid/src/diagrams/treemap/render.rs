@@ -9,6 +9,7 @@ use crate::diagrams::common::fit_width::{cap_width, title_room};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, label_svg, num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, resolve_style, RADIUS};
 use crate::text::entities::decode_entities;
@@ -64,15 +65,21 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
         let name = decode_entities(&node.name);
         let name = js::trim(&name);
         let value = if show_values { format.format(b.value) } else { String::new() };
-        let group = format!("data-id=\"{}\">", esc_text(&node.name));
-        let rect = format!(
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\"",
+        let group = svg_format!("data-id=\"", esc_text(&node.name), "\">");
+        let rect = svg_format!(
+            "<rect x=\"",
             num(x),
+            "\" y=\"",
             num(y),
+            "\" width=\"",
             num(b.w),
+            "\" height=\"",
             num(b.h),
+            "\" rx=\"",
             RADIUS,
-            color
+            "\" fill=\"",
+            color,
+            "\""
         );
         let classes = class_names(node.class_selector.as_deref().unwrap_or(""));
 
@@ -85,17 +92,20 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                 let label = fit_text(name, if with_value { room - value_width - 12.0 } else { room }, small, small, &m, style::BOLD);
                 let baseline = y + HEADER / 2.0 + 1.0;
                 if let Some(label) = label {
-                    write!(text, 
+                    write!(
+                        text,
                         "<text x=\"{}\" y=\"{}\" font-weight=\"var(--_hw)\"{}>{}</text>",
                         num(x + SIDE + 2.0),
                         num(baseline + small * 0.35),
                         style.text,
                         esc(&label.text)
-                    ).unwrap();
+                    )
+                    .unwrap();
                 }
                 if with_value {
                     // The value is a caption beside the section's name.
-                    write!(text, 
+                    write!(
+                        text,
                         "<text class=\"pele-value\" x=\"{}\" y=\"{}\" font-size=\"{}\" text-anchor=\"end\" fill=\"{}\"{}>{}</text>",
                         num(x + b.w - SIDE - 2.0),
                         num(baseline + tiny * 0.35),
@@ -103,21 +113,35 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                         ctx.paint(Role::SecondaryText, "var(--_m)"),
                         style.text,
                         esc(&value)
-                    ).unwrap();
+                    )
+                    .unwrap();
                 }
             }
             // A section is a tint of its color, unless a class gives it a fill of its own.
             let tint = if style.shape.contains("\"fill:") || style.shape.contains(";fill:") { "" } else { " fill-opacity=\"0.12\"" };
-            write!(sections, 
-                "<g class=\"pele-node pele-section{}\" {}{}{} stroke=\"{}\"{}/>{}</g>",
-                classes, group, rect, tint, color, style.shape, text
-            ).unwrap();
+            svg_write!(
+                sections,
+                "<g class=\"pele-node pele-section",
+                classes,
+                "\" ",
+                group,
+                rect,
+                tint,
+                " stroke=\"",
+                color,
+                "\"",
+                style.shape,
+                "/>",
+                text,
+                "</g>"
+            )
+            .unwrap();
             continue;
         }
 
         // Labels on a leaf sit on its color. Pele gives them the background color through the
         // group; resolved output picks, for each leaf, a color that reads on its fill.
-        let own = if resolved { format!(" fill=\"{}\"", ctx.theming.text_on(&color, "")) } else { String::new() };
+        let own = if resolved { svg_format!(" fill=\"", ctx.theming.text_on(&color, ""), "\"") } else { String::new() };
         let mut text = String::new();
         let room = b.w - 8.0;
         let tallest = js::min(size, ((b.h - 4.0) / LINE).floor());
@@ -130,49 +154,69 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
             if !value.is_empty() && lines <= b.h - 4.0 && m.width(&value, value_size, 0) <= room {
                 let first = cy - lines / 2.0 + (label.size * LINE) / 2.0;
                 let second = cy + lines / 2.0 - (value_size * LINE) / 2.0;
-                text = format!(
-                    "<text x=\"{}\" y=\"{}\" font-size=\"{}\"{}{}>{}</text><text class=\"pele-value\" x=\"{}\" y=\"{}\" font-size=\"{}\"{}{}>{}</text>",
+                text = svg_format!(
+                    "<text x=\"",
                     cx,
+                    "\" y=\"",
                     num(first + label.size * 0.35),
+                    "\" font-size=\"",
                     num(label.size),
+                    "\"",
                     own,
                     style.text,
+                    ">",
                     esc(&label.text),
+                    "</text><text class=\"pele-value\" x=\"",
                     cx,
+                    "\" y=\"",
                     num(second + value_size * 0.35),
+                    "\" font-size=\"",
                     num(value_size),
+                    "\"",
                     own,
                     style.text,
-                    esc(&value)
+                    ">",
+                    esc(&value),
+                    "</text>"
                 );
             } else {
-                text = format!(
-                    "<text x=\"{}\" y=\"{}\" font-size=\"{}\"{}{}>{}</text>",
+                text = svg_format!(
+                    "<text x=\"",
                     cx,
+                    "\" y=\"",
                     num(cy + label.size * 0.35),
+                    "\" font-size=\"",
                     num(label.size),
+                    "\"",
                     own,
                     style.text,
-                    esc(&label.text)
+                    ">",
+                    esc(&label.text),
+                    "</text>"
                 );
             }
         }
-        write!(leaves, "<g class=\"pele-node pele-leaf{}\" {}{}{}/>{}</g>", classes, group, rect, style.shape, text).unwrap();
+        svg_write!(leaves, "<g class=\"pele-node pele-leaf", classes, "\" ", group, rect, style.shape, "/>", text, "</g>").unwrap();
     }
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons()).to_string();
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons())
+            .to_string();
     if !sections.is_empty() {
-        write!(content, "<g class=\"pele-sections\" font-size=\"{}\">{}</g>", js::to_string(small), sections).unwrap();
+        svg_write!(content, "<g class=\"pele-sections\" font-size=\"", js::to_string(small), "\">", sections, "</g>").unwrap();
     }
     if !leaves.is_empty() {
-        write!(content, 
-            "<g class=\"pele-leaves\" text-anchor=\"middle\" fill=\"{}\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-leaves\" text-anchor=\"middle\" fill=\"",
             ctx.paint(Role::Background, "var(--_bg)"),
-            leaves
-        ).unwrap();
+            "\">",
+            leaves,
+            "</g>"
+        )
+        .unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

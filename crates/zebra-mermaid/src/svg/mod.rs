@@ -2,6 +2,7 @@
 
 pub mod builder;
 pub mod cluster;
+pub(crate) mod concat;
 pub mod edges;
 pub mod resolve;
 pub mod root;

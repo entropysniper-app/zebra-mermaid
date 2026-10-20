@@ -1,6 +1,7 @@
 //! Cluster titles that stay clear of the edges entering their cluster. Ported from Pele
 //! `src/svg/cluster.ts`. Functions take a cluster's center and size instead of a layout node.
 
+use crate::svg::concat::svg_format;
 use std::collections::HashMap;
 
 use super::builder::{label_svg, num};
@@ -89,10 +90,12 @@ pub fn struck_title(
     // Each cluster is half its fill over what is behind it.
     let css = format!("color-mix(in srgb,var(--_a) {}%,var(--_bg))", num(100.0 * (1.0 - crate::util::math::pow(0.5, depth as f64))));
     let fill = theming.paint(Role::GroupFill, &css).to_string();
-    format!(
-        "<g class=\"pele-cluster-title\" data-id=\"{}\">{}{}</g>",
+    svg_format!(
+        "<g class=\"pele-cluster-title\" data-id=\"",
         id,
-        label_svg(label, x, y, &format!(" fill=\"none\" stroke=\"{}\" stroke-width=\"5\" stroke-linejoin=\"round\"", fill), icons),
-        label_svg(label, x, y, attrs, icons)
+        "\">",
+        label_svg(label, x, y, &svg_format!(" fill=\"none\" stroke=\"", fill, "\" stroke-width=\"5\" stroke-linejoin=\"round\""), icons),
+        label_svg(label, x, y, attrs, icons),
+        "</g>"
     )
 }

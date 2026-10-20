@@ -1,5 +1,6 @@
 //! Architecture rendering. Ported from Pele `src/diagrams/architecture/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::HashMap;
 
 use super::icons::builtin_icon;
@@ -54,15 +55,7 @@ fn icon_slot(name: &str, x: f64, y: f64, side: f64, icons: Option<&Icons>, glyph
         Some(markup) => markup.to_string(),
         None => builtin_icon(name, glyph_color),
     };
-    format!(
-        "<svg class=\"pele-icon\" data-icon=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",
-        esc_text(name),
-        num(x),
-        num(y),
-        num(side),
-        num(side),
-        inner
-    )
+    svg_format!("<svg class=\"pele-icon\" data-icon=\"", esc_text(name), "\" x=\"", num(x), "\" y=\"", num(y), "\" width=\"", num(side), "\" height=\"", num(side), "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", inner, "</svg>")
 }
 
 /// The first `units` UTF-16 code units of `text`, for measuring. Where that cuts a surrogate
@@ -272,7 +265,7 @@ fn path_data(p: &[f64], start_trim: f64, end_trim: f64) -> String {
     };
     trim(&mut xs, &mut ys, 0, 1, start_trim);
     trim(&mut xs, &mut ys, n - 1, n - 2, end_trim);
-    let mut d = format!("M{},{}", num(xs[0]), num(ys[0]));
+    let mut d = svg_format!("M", num(xs[0]), ",", num(ys[0]));
     for i in 1..n - 1 {
         let before = math::hypot(xs[i] - xs[i - 1], ys[i] - ys[i - 1]);
         let after = math::hypot(xs[i + 1] - xs[i], ys[i + 1] - ys[i]);
@@ -582,11 +575,8 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
         let id = esc_text(&format!("{}-{}", edge.lhs_id, edge.rhs_id)).into_owned();
         let start_trim = if edge.lhs_into && !s.wire { trim_length + s.gap } else { 0.0 };
         let end_trim = if edge.rhs_into && !e.wire { trim_length + e.gap } else { 0.0 };
-        write!(edges_out, 
-            "<g class=\"pele-edge\" data-id=\"{}\"><path d=\"{}\"/>",
-            id,
-            path_data(&points, start_trim, end_trim)
-        ).unwrap();
+        svg_write!(edges_out, "<g class=\"pele-edge\" data-id=\"", id, "\"><path d=\"", path_data(&points, start_trim, end_trim), "\"/>")
+            .unwrap();
         if edge.lhs_into {
             write!(edges_out, "{}", marker("arrow_point", s.x + s.dx * s.gap, s.y + s.dy * s.gap, -s.dx, -s.dy, arrow)).unwrap();
         }
@@ -655,7 +645,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     let mut clusters = String::new();
     // Zebra's group fill is a finished color, so it is not thinned as Pele thins its surface.
     let group_fill = if ctx.resolved() {
-        format!("fill=\"{}\"", ctx.paint(Role::GroupFill, "var(--_a)"))
+        svg_format!("fill=\"", ctx.paint(Role::GroupFill, "var(--_a)"), "\"")
     } else {
         "fill=\"var(--_a)\" fill-opacity=\"0.5\"".to_string()
     };
@@ -696,41 +686,64 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
                 head.push_str(&icon_slot(icon, start, cy - badge / 2.0, badge, icons, &glyph_color));
                 text_x += badge + 6.0;
             }
-            write!(head, "{}", label_svg(
-                label,
-                text_x + label.width / 2.0,
-                cy,
-                &format!(" class=\"pele-cluster-label\" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")),
-                icons,
-            )).unwrap();
+            write!(
+                head,
+                "{}",
+                label_svg(
+                    label,
+                    text_x + label.width / 2.0,
+                    cy,
+                    &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\""),
+                    icons,
+                )
+            )
+            .unwrap();
         }
-        write!(clusters, 
-            "<g class=\"pele-cluster\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" {} stroke=\"{}\"/>{}</g>",
+        svg_write!(
+            clusters,
+            "<g class=\"pele-cluster\" data-id=\"",
             esc_text(&group.id),
+            "\"><rect x=\"",
             num(x),
+            "\" y=\"",
             num(y),
+            "\" width=\"",
             num(w),
+            "\" height=\"",
             num(bottom(g) - y),
+            "\" rx=\"",
             RADIUS,
+            "\" ",
             group_fill,
+            " stroke=\"",
             ctx.paint(Role::GroupStroke, "var(--_b)"),
-            head
-        ).unwrap();
+            "\"/>",
+            head,
+            "</g>"
+        )
+        .unwrap();
     }
 
     let mut nodes_out = String::new();
     let glyph = icon_size * 0.5;
     let text_size = js::max(6.0, js::round(size * 0.75));
     for (i, node) in nodes.iter().enumerate() {
-        let at = format!("data-id=\"{}\" transform=\"translate({},{})\"", esc_text(&node.id), num(center_x(i)), num(ys[node_row[i]]));
+        let at =
+            svg_format!("data-id=\"", esc_text(&node.id), "\" transform=\"translate(", num(center_x(i)), ",", num(ys[node_row[i]]), ")\"");
         if node.kind == ArchNodeKind::Junction {
-            write!(nodes_out, 
-                "<g class=\"pele-node pele-junction\" {}><circle cy=\"{}\" r=\"{}\" fill=\"{}\"/></g>",
+            svg_write!(
+                nodes_out,
+                "<g class=\"pele-node pele-junction\" ",
                 at,
+                "><circle cy=\"",
                 num(half),
+                "\" r=\"",
                 js::to_string(DOT),
-                ctx.paint(Role::Line, "var(--_l)")
-            ).unwrap();
+                "\" fill=\"",
+                ctx.paint(Role::Line, "var(--_l)"),
+                "\"/></g>"
+            )
+            .unwrap();
             continue;
         }
         let mut inner = String::new();
@@ -742,20 +755,37 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             let lines = js::max(1.0, ((icon_size - 4.0) / line_height).floor());
             // `lines` is at least 1 and at most the icon size, so it is a small whole number.
             let fitted = fit(&text, icon_size - 8.0, lines as usize, &m);
-            inner = label_svg(&fitted, 0.0, half, &format!(" class=\"pele-icon-text\" font-size=\"{}\"", js::to_string(text_size)), icons).to_string();
+            inner = label_svg(
+                &fitted,
+                0.0,
+                half,
+                &svg_format!(" class=\"pele-icon-text\" font-size=\"", js::to_string(text_size), "\""),
+                icons,
+            )
+            .to_string();
         }
-        write!(nodes_out, 
-            "<g class=\"pele-node pele-service\" {}><rect x=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>{}{}</g>",
+        svg_write!(
+            nodes_out,
+            "<g class=\"pele-node pele-service\" ",
             at,
+            "><rect x=\"",
             num(-half),
+            "\" width=\"",
             num(icon_size),
+            "\" height=\"",
             num(icon_size),
+            "\" rx=\"",
             RADIUS,
+            "\" fill=\"",
             ctx.paint(Role::NodeFill, "var(--_s)"),
+            "\" stroke=\"",
             ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"/>",
             inner,
-            label_svg(&labels[i], 0.0, icon_size + LABEL_GAP + labels[i].height / 2.0, " class=\"pele-label\"", icons)
-        ).unwrap();
+            label_svg(&labels[i], 0.0, icon_size + LABEL_GAP + labels[i].height / 2.0, " class=\"pele-label\"", icons),
+            "</g>"
+        )
+        .unwrap();
     }
 
     let title_max = if tight { title_room(options) } else { 4000.0 };
@@ -767,32 +797,36 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     let oy = js::round(pad + title_height - min_y);
     let mut body = String::new();
     if !clusters.is_empty() {
-        write!(body, "<g class=\"pele-clusters\">{}</g>", clusters).unwrap();
+        svg_write!(body, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        write!(body, 
-            "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</g>",
+        svg_write!(
+            body,
+            "<g class=\"pele-edges\" fill=\"none\" stroke=\"",
             ctx.paint(Role::Line, "var(--_l)"),
-            edges_out
-        ).unwrap();
+            "\" stroke-linecap=\"round\" stroke-linejoin=\"round\">",
+            edges_out,
+            "</g>"
+        )
+        .unwrap();
     }
     if !labels_out.is_empty() {
         // Pele lets edge labels take the text color. Zebra writes them in the secondary text
         // color, as its edge labels are.
-        let fill = if ctx.resolved() { format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")) } else { String::new() };
-        write!(body, "<g class=\"pele-edge-labels\" font-size=\"{}\"{}>{}</g>", js::to_string(small), fill, labels_out).unwrap();
+        let fill = if ctx.resolved() { svg_format!(" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"") } else { String::new() };
+        svg_write!(body, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\"", fill, ">", labels_out, "</g>").unwrap();
     }
     if !nodes_out.is_empty() {
-        write!(body, "<g class=\"pele-nodes\">{}</g>", nodes_out).unwrap();
+        svg_write!(body, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     }
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !body.is_empty() {
-        write!(content, "<g transform=\"translate({},{})\">{}</g>", js::to_string(ox), js::to_string(oy), body).unwrap();
+        svg_write!(content, "<g transform=\"translate(", js::to_string(ox), ",", js::to_string(oy), ")\">", body, "</g>").unwrap();
     }
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered { svg: svg_document("architecture", width, height, size, ctx, acc, &content), width, height, links: Vec::new() }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

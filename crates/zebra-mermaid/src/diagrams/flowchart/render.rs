@@ -8,6 +8,7 @@ use crate::diagrams::common::fit_width::{runs_across, tighten, title_room, turn_
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::layout::compound::{cnode, compound_layout, direction, shift_layout, CEdge, Dir};
 use crate::layout::{lanes::lane_layout, layered::LayeredOptions};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
     builder::{esc, esc_text, joined, label_svg, num, push_label_svg, push_num},
     cluster::*,
@@ -22,7 +23,6 @@ use crate::theme::Role;
 use crate::util::{js, url::*};
 use crate::{Config, ConfigMap, ConfigValue, Error};
 use indexmap::IndexMap;
-use std::fmt::Write;
 
 struct View<'a> {
     node: &'a GraphNode,
@@ -223,8 +223,8 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
     let mut struck = String::new();
     let mut nodes_out = String::new();
     let shape_attrs =
-        format!(" fill=\"{}\" stroke=\"{}\"", ctx.paint(Role::NodeFill, "var(--_s)"), ctx.paint(Role::NodeStroke, "var(--_b)"));
-    let line_attrs = format!(" stroke=\"{}\"", ctx.paint(Role::InnerStroke, "var(--_b)"));
+        svg_format!(" fill=\"", ctx.paint(Role::NodeFill, "var(--_s)"), "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"");
+    let line_attrs = svg_format!(" stroke=\"", ctx.paint(Role::InnerStroke, "var(--_b)"), "\"");
     for (i, v) in views.iter().enumerate() {
         let c = &cnodes[i];
         let node = &v.node;
@@ -241,21 +241,89 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 &v.label,
                 cx,
                 cy,
-                &format!(" class=\"pele-cluster-label\" fill=\"{}\"{}", ctx.paint(Role::SecondaryText, "var(--_m)"), v.style.text),
+                &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text),
                 icons,
-            ).to_string();
-            write!(clusters, "<g class=\"pele-cluster pele-lane{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"none\" stroke=\"{}\"/><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>{}</g>",num(left),num(top),num(c.w),num(c.h),ctx.paint(Role::GroupStroke,"var(--_b)"),num(left),num(top),num(if across{c.pad_top}else{c.w}),num(if across{c.h}else{c.pad_top}),ctx.paint(Role::GroupHeader,"var(--_a)"),ctx.paint(Role::GroupStroke,"var(--_b)"),v.style.shape,if across&&!text.is_empty(){format!("<g transform=\"rotate(-90 {} {})\">{text}</g>",num(cx),num(cy))}else{text}).unwrap();
+            )
+            .to_string();
+            svg_write!(
+                clusters,
+                "<g class=\"pele-cluster pele-lane",
+                classes,
+                "\" data-id=\"",
+                id,
+                "\"><rect x=\"",
+                num(left),
+                "\" y=\"",
+                num(top),
+                "\" width=\"",
+                num(c.w),
+                "\" height=\"",
+                num(c.h),
+                "\" fill=\"none\" stroke=\"",
+                ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"/><rect x=\"",
+                num(left),
+                "\" y=\"",
+                num(top),
+                "\" width=\"",
+                num(if across { c.pad_top } else { c.w }),
+                "\" height=\"",
+                num(if across { c.h } else { c.pad_top }),
+                "\" fill=\"",
+                ctx.paint(Role::GroupHeader, "var(--_a)"),
+                "\" stroke=\"",
+                ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"",
+                v.style.shape,
+                "/>",
+                if across && !text.is_empty() {
+                    svg_format!("<g transform=\"rotate(-90 ", num(cx), " ", num(cy), ")\">", text, "</g>")
+                } else {
+                    text
+                },
+                "</g>"
+            )
+            .unwrap();
             continue;
         }
         if c.is_group {
             let tx = cluster_title_x(c.x, c.y, c.w, c.h, v.label.width, &crossings, group_pad);
             let ty = c.y - c.h / 2.0 + 8.0 + v.label.height / 2.0;
-            let attrs = format!(" class=\"pele-cluster-label\" fill=\"{}\"{}", ctx.paint(Role::SecondaryText, "var(--_m)"), v.style.text);
+            let attrs =
+                svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text);
             let crossed = title_crossed(c.x, c.y, c.w, c.h, v.label.width, tx, &crossings);
             if crossed {
                 struck.push_str(&struck_title(&v.label, tx, ty, &attrs, &id, |j| cnodes[j].parent, i, icons, ctx.theming));
             }
-            write!(clusters, "<g class=\"pele-cluster{classes}\" data-id=\"{id}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"{} stroke=\"{}\"{}/>{}</g>",num(c.x-c.w/2.0),num(c.y-c.h/2.0),num(c.w),num(c.h),ctx.paint(Role::GroupFill,"var(--_a)"),if ctx.resolved(){""}else{" fill-opacity=\"0.5\""},ctx.paint(Role::GroupStroke,"var(--_b)"),v.style.shape,if crossed{String::new()}else{label_svg(&v.label,tx,ty,&attrs,icons).to_string()}).unwrap();
+            svg_write!(
+                clusters,
+                "<g class=\"pele-cluster",
+                classes,
+                "\" data-id=\"",
+                id,
+                "\"><rect x=\"",
+                num(c.x - c.w / 2.0),
+                "\" y=\"",
+                num(c.y - c.h / 2.0),
+                "\" width=\"",
+                num(c.w),
+                "\" height=\"",
+                num(c.h),
+                "\" rx=\"",
+                RADIUS,
+                "\" fill=\"",
+                ctx.paint(Role::GroupFill, "var(--_a)"),
+                "\"",
+                if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                " stroke=\"",
+                ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"",
+                v.style.shape,
+                "/>",
+                if crossed { String::new() } else { label_svg(&v.label, tx, ty, &attrs, icons).to_string() },
+                "</g>"
+            )
+            .unwrap();
             continue;
         }
         let inner = if let Some(img) = node.img.as_ref().filter(|s| !s.is_empty()) {
@@ -271,14 +339,20 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 -ah / 2.0
             };
             image_url(&safe_url(img), options).map_or_else(String::new, |src| {
-                format!(
-                    "<image href=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" preserveAspectRatio=\"{}\"/>",
+                svg_format!(
+                    "<image href=\"",
                     esc(&src),
+                    "\" x=\"",
                     num(-aw / 2.0),
+                    "\" y=\"",
                     num(top),
+                    "\" width=\"",
                     num(aw),
+                    "\" height=\"",
                     num(ah),
-                    if node.constraint.as_deref() == Some("on") { "xMidYMid meet" } else { "none" }
+                    "\" preserveAspectRatio=\"",
+                    if node.constraint.as_deref() == Some("on") { "xMidYMid meet" } else { "none" },
+                    "\"/>"
                 )
             })
         } else if let Some(icon) = node.icon.as_ref().filter(|s| !s.is_empty()) {
@@ -295,20 +369,27 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             let frame = if node.shape == "icon" {
                 String::new()
             } else if node.shape == "iconCircle" {
-                format!("<circle cy=\"{}\" r=\"{}\"{shape_attrs}{}/>", num(top + b / 2.0), num(b / 2.0), v.style.shape)
+                svg_format!("<circle cy=\"", num(top + b / 2.0), "\" r=\"", num(b / 2.0), "\"", shape_attrs, v.style.shape, "/>")
             } else {
-                format!(
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{shape_attrs}{}/>",
+                svg_format!(
+                    "<rect x=\"",
                     num(-b / 2.0),
+                    "\" y=\"",
                     num(top),
+                    "\" width=\"",
                     num(b),
+                    "\" height=\"",
                     num(b),
+                    "\" rx=\"",
                     if node.shape == "iconRounded" { 8 } else { 0 },
-                    v.style.shape
+                    "\"",
+                    shape_attrs,
+                    v.style.shape,
+                    "/>"
                 )
             };
             let glyph = b * 0.6;
-            format!("{frame}<svg class=\"pele-icon\" data-icon=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{}</svg>",esc_text(icon),num(-glyph/2.0),num(top+(b-glyph)/2.0),num(glyph),num(glyph),icons.map_or_else(String::new,|i|i.markup(icon).to_string()))
+            svg_format!(frame, "<svg class=\"pele-icon\" data-icon=\"", esc_text(icon), "\" x=\"", num(-glyph/2.0), "\" y=\"", num(top+(b-glyph)/2.0), "\" width=\"", num(glyph), "\" height=\"", num(glyph), "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", icons.map_or_else(String::new,|i|i.markup(icon).to_string()), "</svg>")
         } else {
             draw_shape(&v.shape, v.w, v.h, &joined(&shape_attrs, &v.style.shape), &joined(&line_attrs, &v.style.line), ctx.theming)
         };
@@ -318,7 +399,8 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             && options.links != Some(false);
         let tooltip = node.tooltip.as_ref().filter(|s| !s.is_empty());
         let link = node.link.as_ref().filter(|s| !s.is_empty());
-        write!(nodes_out, "<g class=\"pele-node pele-shape-{}{classes}\" data-id=\"{id}\" transform=\"translate(", v.shape).unwrap();
+        svg_write!(nodes_out, "<g class=\"pele-node pele-shape-", v.shape, classes, "\" data-id=\"", id, "\" transform=\"translate(")
+            .unwrap();
         push_num(&mut nodes_out, c.x);
         nodes_out.push(',');
         push_num(&mut nodes_out, c.y);
@@ -335,15 +417,20 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             let name = decode_entities(node.label.as_deref().unwrap());
             let allowed = link_url(&sanitize_url(&name), options).is_some();
             let target = esc(&name);
-            text = format!(
-                "<a class=\"internal-link\"{} data-href=\"{target}\">{text}</a>",
-                if allowed { format!(" href=\"{target}\"{}", rel_attr(options)) } else { String::new() }
+            text = svg_format!(
+                "<a class=\"internal-link\"",
+                if allowed { svg_format!(" href=\"", target, "\"", rel_attr(options)) } else { String::new() },
+                " data-href=\"",
+                target,
+                "\">",
+                text,
+                "</a>"
             );
             links.push(LinkInfo { id: node.id.clone(), href: name, internal: true });
         }
         let mut body = inner + &text;
         if let Some(t) = tooltip {
-            body = format!("<title>{}</title>{body}", esc_text(t));
+            body = svg_format!("<title>", esc_text(t), "</title>", body);
         }
         if let Some(url) = link {
             body = linked(
@@ -352,7 +439,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 &node.id,
                 &mut links,
                 options,
-                &node.link_target.as_ref().filter(|s| !s.is_empty()).map_or_else(String::new, |t| format!(" target=\"{}\"", esc(t))),
+                &node.link_target.as_ref().filter(|s| !s.is_empty()).map_or_else(String::new, |t| svg_format!(" target=\"", esc(t), "\"")),
             );
         }
         nodes_out.push_str(&body);
@@ -423,12 +510,19 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             let classes = class_names(
                 &edge.classes.replace("edge-thickness-normal", "").replace("edge-pattern-solid", "").replace("flowchart-link", ""),
             );
-            write!(
+            svg_write!(
                 edges_out,
-                "<g class=\"pele-edge{classes}\" data-id=\"{}\"{}><path d=\"{}\"{attrs}/>",
+                "<g class=\"pele-edge",
+                classes,
+                "\" data-id=\"",
                 esc_text(&edge.id),
+                "\"",
                 st.as_ref().map_or("", |s| s.line.as_str()),
+                "><path d=\"",
                 path.d,
+                "\"",
+                attrs,
+                "/>"
             )
             .unwrap();
             push_marker(&mut edges_out, &edge.arrow_start, path.sx, path.sy, path.sdx, path.sdy, &color);
@@ -448,9 +542,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             );
         }
     }
-    let mut content = String::with_capacity(
-        clusters.len() + edges_out.len() + struck.len() + labels_out.len() + nodes_out.len() + 256,
-    );
+    let mut content = String::with_capacity(clusters.len() + edges_out.len() + struck.len() + labels_out.len() + nodes_out.len() + 256);
     push_label_svg(&mut content, &title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None);
     if !clusters.is_empty() {
         content.push_str("<g class=\"pele-clusters\">");

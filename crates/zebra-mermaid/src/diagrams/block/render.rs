@@ -1,5 +1,6 @@
 //! Block diagram rendering. Ported from Pele `src/diagrams/block/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::{HashMap, HashSet};
 use std::f64::consts::{FRAC_1_SQRT_2, PI};
 use std::fmt::Write as _;
@@ -317,7 +318,7 @@ fn trace(p: &[f64], mut start_trim: f64, mut end_trim: f64) -> EdgePath {
     }
     start_trim = js::min(start_trim, first);
     end_trim = js::min(end_trim, last);
-    let mut d = format!("M{},{}", num(sx + ax * start_trim), num(sy + ay * start_trim));
+    let mut d = svg_format!("M", num(sx + ax * start_trim), ",", num(sy + ay * start_trim));
     if n == 6 {
         let r = js::max(0.0, js::min(js::min(CORNER, first - start_trim), last - end_trim));
         write!(
@@ -378,7 +379,22 @@ fn loop_path(v: &Shape, k: usize, start_trim: f64, end_trim: f64) -> EdgePath {
     let sl = math::hypot(sx - x1, sy - y1);
     let el = math::hypot(ex - x2, ey - y2);
     EdgePath {
-        d: format!("M{},{}A{},{} 0 {} 1 {},{}", num(x1), num(y1), num(r), num(r), if sweep > PI { 1 } else { 0 }, num(x2), num(y2)),
+        d: svg_format!(
+            "M",
+            num(x1),
+            ",",
+            num(y1),
+            "A",
+            num(r),
+            ",",
+            num(r),
+            " 0 ",
+            if sweep > PI { 1 } else { 0 },
+            " 1 ",
+            num(x2),
+            ",",
+            num(y2)
+        ),
         sx,
         sy,
         sdx: if sl > 0.0 { (sx - x1) / sl } else { math::sin(a1) },
@@ -434,8 +450,8 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
 
     // Zebra's roles: blocks are nodes, composites are groups, edges are lines with accent heads.
     let shape_attrs =
-        format!(" fill=\"{}\" stroke=\"{}\"", ctx.paint(Role::NodeFill, "var(--_s)"), ctx.paint(Role::NodeStroke, "var(--_b)"));
-    let line_attrs = format!(" stroke=\"{}\"", ctx.paint(Role::NodeStroke, "var(--_b)"));
+        svg_format!(" fill=\"", ctx.paint(Role::NodeFill, "var(--_s)"), "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"");
+    let line_attrs = svg_format!(" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"");
 
     let style_of = |block: &Block| -> ResolvedStyle {
         let mut declarations: Vec<&str> = Vec::new();
@@ -673,26 +689,39 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         let id = esc_text(block.id.as_deref().unwrap_or(""));
         if v.kind == Kind::Composite {
             let top = c.y - c.h / 2.0;
-            write!(clusters,
-                "<g class=\"pele-cluster{}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" fill-opacity=\"0.5\" stroke=\"{}\"{}/>{}</g>",
+            svg_write!(
+                clusters,
+                "<g class=\"pele-cluster",
                 classes,
+                "\" data-id=\"",
                 id,
+                "\"><rect x=\"",
                 num(c.x - c.w / 2.0),
+                "\" y=\"",
                 num(top),
+                "\" width=\"",
                 num(c.w),
+                "\" height=\"",
                 num(c.h),
+                "\" rx=\"",
                 RADIUS,
+                "\" fill=\"",
                 ctx.paint(Role::GroupFill, "var(--_a)"),
+                "\" fill-opacity=\"0.5\" stroke=\"",
                 ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"",
                 v.style.shape,
+                "/>",
                 label_svg(
                     &v.label,
                     c.x,
                     top + (c.head + gap) / 2.0 + 2.0,
-                    &format!(" class=\"pele-cluster-label\" fill=\"{}\"{}", ctx.paint(Role::SecondaryText, "var(--_m)"), v.style.text),
+                    &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text),
                     icons
-                )
-            ).unwrap();
+                ),
+                "</g>"
+            )
+            .unwrap();
             continue;
         }
         let arrow = v.kind == Kind::Arrow;
@@ -708,16 +737,21 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 ctx.theming,
             )
         };
-        write!(
+        svg_write!(
             nodes,
-            "<g class=\"pele-node pele-shape-{}{}\" data-id=\"{}\" transform=\"translate({},{})\">{}{}</g>",
+            "<g class=\"pele-node pele-shape-",
             if arrow { "block-arrow" } else { v.shape },
             classes,
+            "\" data-id=\"",
             id,
+            "\" transform=\"translate(",
             num(c.x),
+            ",",
             num(c.y),
+            ")\">",
             drawn_shape,
-            label_svg(&v.label, v.dx, v.dy, &format!(" class=\"pele-label\"{}", v.style.text), icons)
+            label_svg(&v.label, v.dx, v.dy, &svg_format!(" class=\"pele-label\"", v.style.text), icons),
+            "</g>"
         )
         .unwrap();
     }
@@ -742,15 +776,19 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             trace(&route.points, marker_trim(start_type), marker_trim(end_type))
         };
         let id = esc_text(edge.id.as_deref().unwrap_or(""));
-        write!(
+        svg_write!(
             edges,
-            "<g class=\"pele-edge\" data-id=\"{}\"><path d=\"{}\"{}{}/>{}{}</g>",
+            "<g class=\"pele-edge\" data-id=\"",
             id,
+            "\"><path d=\"",
             path.d,
+            "\"",
             if edge.thickness.as_deref() == Some("thick") { " stroke-width=\"2.5\"" } else { "" },
             if edge.pattern.as_deref() == Some("dotted") { " stroke-dasharray=\"3 4\"" } else { "" },
+            "/>",
             marker(start_type, path.sx, path.sy, path.sdx, path.sdy, arrow_color),
-            marker(end_type, path.ex, path.ey, path.edx, path.edy, arrow_color)
+            marker(end_type, path.ex, path.ey, path.edx, path.edy, arrow_color),
+            "</g>"
         )
         .unwrap();
         if route.label.width > 0.0 {
@@ -763,23 +801,26 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     let mut content =
         label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !clusters.is_empty() {
-        write!(content, "<g class=\"pele-clusters\">{}</g>", clusters).unwrap();
+        svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
     if !edges.is_empty() {
-        write!(
+        svg_write!(
             content,
-            "<g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-linecap=\"round\">{}</g>",
+            "<g class=\"pele-edges\" fill=\"none\" stroke=\"",
             ctx.paint(Role::Line, "var(--_l)"),
-            edges
+            "\" stroke-linecap=\"round\">",
+            edges,
+            "</g>"
         )
         .unwrap();
     }
-    write!(content, "<g class=\"pele-nodes\">{}</g>", nodes).unwrap();
+    svg_write!(content, "<g class=\"pele-nodes\">", nodes, "</g>").unwrap();
     if !labels.is_empty() {
         // Pele lets edge labels take the text color. Zebra writes them in the secondary text
         // color, which resolved output sets on their group.
-        let fill = if ctx.resolved() { format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")) } else { String::new() };
-        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\"{}>{}</g>", js::to_string(edge_size), fill, labels).unwrap();
+        let fill = if ctx.resolved() { svg_format!(" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"") } else { String::new() };
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(edge_size), "\"", fill, ">", labels, "</g>")
+            .unwrap();
     }
 
     Ok(Rendered { svg: svg_document("block", width, height, size, ctx, Accessible::default(), &content), width, height, links: Vec::new() })

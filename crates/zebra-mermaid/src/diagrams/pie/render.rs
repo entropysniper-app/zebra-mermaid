@@ -1,5 +1,6 @@
 //! Pie rendering. Ported from Pele `src/diagrams/pie/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::f64::consts::PI;
 
 use super::PieModel;
@@ -12,7 +13,6 @@ use crate::svg::root::{svg_document, Accessible};
 use crate::text::{layout_label, style, Label};
 use crate::theme::Role;
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 const RADIUS: f64 = 120.0;
 const SWATCH: f64 = 12.0;
@@ -31,26 +31,56 @@ fn point(angle: f64, radius: f64) -> String {
 fn slice(start: f64, end: f64, outer: f64, inner: f64) -> String {
     if end - start >= PI * 2.0 - 1e-9 {
         let ring = |r: f64, sweep: u8| {
-            format!("M0,{}A{},{} 0 1 {} 0,{}A{},{} 0 1 {} 0,{}Z", num(-r), num(r), num(r), sweep, num(r), num(r), num(r), sweep, num(-r))
+            svg_format!(
+                "M0,",
+                num(-r),
+                "A",
+                num(r),
+                ",",
+                num(r),
+                " 0 1 ",
+                sweep,
+                " 0,",
+                num(r),
+                "A",
+                num(r),
+                ",",
+                num(r),
+                " 0 1 ",
+                sweep,
+                " 0,",
+                num(-r),
+                "Z"
+            )
         };
         return ring(outer, 1) + &if inner > 0.0 { ring(inner, 0) } else { String::new() };
     }
     let large = if end - start > PI { 1 } else { 0 };
     if inner <= 0.0 {
-        return format!("M0,0L{}A{},{} 0 {} 1 {}Z", point(start, outer), num(outer), num(outer), large, point(end, outer));
+        return svg_format!("M0,0L", point(start, outer), "A", num(outer), ",", num(outer), " 0 ", large, " 1 ", point(end, outer), "Z");
     }
-    format!(
-        "M{}A{},{} 0 {} 1 {}L{}A{},{} 0 {} 0 {}Z",
+    svg_format!(
+        "M",
         point(start, outer),
+        "A",
         num(outer),
+        ",",
         num(outer),
+        " 0 ",
         large,
+        " 1 ",
         point(end, outer),
+        "L",
         point(end, inner),
+        "A",
         num(inner),
+        ",",
         num(inner),
+        " 0 ",
         large,
-        point(start, inner)
+        " 0 ",
+        point(start, inner),
+        "Z"
     )
 }
 
@@ -182,12 +212,17 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
         }
         let end = angle + share * PI * 2.0;
         let fill = ctx.series(index as i64);
-        write!(slices, 
-            "<path class=\"pele-slice\" data-id=\"{}\" d=\"{}\" fill=\"{}\"/>",
+        svg_write!(
+            slices,
+            "<path class=\"pele-slice\" data-id=\"",
             esc_text(label),
+            "\" d=\"",
             slice(angle, end, radius, inner),
-            fill
-        ).unwrap();
+            "\" fill=\"",
+            fill,
+            "\"/>"
+        )
+        .unwrap();
         let mid = (angle + end) / 2.0;
         let text = format!("{}%", js::to_fixed(share * 100.0, 0));
         if narrow[index] {
@@ -204,26 +239,34 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
             let x = math::sin(at) * rim;
             let y = -math::cos(at) * rim;
             placed_outside.push(Placed { x, y, width: w });
-            write!(outside, "<text x=\"{}\" y=\"{}\">{}</text>", num(x), num(y + small * 0.35), text).unwrap();
+            svg_write!(outside, "<text x=\"", num(x), "\" y=\"", num(y + small * 0.35), "\">", text, "</text>").unwrap();
         } else {
             let r = radius * text_position;
             // In resolved mode each label takes a color that reads on its own slice.
-            let own = if resolved { format!(" fill=\"{}\"", ctx.theming.resolved.text_on(&fill)) } else { String::new() };
-            write!(labels, 
-                "<text x=\"{}\" y=\"{}\"{}>{}</text>",
+            let own = if resolved { svg_format!(" fill=\"", ctx.theming.resolved.text_on(&fill), "\"") } else { String::new() };
+            svg_write!(
+                labels,
+                "<text x=\"",
                 num(math::sin(mid) * r),
+                "\" y=\"",
                 num(-math::cos(mid) * r + small * 0.35),
+                "\"",
                 own,
-                text
-            ).unwrap();
+                ">",
+                text,
+                "</text>"
+            )
+            .unwrap();
         }
         angle = end;
     }
     if slices.is_empty() {
-        slices = format!(
-            "<circle class=\"pele-slice\" r=\"{}\" fill=\"none\" stroke=\"{}\"/>",
+        slices = svg_format!(
+            "<circle class=\"pele-slice\" r=\"",
             js::to_string(radius),
-            ctx.paint(Role::NodeStroke, "var(--_b)")
+            "\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"/>"
         );
     }
 
@@ -239,57 +282,84 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
     };
     for (index, label) in legend.iter().enumerate() {
         let y = ly + index as f64 * ROW + ROW / 2.0;
-        write!(legend_out, 
-            "<g class=\"pele-legend-item\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"12\" height=\"12\" rx=\"2\" fill=\"{}\"/>{}</g>",
+        svg_write!(
+            legend_out,
+            "<g class=\"pele-legend-item\" data-id=\"",
             esc_text(entries[index].0),
+            "\"><rect x=\"",
             num(lx),
+            "\" y=\"",
             num(y - SWATCH / 2.0),
+            "\" width=\"12\" height=\"12\" rx=\"2\" fill=\"",
             ctx.series(index as i64),
-            label_svg(label, lx + SWATCH + 8.0 + label.width / 2.0, y, "", None)
-        ).unwrap();
+            "\"/>",
+            label_svg(label, lx + SWATCH + 8.0 + label.width / 2.0, y, "", None),
+            "</g>"
+        )
+        .unwrap();
     }
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
     let small_s = js::to_string(small);
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, 
-        "<g class=\"pele-slices\" transform=\"translate({},{})\" stroke=\"{}\" stroke-width=\"1\" stroke-linejoin=\"round\">{}</g>",
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+            .to_string();
+    svg_write!(
+        content,
+        "<g class=\"pele-slices\" transform=\"translate(",
         num(cx),
+        ",",
         num(cy),
+        ")\" stroke=\"",
         ctx.paint(Role::Background, "var(--_bg)"),
-        slices
-    ).unwrap();
+        "\" stroke-width=\"1\" stroke-linejoin=\"round\">",
+        slices,
+        "</g>"
+    )
+    .unwrap();
     if !labels.is_empty() {
-        write!(content, 
-            "<g class=\"pele-slice-labels\" transform=\"translate({},{})\" font-size=\"{}\" text-anchor=\"middle\" fill=\"{}\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-slice-labels\" transform=\"translate(",
             num(cx),
+            ",",
             num(cy),
+            ")\" font-size=\"",
             small_s,
+            "\" text-anchor=\"middle\" fill=\"",
             ctx.paint(Role::Background, "var(--_bg)"),
-            labels
-        ).unwrap();
+            "\">",
+            labels,
+            "</g>"
+        )
+        .unwrap();
     }
     if !outside.is_empty() {
-        write!(content, 
-            "<g class=\"pele-slice-labels\" transform=\"translate({},{})\" font-size=\"{}\" text-anchor=\"middle\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-slice-labels\" transform=\"translate(",
             num(cx),
+            ",",
             num(cy),
+            ")\" font-size=\"",
             small_s,
-            outside
-        ).unwrap();
+            "\" text-anchor=\"middle\">",
+            outside,
+            "</g>"
+        )
+        .unwrap();
     }
     if !legend_out.is_empty() {
         // Zebra writes legend text in the text color when the caller gave series colors, and in
         // the muted text color otherwise. Pele lets it inherit the text color.
         let legend_fill = if resolved {
             let role = if ctx.theming.resolved.series.is_some() { Role::Text } else { Role::MutedText };
-            format!(" fill=\"{}\"", ctx.theming.resolved.color(role))
+            svg_format!(" fill=\"", ctx.theming.resolved.color(role), "\"")
         } else {
             String::new()
         };
-        write!(content, "<g class=\"pele-legend\" font-size=\"{}\"{}>{}</g>", small_s, legend_fill, legend_out).unwrap();
+        svg_write!(content, "<g class=\"pele-legend\" font-size=\"", small_s, "\"", legend_fill, ">", legend_out, "</g>").unwrap();
     }
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

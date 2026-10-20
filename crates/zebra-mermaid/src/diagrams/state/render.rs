@@ -8,6 +8,7 @@ use crate::layout::{
     compound::{cnode, compound_layout, direction, CEdge, CNode, Dir},
     layered::LayeredOptions,
 };
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
     builder::{esc, esc_text, label_svg, num},
     edges::{edge_label_svg, marker, marker_trim, route_path, side_reach, EdgePath},
@@ -80,7 +81,7 @@ fn clamp(v: f64, a: f64, b: f64) -> f64 {
     }
 }
 fn rect(x: f64, y: f64, w: f64, h: f64, rest: &str) -> String {
-    format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{rest}/>", num(x), num(y), num(w), num(h))
+    svg_format!("<rect x=\"", num(x), "\" y=\"", num(y), "\" width=\"", num(w), "\" height=\"", num(h), "\"", rest, "/>")
 }
 fn group(dir: Dir, x: f64, top: f64, bottom: f64) -> CNode {
     let mut c = cnode(0.0, 0.0, -1);
@@ -186,7 +187,7 @@ fn divide(items: &[usize], bounds: [f64; 4], nodes: &[CNode], views: &[View], pa
         for k in 1..sorted.len() {
             let at = num((hi(sorted[k - 1], x) + lo(sorted[k], x)) / 2.0 + pad);
             let d = if x { format!("{at},{}V{}", num(top), num(bottom)) } else { format!("{},{at}H{}", num(left), num(right)) };
-            write!(out, "<path class=\"pele-divider\" d=\"M{d}\"/>").unwrap();
+            svg_write!(out, "<path class=\"pele-divider\" d=\"M", d, "\"/>").unwrap();
         }
         return;
     }
@@ -538,8 +539,9 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
     let mut nodes_out = String::new();
     let mut notes_out = String::new();
     divide(&roots, [pad / 2.0, pad / 2.0, width - pad / 2.0, height - pad / 2.0], &nodes, &views, pad, &mut dividers);
-    let surface = format!(" fill=\"{}\" stroke=\"{}\"", ctx.paint(Role::NodeFill, "var(--_s)"), ctx.paint(Role::NodeStroke, "var(--_b)"));
-    let rule = format!(" fill=\"none\" stroke=\"{}\"", ctx.paint(Role::InnerStroke, "var(--_b)"));
+    let surface =
+        svg_format!(" fill=\"", ctx.paint(Role::NodeFill, "var(--_s)"), "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"");
+    let rule = svg_format!(" fill=\"none\" stroke=\"", ctx.paint(Role::InnerStroke, "var(--_b)"), "\"");
     let line = ctx.paint(Role::Line, "var(--_l)");
     let bg = ctx.paint(Role::Background, "var(--_bg)");
     for i in order {
@@ -552,7 +554,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         }
         let c = &nodes[i];
         let (x, y, w, h) = (c.x + pad, c.y + pad, v.w, v.h);
-        let label_attrs = format!(" class=\"pele-label\"{}", st.text);
+        let label_attrs = svg_format!(" class=\"pele-label\"", st.text);
         let mut body;
         match v.kind {
             K::Composite => {
@@ -563,72 +565,153 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                     top,
                     c.w,
                     c.h,
-                    &format!(
-                        " rx=\"10\" fill=\"{}\"{} stroke=\"{}\"{}",
+                    &svg_format!(
+                        " rx=\"10\" fill=\"",
                         ctx.paint(Role::GroupFill, "var(--_a)"),
+                        "\"",
                         if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                        " stroke=\"",
                         ctx.paint(Role::GroupStroke, "var(--_b)"),
+                        "\"",
                         st.shape
                     ),
                 );
                 if v.title_h > 0.0 {
-                    write!(body, "<path d=\"M{},{}H{}\"{rule}{}/>", num(left), num(top + v.title_h), num(left + c.w), st.line).unwrap();
-                    write!(body, "{}", label_svg(
-                        &v.label,
-                        title_x(c, v.label.width, &crossings) + pad,
-                        top + v.title_h / 2.0,
-                        &format!(" class=\"pele-cluster-label\"{}", st.text),
-                        icons,
-                    )).unwrap();
+                    svg_write!(body, "<path d=\"M", num(left), ",", num(top + v.title_h), "H", num(left + c.w), "\"", rule, st.line, "/>")
+                        .unwrap();
+                    write!(
+                        body,
+                        "{}",
+                        label_svg(
+                            &v.label,
+                            title_x(c, v.label.width, &crossings) + pad,
+                            top + v.title_h / 2.0,
+                            &svg_format!(" class=\"pele-cluster-label\"", st.text),
+                            icons,
+                        )
+                    )
+                    .unwrap();
                 }
                 divide(&children[i], [left, top + v.title_h, left + c.w, top + c.h], &nodes, &views, pad, &mut dividers);
             }
-            K::Start => body = format!("<circle r=\"7\" fill=\"{line}\"{}/>", st.shape),
+            K::Start => body = svg_format!("<circle r=\"7\" fill=\"", line, "\"", st.shape, "/>"),
             K::End => {
-                body =
-                    format!("<circle r=\"8.5\" fill=\"{bg}\" stroke=\"{line}\"{}/><circle r=\"5\" fill=\"{line}\"{}/>", st.line, st.shape)
-            }
-            K::Choice => {
-                body = format!(
-                    "<polygon points=\"0,{} {},0 0,{} {},0\"{surface}{}/>",
-                    num(-h / 2.0),
-                    num(w / 2.0),
-                    num(h / 2.0),
-                    num(-w / 2.0),
-                    st.shape
+                body = svg_format!(
+                    "<circle r=\"8.5\" fill=\"",
+                    bg,
+                    "\" stroke=\"",
+                    line,
+                    "\"",
+                    st.line,
+                    "/><circle r=\"5\" fill=\"",
+                    line,
+                    "\"",
+                    st.shape,
+                    "/>"
                 )
             }
-            K::Fork | K::Join => body = rect(-w / 2.0, -h / 2.0, w, h, &format!(" rx=\"2\" fill=\"{line}\"{}", st.shape)),
+            K::Choice => {
+                body = svg_format!(
+                    "<polygon points=\"0,",
+                    num(-h / 2.0),
+                    " ",
+                    num(w / 2.0),
+                    ",0 0,",
+                    num(h / 2.0),
+                    " ",
+                    num(-w / 2.0),
+                    ",0\"",
+                    surface,
+                    st.shape,
+                    "/>"
+                )
+            }
+            K::Fork | K::Join => body = rect(-w / 2.0, -h / 2.0, w, h, &svg_format!(" rx=\"2\" fill=\"", line, "\"", st.shape)),
             K::Note => {
                 let r = num(w / 2.0);
                 let b = num(h / 2.0);
                 let fold = num(w / 2.0 - 8.0);
                 let corner = num(8.0 - h / 2.0);
-                body=format!("<path d=\"M-{r},-{b}H{fold}L{r},{corner}V{b}H-{r}Z\" fill=\"{}\" stroke=\"{}\"/><path d=\"M{fold},-{b}V{corner}H{r}\"{rule}/>{}",ctx.paint(Role::WarningBackground,"var(--_bg)"),ctx.paint(Role::NodeStroke,"var(--_b)"),label_svg(&v.label,0.0,0.0,&format!(" class=\"pele-label\" font-size=\"{}\" fill=\"{}\"",js::to_string(small),ctx.paint(Role::WarningText,"var(--_m)")),icons));
+                body = svg_format!(
+                    "<path d=\"M-",
+                    r,
+                    ",-",
+                    b,
+                    "H",
+                    fold,
+                    "L",
+                    r,
+                    ",",
+                    corner,
+                    "V",
+                    b,
+                    "H-",
+                    r,
+                    "Z\" fill=\"",
+                    ctx.paint(Role::WarningBackground, "var(--_bg)"),
+                    "\" stroke=\"",
+                    ctx.paint(Role::NodeStroke, "var(--_b)"),
+                    "\"/><path d=\"M",
+                    fold,
+                    ",-",
+                    b,
+                    "V",
+                    corner,
+                    "H",
+                    r,
+                    "\"",
+                    rule,
+                    "/>",
+                    label_svg(
+                        &v.label,
+                        0.0,
+                        0.0,
+                        &svg_format!(
+                            " class=\"pele-label\" font-size=\"",
+                            js::to_string(small),
+                            "\" fill=\"",
+                            ctx.paint(Role::WarningText, "var(--_m)"),
+                            "\""
+                        ),
+                        icons
+                    )
+                );
             }
             _ => {
-                body = rect(-w / 2.0, -h / 2.0, w, h, &format!(" rx=\"{}\"{surface}{}", num(js::min(10.0, h / 2.0)), st.shape));
+                body = rect(-w / 2.0, -h / 2.0, w, h, &svg_format!(" rx=\"", num(js::min(10.0, h / 2.0)), "\"", surface, st.shape));
                 if v.kind == K::State {
                     write!(body, "{}", label_svg(&v.label, 0.0, 0.0, &label_attrs, icons)).unwrap();
                 } else {
                     let mut at = 10.0 - h / 2.0 + v.label.height;
-                    write!(body, 
-                        "<path d=\"M{},{}H{}\"{rule}{}/>{}",
+                    svg_write!(
+                        body,
+                        "<path d=\"M",
                         num(-w / 2.0),
+                        ",",
                         num(at + 6.0),
+                        "H",
                         num(w / 2.0),
+                        "\"",
+                        rule,
                         st.line,
+                        "/>",
                         label_svg(&v.label, 0.0, at - v.label.height / 2.0, &label_attrs, icons)
-                    ).unwrap();
+                    )
+                    .unwrap();
                     at += 14.0;
                     for l in &v.lines {
-                        write!(body, "{}", label_svg(
-                            l,
-                            0.0,
-                            at + l.height / 2.0,
-                            &format!(" class=\"pele-state-description\" font-size=\"{}\"{}", js::to_string(small), st.text),
-                            icons,
-                        )).unwrap();
+                        write!(
+                            body,
+                            "{}",
+                            label_svg(
+                                l,
+                                0.0,
+                                at + l.height / 2.0,
+                                &svg_format!(" class=\"pele-state-description\" font-size=\"", js::to_string(small), "\"", st.text),
+                                icons,
+                            )
+                        )
+                        .unwrap();
                         at += l.height;
                     }
                 }
@@ -637,7 +720,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         if let Some((url, tooltip)) = db.links.get(&n.id) {
             let tip = decode_entities(tooltip.trim_matches('"'));
             if !tip.is_empty() {
-                body = format!("<title>{}</title>{body}", esc(&tip));
+                body = svg_format!("<title>", esc(&tip), "</title>", body);
             }
             body = linked(&body, &safe_url(url.trim_matches('"')), &n.id, &mut links, ctx.options, " target=\"_blank\"");
         }
@@ -648,11 +731,11 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             .filter(|s| !matches!(*s, "statediagram-state" | "statediagram-cluster-alt" | "statediagram-cluster" | "statediagram-note"))
             .collect::<Vec<_>>()
             .join(" ");
-        let open = format!("<g class=\"{}{}\" data-id=\"{}\"", CLASSES[v.kind as usize], class_names(&classes), esc_text(&n.id));
+        let open = svg_format!("<g class=\"", CLASSES[v.kind as usize], class_names(&classes), "\" data-id=\"", esc_text(&n.id), "\"");
         let complete = if v.kind == K::Composite {
-            format!("{open}>{body}</g>")
+            svg_format!(open, ">", body, "</g>")
         } else {
-            format!("{open} transform=\"translate({},{})\">{body}</g>", num(x), num(y))
+            svg_format!(open, " transform=\"translate(", num(x), ",", num(y), ")\">", body, "</g>")
         };
         if v.kind == K::Composite {
             clusters.push_str(&complete);
@@ -696,11 +779,14 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             let py = |dx: f64, dy: f64| a.y + pad + if side { dy } else { out + dx };
             let at = |dx, dy| format!("{},{}", num(px(dx, dy)), num(py(dx, dy)));
             let mut p = EdgePath {
-                d: format!(
-                    "M{}C{} {} {}",
+                d: svg_format!(
+                    "M",
                     at(0.0, -spread),
+                    "C",
                     at(reach, -2.0 * spread),
+                    " ",
                     at(reach, 2.0 * spread),
+                    " ",
                     at(reach * trim, spread + spread * trim)
                 ),
                 sx: 0.0,
@@ -754,34 +840,42 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             path = route_path(&route, None, 0.0, marker_trim(end_type), leaves, arrives);
         }
         let class = if note {
-            format!("pele-note-edge\" stroke=\"{}\" stroke-dasharray=\"3 4", ctx.paint(Role::NodeStroke, "var(--_b)"))
+            svg_format!("pele-note-edge\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\" stroke-dasharray=\"3 4")
         } else {
             "pele-transition".into()
         };
-        write!(edges_out, 
-            "<g class=\"pele-edge {class}\" data-id=\"{}\"><path d=\"{}\"/>{}</g>",
+        svg_write!(
+            edges_out,
+            "<g class=\"pele-edge ",
+            class,
+            "\" data-id=\"",
             esc_text(&edge.id),
+            "\"><path d=\"",
             path.d,
-            marker(end_type, path.ex, path.ey, path.edx, path.edy, ctx.paint(Role::Arrow, "var(--_l)"))
-        ).unwrap();
+            "\"/>",
+            marker(end_type, path.ex, path.ey, path.edx, path.edy, ctx.paint(Role::Arrow, "var(--_l)")),
+            "</g>"
+        )
+        .unwrap();
         if label.width > 0.0 {
             write!(labels_out, "{}", edge_label_svg(&edge.id, label, ce.label_x + pad, ce.label_y + pad, "", icons, bg)).unwrap();
         }
     }
     let mut content = String::new();
     if !clusters.is_empty() {
-        write!(content, "<g class=\"pele-clusters\">{clusters}</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
     if !dividers.is_empty() {
-        write!(content, "<g class=\"pele-dividers\" stroke-dasharray=\"4 4\"{rule}>{dividers}</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-dividers\" stroke-dasharray=\"4 4\"", rule, ">", dividers, "</g>").unwrap();
     }
     if !edges_out.is_empty() {
-        write!(content, "<g class=\"pele-edges\" fill=\"none\" stroke=\"{line}\" stroke-linecap=\"round\">{edges_out}</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-edges\" fill=\"none\" stroke=\"", line, "\" stroke-linecap=\"round\">", edges_out, "</g>")
+            .unwrap();
     }
     if !labels_out.is_empty() {
-        write!(content, "<g class=\"pele-edge-labels\" font-size=\"{}\">{labels_out}</g>", js::to_string(small)).unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\">", labels_out, "</g>").unwrap();
     }
-    write!(content, "<g class=\"pele-nodes\">{nodes_out}{notes_out}</g>").unwrap();
+    svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, notes_out, "</g>").unwrap();
     let titled = with_title(db.title.as_deref(), &m, size, pad, width, height, content);
     Ok(Rendered {
         svg: svg_document(

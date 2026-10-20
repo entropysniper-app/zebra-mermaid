@@ -1,5 +1,6 @@
 //! Sankey rendering. Ported from Pele `src/diagrams/sankey/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::collections::HashMap;
 
 use super::layout::{layout_sankey, Alignment, LayoutOptions};
@@ -14,7 +15,6 @@ use crate::svg::theme::resolve_style;
 use crate::text::{layout_label, style};
 use crate::theme::Role;
 use crate::util::js;
-use std::fmt::Write as _;
 
 const LABEL_GAP: f64 = 6.0;
 const VALUE_GAP: f64 = 15.0;
@@ -125,17 +125,27 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
     for (i, node) in nodes.iter().enumerate() {
         let id = model.nodes[i].id.as_str();
         let height = js::max(node.height, 1.0);
-        write!(nodes_out, 
-            "<rect class=\"pele-sankey-node\" data-id=\"{}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\"{}/>",
+        svg_write!(
+            nodes_out,
+            "<rect class=\"pele-sankey-node\" data-id=\"",
             esc_text(id),
+            "\" x=\"",
             num(node.x),
+            "\" y=\"",
             num(node.y),
+            "\" width=\"",
             num(node_width),
+            "\" height=\"",
             num(height),
+            "\" rx=\"",
             num(js::min(2.0, height / 2.0)),
+            "\" fill=\"",
             ctx.series(i as i64),
-            node_style(i)
-        ).unwrap();
+            "\"",
+            node_style(i),
+            "/>"
+        )
+        .unwrap();
 
         let value = if show_values { format!("{}{}{}", prefix, js::to_string(rounded(node.value)), suffix) } else { String::new() };
         let after = if outlined { node.layer >= central } else { node.x < chart_width / 2.0 };
@@ -146,22 +156,28 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
         max_x = js::max(max_x, if after { x + text_width } else { x });
         min_y = js::min(min_y, y - small * 0.75);
         max_y = js::max(max_y, y + small * 0.75);
-        let position = format!(" x=\"{}\" y=\"{}\" text-anchor=\"{}\"", num(x), num(y + small * 0.35), if after { "start" } else { "end" });
+        let position =
+            svg_format!(" x=\"", num(x), "\" y=\"", num(y + small * 0.35), "\" text-anchor=\"", if after { "start" } else { "end" }, "\"");
         let mut text = esc(id).into_owned();
         if !value.is_empty() {
-            write!(text, " <tspan class=\"pele-sankey-value\" fill=\"{}\">{}</tspan>", value_fill, esc(&value)).unwrap();
+            svg_write!(text, " <tspan class=\"pele-sankey-value\" fill=\"", value_fill, "\">", esc(&value), "</tspan>").unwrap();
         }
-        write!(labels_out, "<g class=\"pele-label\" data-id=\"{}\">", esc_text(id)).unwrap();
+        svg_write!(labels_out, "<g class=\"pele-label\" data-id=\"", esc_text(id), "\">").unwrap();
         if outlined {
-            write!(labels_out, 
-                "<text{} fill=\"none\" stroke=\"{}\" stroke-width=\"3\" stroke-linejoin=\"round\">{}{}</text>",
+            svg_write!(
+                labels_out,
+                "<text",
                 position,
+                " fill=\"none\" stroke=\"",
                 halo,
+                "\" stroke-width=\"3\" stroke-linejoin=\"round\">",
                 esc(id),
-                if !value.is_empty() { format!(" {}", esc(&value)) } else { String::new() }
-            ).unwrap();
+                if !value.is_empty() { format!(" {}", esc(&value)) } else { String::new() },
+                "</text>"
+            )
+            .unwrap();
         }
-        write!(labels_out, "<text{}>{}</text></g>", position, text).unwrap();
+        svg_write!(labels_out, "<text", position, ">", text, "</text></g>").unwrap();
     }
 
     let fixed = if link_color == "gradient" || link_color == "source" || link_color == "target" {
@@ -179,26 +195,59 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
         let mid = num((x0 + x1) / 2.0);
         let from = esc_text(&model.nodes[link.source].id);
         let to = esc_text(&model.nodes[link.target].id);
-        write!(links_out, 
-            "<path class=\"pele-sankey-link\" data-id=\"{from}-&gt;{to}\" d=\"M{},{}C{mid},{} {mid},{} {},{}L{},{}C{mid},{} {mid},{} {},{}Z\" fill=\"{}\"{}><title>{from} → {to}: {}{}{}</title></path>",
+        svg_write!(
+            links_out,
+            "<path class=\"pele-sankey-link\" data-id=\"",
+            from,
+            "-&gt;",
+            to,
+            "\" d=\"M",
             num(x0),
+            ",",
             num(link.source_y - half),
+            "C",
+            mid,
+            ",",
             num(link.source_y - half),
+            " ",
+            mid,
+            ",",
             num(link.target_y - half),
+            " ",
             num(x1),
+            ",",
             num(link.target_y - half),
+            "L",
             num(x1),
+            ",",
             num(link.target_y + half),
+            "C",
+            mid,
+            ",",
             num(link.target_y + half),
+            " ",
+            mid,
+            ",",
             num(link.source_y + half),
+            " ",
             num(x0),
+            ",",
             num(link.source_y + half),
+            "Z\" fill=\"",
             ctx.series(end as i64),
+            "\"",
             if !fixed.is_empty() { fixed.as_str() } else { node_style(end) },
+            "><title>",
+            from,
+            " → ",
+            to,
+            ": ",
             esc_text(&prefix),
             js::to_string(rounded(link.value)),
-            esc_text(&suffix)
-        ).unwrap();
+            esc_text(&suffix),
+            "</title></path>"
+        )
+        .unwrap();
     }
 
     let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
@@ -209,11 +258,12 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
     let width = (inner + 2.0 * pad).ceil();
     let height = (max_y - min_y + title_height + 2.0 * pad).ceil();
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, "<g transform=\"translate({},{})\">", num(ox), num(oy)).unwrap();
-    write!(content, "<g class=\"pele-sankey-links\" fill-opacity=\"0.4\">{}</g>", links_out).unwrap();
-    write!(content, "<g class=\"pele-sankey-nodes\">{}</g>", nodes_out).unwrap();
-    write!(content, "<g class=\"pele-labels\" font-size=\"{}\">{}</g>", small_s, labels_out).unwrap();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    svg_write!(content, "<g transform=\"translate(", num(ox), ",", num(oy), ")\">").unwrap();
+    svg_write!(content, "<g class=\"pele-sankey-links\" fill-opacity=\"0.4\">", links_out, "</g>").unwrap();
+    svg_write!(content, "<g class=\"pele-sankey-nodes\">", nodes_out, "</g>").unwrap();
+    svg_write!(content, "<g class=\"pele-labels\" font-size=\"", small_s, "\">", labels_out, "</g>").unwrap();
     content.push_str("</g>");
 
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };

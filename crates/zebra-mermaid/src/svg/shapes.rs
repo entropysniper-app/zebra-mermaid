@@ -5,9 +5,9 @@
 //! `ch`) rather than a layout node, so that every diagram can call them.
 
 use super::builder::{num, push_num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::theme::{Role, Theming};
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ShapeSize {
@@ -135,7 +135,7 @@ fn tri_size(tw: f64, th: f64, flip: bool) -> ShapeSize {
 }
 
 fn path(d: &str, a: &str) -> String {
-    format!("<path d=\"{}\"{}/>", d, a)
+    svg_format!("<path d=\"", d, "\"", a, "/>")
 }
 
 fn box_size(tw: f64, th: f64) -> ShapeSize {
@@ -198,18 +198,28 @@ fn push_rect_open(out: &mut String, w: f64, h: f64) {
 fn brace(x: f64, h: f64, dir: f64, line: &str) -> String {
     let y = h / 2.0;
     let k = 6.0 * dir;
-    format!(
-        "<path d=\"M{},{}q{},0 {},6V-6q0,6 {},6q{},0 {},6V{}q0,6 {},6\" fill=\"none\"{}/>",
+    svg_format!(
+        "<path d=\"M",
         num(x),
+        ",",
         num(-y),
+        "q",
         num(k),
+        ",0 ",
         num(k),
+        ",6V-6q0,6 ",
         num(k),
+        ",6q",
         num(-k),
+        ",0 ",
         num(-k),
+        ",6V",
         num(y - 6.0),
+        "q0,6 ",
         num(-k),
-        line
+        ",6\" fill=\"none\"",
+        line,
+        "/>"
     )
 }
 
@@ -218,16 +228,24 @@ fn wave(w: f64, h: f64, a: &str) -> String {
     let top = -h / 2.0;
     let base = h / 2.0 - 10.0;
     let q = w / 4.0;
-    format!(
-        "<path d=\"M{},{}H{}V{}q{},-12 {},0t{},0Z\"{}/>",
+    svg_format!(
+        "<path d=\"M",
         num(-x),
+        ",",
         num(top),
+        "H",
         num(x),
+        "V",
         num(base),
+        "q",
         num(-q),
+        ",-12 ",
         num(-2.0 * q),
+        ",0t",
         num(-2.0 * q),
-        a
+        ",0Z\"",
+        a,
+        "/>"
     )
 }
 
@@ -328,16 +346,23 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
         "stadium" => rect_radius(w, h, a, h / 2.0),
         "fr-rect" => {
             let x = w / 2.0 - 8.0;
-            format!(
-                "{}<path d=\"M{},{}V{}M{},{}V{}\" fill=\"none\"{}/>",
+            svg_format!(
                 rr(w, h, a),
+                "<path d=\"M",
                 num(-x),
+                ",",
                 num(-h / 2.0),
+                "V",
                 num(h / 2.0),
+                "M",
                 num(x),
+                ",",
                 num(-h / 2.0),
+                "V",
                 num(h / 2.0),
-                line
+                "\" fill=\"none\"",
+                line,
+                "/>"
             )
         }
         "cyl" => {
@@ -345,32 +370,53 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let ry = js::min(12.0, js::max(6.0, w / 14.0));
             let top = -h / 2.0 + ry;
             let bottom = h / 2.0 - ry;
-            format!(
-                "<path d=\"M{},{}A{},{} 0 0 1 {},{}V{}A{},{} 0 0 1 {},{}Z\"{}/><path d=\"M{},{}A{},{} 0 0 0 {},{}\" fill=\"none\"{}/>",
+            svg_format!(
+                "<path d=\"M",
                 num(-rx),
+                ",",
                 num(top),
+                "A",
                 num(rx),
+                ",",
                 num(ry),
+                " 0 0 1 ",
                 num(rx),
+                ",",
                 num(top),
+                "V",
                 num(bottom),
+                "A",
                 num(rx),
+                ",",
                 num(ry),
+                " 0 0 1 ",
                 num(-rx),
+                ",",
                 num(bottom),
+                "Z\"",
                 a,
+                "/><path d=\"M",
                 num(-rx),
+                ",",
                 num(top),
+                "A",
                 num(rx),
+                ",",
                 num(ry),
+                " 0 0 0 ",
                 num(rx),
+                ",",
                 num(top),
-                line
+                "\" fill=\"none\"",
+                line,
+                "/>"
             )
         }
-        "circle" | "sm-circ" => format!("<circle r=\"{}\"{}/>", num(w / 2.0), a),
-        "dbl-circ" => format!("<circle r=\"{}\"{}/><circle r=\"{}\" fill=\"none\"{}/>", num(w / 2.0), a, num(w / 2.0 - 5.0), line),
-        "ellipse" => format!("<ellipse rx=\"{}\" ry=\"{}\"{}/>", num(w / 2.0), num(h / 2.0), a),
+        "circle" | "sm-circ" => svg_format!("<circle r=\"", num(w / 2.0), "\"", a, "/>"),
+        "dbl-circ" => {
+            svg_format!("<circle r=\"", num(w / 2.0), "\"", a, "/><circle r=\"", num(w / 2.0 - 5.0), "\" fill=\"none\"", line, "/>")
+        }
+        "ellipse" => svg_format!("<ellipse rx=\"", num(w / 2.0), "\" ry=\"", num(h / 2.0), "\"", a, "/>"),
         "diam" => poly(&[0.0, -h / 2.0, w / 2.0, 0.0, 0.0, h / 2.0, -w / 2.0, 0.0], a),
         "hex" => {
             let m = h / 4.0;
@@ -400,29 +446,60 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             poly(&[-w / 2.0, -h / 2.0, w / 2.0, -h / 2.0, w / 2.0 - s, h / 2.0, -w / 2.0 + s, h / 2.0], a)
         }
         "text" => rect(w, h, " fill=\"none\" stroke=\"none\"", ""),
-        "f-circ" => format!("<circle r=\"{}\" fill=\"{}\"{}/>", num(w / 2.0), lcolor, line),
-        "fr-circ" => format!("<circle r=\"{}\"{}/><circle r=\"{}\" fill=\"{}\"{}/>", num(w / 2.0), a, num(w / 2.0 - 4.0), lcolor, line),
-        "fork" => rect(w, h, &format!(" fill=\"{}\"{}", lcolor, line), " rx=\"2\""),
+        "f-circ" => svg_format!("<circle r=\"", num(w / 2.0), "\" fill=\"", lcolor, "\"", line, "/>"),
+        "fr-circ" => {
+            svg_format!("<circle r=\"", num(w / 2.0), "\"", a, "/><circle r=\"", num(w / 2.0 - 4.0), "\" fill=\"", lcolor, "\"", line, "/>")
+        }
+        "fork" => rect(w, h, &svg_format!(" fill=\"", lcolor, "\"", line), " rx=\"2\""),
         "notch-rect" => {
             let c = 10.0;
             poly(&[-w / 2.0 + c, -h / 2.0, w / 2.0, -h / 2.0, w / 2.0, h / 2.0, -w / 2.0, h / 2.0, -w / 2.0, -h / 2.0 + c], a)
         }
         "lin-rect" => {
-            format!("{}<path d=\"M{},{}V{}\" fill=\"none\"{}/>", rr(w, h, a), num(-w / 2.0 + 8.0), num(-h / 2.0), num(h / 2.0), line)
+            svg_format!(
+                rr(w, h, a),
+                "<path d=\"M",
+                num(-w / 2.0 + 8.0),
+                ",",
+                num(-h / 2.0),
+                "V",
+                num(h / 2.0),
+                "\" fill=\"none\"",
+                line,
+                "/>"
+            )
         }
         "div-rect" => {
-            format!("{}<path d=\"M{},{}H{}\" fill=\"none\"{}/>", rr(w, h, a), num(-w / 2.0), num(-h / 2.0 + 8.0), num(w / 2.0), line)
+            svg_format!(
+                rr(w, h, a),
+                "<path d=\"M",
+                num(-w / 2.0),
+                ",",
+                num(-h / 2.0 + 8.0),
+                "H",
+                num(w / 2.0),
+                "\" fill=\"none\"",
+                line,
+                "/>"
+            )
         }
-        "win-pane" => format!(
-            "{}<path d=\"M{},{}V{}M{},{}H{}\" fill=\"none\"{}/>",
+        "win-pane" => svg_format!(
             rr(w, h, a),
+            "<path d=\"M",
             num(-w / 2.0 + 8.0),
+            ",",
             num(-h / 2.0),
+            "V",
             num(h / 2.0),
+            "M",
             num(-w / 2.0),
+            ",",
             num(-h / 2.0 + 8.0),
+            "H",
             num(w / 2.0),
-            line
+            "\" fill=\"none\"",
+            line,
+            "/>"
         ),
         "tri" => poly(&[0.0, -h / 2.0, w / 2.0, h / 2.0, -w / 2.0, h / 2.0], a),
         "flip-tri" => poly(&[-w / 2.0, -h / 2.0, w / 2.0, -h / 2.0, 0.0, h / 2.0], a),
@@ -450,17 +527,26 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
         "hourglass" => poly(&[-w / 2.0, -h / 2.0, w / 2.0, -h / 2.0, -w / 2.0, h / 2.0, w / 2.0, h / 2.0], a),
         "delay" => {
             let r = h / 2.0;
-            format!(
-                "<path d=\"M{},{}H{}A{},{} 0 0 1 {},{}H{}Z\"{}/>",
+            svg_format!(
+                "<path d=\"M",
                 num(-w / 2.0),
+                ",",
                 num(-r),
+                "H",
                 num(w / 2.0 - r),
+                "A",
                 num(r),
+                ",",
                 num(r),
+                " 0 0 1 ",
                 num(w / 2.0 - r),
+                ",",
                 num(r),
+                "H",
                 num(-w / 2.0),
-                a
+                "Z\"",
+                a,
+                "/>"
             )
         }
         "h-cyl" => {
@@ -468,46 +554,77 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let rx = js::min(12.0, h / 4.0);
             let l = -w / 2.0 + rx;
             let r = w / 2.0 - rx;
-            format!(
-                "<path d=\"M{},{}H{}A{},{} 0 0 1 {},{}H{}A{},{} 0 0 1 {},{}Z\"{}/><path d=\"M{},{}A{},{} 0 0 0 {},{}\" fill=\"none\"{}/>",
+            svg_format!(
+                "<path d=\"M",
                 num(l),
+                ",",
                 num(-ry),
+                "H",
                 num(r),
+                "A",
                 num(rx),
+                ",",
                 num(ry),
+                " 0 0 1 ",
                 num(r),
+                ",",
                 num(ry),
+                "H",
                 num(l),
+                "A",
                 num(rx),
+                ",",
                 num(ry),
+                " 0 0 1 ",
                 num(l),
+                ",",
                 num(-ry),
+                "Z\"",
                 a,
+                "/><path d=\"M",
                 num(r),
+                ",",
                 num(-ry),
+                "A",
                 num(rx),
+                ",",
                 num(ry),
+                " 0 0 0 ",
                 num(r),
+                ",",
                 num(ry),
-                line
+                "\" fill=\"none\"",
+                line,
+                "/>"
             )
         }
         "cross-circ" => {
             let r = w / 2.0;
             let k = r * std::f64::consts::FRAC_1_SQRT_2;
-            format!(
-                "<circle r=\"{}\"{}/><path d=\"M{},{}L{},{}M{},{}L{},{}\" fill=\"none\"{}/>",
+            svg_format!(
+                "<circle r=\"",
                 num(r),
+                "\"",
                 a,
+                "/><path d=\"M",
                 num(-k),
+                ",",
                 num(-k),
+                "L",
                 num(k),
+                ",",
                 num(k),
+                "M",
                 num(k),
+                ",",
                 num(-k),
+                "L",
                 num(-k),
+                ",",
                 num(k),
-                line
+                "\" fill=\"none\"",
+                line,
+                "/>"
             )
         }
         "st-rect" => {
@@ -517,8 +634,22 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             for i in 0..3 {
                 let x = -w / 2.0 + (2 - i) as f64 * 4.0;
                 let y = -h / 2.0 + i as f64 * 4.0;
-                write!(out, "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{}{}/>", num(x), num(y), num(bw), num(bh), ROUNDED, a)
-                    .unwrap();
+                svg_write!(
+                    out,
+                    "<rect x=\"",
+                    num(x),
+                    "\" y=\"",
+                    num(y),
+                    "\" width=\"",
+                    num(bw),
+                    "\" height=\"",
+                    num(bh),
+                    "\"",
+                    ROUNDED,
+                    a,
+                    "/>"
+                )
+                .unwrap();
             }
             out
         }
@@ -527,32 +658,49 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let x = w / 2.0;
             let y = h / 2.0 - 8.0;
             let q = w / 4.0;
-            format!(
-                "<path d=\"M{},{}q{},-10 {},0t{},0V{}q{},10 {},0t{},0Z\"{}/>",
+            svg_format!(
+                "<path d=\"M",
                 num(-x),
+                ",",
                 num(-y),
+                "q",
                 num(q),
+                ",-10 ",
                 num(2.0 * q),
+                ",0t",
                 num(2.0 * q),
+                ",0V",
                 num(y),
+                "q",
                 num(-q),
+                ",10 ",
                 num(-2.0 * q),
+                ",0t",
                 num(-2.0 * q),
-                a
+                ",0Z\"",
+                a,
+                "/>"
             )
         }
         "datastore" => {
-            let stroke = format!("stroke=\"{}\"", theming.paint(Role::NodeStroke, "var(--_b)"));
-            format!(
-                "{}<path d=\"M{},{}H{}M{},{}H{}\" fill=\"none\"{}/>",
+            let stroke = svg_format!("stroke=\"", theming.paint(Role::NodeStroke, "var(--_b)"), "\"");
+            svg_format!(
                 rect(w, h, &a.replacen(&stroke, "stroke=\"none\"", 1), ""),
+                "<path d=\"M",
                 num(-w / 2.0),
+                ",",
                 num(-h / 2.0),
+                "H",
                 num(w / 2.0),
+                "M",
                 num(-w / 2.0),
+                ",",
                 num(h / 2.0),
+                "H",
                 num(w / 2.0),
-                line
+                "\" fill=\"none\"",
+                line,
+                "/>"
             )
         }
         "folder" => {
@@ -560,16 +708,24 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let y = h / 2.0;
             let tab = js::min(w * 0.4, 48.0);
             path(
-                &format!(
-                    "M{},{}H{}L{},{}H{}V{}H{}Z",
+                &svg_format!(
+                    "M",
                     num(-x),
+                    ",",
                     num(-y),
+                    "H",
                     num(-x + tab),
+                    "L",
                     num(-x + tab + 8.0),
+                    ",",
                     num(-y + 8.0),
+                    "H",
                     num(x),
+                    "V",
                     num(y),
-                    num(-x)
+                    "H",
+                    num(-x),
+                    "Z"
                 ),
                 a,
             )
@@ -580,78 +736,119 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let ry = 5.0;
             let taper = h / 6.0;
             path(
-                &format!(
-                    "M{},{}A{},{} 0 0 1 {},{}L{},{}A{},{} 0 0 1 {},{}Z",
+                &svg_format!(
+                    "M",
                     num(-x),
+                    ",",
                     num(-y + ry),
+                    "A",
                     num(x),
+                    ",",
                     num(ry),
+                    " 0 0 1 ",
                     num(x),
+                    ",",
                     num(-y + ry),
+                    "L",
                     num(x - taper),
+                    ",",
                     num(y - ry),
+                    "A",
                     num(x - taper),
+                    ",",
                     num(ry),
+                    " 0 0 1 ",
                     num(-x + taper),
-                    num(y - ry)
+                    ",",
+                    num(y - ry),
+                    "Z"
                 ),
                 a,
-            ) + &format!(
-                "<path d=\"M{},{}A{},{} 0 0 0 {},{}\" fill=\"none\"{}/>",
+            ) + &svg_format!(
+                "<path d=\"M",
                 num(-x),
+                ",",
                 num(-y + ry),
+                "A",
                 num(x),
+                ",",
                 num(ry),
+                " 0 0 0 ",
                 num(x),
+                ",",
                 num(-y + ry),
-                line
+                "\" fill=\"none\"",
+                line,
+                "/>"
             )
         }
-        "console" => format!(
-            "{}<path d=\"M{},{}H{}M{},{}l3,2.5l-3,2.5M{},{}h4\" fill=\"none\"{}/>",
+        "console" => svg_format!(
             rr(w, h, a),
+            "<path d=\"M",
             num(-w / 2.0),
+            ",",
             num(-h / 2.0 + 12.0),
+            "H",
             num(w / 2.0),
+            "M",
             num(-w / 2.0 + 7.0),
+            ",",
             num(-h / 2.0 + 4.0),
+            "l3,2.5l-3,2.5M",
             num(-w / 2.0 + 13.0),
+            ",",
             num(-h / 2.0 + 9.0),
-            line
+            "h4\" fill=\"none\"",
+            line,
+            "/>"
         ),
         "browser" => {
             let mut dots = String::new();
             for i in 0..3 {
-                write!(
+                svg_write!(
                     dots,
-                    "<circle cx=\"{}\" cy=\"{}\" r=\"1.5\" fill=\"none\"{}/>",
+                    "<circle cx=\"",
                     num(-w / 2.0 + 8.0 + i as f64 * 7.0),
+                    "\" cy=\"",
                     num(-h / 2.0 + 6.0),
-                    line
+                    "\" r=\"1.5\" fill=\"none\"",
+                    line,
+                    "/>"
                 )
                 .unwrap();
             }
-            format!(
-                "{}<path d=\"M{},{}H{}\" fill=\"none\"{}/>{}",
+            svg_format!(
                 rr(w, h, a),
+                "<path d=\"M",
                 num(-w / 2.0),
+                ",",
                 num(-h / 2.0 + 12.0),
+                "H",
                 num(w / 2.0),
+                "\" fill=\"none\"",
                 line,
+                "/>",
                 dots
             )
         }
         "person" => {
             let top = -h / 2.0;
-            format!(
-                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"12\"{}/><circle cy=\"{}\" r=\"13\"{}/>",
+            svg_format!(
+                "<rect x=\"",
                 num(-w / 2.0),
+                "\" y=\"",
                 num(top + 26.0),
+                "\" width=\"",
                 num(w),
+                "\" height=\"",
                 num(h - 26.0),
+                "\" rx=\"12\"",
                 a,
+                "/><circle cy=\"",
                 num(top + 14.0),
-                a
+                "\" r=\"13\"",
+                a,
+                "/>"
             )
         }
         "bang" => {
@@ -670,26 +867,44 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let y = h / 2.0;
             let r = y * 0.55;
             path(
-                &format!(
-                    "M{},{}A{},{} 0 0 1 {},{}A{},{} 0 0 1 {},{}A{},{} 0 0 1 {},{}A{},{} 0 0 1 {},{}Z",
+                &svg_format!(
+                    "M",
                     num(-x + r),
+                    ",",
                     num(y),
+                    "A",
                     num(r),
+                    ",",
                     num(r),
+                    " 0 0 1 ",
                     num(-x + r * 0.6),
+                    ",",
                     num(-y * 0.1),
+                    "A",
                     num(x * 0.42),
+                    ",",
                     num(y * 0.7),
+                    " 0 0 1 ",
                     num(-x * 0.1),
+                    ",",
                     num(-y * 0.72),
+                    "A",
                     num(x * 0.4),
+                    ",",
                     num(y * 0.62),
+                    " 0 0 1 ",
                     num(x * 0.62),
+                    ",",
                     num(-y * 0.42),
+                    "A",
                     num(r * 1.05),
+                    ",",
                     num(r * 1.05),
+                    " 0 0 1 ",
                     num(x - r),
-                    num(y)
+                    ",",
+                    num(y),
+                    "Z"
                 ),
                 a,
             )
@@ -708,41 +923,61 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let ry = js::min(12.0, js::max(6.0, w / 14.0));
             let top = -h / 2.0 + ry;
             let bottom = h / 2.0 - ry;
-            let arc = |y: f64| format!("M{},{}A{},{} 0 0 0 {},{}", num(-rx), num(y), num(rx), num(ry), num(rx), num(y));
+            let arc = |y: f64| svg_format!("M", num(-rx), ",", num(y), "A", num(rx), ",", num(ry), " 0 0 0 ", num(rx), ",", num(y));
             path(
-                &format!(
-                    "M{},{}A{},{} 0 0 1 {},{}V{}A{},{} 0 0 1 {},{}Z",
+                &svg_format!(
+                    "M",
                     num(-rx),
+                    ",",
                     num(top),
+                    "A",
                     num(rx),
+                    ",",
                     num(ry),
+                    " 0 0 1 ",
                     num(rx),
+                    ",",
                     num(top),
+                    "V",
                     num(bottom),
+                    "A",
                     num(rx),
+                    ",",
                     num(ry),
+                    " 0 0 1 ",
                     num(-rx),
-                    num(bottom)
+                    ",",
+                    num(bottom),
+                    "Z"
                 ),
                 a,
-            ) + &format!("<path d=\"{}{}\" fill=\"none\"{}/>", arc(top), arc(top + 8.0), line)
+            ) + &svg_format!("<path d=\"", arc(top), arc(top + 8.0), "\" fill=\"none\"", line, "/>")
         }
         "curv-trap" => {
             let x = w / 2.0;
             let y = h / 2.0;
             let k = h * 0.3;
             path(
-                &format!(
-                    "M{},{}H{}A{},{} 0 0 1 {},{}H{}L{},0Z",
+                &svg_format!(
+                    "M",
                     num(-x + k),
+                    ",",
                     num(-y),
+                    "H",
                     num(x - k),
+                    "A",
                     num(k),
+                    ",",
                     num(y),
+                    " 0 0 1 ",
                     num(x - k),
+                    ",",
                     num(y),
+                    "H",
                     num(-x + k),
-                    num(-x)
+                    "L",
+                    num(-x),
+                    ",0Z"
                 ),
                 a,
             )
@@ -750,7 +985,8 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
         "docs" => {
             let mut out = String::new();
             for i in 0..3i32 {
-                write!(out, "<g transform=\"translate({},{})\">{}</g>", (1 - i) * 4, (i - 1) * 4, wave(w - 8.0, h - 8.0, a)).unwrap();
+                svg_write!(out, "<g transform=\"translate(", (1 - i) * 4, ",", (i - 1) * 4, ")\">", wave(w - 8.0, h - 8.0, a), "</g>")
+                    .unwrap();
             }
             out
         }
@@ -759,64 +995,100 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             let y = h / 2.0;
             let k = h * 0.2;
             path(
-                &format!(
-                    "M{},{}H{}A{},{} 0 0 0 {},{}H{}A{},{} 0 0 1 {},{}Z",
+                &svg_format!(
+                    "M",
                     num(-x + k),
+                    ",",
                     num(-y),
+                    "H",
                     num(x),
+                    "A",
                     num(k),
+                    ",",
                     num(y),
+                    " 0 0 0 ",
                     num(x),
+                    ",",
                     num(y),
+                    "H",
                     num(-x + k),
+                    "A",
                     num(k),
+                    ",",
                     num(y),
+                    " 0 0 1 ",
                     num(-x + k),
-                    num(-y)
+                    ",",
+                    num(-y),
+                    "Z"
                 ),
                 a,
             )
         }
-        "tag-rect" => format!(
-            "{}<path d=\"M{},{}L{},{}\" fill=\"none\"{}/>",
+        "tag-rect" => svg_format!(
             rr(w, h, a),
+            "<path d=\"M",
             num(w / 2.0 - 12.0),
+            ",",
             num(h / 2.0),
+            "L",
             num(w / 2.0),
+            ",",
             num(h / 2.0 - 12.0),
-            line
+            "\" fill=\"none\"",
+            line,
+            "/>"
         ),
-        "tag-doc" => format!(
-            "{}<path d=\"M{},{}L{},{}\" fill=\"none\"{}/>",
+        "tag-doc" => svg_format!(
             wave(w, h, a),
+            "<path d=\"M",
             num(w / 2.0 - 12.0),
+            ",",
             num(h / 2.0 - 14.0),
+            "L",
             num(w / 2.0),
+            ",",
             num(h / 2.0 - 26.0),
-            line
+            "\" fill=\"none\"",
+            line,
+            "/>"
         ),
-        "lin-doc" => format!(
-            "{}<path d=\"M{},{}V{}\" fill=\"none\"{}/>",
+        "lin-doc" => svg_format!(
             wave(w, h, a),
+            "<path d=\"M",
             num(-w / 2.0 + 8.0),
+            ",",
             num(-h / 2.0),
+            "V",
             num(h / 2.0 - 6.0),
-            line
+            "\" fill=\"none\"",
+            line,
+            "/>"
         ),
-        COLLAPSED => format!(
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{}{}/><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{}{}/>",
+        COLLAPSED => svg_format!(
+            "<rect x=\"",
             num(-w / 2.0 + 6.0),
+            "\" y=\"",
             num(-h / 2.0 + 8.0),
+            "\" width=\"",
             num(w - 12.0),
+            "\" height=\"",
             num(h - 8.0),
+            "\"",
             ROUNDED,
             a,
+            "/><rect x=\"",
             num(-w / 2.0),
+            "\" y=\"",
             num(-h / 2.0),
+            "\" width=\"",
             num(w),
+            "\" height=\"",
             num(h - 4.0),
+            "\"",
             ROUNDED,
-            a
+            a,
+            "/>"
         ),
         _ => rr(w, h, a),
     }
@@ -1000,7 +1272,6 @@ pub fn inset_route(route: &mut [f64], at: usize, shape: &str, vw: f64, vh: f64, 
         route[at] += if side == 3 { amount } else { -amount };
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

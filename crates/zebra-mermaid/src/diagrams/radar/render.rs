@@ -1,5 +1,6 @@
 //! Radar rendering. Ported from Pele `src/diagrams/radar/render.ts`.
 
+use crate::svg::concat::{svg_format, svg_write};
 use std::f64::consts::PI;
 
 use super::{Graticule, RadarModel};
@@ -40,13 +41,14 @@ pub fn relative_radius(value: f64, min: f64, max: f64, radius: f64) -> f64 {
 /// A closed Catmull-Rom spline through the points, as cubic Bézier segments.
 fn closed_round_curve(points: &[Point], tension: f64) -> String {
     let n = points.len();
-    let mut d = format!("M{},{}", num(points[0].x), num(points[0].y));
+    let mut d = svg_format!("M", num(points[0].x), ",", num(points[0].y));
     for i in 0..n {
         let p0 = points[(i + n - 1) % n];
         let p1 = points[i];
         let p2 = points[(i + 1) % n];
         let p3 = points[(i + 2) % n];
-        write!(d, 
+        write!(
+            d,
             " C{},{} {},{} {},{}",
             num(p1.x + (p2.x - p0.x) * tension),
             num(p1.y + (p2.y - p0.y) * tension),
@@ -54,7 +56,8 @@ fn closed_round_curve(points: &[Point], tension: f64) -> String {
             num(p2.y - (p3.y - p1.y) * tension),
             num(p2.x),
             num(p2.y)
-        ).unwrap();
+        )
+        .unwrap();
     }
     d + " Z"
 }
@@ -129,10 +132,10 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
     while i < ticks {
         let r = js::min(radius, (radius * (i + 1.0)) / ticks);
         if graticule == Graticule::Circle {
-            write!(grid, "<circle r=\"{}\"/>", num(r)).unwrap();
+            svg_write!(grid, "<circle r=\"", num(r), "\"/>").unwrap();
         } else {
             let ring: Vec<Point> = unit.iter().map(|u| Point { x: u.x * r, y: u.y * r }).collect();
-            write!(grid, "<polygon points=\"{}\"/>", polygon(&ring)).unwrap();
+            svg_write!(grid, "<polygon points=\"", polygon(&ring), "\"/>").unwrap();
         }
         i += 1.0;
     }
@@ -142,7 +145,7 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
     let mut labels = String::new();
     for (i, u) in unit.iter().enumerate() {
         let reach = radius * axis_scale;
-        write!(spokes, "M0,0L{},{}", num(u.x * reach), num(u.y * reach)).unwrap();
+        svg_write!(spokes, "M0,0L", num(u.x * reach), ",", num(u.y * reach)).unwrap();
         let label = layout_label(Some(&axes[i].label), false, &m, small, 4000.0, 0);
         let at = radius * label_factor + 6.0;
         // Each label hangs off its axis on the side away from the center.
@@ -162,11 +165,15 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
             } else {
                 0.0
             };
-        write!(labels, 
-            "<g class=\"pele-axis-label\" data-id=\"{}\">{}</g>",
+        svg_write!(
+            labels,
+            "<g class=\"pele-axis-label\" data-id=\"",
             esc_text(&axes[i].name),
-            label_svg(&label, cx, cy, "", icons)
-        ).unwrap();
+            "\">",
+            label_svg(&label, cx, cy, "", icons),
+            "</g>"
+        )
+        .unwrap();
         x0 = js::min(x0, cx - label.width / 2.0);
         x1 = js::max(x1, cx + label.width / 2.0);
         y0 = js::min(y0, cy - label.height / 2.0);
@@ -190,11 +197,12 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
             })
             .collect();
         let color = ctx.series(index as i64);
-        let attrs = format!(" class=\"pele-curve\" data-id=\"{}\" fill=\"{}\" stroke=\"{}\"", esc_text(&curve.name), color, color);
+        let attrs =
+            svg_format!(" class=\"pele-curve\" data-id=\"", esc_text(&curve.name), "\" fill=\"", color, "\" stroke=\"", color, "\"");
         if graticule == Graticule::Circle {
-            write!(shapes, "<path{} d=\"{}\"/>", attrs, closed_round_curve(&points, tension)).unwrap();
+            svg_write!(shapes, "<path", attrs, " d=\"", closed_round_curve(&points, tension), "\"/>").unwrap();
         } else {
-            write!(shapes, "<polygon{} points=\"{}\"/>", attrs, polygon(&points)).unwrap();
+            svg_write!(shapes, "<polygon", attrs, " points=\"", polygon(&points), "\"/>").unwrap();
         }
     }
 
@@ -223,15 +231,23 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
     for (index, label) in legend.iter().enumerate() {
         let y = legend_top + index as f64 * ROW + ROW / 2.0;
         let color = ctx.series(index as i64);
-        write!(legend_out, 
-            "<g class=\"pele-legend-item\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"12\" height=\"12\" rx=\"2\" fill=\"{}\" fill-opacity=\"0.4\" stroke=\"{}\"/>{}</g>",
+        svg_write!(
+            legend_out,
+            "<g class=\"pele-legend-item\" data-id=\"",
             esc_text(&curves[index].name),
+            "\"><rect x=\"",
             num(legend_x),
+            "\" y=\"",
             num(y - SWATCH / 2.0),
+            "\" width=\"12\" height=\"12\" rx=\"2\" fill=\"",
             color,
+            "\" fill-opacity=\"0.4\" stroke=\"",
             color,
-            label_svg(label, legend_x + SWATCH + 8.0 + label.width / 2.0, y, "", icons)
-        ).unwrap();
+            "\"/>",
+            label_svg(label, legend_x + SWATCH + 8.0 + label.width / 2.0, y, "", icons),
+            "</g>"
+        )
+        .unwrap();
     }
 
     let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
@@ -243,38 +259,51 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
 
     let small_s = js::to_string(small);
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", icons).to_string();
-    write!(content, "<g transform=\"{}\">", origin).unwrap();
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", icons)
+            .to_string();
+    svg_write!(content, "<g transform=\"", origin, "\">").unwrap();
     if !grid.is_empty() {
         // The rings are a grid behind the data.
-        write!(content, 
-            "<g class=\"pele-graticule\" fill=\"none\" stroke=\"{}\">{}</g>",
+        svg_write!(
+            content,
+            "<g class=\"pele-graticule\" fill=\"none\" stroke=\"",
             ctx.paint(Role::InnerStroke, "var(--_a)"),
-            grid
-        ).unwrap();
+            "\">",
+            grid,
+            "</g>"
+        )
+        .unwrap();
     }
     if !spokes.is_empty() {
         // The spokes are the chart's axes.
-        write!(content, 
-            "<path class=\"pele-axes\" d=\"{}\" fill=\"none\" stroke=\"{}\"/>",
+        svg_write!(
+            content,
+            "<path class=\"pele-axes\" d=\"",
             spokes,
-            ctx.paint(Role::Line, "var(--_b)")
-        ).unwrap();
+            "\" fill=\"none\" stroke=\"",
+            ctx.paint(Role::Line, "var(--_b)"),
+            "\"/>"
+        )
+        .unwrap();
     }
     if !shapes.is_empty() {
-        write!(content, 
-            "<g class=\"pele-curves\" fill-opacity=\"0.2\" stroke-width=\"1.5\" stroke-linejoin=\"round\">{}</g>",
-            shapes
-        ).unwrap();
+        svg_write!(
+            content,
+            "<g class=\"pele-curves\" fill-opacity=\"0.2\" stroke-width=\"1.5\" stroke-linejoin=\"round\">",
+            shapes,
+            "</g>"
+        )
+        .unwrap();
     }
     if !labels.is_empty() {
         // Axis names are captions. Pele lets them inherit the text color; resolved output
         // names their role.
-        let fill = if ctx.resolved() { format!(" fill=\"{}\"", ctx.theming.resolved.color(Role::SecondaryText)) } else { String::new() };
-        write!(content, "<g class=\"pele-axis-labels\" font-size=\"{}\"{}>{}</g>", small_s, fill, labels).unwrap();
+        let fill =
+            if ctx.resolved() { svg_format!(" fill=\"", ctx.theming.resolved.color(Role::SecondaryText), "\"") } else { String::new() };
+        svg_write!(content, "<g class=\"pele-axis-labels\" font-size=\"", small_s, "\"", fill, ">", labels, "</g>").unwrap();
     }
     if !legend_out.is_empty() {
-        write!(content, "<g class=\"pele-legend\" font-size=\"{}\">{}</g>", small_s, legend_out).unwrap();
+        svg_write!(content, "<g class=\"pele-legend\" font-size=\"", small_s, "\">", legend_out, "</g>").unwrap();
     }
     content.push_str("</g>");
 

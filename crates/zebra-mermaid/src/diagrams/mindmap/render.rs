@@ -7,6 +7,7 @@ use crate::diagrams::common::icon::icon_svg;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::shapes::{draw_shape, shape_inset, shape_size};
 use crate::svg::theme::class_names;
@@ -53,13 +54,12 @@ fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> Strin
             size: label.size,
             line_height: label.line_height,
         };
-        write!(out, "{}", label_svg(
-            &one,
-            left + width / 2.0,
-            cy + (k as f64 - (count - 1.0) / 2.0) * label.line_height,
-            " class=\"pele-label\"",
-            icons,
-        )).unwrap();
+        write!(
+            out,
+            "{}",
+            label_svg(&one, left + width / 2.0, cy + (k as f64 - (count - 1.0) / 2.0) * label.line_height, " class=\"pele-label\"", icons,)
+        )
+        .unwrap();
     }
     out
 }
@@ -92,8 +92,8 @@ fn branch(ctx: &RenderCtx, section: i64) -> Branch {
     if !ctx.resolved() {
         let color = ctx.series(section).into_owned();
         return Branch {
-            tint: format!(" fill=\"{}\" fill-opacity=\"{}\" stroke=\"{}\"", color, TINT, color),
-            inner: format!(" stroke=\"{}\"", color),
+            tint: svg_format!(" fill=\"", color, "\" fill-opacity=\"", TINT, "\" stroke=\"", color, "\""),
+            inner: svg_format!(" stroke=\"", color, "\""),
             line: color,
             text: String::new(),
         };
@@ -108,10 +108,10 @@ fn branch(ctx: &RenderCtx, section: i64) -> Branch {
         (tonal(&t.accent, &t.background, 0.04, 0.13, 12, section.rem_euclid(12) as usize), t.color(Role::Text).to_string())
     };
     Branch {
-        tint: format!(" fill=\"{}\" stroke=\"{}\"", fill, line),
-        inner: format!(" stroke=\"{}\"", line),
+        tint: svg_format!(" fill=\"", fill, "\" stroke=\"", line, "\""),
+        inner: svg_format!(" stroke=\"", line, "\""),
         line,
-        text: format!(" fill=\"{}\" color=\"{}\"", text, text),
+        text: svg_format!(" fill=\"", text, "\" color=\"", text, "\""),
     }
 }
 
@@ -333,13 +333,19 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             return;
         }
         let line = colors.as_ref().map_or("", |c| c.line.as_str());
-        write!(out, 
-            "<g class=\"pele-branch pele-section-{}\"><g class=\"pele-edges\" fill=\"none\" stroke=\"{}\" stroke-width=\"1.5\">{}</g>{}</g>",
+        svg_write!(
+            out,
+            "<g class=\"pele-branch pele-section-",
             section.unwrap_or(0),
+            "\"><g class=\"pele-edges\" fill=\"none\" stroke=\"",
             line,
+            "\" stroke-width=\"1.5\">",
             edges,
-            body
-        ).unwrap();
+            "</g>",
+            body,
+            "</g>"
+        )
+        .unwrap();
         edges.clear();
         body.clear();
     };
@@ -377,17 +383,27 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             let bend = js::max(0.0, js::min(js::min(BEND, x2 - x1), y2 - y1));
             // The next link carries on from where this one leaves the trunk, so the trunk has no gap.
             trunk[p] = y2 - bend;
-            write!(edges, 
-                "<path class=\"pele-edge\" d=\"M{},{}V{}Q{},{} {},{}H{}\"/>",
+            svg_write!(
+                edges,
+                "<path class=\"pele-edge\" d=\"M",
                 num(x1),
+                ",",
                 num(y1),
+                "V",
                 num(y2 - bend),
+                "Q",
                 num(x1),
+                ",",
                 num(y2),
+                " ",
                 num(x1 + bend),
+                ",",
                 num(y2),
-                num(x2)
-            ).unwrap();
+                "H",
+                num(x2),
+                "\"/>"
+            )
+            .unwrap();
         } else if i > 0 {
             if parent[i] == 0 {
                 colors = Some(branch(ctx, node.section.unwrap_or(0) as i64));
@@ -401,17 +417,27 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             let x2 = near + if !shape.is_empty() { dir * shape_inset(shape, w[i], h[i], 4 - from, 0.0) } else { 0.0 };
             let y2 = top + anchor[i];
             let mid = num((x1 + x2) / 2.0);
-            write!(edges, 
-                "<path class=\"pele-edge\" d=\"M{},{}C{},{} {},{} {},{}\"/>",
+            svg_write!(
+                edges,
+                "<path class=\"pele-edge\" d=\"M",
                 num(x1),
+                ",",
                 num(y1),
+                "C",
                 mid,
+                ",",
                 num(y1),
+                " ",
                 mid,
+                ",",
                 num(y2),
+                " ",
                 num(x2),
-                num(y2)
-            ).unwrap();
+                ",",
+                num(y2),
+                "\"/>"
+            )
+            .unwrap();
         }
 
         let pill = shape.is_empty() && !node.children.is_empty();
@@ -446,24 +472,30 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
                     shape,
                     w[i],
                     h[i],
-                    &format!(" fill=\"{}\" stroke=\"{}\"", fill, stroke),
-                    &format!(" stroke=\"{}\"", stroke),
+                    &svg_format!(" fill=\"", fill, "\" stroke=\"", stroke, "\""),
+                    &svg_format!(" stroke=\"", stroke, "\""),
                     ctx.theming,
                 );
                 if resolved {
                     let color = ctx.paint(Role::Text, "");
-                    paint = format!(" fill=\"{}\" color=\"{}\"", color, color);
+                    paint = svg_format!(" fill=\"", color, "\" color=\"", color, "\"");
                 }
             }
         } else if pill {
-            inner = format!(
-                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{}/>",
+            inner = svg_format!(
+                "<rect x=\"",
                 num(-w[i] / 2.0),
+                "\" y=\"",
                 num(-h[i] / 2.0),
+                "\" width=\"",
                 num(w[i]),
+                "\" height=\"",
                 num(h[i]),
+                "\" rx=\"",
                 num(h[i] / 2.0),
-                tint
+                "\"",
+                tint,
+                "/>"
             );
             if resolved {
                 paint = text.clone();
@@ -481,21 +513,27 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
         } else {
             "text"
         };
-        let group = format!(
-            "<g class=\"pele-node pele-shape-{}{}{}\" data-id=\"{}\" transform=\"translate({},{})\"{}>{}{}</g>",
+        let group = svg_format!(
+            "<g class=\"pele-node pele-shape-",
             kind,
             if i > 0 { "" } else { " pele-root" },
             class_names(node.class.as_deref().unwrap_or("")),
+            "\" data-id=\"",
             esc_text(&node.node_id),
+            "\" transform=\"translate(",
             num(cx),
+            ",",
             num(top + h[i] / 2.0),
+            ")\"",
             paint,
+            ">",
             inner,
             if down && shape.is_empty() {
                 left_label(label, shift - label.width / 2.0, dy[i], icons)
             } else {
                 label_svg(label, shift, dy[i], " class=\"pele-label\"", icons).to_string()
-            }
+            },
+            "</g>"
         );
         if i > 0 {
             body.push_str(&group);
@@ -510,13 +548,19 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (max_y - min_y + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
-    write!(content, 
-        "<g transform=\"translate({},{})\">{}</g>",
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+            .to_string();
+    svg_write!(
+        content,
+        "<g transform=\"translate(",
         num(pad - min_x + (width - max_x + min_x) / 2.0),
+        ",",
         num(pad + title_height - min_y),
-        out
-    ).unwrap();
+        ")\">",
+        out,
+        "</g>"
+    )
+    .unwrap();
 
     Rendered {
         svg: svg_document("mindmap", total_width, total_height, size, ctx, Accessible::default(), &content),

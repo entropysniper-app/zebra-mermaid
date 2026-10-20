@@ -7,13 +7,13 @@ use crate::diagrams::common::fit_width::turn_to_fit;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::edges::{marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::RADIUS;
 use crate::text::{style, Label};
 use crate::theme::Role;
 use crate::util::js;
-use std::fmt::Write as _;
 
 const PAD_X: f64 = 12.0;
 const PAD_Y: f64 = 8.0;
@@ -34,7 +34,21 @@ struct Group {
 }
 
 fn rect(x: f64, y: f64, w: f64, h: f64, attrs: &str) -> String {
-    format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{}/>", num(x), num(y), num(w), num(h), RADIUS, attrs)
+    svg_format!(
+        "<rect x=\"",
+        num(x),
+        "\" y=\"",
+        num(y),
+        "\" width=\"",
+        num(w),
+        "\" height=\"",
+        num(h),
+        "\" rx=\"",
+        RADIUS,
+        "\"",
+        attrs,
+        "/>"
+    )
 }
 
 pub(crate) fn render(model: &TimelineModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
@@ -154,44 +168,54 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     let top = pad + title_h;
 
     // Text on a series fill: the canvas color in CSS mode, a contrasting color when resolved.
-    let on_color = |fill: &str| format!(" fill=\"{}\"", ctx.theming.text_on(fill, "var(--_bg)"));
+    let on_color = |fill: &str| svg_format!(" fill=\"", ctx.theming.text_on(fill, "var(--_bg)"), "\"");
     let section_label = |group: &Group, w: f64| -> Label {
         fit_label(Some(&model.sections[group.section as usize]), &m, size, w - 2.0 * PAD_X, style::BOLD)
     };
     let header = |group: &Group, label: &Label, x: f64, y: f64, w: f64, h: f64| -> String {
         let fill = ctx.series(group.section);
-        rect(x, y, w, h, &format!(" fill=\"{}\"", fill))
-            + &label_svg(label, x + w / 2.0, y + h / 2.0, &format!(" font-weight=\"var(--_hw)\"{}", on_color(&fill)), None).to_string()
+        rect(x, y, w, h, &svg_format!(" fill=\"", fill, "\""))
+            + &label_svg(label, x + w / 2.0, y + h / 2.0, &svg_format!(" font-weight=\"var(--_hw)\"", on_color(&fill)), None).to_string()
     };
     let period = |labels: &[Label], i: usize, color: &str, x: f64, y: f64, h: f64| -> String {
-        rect(x, y, col_w, h, &format!(" fill=\"{}\"", color)) + &label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None).to_string()
+        rect(x, y, col_w, h, &svg_format!(" fill=\"", color, "\""))
+            + &label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None).to_string()
     };
     let event = |label: &Label, color: &str, x: f64, y: f64, h: f64| -> String {
-        format!(
-            "<g class=\"pele-node pele-event\">{}{}</g>",
-            rect(x, y, event_w, h, &format!(" fill=\"{}\" fill-opacity=\"0.16\"", color)),
-            label_svg(label, x + event_w / 2.0, y + h / 2.0, &format!(" font-size=\"{}\"", js::to_string(small)), None)
+        svg_format!(
+            "<g class=\"pele-node pele-event\">",
+            rect(x, y, event_w, h, &svg_format!(" fill=\"", color, "\" fill-opacity=\"0.16\"")),
+            label_svg(label, x + event_w / 2.0, y + h / 2.0, &svg_format!(" font-size=\"", js::to_string(small), "\""), None),
+            "</g>"
         )
     };
     let dot = |x: f64, y: f64, color: &str| -> String {
-        format!(
-            "<circle class=\"pele-dot\" cx=\"{}\" cy=\"{}\" r=\"4\" fill=\"{}\" stroke=\"{}\" stroke-width=\"2\"/>",
+        svg_format!(
+            "<circle class=\"pele-dot\" cx=\"",
             num(x),
+            "\" cy=\"",
             num(y),
+            "\" r=\"4\" fill=\"",
             color,
-            ctx.paint(Role::Background, "var(--_bg)")
+            "\" stroke=\"",
+            ctx.paint(Role::Background, "var(--_bg)"),
+            "\" stroke-width=\"2\"/>"
         )
     };
     let open = |group: &Group| -> String {
         if group.section >= 0 {
-            format!("<g class=\"pele-cluster pele-section\" data-id=\"{}\">", esc_text(js::trim(&model.sections[group.section as usize])))
+            svg_format!(
+                "<g class=\"pele-cluster pele-section\" data-id=\"",
+                esc_text(js::trim(&model.sections[group.section as usize])),
+                "\">"
+            )
         } else {
             String::new()
         }
     };
-    let open_period = |i: usize| format!("<g class=\"pele-node pele-period\" data-id=\"{}\">", esc_text(js::trim(&periods[i].text)));
+    let open_period = |i: usize| svg_format!("<g class=\"pele-node pele-period\" data-id=\"", esc_text(js::trim(&periods[i].text)), "\">");
     // The connector from a period to its events: Pele draws it in the border color.
-    let line = format!(" fill=\"none\" stroke=\"{}\"", ctx.paint(Role::Line, "var(--_b)"));
+    let line = svg_format!(" fill=\"none\" stroke=\"", ctx.paint(Role::Line, "var(--_b)"), "\"");
     let axis_color = ctx.paint(Role::Line, "var(--_l)");
     let arrow_color = ctx.paint(Role::Arrow, "var(--_l)");
 
@@ -215,23 +239,23 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 let color = color_of(group, i);
                 let h = chip_height(&period_labels[i]);
                 let cy = y + h / 2.0;
-                let mut d = format!("M{},{}H{}", num(left + col_w), num(cy), num(axis_x));
+                let mut d = svg_format!("M", num(left + col_w), ",", num(cy), "H", num(axis_x));
                 let mut cards = String::new();
                 let mut ey = y;
                 let mut last = cy;
                 for label in &event_labels[i] {
                     let eh = event_height(label);
                     last = ey + eh / 2.0;
-                    write!(d, "M{},{}H{}", num(spine_x), num(last), num(events_x)).unwrap();
+                    svg_write!(d, "M", num(spine_x), ",", num(last), "H", num(events_x)).unwrap();
                     cards.push_str(&event(label, &color, events_x, ey, eh));
                     ey += eh + EVENT_GAP;
                 }
                 if !cards.is_empty() {
-                    write!(d, "M{},{}H{}V{}", num(axis_x), num(cy), num(spine_x), num(last)).unwrap();
+                    svg_write!(d, "M", num(axis_x), ",", num(cy), "H", num(spine_x), "V", num(last)).unwrap();
                 }
                 body.push_str(&open_period(i));
                 body.push_str(&period(&period_labels, i, &color, left, y, h));
-                write!(body, "<path class=\"pele-edge\" d=\"{}\"{}/>", d, line).unwrap();
+                svg_write!(body, "<path class=\"pele-edge\" d=\"", d, "\"", line, "/>").unwrap();
                 body.push_str(&dot(axis_x, cy, &color));
                 body.push_str(&cards);
                 body.push_str("</g>");
@@ -249,12 +273,16 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
         }
         if drawn {
             let tip = y + TAIL + ARROW;
-            body = format!(
-                "<path class=\"pele-axis\" d=\"M{},{}V{}\" fill=\"none\" stroke=\"{}\"/>{}{}",
+            body = svg_format!(
+                "<path class=\"pele-axis\" d=\"M",
                 num(axis_x),
+                ",",
                 num(top),
+                "V",
                 num(tip - ARROW + 1.0),
+                "\" fill=\"none\" stroke=\"",
                 axis_color,
+                "\"/>",
                 marker("arrow_point", axis_x, tip, 0.0, 1.0, arrow_color),
                 body
             );
@@ -294,10 +322,12 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 let color = color_of(group, i);
                 let x = gx + k as f64 * pitch;
                 let cx = x + col_w / 2.0;
-                let mut d = format!(
-                    "M{},{}V{}",
+                let mut d = svg_format!(
+                    "M",
                     num(cx),
+                    ",",
                     num(periods_y + chip_h),
+                    "V",
                     num(if !event_labels[i].is_empty() { events_y } else { axis_y })
                 );
                 let mut cards = String::new();
@@ -305,7 +335,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 for event_label in &event_labels[i] {
                     let eh = event_height(event_label);
                     if ey > events_y {
-                        write!(d, "M{},{}V{}", num(cx), num(ey - EVENT_GAP), num(ey)).unwrap();
+                        svg_write!(d, "M", num(cx), ",", num(ey - EVENT_GAP), "V", num(ey)).unwrap();
                     }
                     cards.push_str(&event(event_label, &color, x, ey, eh));
                     ey += eh + EVENT_GAP;
@@ -313,7 +343,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 bottom = js::max(bottom, ey - EVENT_GAP);
                 body.push_str(&open_period(i));
                 body.push_str(&period(&period_labels, i, &color, x, periods_y, chip_h));
-                write!(body, "<path class=\"pele-edge\" d=\"{}\"{}/>", d, line).unwrap();
+                svg_write!(body, "<path class=\"pele-edge\" d=\"", d, "\"", line, "/>").unwrap();
                 body.push_str(&dot(cx, axis_y, &color));
                 body.push_str(&cards);
                 body.push_str("</g>");
@@ -325,12 +355,16 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
         }
         if drawn {
             let tip = left + body_w;
-            body = format!(
-                "<path class=\"pele-axis\" d=\"M{},{}H{}\" fill=\"none\" stroke=\"{}\"/>{}{}",
+            body = svg_format!(
+                "<path class=\"pele-axis\" d=\"M",
                 num(left),
+                ",",
                 num(axis_y),
+                "H",
                 num(tip - ARROW + 1.0),
+                "\" fill=\"none\" stroke=\"",
                 axis_color,
+                "\"/>",
                 marker("arrow_point", tip, axis_y, 1.0, 0.0, arrow_color),
                 body
             );
@@ -340,8 +374,9 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = js::max(height, pad * 2.0).ceil();
-    let content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string() + &body;
+    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+        .to_string()
+        + &body;
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered {
         svg: svg_document("timeline", total_width, total_height, size, ctx, acc, &content),

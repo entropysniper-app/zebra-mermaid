@@ -182,6 +182,13 @@ impl fmt::Display for LeftLabelSvg<'_> {
     }
 }
 
+impl crate::svg::concat::Part for LeftLabelSvg<'_> {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        push_left_label_svg(out, self.label, self.x, self.top, self.attrs);
+    }
+}
+
 fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: &Label, x: f64, top: f64, attrs: &str) -> fmt::Result {
     let shared = shared_style(label);
     let open = text_style(attrs, shared);

@@ -7,6 +7,7 @@ use crate::diagrams::common::icon::icon_svg;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, label_svg, num, text_style};
+use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, RADIUS};
 use crate::text::{layout_label, style, Icons, Label, Measure, Span};
@@ -28,10 +29,10 @@ const ICON_GAP: f64 = 6.0;
 fn priority_attrs(priority: &str, ctx: &RenderCtx) -> Option<String> {
     let muted = || ctx.paint(Role::SecondaryText, "var(--_m)");
     match priority {
-        "very high" => Some(format!("stroke=\"{}\"", ctx.theming.critical())),
-        "high" => Some(format!("stroke=\"{}\" opacity=\"0.5\"", ctx.theming.critical())),
-        "low" => Some(format!("stroke=\"{}\" opacity=\"0.5\"", muted())),
-        "very low" => Some(format!("stroke=\"{}\"", muted())),
+        "very high" => Some(svg_format!("stroke=\"", ctx.theming.critical(), "\"")),
+        "high" => Some(svg_format!("stroke=\"", ctx.theming.critical(), "\" opacity=\"0.5\"")),
+        "low" => Some(svg_format!("stroke=\"", muted(), "\" opacity=\"0.5\"")),
+        "very low" => Some(svg_format!("stroke=\"", muted(), "\"")),
         _ => None,
     }
 }
@@ -101,14 +102,21 @@ fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>,
     for (i, line) in label.lines.iter().enumerate() {
         let cy = y + (i as f64 + 0.5) * label.line_height;
         if line.len() == 1 && line[0].icon.is_none() {
-            write!(out, 
-                "<text{} x=\"{}\" y=\"{}\"{}>{}</text>",
+            svg_write!(
+                out,
+                "<text",
                 text_style(attrs, line[0].style),
+                " x=\"",
                 num(x),
+                "\" y=\"",
                 num(cy + label.size * 0.35),
+                "\"",
                 if end { " text-anchor=\"end\"" } else { "" },
-                esc(&line[0].text)
-            ).unwrap();
+                ">",
+                esc(&line[0].text),
+                "</text>"
+            )
+            .unwrap();
         } else {
             let width = label.widths[i];
             let one = Label {
@@ -249,7 +257,7 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
     let column_paint = if resolved {
         // Zebra draws groups with a fill and an outline. Its group fill is the canvas color
         // unless the caller gives one, and a column would not show without the outline.
-        format!(" fill=\"{}\" stroke=\"{}\"", ctx.paint(Role::GroupFill, ""), ctx.paint(Role::GroupStroke, ""))
+        svg_format!(" fill=\"", ctx.paint(Role::GroupFill, ""), "\" stroke=\"", ctx.paint(Role::GroupStroke, ""), "\"")
     } else {
         " fill=\"var(--_s)\"".to_string()
     };
@@ -260,8 +268,17 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
         let row = (index as f64 / per_row).floor();
         let row_height = row_heights.get(row as usize).copied().filter(|_| row >= 0.0).unwrap_or(f64::NAN);
         let row_top = row_tops.get(row as usize).copied().filter(|_| row >= 0.0).unwrap_or(f64::NAN);
-        let mut body =
-            format!("<rect width=\"{}\" height=\"{}\" rx=\"{}\"{}/>", js::to_string(column_width), num(row_height), RADIUS, column_paint);
+        let mut body = svg_format!(
+            "<rect width=\"",
+            js::to_string(column_width),
+            "\" height=\"",
+            num(row_height),
+            "\" rx=\"",
+            RADIUS,
+            "\"",
+            column_paint,
+            "/>"
+        );
         body.push_str(&text_block(
             &titles[index],
             COLUMN_PAD + 4.0,
@@ -270,14 +287,21 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
             icons,
             false,
         ));
-        write!(body, 
-            "<text class=\"pele-count\" x=\"{}\" y=\"{}\" text-anchor=\"end\" font-size=\"{}\" fill=\"{}\">{}</text>",
+        svg_write!(
+            body,
+            "<text class=\"pele-count\" x=\"",
             js::to_string(edge),
+            "\" y=\"",
             num(COLUMN_PAD + line / 2.0 + small * 0.35),
+            "\" text-anchor=\"end\" font-size=\"",
             js::to_string(small),
+            "\" fill=\"",
             muted,
-            section.items.len()
-        ).unwrap();
+            "\">",
+            section.items.len(),
+            "</text>"
+        )
+        .unwrap();
         if let Some(icon) = section.node.icon.as_deref().filter(|&i| has(Some(i))) {
             body.push_str(&icon_svg(icon, edge - count_widths[index] - ICON_GAP - glyph, COLUMN_PAD + (line - glyph) / 2.0, glyph, icons));
         }
@@ -287,20 +311,29 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
             let item = card.item;
             let priority = js::trim(item.priority.as_deref().unwrap_or("")).to_lowercase();
             let color = priority_attrs(&priority, ctx);
-            let mut inner = format!(
-                "<rect width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"/>",
+            let mut inner = svg_format!(
+                "<rect width=\"",
                 js::to_string(card_width),
+                "\" height=\"",
                 num(card.height),
+                "\" rx=\"",
                 RADIUS,
+                "\" fill=\"",
                 ctx.paint(Role::NodeFill, "var(--_bg)"),
-                ctx.paint(Role::NodeStroke, "var(--_b)")
+                "\" stroke=\"",
+                ctx.paint(Role::NodeStroke, "var(--_b)"),
+                "\"/>"
             );
             if let Some(color) = &color {
-                write!(inner, 
-                    "<path class=\"pele-priority\" d=\"M2.5,5V{}\" fill=\"none\" {} stroke-width=\"3\" stroke-linecap=\"round\"/>",
+                svg_write!(
+                    inner,
+                    "<path class=\"pele-priority\" d=\"M2.5,5V",
                     num(card.height - 5.0),
-                    color
-                ).unwrap();
+                    "\" fill=\"none\" ",
+                    color,
+                    " stroke-width=\"3\" stroke-linecap=\"round\"/>"
+                )
+                .unwrap();
             }
             inner.push_str(&text_block(&card.label, CARD_PAD, CARD_PAD, " class=\"pele-label\"", icons, false));
             if let Some(icon) = item.icon.as_deref().filter(|&i| has(Some(i))) {
@@ -316,18 +349,18 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                             &card.ticket,
                             CARD_PAD,
                             top,
-                            &format!(" class=\"pele-ticket\" fill=\"{}\"", muted),
+                            &svg_format!(" class=\"pele-ticket\" fill=\"", muted, "\""),
                             icons,
                             false,
                         ));
                     }
                     Some(href) => {
-                        write!(inner, "<a href=\"{}\" target=\"_blank\"{}>", esc(&href), rel_attr(options)).unwrap();
+                        svg_write!(inner, "<a href=\"", esc(&href), "\" target=\"_blank\"", rel_attr(options), ">").unwrap();
                         inner.push_str(&text_block(
                             &card.ticket,
                             CARD_PAD,
                             top,
-                            &format!(" class=\"pele-ticket\" fill=\"{}\"", ctx.paint(Role::Accent, "var(--_c)")),
+                            &svg_format!(" class=\"pele-ticket\" fill=\"", ctx.paint(Role::Accent, "var(--_c)"), "\""),
                             icons,
                             false,
                         ));
@@ -341,38 +374,54 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                     &card.assigned,
                     card_width - CARD_PAD,
                     bottom - card.assigned.height,
-                    &format!(" class=\"pele-assigned\" fill=\"{}\"", muted),
+                    &svg_format!(" class=\"pele-assigned\" fill=\"", muted, "\""),
                     icons,
                     true,
                 ));
             }
-            write!(body, 
-                "<g class=\"pele-node pele-card{}{}\" data-id=\"{}\" transform=\"translate({},{})\" font-size=\"{}\">{}</g>",
+            svg_write!(
+                body,
+                "<g class=\"pele-node pele-card",
                 if color.is_none() { String::new() } else { format!(" pele-priority-{}", priority.replacen(' ', "-", 1)) },
                 class_names(item.css_classes.as_deref().unwrap_or("")),
+                "\" data-id=\"",
                 esc_text(&item.id),
+                "\" transform=\"translate(",
                 js::to_string(COLUMN_PAD),
+                ",",
                 num(y),
+                ")\" font-size=\"",
                 js::to_string(small),
-                inner
-            ).unwrap();
+                "\">",
+                inner,
+                "</g>"
+            )
+            .unwrap();
             y += card.height + CARD_GAP;
         }
 
-        write!(out, 
-            "<g class=\"pele-cluster pele-column{}\" data-id=\"{}\" transform=\"translate({},{})\">{}</g>",
+        svg_write!(
+            out,
+            "<g class=\"pele-cluster pele-column",
             class_names(section.node.css_classes.as_deref().unwrap_or("")),
+            "\" data-id=\"",
             esc_text(&section.node.id),
+            "\" transform=\"translate(",
             num(left + (index as f64 % per_row) * (column_width + COLUMN_GAP)),
+            ",",
             num(pad + title_height + row_top),
-            body
-        ).unwrap();
+            ")\">",
+            body,
+            "</g>"
+        )
+        .unwrap();
     }
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (board_height + title_height + 2.0 * pad).ceil();
     let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
+            .to_string();
     content.push_str(&out);
 
     Ok(Rendered {
