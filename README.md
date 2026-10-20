@@ -11,10 +11,12 @@ A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [
 
 ## Quick start
 
-Requires Rust 1.96 or later; verified with rustc 1.96.1. From the repository root:
+Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from GitHub:
 
 ```sh
-cargo install --path crates/zebra-mermaid-cli --locked
+cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
+  --rev 7804c9455c9199e4e8bf61cbdcc7a96a041c512a \
+  --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
 zebra-mermaid render diagram.mmd --theme dark \
@@ -130,11 +132,11 @@ Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pe
 
 ## Library API
 
-Add the local library to your application's `Cargo.toml`:
+Add the library to your application's `Cargo.toml`. Both installation examples pin the same revision for reproducible builds:
 
 ```toml
 [dependencies]
-zebra-mermaid = { path = "path/to/zebra-mermaid/crates/zebra-mermaid" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "7804c9455c9199e4e8bf61cbdcc7a96a041c512a" }
 ```
 
 ```rust
