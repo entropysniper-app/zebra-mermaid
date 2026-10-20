@@ -1,0 +1,199 @@
+{
+  "method": "Same external captures as the CPU summaries. Counts are inclusive frame occurrences with overlapping descendants and recursion, not additive exclusive CPU percentages. Inlining changes boundaries: Grammar::reader contains the internal tokenizer in the candidate. Raw captures remain ignored and are identified by SHA-256.",
+  "phases": {
+    "before": [
+      {
+        "case": "corpus: info-docs",
+        "threadSamples": 3502,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::tokens::tokenize": 780,
+          "zebra_mermaid::diagrams::common::tokens::tokenize::_$u7b$$u7b$closure$u7d$$u7d$": 122,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 24,
+          "zebra_mermaid::diagrams::common::tokens::match_newline": 20,
+          "zebra_mermaid::diagrams::common::tokens::keyword_end": 20,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 8,
+          "zebra_mermaid::diagrams::common::tokens::Reader::expect": 6,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 3,
+          "zebra_mermaid::diagrams::common::tokens::Reader::text_at": 3,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 2
+        },
+        "rawSha256": "b764600594610011b48f712396e68740393d4801aafc012ab4cea13e50ff793e"
+      },
+      {
+        "case": "corpus: architecture-docs",
+        "threadSamples": 3553,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::tokens::tokenize": 600,
+          "zebra_mermaid::diagrams::common::tokens::tokenize::_$u7b$$u7b$closure$u7d$$u7d$": 421,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 24,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 22,
+          "zebra_mermaid::diagrams::common::tokens::Reader::text_at": 21,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 20,
+          "zebra_mermaid::diagrams::common::tokens::Reader::expect": 20,
+          "zebra_mermaid::diagrams::common::tokens::match_whitespace": 16,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 9,
+          "zebra_mermaid::diagrams::common::tokens::match_newline": 2,
+          "zebra_mermaid::diagrams::common::tokens::match_yaml": 2,
+          "zebra_mermaid::diagrams::common::tokens::yaml_opener": 2
+        },
+        "rawSha256": "3c0a728637d36e30b9d8c073d8084583c630b05cd31f2d0f35a9d26b1a325ccd"
+      },
+      {
+        "case": "corpus: packet-docs",
+        "threadSamples": 3560,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::tokens::tokenize": 497,
+          "zebra_mermaid::diagrams::common::tokens::tokenize::_$u7b$$u7b$closure$u7d$$u7d$": 211,
+          "zebra_mermaid::diagrams::common::tokens::string_value": 59,
+          "zebra_mermaid::diagrams::common::tokens::match_string": 55,
+          "zebra_mermaid::diagrams::common::tokens::Reader::expect": 22,
+          "zebra_mermaid::diagrams::common::tokens::Reader::text_at": 20,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 11,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 8,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 5,
+          "zebra_mermaid::diagrams::common::tokens::match_whitespace": 4,
+          "zebra_mermaid::diagrams::common::tokens::collapse_blanks": 4,
+          "zebra_mermaid::diagrams::common::tokens::line_rest_before_comment": 3,
+          "zebra_mermaid::diagrams::common::tokens::title_value": 3,
+          "zebra_mermaid::diagrams::common::tokens::keyword_end": 2,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 2,
+          "zebra_mermaid::diagrams::common::tokens::match_yaml": 1,
+          "zebra_mermaid::diagrams::common::tokens::yaml_opener": 1
+        },
+        "rawSha256": "f889bf167531da88059a09c27769c36c8b7b5f2f08239f0ccbc513266dd375f7"
+      },
+      {
+        "case": "corpus: treemap-docs",
+        "threadSamples": 3549,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::tokens::tokenize": 528,
+          "zebra_mermaid::diagrams::common::tokens::tokenize::_$u7b$$u7b$closure$u7d$$u7d$": 350,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 23,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 11,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 11,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 9,
+          "zebra_mermaid::diagrams::common::tokens::Reader::expect": 9,
+          "zebra_mermaid::diagrams::common::tokens::Reader::text_at": 6
+        },
+        "rawSha256": "a8fbe97228ef7ba64d7f80a33bb6cdc24bbb247b761c25addecdb08622f1e0d1"
+      },
+      {
+        "case": "corpus: railroad-docs",
+        "threadSamples": 3546,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::tokens::tokenize": 226,
+          "zebra_mermaid::diagrams::common::tokens::tokenize::_$u7b$$u7b$closure$u7d$$u7d$": 100,
+          "zebra_mermaid::diagrams::common::tokens::match_string": 14,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 8,
+          "zebra_mermaid::diagrams::common::tokens::Reader::expect": 8,
+          "zebra_mermaid::diagrams::common::tokens::Reader::text_at": 8,
+          "zebra_mermaid::diagrams::common::tokens::line_rest_before_comment": 6,
+          "zebra_mermaid::diagrams::common::tokens::title_value": 6,
+          "zebra_mermaid::diagrams::common::tokens::line_rest": 4,
+          "zebra_mermaid::diagrams::common::tokens::keyword_end": 1
+        },
+        "rawSha256": "e1d08f789082b88e388d5ce662b22e724d50fe7084b49a4a0f3e4a6c08446d6c"
+      }
+    ],
+    "after": [
+      {
+        "case": "corpus: info-docs",
+        "threadSamples": 3815,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::parse_tokens::Grammar::reader": 424,
+          "<ParsedTokens as TokenSink>::push": 174,
+          "zebra_mermaid::diagrams::common::tokens::tokenize_into::_$u7b$$u7b$closure$u7d$$u7d$": 89,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 14,
+          "zebra_mermaid::diagrams::common::tokens::keyword_end": 12,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::expect": 8,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::text_at": 5,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 4,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 2,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 2
+        },
+        "rawSha256": "670d33e9c79af8f258a7ebad4f17fb7ef4506011bdb6df45b7cacaac83fb878c"
+      },
+      {
+        "case": "corpus: architecture-docs",
+        "threadSamples": 3911,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::parse_tokens::Grammar::reader": 516,
+          "zebra_mermaid::diagrams::common::tokens::tokenize_into::_$u7b$$u7b$closure$u7d$$u7d$": 435,
+          "<ParsedTokens as TokenSink>::push": 89,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 31,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::expect": 28,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 21,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 20,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::text_at": 19,
+          "zebra_mermaid::diagrams::common::tokens::match_whitespace": 15,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 9,
+          "zebra_mermaid::diagrams::common::tokens::match_newline": 4,
+          "zebra_mermaid::diagrams::common::tokens::match_yaml": 3,
+          "zebra_mermaid::diagrams::common::tokens::yaml_opener": 2
+        },
+        "rawSha256": "16f0d2c7d2ff3dcd663754f2467b8d6b3abebd9b0ec89c9ae2876c5c020843a7"
+      },
+      {
+        "case": "corpus: packet-docs",
+        "threadSamples": 3922,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::parse_tokens::Grammar::reader": 366,
+          "zebra_mermaid::diagrams::common::tokens::tokenize_into::_$u7b$$u7b$closure$u7d$$u7d$": 218,
+          "<ParsedTokens as TokenSink>::push": 125,
+          "zebra_mermaid::diagrams::common::tokens::string_value": 64,
+          "zebra_mermaid::diagrams::common::tokens::match_string": 48,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::expect": 32,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::text_at": 23,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 11,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 8,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 7,
+          "zebra_mermaid::diagrams::common::tokens::title_value": 5,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 3,
+          "zebra_mermaid::diagrams::common::tokens::yaml_opener": 3,
+          "zebra_mermaid::diagrams::common::tokens::collapse_blanks": 3,
+          "zebra_mermaid::diagrams::common::tokens::line_rest_before_comment": 2,
+          "zebra_mermaid::diagrams::common::tokens::match_whitespace": 2,
+          "zebra_mermaid::diagrams::common::tokens::line_rest": 1,
+          "zebra_mermaid::diagrams::common::tokens::keyword_end": 1
+        },
+        "rawSha256": "d98c4f711f8f4bdb9aa4e3fc094015c13a431900fac9d7566e1c7c656c09c160"
+      },
+      {
+        "case": "corpus: treemap-docs",
+        "threadSamples": 3643,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::parse_tokens::Grammar::reader": 465,
+          "zebra_mermaid::diagrams::common::tokens::tokenize_into::_$u7b$$u7b$closure$u7d$$u7d$": 465,
+          "<ParsedTokens as TokenSink>::push": 65,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_descr": 15,
+          "zebra_mermaid::diagrams::common::tokens::match_acc_title": 13,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 13,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::expect": 12,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::text_at": 8,
+          "zebra_mermaid::diagrams::common::tokens::newline_at": 7,
+          "zebra_mermaid::diagrams::common::tokens::match_newline": 1
+        },
+        "rawSha256": "1c3d9dba213e3ac1f3eb7db82d43ce6d59aa7afcfce3faf1131e6db67f1f52f6"
+      },
+      {
+        "case": "corpus: railroad-docs",
+        "threadSamples": 3513,
+        "inclusiveFrameOccurrences": {
+          "zebra_mermaid::diagrams::common::parse_tokens::Grammar::reader": 136,
+          "zebra_mermaid::diagrams::common::tokens::tokenize_into::_$u7b$$u7b$closure$u7d$$u7d$": 79,
+          "<ParsedTokens as TokenSink>::push": 47,
+          "zebra_mermaid::diagrams::common::tokens::match_string": 10,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::expect": 9,
+          "zebra_mermaid::diagrams::common::parse_tokens::Reader::text_at": 7,
+          "zebra_mermaid::diagrams::common::tokens::title_value": 5,
+          "zebra_mermaid::diagrams::common::tokens::match_title": 4,
+          "zebra_mermaid::diagrams::common::tokens::line_rest_before_comment": 3,
+          "zebra_mermaid::diagrams::common::tokens::collapse_blanks": 2,
+          "zebra_mermaid::diagrams::common::tokens::keyword_end": 1,
+          "zebra_mermaid::diagrams::common::tokens::line_rest": 1
+        },
+        "rawSha256": "3cc338ddc04c47688032043a59ad39e768fcc8179aa4a05e5b70959a6712cf16"
+      }
+    ]
+  }
+}

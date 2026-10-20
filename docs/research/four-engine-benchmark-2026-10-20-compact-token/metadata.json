@@ -1,0 +1,944 @@
+{
+  "files": [
+    {
+      "path": "tools/cross-bench/Cargo.toml",
+      "sha256": "6d40be806dea6de3a50300176d8a04a31f33cc149aac1b4928cd21f0b2ca7ab0"
+    },
+    {
+      "path": "tools/cross-bench/Cargo.lock",
+      "sha256": "4cc52d864715769c9d25c82913a7e222d20e2b18d6ed61b08b99041f433aee2a"
+    },
+    {
+      "path": "tools/cross-bench/src/main.rs",
+      "sha256": "b1b100cae7b4c9f7730439169a4ec1a949618619f8b8b41a0e742f66f4ca3f49"
+    },
+    {
+      "path": "tools/bench/run-cross.py",
+      "sha256": "e4b5225042806284d9d4b531e32d4a278c72efac31c2703e1cdc0db75c3148b5"
+    },
+    {
+      "path": "tools/bench/cross-pele.mjs",
+      "sha256": "818fe472c3c0d762882b8a3b4d337db6a2736de261dc5232261519c9b7dcdebf"
+    },
+    {
+      "path": "tools/bench/cross-mermaid.mjs",
+      "sha256": "ec1d25a174422d19054ab1779ea60da5ec4f5094e9aeb4f9a3f9cf7d902a48cf"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/cache.rs",
+      "sha256": "f732c70ee4ecb582b162c67ec2ed85f7cbcce0816c0a001e620c8d7ee7711342"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/config/json.rs",
+      "sha256": "d9714c0aaacd61853f373cbf2e17533cbf2622cd3d3f81316f31cb44fde1b8b5"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/config/mod.rs",
+      "sha256": "c3aa58563c5b64f0d65891f93eb5b2deb6a62aab993361dadc0b8f343ea92467"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/config/value.rs",
+      "sha256": "19f942f5a0d4403a681960e23df8cf623ee344b0c6393661883c4e2f6de4ecfe"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/config/yaml.rs",
+      "sha256": "ce64966624a458ef7de4a478f5e6c570a01757e1cb0dbe13e896cbde49d2f8b4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/detect.rs",
+      "sha256": "6face2e6c0ab500a6b0d2586564e537fcdae0dbaf1cbf093e4dfefc951450b9d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/db.rs",
+      "sha256": "a1ba9f3972443b70e9af4d7cf4deda966e2189536277d29ebaf52a96f1f14622"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/graph.rs",
+      "sha256": "ac305c3a67a96edb7993a96910384b423a1b347b30381641a1ce372a63b37217"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/lexer.rs",
+      "sha256": "49c676cd54eb42b1de250434c55bf175b8d3b47d6113662480887539803c3831"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/mod.rs",
+      "sha256": "79cbebb53a05384723d0bf1fed2784accae1f2656c9f08b90b332a0b66d34b7d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/parser.rs",
+      "sha256": "291547e071c8996a0291410c7731e696b464af449a1e5a0e40f618042a56d71d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/render.rs",
+      "sha256": "0d2b63b2ef32ebeb1f0212845d2f56be24e1d4babaebfa46a5b02f58a7d6a669"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/shapes.rs",
+      "sha256": "f7038a8af47cd90bd1a85714eddadf5e4cf3ea99a94d7c7617a8f825e04566fa"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/tokens.rs",
+      "sha256": "aa8f79af27df05368e7b085ed538395c93514a8592e0fe119ba548607345fe7e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/agentflow/types.rs",
+      "sha256": "80db69a25f9e12510e1711100a317ccee5805fdf7dfa3e07b8752862252a264b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/architecture/icons.rs",
+      "sha256": "56d9ac7f84598fdb995eda002b1eac8aee49aec36447df29f727e8d29fb66dc0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/architecture/layout.rs",
+      "sha256": "b1208e67a646421969e98f9c0fe17ac7ef6e07067d06ff2e51a8c0cab6ba05b0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/architecture/mod.rs",
+      "sha256": "d23fe6ee6a2bf5560e3aa282d43525a0f6fb879a40e8c7c6ffa25ea5ab2c10ea"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/architecture/parser.rs",
+      "sha256": "7044241afa15b4ccd813fc3d205c367e0b6239b9262b32a3a0a1dd9d488f6fc8"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/architecture/render.rs",
+      "sha256": "050c7b618ef95324f6a0d3332dafd8e6a143a36d1832e09edcd848f93305ccac"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/block/arrows.rs",
+      "sha256": "11dabc950391b85d1ab87c77d7d3776115e1f1366a73cb55d915ad3db68ff3ab"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/block/layout.rs",
+      "sha256": "7c854a4056db796bf3028fd8cdabffb8e63679219e6eca66d9ff3d00df5ce983"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/block/lexer.rs",
+      "sha256": "3d9217749ee6a512ca6766a9c0ec4cd040dfe68cc784a19cec45710d198f6e78"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/block/mod.rs",
+      "sha256": "b75ebe33d39d6df040488e3c323a7b4afc4e7a63ff9a5cbb5fa5125614e5afa1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/block/parser.rs",
+      "sha256": "92e4fc5b82587d39c6d3b051d8a20167b45bd0660cf504262d55106e7e802e3e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/block/render.rs",
+      "sha256": "c2821784c794cdb0f86921360a19117c8c900c8362321d18440ca790f76fa519"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/db.rs",
+      "sha256": "76e1dfc3b83ad6302172cbf8d0b30ec20c50a69666f549841f416fcef0a7b1d4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/layout.rs",
+      "sha256": "a5b6ac6ba6b366377c39477b98b8c69219bc5ac1bdccdf02e47e7567b178751e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/lexer.rs",
+      "sha256": "b57112002d9425ce107fb19a98e2367570186ff8dfa4e4c26c60b6366a12e155"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/mod.rs",
+      "sha256": "d9e7090aa0f9a25277ccb1aafb1ac0e54bcaeb42ef065d8941a092e70cb15cee"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/parser.rs",
+      "sha256": "11d11c4dd78461b2fd97c2f5b8bb18317310869c0d043685888e2bb2508ff81b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/render.rs",
+      "sha256": "3d5c5350c6a5b50e500f149b4c21fb9674dac8ab86aead777d66ae5bd97af091"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/c4/route.rs",
+      "sha256": "0bee0af76988e119f888bf12f51994ac4d585b85843c615b62ba643c6c34edc9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/graph.rs",
+      "sha256": "2ffc5c38b932f6ab3fe2258714c4c36697f672c92aa6e8e57d177cd49c1b1966"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/lexer.rs",
+      "sha256": "edab6d7316f474a426b185168354666f295f9545ec9c2e9d02f58b308b17d11a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/markers.rs",
+      "sha256": "dbeaefda7e8a50ab2ee4c6d7e1a56ceb62f418bcf5a92fe370485c1e781fbc56"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/members.rs",
+      "sha256": "00943d96d220d5d84082fdc99146c4f4184775527a73709205697c720515e93d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/mod.rs",
+      "sha256": "b1a720ae34c438da4f27bf9462b59edfec415d162888c05335c9d31a5a89bc30"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/parser.rs",
+      "sha256": "fd05d294b5a1307cf6e2de113fdce28b0137e9ff6b05b199af992e051989343b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/render.rs",
+      "sha256": "aa46d0130f9b6952aa798fb406ec3207a7e16b7a9b9965926d5ff4cf93ed9d2b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/class/tokens.rs",
+      "sha256": "ec3144fa2f4276c3e11068053c75c05cda4f86e05a5cbef6123fc9b9dd56a648"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/accdescr.rs",
+      "sha256": "78388d2ebf978a41510980905af63ecbaa970495cc622c26d95962ad8479e45f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/caseless.rs",
+      "sha256": "d5bdbd9d8e53296ff335254fc2771d558505438ed357b20652c5c68f236bd1bb"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/fit.rs",
+      "sha256": "c9858ef9e59e52a3e7e26fca382c6e494a728621d2e3bd279c7a9f3fa8476ca4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/fit_text.rs",
+      "sha256": "ad8d8589da86b79de9126fc07c52907e6c76c037d310c73cb5883052baec86fe"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/fit_width.rs",
+      "sha256": "c303f8a44fefaaeb85a753b860fee65629af5d9b2f337c68321f896629605ab2"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/generics.rs",
+      "sha256": "451105a57bdbfecfd1ad8256f9a5e5a3788274b9dae9eadb55fb4781017dfd4a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/icon.rs",
+      "sha256": "9571aa7d0bfd66df7e3d9d4d72cd5d105829739c1dcf8a762aee8c900913a0ab"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/literal_label.rs",
+      "sha256": "bc63ad0e6ec020f43af7f8989345979058e64bc61222e6ae0e6bf7b9c8f91e67"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/mod.rs",
+      "sha256": "1ca227cd86e3cc56935df5dea8aee86a9306ee4f3ef4ada6780ee8daf708072d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/outline.rs",
+      "sha256": "a694aea2cdb08cd8b6ceb403a3c2c6f92ebd12d5a4fbdc27524441cdcf996559"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/parse_tokens.rs",
+      "sha256": "3e8db1b23638896581d35131be20c2ef7b6039a36f4e5d8c0fb5ef93a184c7d8"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/scan.rs",
+      "sha256": "b5b76fb4e73bc209dba810673dbb1eb5c86dd985cec0e48a315c3269aa14877f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/tokens.rs",
+      "sha256": "1344543e4699bdd03d694243193c104cf5154d4cb92ccc5614398f6a8b92cd36"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/cynefin/boundaries.rs",
+      "sha256": "215f7e3e4a321d4fae72d6c5a5957047805cfcd7d0d32a98c7c31944989a5487"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/cynefin/mod.rs",
+      "sha256": "089c9c03a76d45556d6f3526afc8f9db9feccda67bb09a8c2fed247afd0487c1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/cynefin/parser.rs",
+      "sha256": "d5787bb77689caebf6f7c180fa5d16964e4b4169e6a4117573cdba3ee33b1d72"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/cynefin/render.rs",
+      "sha256": "6d02c973705ba197ce90a0715ec626fc1370f58f50ce70df72a8daf1b1e55adc"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/er/lexer.rs",
+      "sha256": "478d474ba46f136e240d104c37d0beeeac5e9bd6ace7766fb26f3c6d0c15e42e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/er/mod.rs",
+      "sha256": "1a829a3e376667f7f0c8c39b34a2d093af1c370c978191854c870d03dea6a752"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/er/parser.rs",
+      "sha256": "5c306ee5446a5b009c42f791b2f0fdb6ca87b01228a6c9eff06e0c87f4531f69"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/er/render.rs",
+      "sha256": "2fa5f2e340fd96dfb49d3b32c3db2e5864609f42f8b651fe082a9cd309638f0a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/er/tokens.rs",
+      "sha256": "9bd4ee0f090c4554f5dcb53946262160b94abe7898b36d86d748453d490efa39"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/eventmodeling/mod.rs",
+      "sha256": "05c9cad5e7b3a54e3abb2eac8a0af49c0dc39bac35e86a99e9dc7a1f17228ec7"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/eventmodeling/parser.rs",
+      "sha256": "961197ab3a86184fb25a879cc1aee3046fd2d231b75a6a49ff99c9594f13f314"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/eventmodeling/render.rs",
+      "sha256": "7d58151bd4f50eeb1eba0c685f31fee3e226866dfe8ef0f790f6a7933e99f198"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/graph.rs",
+      "sha256": "0340654348836fe0dc310755ab400dd47825980d7cd441c105b54696e53b7fc3"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/lexer.rs",
+      "sha256": "42f523c96dd20f3afcd1ff93257baf5c2a5a9b54403ea964059601ccc3b39230"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/mod.rs",
+      "sha256": "b9f2080ead8cf9ca147a9cfc381f5b8faa964a4646d64b87d186ef01cab54c00"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/model.rs",
+      "sha256": "cd88823061d48ed6168ab6922fc1f5ff59154b643520796153e4a5f11fde8531"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/parser.rs",
+      "sha256": "25cc3f2936649dd55cbaa2633566b1486194eae41ca198f3521cba2a1dc809e9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/render.rs",
+      "sha256": "c927bf744dea6fa5164e974a50d72c8af7f18cda2e588a5ffd94e019a36df301"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/shapes.rs",
+      "sha256": "9e6d0f1d4ae23db8d782b5ae3f2bb4f72d5d64e45a2167fcfd7311c0dfb2405b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/flowchart/tokens.rs",
+      "sha256": "c878d5a1c48d629b15ffb27b9c85c4c63895b16db45a8bd3c07a5d92a763cf52"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/axis.rs",
+      "sha256": "4d57e7e8a9de741cc07ffad392fb7a66afacc17125cf416faadd746e1bb8954c"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/date_parse.rs",
+      "sha256": "25103c701da8cda57b616d89af11e656a5c4d426ab88e6df59f0d0336c5b8cc6"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/dates.rs",
+      "sha256": "a591543b699b7b6fefca2acb5af2fe339b5ebc78be92ca579992d949f366c65f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/db.rs",
+      "sha256": "7bda52f68f1a3a79bed40146b0463787c57aa83ba9c48dfd5b1bd979a418ef27"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/js_date.rs",
+      "sha256": "6353c70c035693797d6441177877e0967daf8c408072b8bc265262699c38dea5"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/lexer.rs",
+      "sha256": "0facb5959cf6b2db7cb50e227e4b12c3033ae59caec4e1c6b027bee721edbe1e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/mod.rs",
+      "sha256": "dd76176298b1e805f643a23587cba3bc90464f5fdda0cf0b83cfd338b7a31bce"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/parser.rs",
+      "sha256": "8ca305d9d4f18aa1eb23ab61b2efd0f37d06769f1f019811782b8922f3bf244a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/gantt/render.rs",
+      "sha256": "b48e2db5cda8d9afdd5ed7bf6eabd0c43c3cb7055e310282d96463f60a91f899"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/git_graph/mod.rs",
+      "sha256": "cfce86600b17bcd55a8cffd56ca115e15ccc096b9b9de47bbc5aa3a41fb9ed2f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/git_graph/parser.rs",
+      "sha256": "51049e29349c1182fc1f9cda3fbecb939d1bc473bee480a0d516377f0e6e6bb7"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/git_graph/render.rs",
+      "sha256": "1203cc63969fec00deef6c818178d8f12b0bd6ad6e53a3f6496d67f3636327d6"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/info/mod.rs",
+      "sha256": "e61a862270e29dd89f6b156b74a9d9d0a6e05930a20f3c7518c8727ea56bd569"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/ishikawa/lexer.rs",
+      "sha256": "d67fba541e40800c35c2d6c6b6f04cb5c8fe10494d4430fa3c40decbabc9aad2"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/ishikawa/mod.rs",
+      "sha256": "cf280f3b2f9d42f10fa39768d95f410b6d5bd651049e5b9e1aed10eb17532fd1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/ishikawa/render.rs",
+      "sha256": "f71725d47f5a22deb363c50d2a823615c50be8e9cea9809531b2a9051d47b9fe"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/journey/lexer.rs",
+      "sha256": "dae23fa92632576268ba90912eaf69aef4b86a8aeae51112b885cd5456ed7656"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/journey/mod.rs",
+      "sha256": "37c06ecf7f098bdd00b3f713adc86cb09f9a54913f7c43557d788bd04822d9a9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/journey/parser.rs",
+      "sha256": "7bb2db68517cec1d5f767bb309d8229a8e701c3a42cf838cd7ee8958a6beb371"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/journey/render.rs",
+      "sha256": "fadf50dada61eaab44f816f6f70162e606c2a1522303996aace868c88ee0d418"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/kanban/mod.rs",
+      "sha256": "3475ea039d38b4843e90451c1c3ce77cce16e424f9d97bff7e3752202910c0da"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/kanban/render.rs",
+      "sha256": "6ba1932f893eb84d7026f1547bf97c73bd415fd0bec8eeed459a452e3a2fd370"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/mindmap/mod.rs",
+      "sha256": "ce0818f938faa80b49572429deb22ae326cbe9306a09d2fdcb5e4cfea6fdb252"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/mindmap/render.rs",
+      "sha256": "6f49d80d6411a8a610bc71784bc30dcf9101da2a9f267c433f0c80d48b43cbed"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/mod.rs",
+      "sha256": "96c097eeec0cd53d7410cb2b7534ae3f9bcfb0276d7dd70068a6e7959a0cbeef"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/packet/mod.rs",
+      "sha256": "27725587db3f0c68e9f77e82336aace8e5d7b6f72db6940672195773aff12a86"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/packet/parser.rs",
+      "sha256": "8aaa52070f3475fc5b716b34931704bd35493b2483663cc36eb9eef79d3dcba1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/packet/render.rs",
+      "sha256": "854c1f4a108b5092d8cb70759535dc40c022eb19b0797487f2b114e13265b719"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/pie/mod.rs",
+      "sha256": "b631360361b9ed814ea5a2e708c3c5f22df973789eb4112e3611c72272be0b08"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/pie/parser.rs",
+      "sha256": "b6b7ba5f04884ad39c153d9e54693fe8c49fadf23a0364e228030cb96888ca12"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/pie/render.rs",
+      "sha256": "cfa9845aec14f3f7406b22524ea1e7cb7c8846c254c29eed68b610639445bf60"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/quadrant/db.rs",
+      "sha256": "554286d186ed9007836165d7fae81b4de49241fe740fa42df951e6373e0fd857"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/quadrant/lexer.rs",
+      "sha256": "a24bdbedfae2a8a3f045d72fcee5c821c3c39fc0c6a7485ba19efccc6ac5a894"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/quadrant/mod.rs",
+      "sha256": "0fad0e11e0f453a9157ad36676a180885547865625ac1be9c6ad0091ea51c3d4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/quadrant/parser.rs",
+      "sha256": "f24a331bf5667aed7fc54bcb260943dd62c3edbe6d10c3021d5bda47b447a934"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/quadrant/render.rs",
+      "sha256": "97b3098539a28a1c07d262532348c0f76db9d49d6a226db600a7de7859244a72"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/quadrant/tokens.rs",
+      "sha256": "17524f6132a02bd7b40a25545af2393cc48796ab42273e4bbb7cf231f9612a76"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/radar/mod.rs",
+      "sha256": "76533500bd9be4af23514e600c8656c86b147daf4f64be3479a3d148cb35e294"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/radar/parser.rs",
+      "sha256": "c4647cd0e6b24aab21931108efa3214cde24353dba3da2afe717bc2834c74e27"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/radar/render.rs",
+      "sha256": "22359f4efe97e54e050188650cda8d3bf71d2df1fcd7beba907ef0a7bb37cf83"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/abnf.rs",
+      "sha256": "c323b4aa7b6ba0f04797e0303af074acdb81463d9e9181ec62ea8369d24aa343"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/common.rs",
+      "sha256": "b8ff6e5da08bb96aec76dce90686dfd8936cb1ad91aadd79be1c04d0742d163b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/ebnf.rs",
+      "sha256": "cb750cb7a2f217bb731a1778323ef4b0649933e5ea73b2dbb1d6badee0819fb0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/ir.rs",
+      "sha256": "b905c2f4e521c1d8699cbf5d24625268f5b0fa4a8b678ce0b39cc35b2cd7cd20"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/mod.rs",
+      "sha256": "9ad7cbd4f4f98bb33fe86739b4a198734e9b6afd6a37685f5b0d8c9751f95751"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/peg.rs",
+      "sha256": "12541f0bca73d05eacafb08e189f41443f40091903d44ab6d3d48e1a278f2d7d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/railroad/render.rs",
+      "sha256": "5cba96f3b27fcb0dcde68bb75a58a8a252ef97d2ecb461ac7c6d02713c1e375e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/requirement/lexer.rs",
+      "sha256": "f4a2d5629bdb9ddfc3a45f62e4fe58d989a4b5490868c4c94d282700ca0ef746"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/requirement/mod.rs",
+      "sha256": "79445aa88f56279086bbfde5b7f875db73c19f2a363514f7bc73c588c47a2861"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/requirement/parser.rs",
+      "sha256": "c9d6cafc63318f7ef33914c7be7eb5ef72b1a45f6c89aab46a0efd63f6719e56"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/requirement/render.rs",
+      "sha256": "3bd83c8f8c6c9c47a8c1b4d866ecc8fe673e3ef87458ffd719e826e8d46c7fe0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/requirement/tokens.rs",
+      "sha256": "0d78393679a419e32ed84c914e0fece46e849254d34a54e7bcbc755675c53403"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sankey/layout.rs",
+      "sha256": "0b7877a037f61d9a1a42a5d6c5649d6ab4055d69d1d5845d5601f9bd09229fa8"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sankey/mod.rs",
+      "sha256": "205facd9e627cea1eecbadb5b8f18601bbc9fa068f078625bcdd2be15dc46b39"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sankey/parser.rs",
+      "sha256": "f256970a6e384be52edb28191b9538c3ff97ae8103069feebba2bad21db461e9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sankey/render.rs",
+      "sha256": "871ac49d8475a73a541510b8ea99f27060c5f2c4bc8bf1a4c9835567d27b1eb4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/actors.rs",
+      "sha256": "796d9e5bc5ebddafe32c5772f2fca7061ed3240c3b169ba82b7e521d14252519"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/colors.rs",
+      "sha256": "3cd0a9f2acbe9dc029650790e56b8b17c3cd76bfe48a28c5d09cdef064cf06dc"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/db.rs",
+      "sha256": "5de9b0e68dcf7f139f5cffeea9e8e59b0153acc7865d01dd2370042383975ea9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/lexer.rs",
+      "sha256": "15767b178f3b4f3b1b0199116c573c1e0ff9586419d7832c1a27d54a168aeaa0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/mod.rs",
+      "sha256": "2af7177dccd01df35085d0f35a3d9a247353c88da7537f30d0dfdb33d1c004ff"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/parser.rs",
+      "sha256": "2a3520066da3a5bd3f27669dbc84ed3c64631f89d6d305bfaecff03c4694777f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/render.rs",
+      "sha256": "ed575cf9160f6c4db16859b491496cfa7cc641b1e8c55fa63362d487c4b54614"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/sequence/tokens.rs",
+      "sha256": "6900547efcb0bb17833703a4b6b6a5d4cf7efc91d82255d5de5e4b49eb601e51"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/state/graph.rs",
+      "sha256": "83a4d78ad7546d576756dcec6431a0f85c521b8a793f9197274ceeb8bdba995b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/state/lexer.rs",
+      "sha256": "33a10b12fcfb514f893b57c1d279273657330da449b951e5e21588e002fa72d4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/state/mod.rs",
+      "sha256": "161ea85dbb3e405530d9e61cf76fd06c8e3da71d3b9565b0ce99256a5a50de71"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/state/parser.rs",
+      "sha256": "a16a6decff181390005879a63b937188372cc25ec4df96ca263b3eb0c070210e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/state/render.rs",
+      "sha256": "15a810c5d1a8083ec84b01795de4cb325a537c8aa440f057261a731cae934270"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/state/tokens.rs",
+      "sha256": "0eebf92ecb2849a44d79538eb4add9e2ebb1a6580be69f4445dc5649d098decc"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/swimlane/mod.rs",
+      "sha256": "2da4d1d8129c929bad0cc30297bc2906c3747463742abd750b61d86cff4b00de"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/timeline/lexer.rs",
+      "sha256": "f61c1c9f6071bc04733a857c77e57a26c30b1ad6f046e276fa16edc37f954e7c"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/timeline/mod.rs",
+      "sha256": "3d1bdee1636f4ddc1dc70c21ed8e8a9b206d29847873c723147b19514c143890"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/timeline/render.rs",
+      "sha256": "23bbb7f550d8a823d4fa7221bc4ae66f5a9a93b21c7b10ffc9823e85f039ed35"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treemap/format.rs",
+      "sha256": "123b6bbb04b525d2bf96be24da669c93239c1f703fe76fd66b79de1275615525"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treemap/layout.rs",
+      "sha256": "afb0d68d70138a659e01da8f56527edd4a55e2f38cc40886ea1bd135b68d23cc"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treemap/mod.rs",
+      "sha256": "bf2f39e55337d81e96f28f74782148db7ef1bd1cd937e4fafb71e682d0fccf32"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treemap/parser.rs",
+      "sha256": "8a1b17e7d025c79ca6a4464ed5be71c9827e259c87da013dda59f2f20a444c46"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treemap/render.rs",
+      "sha256": "14209d39fbff22fe96ed1e10fd19ef3a74c424b6aa644dbe589ca05f9f20ae37"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treeview/box_drawing.rs",
+      "sha256": "91d33e23662326b84ef58aa1f2844cef9803cdfa36d144bdc73293c2566cc98a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treeview/icons.rs",
+      "sha256": "d3e6d6e23de2a265463dfcabb08d0f187367d8591d4541df8fdc960b0db7427f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treeview/mod.rs",
+      "sha256": "aa81ced6dae7301948e04312536b10c68db04c24630892b0142982803478f855"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treeview/parser.rs",
+      "sha256": "b1d4ab684c2ed043a1e0d528e02c1bead1e2967750f3084334b7d6bf2932dbee"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/treeview/render.rs",
+      "sha256": "3e925244cfba720c655edc8e89d0d784da6ba088fe7e9b9bb0d0f235913012b7"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/db.rs",
+      "sha256": "f3d36821849c51b9c241d1ba3c5c42801cbc46853afff340d46e658882a17f55"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/graph.rs",
+      "sha256": "d51a5116d2c084f1d418337f3a9d930a080038e7b4a99da0a29554e681f0c657"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/json.rs",
+      "sha256": "e1fd801de3f0136f421cb698ee6bba3eb55af9ad0c99b3ab6f72dccbacd67114"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/lexer.rs",
+      "sha256": "47553bc28bae41d9c08ba232d652434a2a138847f73d779f3be70fa2c91fcc3b"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/mod.rs",
+      "sha256": "67018168fd6577d999c029795bbf187120ce9c64f5c036eaafa31bb5ab9cb80d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/parser.rs",
+      "sha256": "a4af591d51f4ab7ae0f2c7b23f8681fb6e7c0a6e03d1a019b09bf79a4f0cb47d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/render.rs",
+      "sha256": "cc2f1f6e601c0f356765a259dd418d894651e6da16393066b152777f6c675d2c"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/tokens.rs",
+      "sha256": "0cb588a5065becc4673d036a572b9e3499ccfe42951ec96c7f10247028e02900"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/usecase/types.rs",
+      "sha256": "2115b7b0e8a98ac26b78d69ed4f52a1f0fd3fff4c3801a1c7fcdfec3ee9495df"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/venn/db.rs",
+      "sha256": "f9100f5729866b7d81473bf61ad8100a037492168b8fdced74c81e6fca53c2b2"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/venn/layout.rs",
+      "sha256": "0eb0f63469af709aada89be119c681276536c65cd4a93294e2ff2661cbf54322"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/venn/lexer.rs",
+      "sha256": "072c973781619b1218458d4110545a6645da983eccc1016815044b8f2ef086f9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/venn/mod.rs",
+      "sha256": "8ca2032210f19660e95346c86ccc3ec4892f5065eedc5eeb84fc4c96614ea225"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/venn/parser.rs",
+      "sha256": "f34a74a98d94cfd838bb89bfc1e93ef00ba2625f4d5e1264d61d80e72ded5ca7"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/venn/render.rs",
+      "sha256": "15d13dea5ee5b7d00cf3be8088df9c50a975b61cb45b4fd2f5fcd1f6321d6b4d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/wardley/mod.rs",
+      "sha256": "8ddc16f58bafa325b5b34a8b499960b9a4dc0e349c4bf55e71f27b3d4b38246d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/wardley/parser.rs",
+      "sha256": "0c8337ebbdfee99d60c5efb3e74b3bcd5222240dcd5f37e7d69b03e9a76170d1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/wardley/render.rs",
+      "sha256": "c8261280ca46b56714bc8e0687ed6960f0d4dd333ec77a801f1de2a53bed7ea3"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/db.rs",
+      "sha256": "aba13862dd8f95e9556a6b9857c239e442098f60cce6016f5129f0c8af8b7ce1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/lexer.rs",
+      "sha256": "2ea0ef519fd6c6c6d1d55ca6e39349dfac8ed1a0c6d875b0f416adbb42d2512a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/mod.rs",
+      "sha256": "9d2f1beea56546154e3e405b7fa8a5ee9b215127a0c185a08089f7681a90f0bc"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/parser.rs",
+      "sha256": "c056b987f561bfe4c2781c6bf371b53fe5ad5823164fcefc4de51219ce22ce34"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/render.rs",
+      "sha256": "a61fd63a07939e4da59e567fc417651a665a323ebdcfea17bee1e7b744067697"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/ticks.rs",
+      "sha256": "80eb33847a917e0db08681a3f27514e579990e02e94507c8f6e790255fa4989e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/xychart/tokens.rs",
+      "sha256": "107d32ce222e74e2b7513f2b1a01a3a56125ec6fb4d974d26ff1da66b2d03cc0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/engine.rs",
+      "sha256": "c937b008c88c97a49f3e13cf4d091dad798b3c5784344533c9e97dc0a553361a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/error.rs",
+      "sha256": "8799e26c0a08c2c8e7e6b4cc6a5c2d86e47c08f9a5792cdeaeffc6ef2b377e27"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/layout/compound.rs",
+      "sha256": "d20c105c0cc46084df08558613dd3a862bb55c5d2cffbe9c14776cf7ed9a1da9"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/layout/lanes.rs",
+      "sha256": "551c6c572c27bc4f5eef9afeae0aa7a89014b5ee998efe4a0a3066daacc85cf2"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/layout/layered.rs",
+      "sha256": "323f48ff6b52e9206d2f2a73a960194a53c2ada1ca2cf73019c76835353dabfe"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/layout/mod.rs",
+      "sha256": "2a9d988e827f5e6921d1b9b0fadaa8ff9dd254a38b6efd270a17bba3c6107a7a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/lib.rs",
+      "sha256": "87d20971dd75f73dec76d3bcf9bd34d69f1457d0ee8110420d9a8631a3510292"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/options.rs",
+      "sha256": "99d7cf9486d2f58eff49f8bc9f99b277278029f4a52c50b96fc6a19607388764"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/preprocess/mod.rs",
+      "sha256": "790688645fbfc8d7c4720f4a37fb4cd9f29847b23fe86a52738b50fd8f2b2f11"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/preprocess/source_map.rs",
+      "sha256": "a9c07bbf19838082b930fd035638fba6693dd66c28e02bbcebdfad0df795a3ec"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/builder.rs",
+      "sha256": "e4db872a70e11f1169749f5c6a131c0e8693952da80846b51fd64f3a180abf8f"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/cluster.rs",
+      "sha256": "83d5db7deb4417fa108842572c94450e0b66ee80f4f91cc00cc5c6d9175b85e8"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/concat.rs",
+      "sha256": "79870eb1ed09b765cc246d031193efbc66350de16aabf95998c08f34429d2bd1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/edges.rs",
+      "sha256": "6cc1baddb33d4556cafdab5ffba8bc2cb73c367faa971cb907930b7f5cb64019"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/mod.rs",
+      "sha256": "8a8544a5afe619ca4224a947d4e4759fd59ad915f8bc0e029d49bbaf0159ab33"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/resolve.rs",
+      "sha256": "33af6092b9ac7956e8c249762d021ec7268a93854378eae96002338d5245cf9a"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/root.rs",
+      "sha256": "9d8f6afc59a8bf15fd802114b4b601334d0e6ddd2d170861d6f3de3bc6246310"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/shapes.rs",
+      "sha256": "7c0a3aaddf8bfcdc21f25632bfa6ab497034cdb5828fd79c83e5293fcf72deaa"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/theme.rs",
+      "sha256": "62ccc0ca2b8f99757a0a87d0f52b37b128cecb89aa85d5174c856d5b0427400e"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/svg/title.rs",
+      "sha256": "dc3568e2018c3635cd76faf498da971b9d11782f88b1e9d8b14b0a7f091186b1"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/entities.rs",
+      "sha256": "fe9637a077128d56284d991ded93d72be5a291bbbd8a8bf2c915716604aa0d67"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/icons.rs",
+      "sha256": "c9c3ee25e1e765f9c29ad932f2d85b6d101a7e05a03b9a351be90f331d93a8de"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/label.rs",
+      "sha256": "2552a9ad0c9435ee0cf31e7792c4785f54e7537339180b7bc1e1fadb867a9bbf"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/measurer.rs",
+      "sha256": "e95c2dd0e4bd4aab5190005579618e7e1b7bb05cddd65fa6b46b0f20230a84c0"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/metrics.rs",
+      "sha256": "d62c3d34f02de4382fa21cb86ca24f5373c1033fbd1b369dacf255a0a4bfa16c"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/mod.rs",
+      "sha256": "f0a6233299c91f380da1c968b385b6e7f77c7b24fc6586115a2f9940f8bc56f2"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/text/render_label.rs",
+      "sha256": "f57a867cca4a833a10ba99d085ab71e971106162144c83ee5400dca66365176c"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/theme/color.rs",
+      "sha256": "c269a00daa0760a7d1fe57843dcc3a1adfa084c04863819be3057180abe31226"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/theme/mod.rs",
+      "sha256": "bd77680ab84025cb7793c54064a087adacab4a9bbccda54679dab1d58e6d1c7d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/theme/palette.rs",
+      "sha256": "763622fcf40c796fcb89a798f16e6692ff1f821cf8b1c96d9ec6d24656166e89"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/theme/resolved.rs",
+      "sha256": "4e64cb9d632941c674ccedb65544963da5e70bae76078c8d28f4035011972a18"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/chars.rs",
+      "sha256": "a6279e6d2745e899d8ae30b28b3c4d36997bac8113401aabe82042872777c9f4"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/fdlibm.rs",
+      "sha256": "acc45be57e3075bbc7cef9a412fd2af337e58f528600e8d55a8832d6a27008dd"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/hash.rs",
+      "sha256": "ee5f96123967e4da0ca997bae777378e1921dc78197071153ab2083fd438cdfb"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/js.rs",
+      "sha256": "805bd76b544b9ebce2363cb8055abda8f30cb359d48fdeb3cd21ceaac85a0dfe"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/math.rs",
+      "sha256": "e0b0085ffc012671e95ad032de146377b77723873c995761e1a84a5430eb6360"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/mod.rs",
+      "sha256": "a7ae99dcd6a298f1f54b25f6dff155f0560c75a328406afafbafa63c38463127"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/strs.rs",
+      "sha256": "5d2fb563ad2997e0958a83e968e5ce78b079b80f12e2479decdd43ffa9735333"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/unicode.rs",
+      "sha256": "7ecdc883b11f8a619b7e9783b05882b4a434e35244ff6856e4646a1aab5d13ef"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/unicode_props.rs",
+      "sha256": "c2cae6e438da9f8c8e765bae4b418bd50b0add63f51808a9fcdf7e6675587ae2"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/util/url.rs",
+      "sha256": "6848451d872232d83950741e58eb06cc7a6c6f1c40db9b5885a00c442f43218d"
+    },
+    {
+      "path": "crates/zebra-mermaid/src/zebra.rs",
+      "sha256": "096b40ce0641b2cd60dce91d5b0bc434af11386d09b8a38bd764a3be11c867bf"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "25de19cede28f84e0269fb6f81f776027144e4df3859503bd72365b4436e02ce"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "196e3e8bcd9332a2b6523ccf4dc5b51bc0384e6dfc5fab06d1f2b6be3b5c6748"
+    },
+    {
+      "path": "crates/zebra-mermaid/Cargo.toml",
+      "sha256": "a48897585ad7af2b3e595bb1413fdc65ebae18b7886c1feeaee954dc0c6d8fa5"
+    }
+  ],
+  "nativeBinarySha256": "ad4102168416358507fd412a6936543766c4b886f4477eea333ea339d1370680",
+  "sourceSelection": "Original pinned Pele Playground sampleGroups: 33 groups, 167 samples. No sample source rewriting.",
+  "mmdrSource": "https://github.com/1jehuang/mermaid-rs-renderer/tree/3726ccbffe0e8032361eb9668694b24f77858060",
+  "nativeBuild": "Both native libraries in one isolated development driver, release, thin LTO, codegen-units=1; mmdr default-features=false (SVG only), zebra all-diagrams. Runtime renderer has no mmdr dependency."
+}
