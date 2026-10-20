@@ -1,0 +1,28 @@
+{
+  "baselineRevision": "3678cf20455d0af31679e60fd3fbbdc48c112a3f",
+  "runtimeFiles": [
+    "crates/zebra-mermaid/src/text/label.rs",
+    "crates/zebra-mermaid/src/util/strs.rs"
+  ],
+  "mechanisms": [
+    "Borrow continuous inline source ranges, joining disjoint text only for skipped non-style tags before icon/entity recognition. Preserve every original style flush and callback order.",
+    "Iterate line-break slices in the original order, retaining trailing empty pieces, without allocating a fragment vector.",
+    "For short searches, scan the first UTF-8 needle byte and compare the complete suffix in bytes. Keep empty/oversized needle behavior and the existing >=96-byte memmem path. Complete matches start on UTF-8 boundaries."
+  ],
+  "invariants": [
+    "Same label spans/lines/width bits and callbacks, same layouts and full SVG output. No preparse, source/model/result cache, precision reduction or workload/threshold/mapping change.",
+    "No public representation, dependency, feature or unsafe-code change."
+  ],
+  "newSupplementaryReferences": {
+    "labelCases": 8448,
+    "paths": 2,
+    "seed": "0x1abe17",
+    "generatedSources": 64,
+    "sourceCases": 88,
+    "expectedFrom": "Only pinned independent Node Pele before runtime edit; both baseline/candidate pass.",
+    "searchCases": 4096,
+    "searchSeed": "0x5e17f1",
+    "searchExpectedFrom": "Rust standard str::find/contains"
+  },
+  "newOriginalPorts": 0
+}

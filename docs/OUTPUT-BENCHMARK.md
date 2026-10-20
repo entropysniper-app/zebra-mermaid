@@ -11,47 +11,47 @@ The second endpoint measures a different output contract, not string flattening 
 
 Each engine runs in three independent processes with alternating order. Five warm-up batches, at least 10 ms calibration, and at least nine samples plus 300 ms per group. Values are lower medians within runs, then the median of three runs, in milliseconds per complete row batch. The two endpoints use the same sources, Arial metrics, Arial 16, CSS output, and fixed UTC clock.
 
-The equal-weight geometric mean speedup across the 33 types is **1.81× for API return** and **1.92× for UTF-8-ready output**. These averages describe this sample set, not an arbitrary application's workload.
+The equal-weight geometric mean speedup across the 33 types is **1.83× for API return** and **1.95× for UTF-8-ready output**. These averages describe this sample set, not an arbitrary application's workload.
 
 | Diagram | Samples | Pele API (ms) | Pele UTF-8 (ms) | Rust (ms) | API speedup | UTF-8 speedup |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 | 0.30882 | 0.31538 | 0.18471 | 1.67× | 1.71× |
-| block | 6 | 0.09213 | 0.09640 | 0.06969 | 1.32× | 1.38× |
-| c4 | 6 | 0.45654 | 0.47125 | 0.29978 | 1.52× | 1.57× |
-| class | 6 | 0.23758 | 0.24421 | 0.15327 | 1.55× | 1.59× |
-| er | 6 | 0.20656 | 0.21461 | 0.14253 | 1.45× | 1.51× |
-| eventmodeling | 6 | 0.16085 | 0.20143 | 0.07446 | 2.16× | 2.71× |
-| gantt | 6 | 0.23681 | 0.24692 | 0.13507 | 1.75× | 1.83× |
-| git | 6 | 0.40000 | 0.41587 | 0.21008 | 1.90× | 1.98× |
-| info | 2 | 0.00232 | 0.00273 | 0.00124 | 1.87× | 2.21× |
-| journey | 1 | 0.01572 | 0.01662 | 0.00801 | 1.96× | 2.08× |
-| kanban | 3 | 0.05394 | 0.05394 | 0.03717 | 1.45× | 1.45× |
-| mindmap | 6 | 0.09256 | 0.10879 | 0.04512 | 2.05× | 2.41× |
-| packet | 4 | 0.06033 | 0.06255 | 0.02988 | 2.02× | 2.09× |
-| pie | 3 | 0.03279 | 0.03871 | 0.01820 | 1.80× | 2.13× |
-| quadrant | 3 | 0.05228 | 0.05627 | 0.03172 | 1.65× | 1.77× |
-| requirement | 6 | 0.22891 | 0.24517 | 0.14064 | 1.63× | 1.74× |
-| sankey | 6 | 0.29290 | 0.34697 | 0.10519 | 2.78× | 3.30× |
-| sequence | 6 | 0.13829 | 0.13746 | 0.07843 | 1.76× | 1.75× |
-| state | 6 | 0.31915 | 0.31865 | 0.18753 | 1.70× | 1.70× |
-| timeline | 6 | 0.20062 | 0.21470 | 0.09089 | 2.21× | 2.36× |
-| xychart | 6 | 0.11535 | 0.11846 | 0.07167 | 1.61× | 1.65× |
-| agentflow | 6 | 0.31599 | 0.32716 | 0.25214 | 1.25× | 1.30× |
-| architecture | 6 | 0.22290 | 0.22763 | 0.08718 | 2.56× | 2.61× |
-| cynefin | 3 | 0.10034 | 0.12941 | 0.05292 | 1.90× | 2.45× |
-| ishikawa | 1 | 0.01804 | 0.01882 | 0.00939 | 1.92× | 2.01× |
-| radar | 3 | 0.07371 | 0.07567 | 0.02971 | 2.48× | 2.55× |
-| railroad | 6 | 0.20084 | 0.21225 | 0.14928 | 1.35× | 1.42× |
-| swimlane | 6 | 0.28700 | 0.28729 | 0.19483 | 1.47× | 1.47× |
-| treemap | 6 | 0.14311 | 0.14320 | 0.06435 | 2.22× | 2.23× |
-| treeview | 6 | 0.09621 | 0.10267 | 0.04433 | 2.17× | 2.32× |
-| usecase | 6 | 0.29553 | 0.30820 | 0.20672 | 1.43× | 1.49× |
-| venn | 6 | 0.38367 | 0.38865 | 0.16299 | 2.35× | 2.38× |
-| wardley | 6 | 0.14390 | 0.15098 | 0.07846 | 1.83× | 1.92× |
+| flowchart | 6 | 0.30865 | 0.31255 | 0.18654 | 1.65× | 1.68× |
+| block | 6 | 0.09272 | 0.09721 | 0.06933 | 1.34× | 1.40× |
+| c4 | 6 | 0.46299 | 0.47684 | 0.29522 | 1.57× | 1.62× |
+| class | 6 | 0.23235 | 0.23860 | 0.15178 | 1.53× | 1.57× |
+| er | 6 | 0.20776 | 0.21379 | 0.14208 | 1.46× | 1.50× |
+| eventmodeling | 6 | 0.16187 | 0.20058 | 0.07127 | 2.27× | 2.81× |
+| gantt | 6 | 0.24027 | 0.24311 | 0.13444 | 1.79× | 1.81× |
+| git | 6 | 0.40635 | 0.41579 | 0.20931 | 1.94× | 1.99× |
+| info | 2 | 0.00224 | 0.00273 | 0.00125 | 1.79× | 2.19× |
+| journey | 1 | 0.01592 | 0.01684 | 0.00779 | 2.04× | 2.16× |
+| kanban | 3 | 0.05252 | 0.05383 | 0.03637 | 1.44× | 1.48× |
+| mindmap | 6 | 0.09136 | 0.11010 | 0.04373 | 2.09× | 2.52× |
+| packet | 4 | 0.06014 | 0.06276 | 0.02848 | 2.11× | 2.20× |
+| pie | 3 | 0.03313 | 0.03851 | 0.01787 | 1.85× | 2.16× |
+| quadrant | 3 | 0.05258 | 0.05642 | 0.03177 | 1.65× | 1.78× |
+| requirement | 6 | 0.22575 | 0.23620 | 0.13540 | 1.67× | 1.74× |
+| sankey | 6 | 0.29175 | 0.35219 | 0.10373 | 2.81× | 3.40× |
+| sequence | 6 | 0.13236 | 0.13938 | 0.07782 | 1.70× | 1.79× |
+| state | 6 | 0.31519 | 0.32749 | 0.18926 | 1.67× | 1.73× |
+| timeline | 6 | 0.19763 | 0.21743 | 0.08601 | 2.30× | 2.53× |
+| xychart | 6 | 0.12318 | 0.11871 | 0.07115 | 1.73× | 1.67× |
+| agentflow | 6 | 0.32505 | 0.33065 | 0.25285 | 1.29× | 1.31× |
+| architecture | 6 | 0.22130 | 0.22523 | 0.08467 | 2.61× | 2.66× |
+| cynefin | 3 | 0.10065 | 0.12889 | 0.05144 | 1.96× | 2.51× |
+| ishikawa | 1 | 0.01806 | 0.01884 | 0.00918 | 1.97× | 2.05× |
+| radar | 3 | 0.07332 | 0.07547 | 0.02989 | 2.45× | 2.52× |
+| railroad | 6 | 0.20101 | 0.21115 | 0.14943 | 1.35× | 1.41× |
+| swimlane | 6 | 0.28242 | 0.29262 | 0.19694 | 1.43× | 1.49× |
+| treemap | 6 | 0.14314 | 0.14217 | 0.06308 | 2.27× | 2.25× |
+| treeview | 6 | 0.09356 | 0.10183 | 0.04327 | 2.16× | 2.35× |
+| usecase | 6 | 0.30086 | 0.30225 | 0.20887 | 1.44× | 1.45× |
+| venn | 6 | 0.38091 | 0.39103 | 0.16336 | 2.33× | 2.39× |
+| wardley | 6 | 0.14336 | 0.15038 | 0.07864 | 1.82× | 1.91× |
 
 ## Evidence and reproduction
 
-[Summary, source hashes and binary hashes](research/output-benchmark-2026-10-20-shared-svg-costs/comparison.json) · [Exact inputs](research/output-benchmark-2026-10-20-shared-svg-costs/cases.json) · [Verified SVG hashes](research/output-benchmark-2026-10-20-shared-svg-costs/verification.json). The same directory contains each process's raw sample timings.
+[Summary, source hashes and binary hashes](research/output-benchmark-2026-10-20-label-scanning/comparison.json) · [Exact inputs](research/output-benchmark-2026-10-20-label-scanning/cases.json) · [Verified SVG hashes](research/output-benchmark-2026-10-20-label-scanning/verification.json). The same directory contains each process's raw sample timings.
 
 ```sh
 cargo build --release --locked --manifest-path tools/cross-bench/Cargo.toml --target-dir target/cross-bench-build
