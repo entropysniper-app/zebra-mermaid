@@ -1,6 +1,7 @@
 //! Block diagram parser and the database that builds the block tree from its statements.
 //! Ported from Pele `src/diagrams/block/parser.ts` and `db.ts`.
 
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
@@ -134,7 +135,7 @@ impl Db {
     }
 
     fn add_style_class(&mut self, id: &str, style_attributes: &str) {
-        let found = self.classes.entry(id.to_string()).or_insert_with(|| BlockClassDef { id: id.to_string(), ..Default::default() });
+        let found = str_entry(&mut self.classes, id, || BlockClassDef { id: id.to_string(), ..Default::default() });
         for attribute in style_attributes.split(',') {
             let fixed = match attribute.find(';') {
                 None => js::trim(attribute).to_string(),

@@ -1,5 +1,6 @@
 //! Agentflow semantic actions, metadata, diagnostics and source mappings.
 use super::{graph::Graph, shapes, types::*};
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::{
     config::yaml::parse_yaml,
     util::{
@@ -274,7 +275,7 @@ impl AgentflowModel {
             }
             return Ok(());
         }
-        let vertex = self.nodes.entry(id.into()).or_insert_with(|| Node { id: id.into(), label_type: "text".into(), ..Default::default() });
+        let vertex = str_entry(&mut self.nodes, id, || Node { id: id.into(), label_type: "text".into(), ..Default::default() });
         if let Some(t) = text {
             vertex.label_type = t.kind;
             vertex.text = Some(unquote(js::trim(&t.text)));
@@ -406,7 +407,7 @@ impl AgentflowModel {
     pub fn add_class(&mut self, ids: &str, styles: Vec<String>) {
         let joined = styles.join(",").replace("\\,", "§§§").replace(',', ";").replace("§§§", ",");
         for id in ids.split(',') {
-            let c = self.classes.entry(id.into()).or_default();
+            let c = str_entry(&mut self.classes, id, Default::default);
             for s in joined.split(';') {
                 if s.contains("color") {
                     c.text_styles.push(s.replacen("fill", "bgFill", 1));
@@ -648,7 +649,7 @@ impl AgentflowModel {
     fn push_mapping(&mut self, id: &str, kind: &str, position: Position) -> usize {
         let i = self.mappings.len();
         self.mappings.push(Mapping { id: id.into(), kind: kind.into(), position });
-        self.first_mapping.entry(id.into()).or_insert(i);
+        str_entry(&mut self.first_mapping, id, || i);
         i
     }
     pub fn vertex_mapping(&mut self, id: &str, shape: Option<&str>, loc: Loc) {

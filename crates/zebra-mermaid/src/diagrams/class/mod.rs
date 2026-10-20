@@ -6,6 +6,7 @@ mod members;
 mod parser;
 mod render;
 mod tokens;
+
 #[cfg(test)]
 #[path = "../../../tests/upstream/class_graph.rs"]
 mod upstream_graph;
@@ -18,6 +19,7 @@ mod upstream_parser;
 #[cfg(test)]
 #[path = "../../../tests/upstream/class_stress_generated.rs"]
 mod upstream_stress;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use super::ParseInput;
 use crate::{
     text::entities::decode_entities,
@@ -146,7 +148,7 @@ impl ClassModel {
                 name.into(),
                 ClassNode { id: name.into(), kind: kind.into(), label: name.into(), css_classes: "default".into(), ..Default::default() },
             );
-            self.tags.entry("default".into()).or_default().insert(name.into());
+            str_entry(&mut self.tags, "default", Default::default).insert(name.into());
         }
     }
     fn ensure(&mut self, id: &str) -> &mut ClassNode {
@@ -204,14 +206,14 @@ impl ClassModel {
                 node.css_classes.push(' ');
                 node.css_classes.push_str(name);
                 for word in name.split(' ') {
-                    self.tags.entry(word.into()).or_default().insert(key.clone());
+                    str_entry(&mut self.tags, word, Default::default).insert(key.clone());
                 }
             }
         }
     }
     fn define_class(&mut self, ids: &[String], styles: &[String]) {
         for id in ids {
-            self.style_classes.entry(id.clone()).or_default().extend(styles.iter().cloned());
+            str_entry(&mut self.style_classes, id, Default::default).extend(styles.iter().cloned());
             if let Some(tagged) = self.tags.get(id) {
                 let parts: Vec<Arc<String>> = styles.iter().flat_map(|s| s.split(',').map(|part| Arc::new(part.to_owned()))).collect();
                 for name in tagged {
@@ -282,7 +284,7 @@ impl ClassModel {
             let end = dot.unwrap_or(qualified.len());
             let leaf = dot.is_none();
             let current = &qualified[..end];
-            let node = self.namespaces.entry(current.into()).or_insert_with(|| Namespace {
+            let node = str_entry(&mut self.namespaces, current, || Namespace {
                 id: current.into(),
                 label: if leaf {
                     label.clone().filter(|s| !s.is_empty()).unwrap_or_else(|| qualified[from..end].into())

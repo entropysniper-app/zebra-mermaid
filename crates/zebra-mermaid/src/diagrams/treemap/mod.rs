@@ -5,6 +5,7 @@ mod layout;
 mod parser;
 mod render;
 
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use indexmap::IndexMap;
 
 use crate::diagrams::ParseInput;
@@ -88,7 +89,7 @@ pub fn build_treemap(ast: TreemapAst, title: Option<&str>) -> TreemapModel {
     let mut classes: IndexMap<String, Vec<String>> = IndexMap::new();
     for row in &ast.rows {
         let RowAst::ClassDef { class_name, style_text, .. } = row else { continue };
-        let styles = classes.entry(class_name.clone()).or_default();
+        let styles = str_entry(&mut classes, class_name, Default::default);
         // An escaped comma stays in the value; the others separate declarations.
         let text = style_text.as_deref().unwrap_or("").replace("\\,", "§§§").replace(',', ";").replace("§§§", ",");
         for style in text.split(';') {

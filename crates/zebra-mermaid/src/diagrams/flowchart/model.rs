@@ -1,5 +1,6 @@
 //! Flowchart semantic model, ported from Pele types.ts and db.ts.
 use crate::config::yaml::parse_yaml;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::util::{js, url::safe_url};
 use crate::{ConfigMap, ConfigValue, DiagramType, Error};
 use indexmap::{IndexMap, IndexSet};
@@ -175,7 +176,7 @@ impl FlowchartModel {
             self.warnings
                 .push(format!("Style applied to unknown node \"{id}\". This may indicate a typo. The node will be created automatically."));
         }
-        let n = self.nodes.entry(id.into()).or_insert_with(|| Node { id: id.into(), label_type: "text".into(), ..Default::default() });
+        let n = str_entry(&mut self.nodes, id, || Node { id: id.into(), label_type: "text".into(), ..Default::default() });
         if let Some(t) = text {
             n.text = Some(unquote(js::trim(&t.text)));
             n.label_type = t.kind;
@@ -297,7 +298,7 @@ impl FlowchartModel {
     pub fn add_class(&mut self, ids: &str, styles: Vec<String>) {
         let joined = styles.join(",").replace("\\,", "§§§").replace(',', ";").replace("§§§", ",");
         for id in ids.split(',') {
-            let c = self.classes.entry(id.into()).or_default();
+            let c = str_entry(&mut self.classes, id, Default::default);
             for s in joined.split(';') {
                 c.styles.push(s.into());
                 if s.contains("color") {

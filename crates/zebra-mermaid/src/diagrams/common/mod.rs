@@ -11,4 +11,5 @@ pub mod literal_label;
 pub mod outline;
 pub(crate) mod parse_tokens;
 pub mod scan;
+pub(crate) mod str_entry;
 pub mod tokens;

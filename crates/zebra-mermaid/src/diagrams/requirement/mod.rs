@@ -3,9 +3,11 @@ mod lexer;
 mod parser;
 mod render;
 mod tokens;
+
 #[cfg(test)]
 #[path = "../../../tests/upstream/requirement_stress_generated.rs"]
 mod upstream_stress;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use super::ParseInput;
 use crate::{DiagramType, Error};
 use indexmap::IndexMap;
@@ -96,7 +98,7 @@ impl RequirementModel {
     }
     fn define_class(&mut self, ids: &[String], styles: &[String]) -> Result<(), Error> {
         for id in ids {
-            self.classes.entry(id.clone()).or_default().extend(styles.iter().cloned());
+            str_entry(&mut self.classes, id, Default::default).extend(styles.iter().cloned());
             let split: Vec<_> = styles.iter().flat_map(|s| s.split(',').map(str::to_owned)).collect();
             for node in self.requirements.values_mut().chain(self.elements.values_mut()) {
                 if node.classes.contains(id) {

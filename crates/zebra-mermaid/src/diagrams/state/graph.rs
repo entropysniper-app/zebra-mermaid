@@ -1,5 +1,6 @@
 //! Mermaid's state document traversal, preserving first insertion and later updates.
 use super::{direction, Description, State, StateModel, Stmt};
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::{util::js, Error};
 use indexmap::IndexMap;
 #[derive(Clone, Debug, Default)]
@@ -80,7 +81,7 @@ impl Builder<'_> {
         let known = self.db.known.get(id);
         let class_str = known.map_or_else(String::new, |s| s.classes.join(" "));
         let styles = known.map_or_else(Vec::new, |s| s.styles.clone());
-        let draft = self.drafts.entry(id.clone()).or_insert_with(|| {
+        let draft = str_entry(&mut self.drafts, id, || {
             let mut shape = Some("rect".to_string());
             if let Some(start) = item.start {
                 shape = Some(if start { "stateStart" } else { "stateEnd" }.into());

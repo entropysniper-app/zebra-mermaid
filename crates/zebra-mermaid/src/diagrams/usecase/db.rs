@@ -3,6 +3,7 @@ use super::{
     lexer::{line_column, location_text, Source},
     types::*,
 };
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::{util::chars::normalize_accessibility_description, DiagramType, Error, ErrorCode};
 use indexmap::{IndexMap, IndexSet};
 #[derive(Clone)]
@@ -227,7 +228,7 @@ fn publish(model: &mut UsecaseModel, id: String, state: State, boundaries: &[Dra
     }
 }
 fn mention(first: &mut IndexMap<String, usize>, id: &str, offset: usize) {
-    let old = first.entry(id.into()).or_insert(offset);
+    let old = str_entry(first, id, || offset);
     *old = (*old).min(offset);
 }
 fn endpoint(

@@ -6,6 +6,7 @@ use super::{
     js_date::{self, JsDate, Zone},
 };
 use crate::diagrams::common::fit_width::cap_width;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
@@ -86,14 +87,14 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
     let mut categories = IndexMap::<String, usize>::new();
     for &i in &row_tasks {
         let len = categories.len();
-        categories.entry(model.tasks[i].section.clone()).or_insert(len);
+        str_entry(&mut categories, &model.tasks[i].section, || len);
     }
     let mut row_of = vec![0; model.tasks.len()];
     let mut row_section: Vec<String> = vec![];
     if model.display_mode == "compact" {
         let mut groups = IndexMap::<String, Vec<usize>>::new();
         for &i in &row_tasks {
-            groups.entry(model.tasks[i].section.clone()).or_default().push(i);
+            str_entry(&mut groups, &model.tasks[i].section, Default::default).push(i);
         }
         for (section, group) in groups {
             let offset = row_section.len();

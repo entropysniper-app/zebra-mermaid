@@ -1,6 +1,7 @@
 //! Requirement tables and relation markers using Pele's compound graph layout.
 use super::{RequirementModel, RequirementNode};
 use crate::diagrams::common::fit_width::{runs_across, turn_to_fit};
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::layout::{
     compound::{cnode, compound_layout, direction, CEdge, CNode, Dir},
@@ -216,7 +217,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
             120.0,
             js::max(js::max(kind.width, name.width) + 28.0, if rows.is_empty() { 0.0 } else { key_width + 12.0 + value_width + 28.0 }),
         );
-        index.entry(node.name.clone()).or_insert(views.len());
+        str_entry(&mut index, &node.name, || views.len());
         let mut c = cnode(w, head_height + body_height, -1);
         c.seq = views.len() as f64;
         views.push(View {

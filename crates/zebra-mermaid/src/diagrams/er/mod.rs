@@ -3,12 +3,14 @@ mod lexer;
 mod parser;
 mod render;
 mod tokens;
+
 #[cfg(test)]
 #[path = "../../../tests/upstream/er_stress_generated.rs"]
 mod upstream_stress;
 #[cfg(test)]
 #[path = "../../../tests/upstream/er_parser.rs"]
 mod upstream_parser;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use super::ParseInput;
 use crate::{util::js, Error};
 use indexmap::{IndexMap, IndexSet};
@@ -93,7 +95,7 @@ impl Default for ErModel {
 impl ErModel {
     fn entity(&mut self, name: &str, alias: &str) -> &mut Entity {
         let count = self.entities.len();
-        let e = self.entities.entry(name.into()).or_insert_with(|| Entity {
+        let e = str_entry(&mut self.entities, name, || Entity {
             id: format!("entity-{name}-{count}"),
             label: name.into(),
             alias: alias.into(),
@@ -130,7 +132,7 @@ impl ErModel {
     }
     fn class(&mut self, ids: &[String], styles: &[String]) {
         for id in ids {
-            let c = self.classes.entry(id.clone()).or_default();
+            let c = str_entry(&mut self.classes, id, Default::default);
             for s in styles {
                 if s.contains("color") {
                     c.text_styles.push(s.replacen("fill", "bgFill", 1));

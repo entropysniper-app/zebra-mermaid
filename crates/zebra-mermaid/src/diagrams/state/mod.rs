@@ -4,9 +4,11 @@ mod lexer;
 mod parser;
 mod render;
 mod tokens;
+
 #[cfg(test)]
 #[path = "../../../tests/upstream/state_stress_generated.rs"]
 mod upstream_stress;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use super::ParseInput;
 use crate::{util::js, Error};
 use indexmap::IndexMap;
@@ -154,16 +156,16 @@ impl StateModel {
         for item in &self.docs[0] {
             match item {
                 Stmt::State(s) => {
-                    self.known.entry(js::trim(&s.id).into()).or_default();
+                    str_entry(&mut self.known, js::trim(&s.id), Default::default);
                 }
                 Stmt::Relation { first, second, .. } => {
                     for s in [first, second] {
-                        let known = self.known.entry(js::trim(&s.id).into()).or_default();
+                        let known = str_entry(&mut self.known, js::trim(&s.id), Default::default);
                         known.classes.extend(s.classes.iter().map(|s| js::trim(s).to_owned()));
                     }
                 }
                 Stmt::ClassDef(id, styles) => {
-                    let out = self.classes.entry(js::trim(id).into()).or_default();
+                    let out = str_entry(&mut self.classes, js::trim(id), Default::default);
                     if !styles.is_empty() {
                         out.extend(styles.split(',').map(|s| js::trim(&s.replacen(';', "", 1)).to_owned()));
                     }
@@ -172,13 +174,13 @@ impl StateModel {
                     let styles: Vec<_> = value.split(',').map(|s| js::trim(&s.replace(';', "")).to_owned()).collect();
                     for id in js::trim(ids).split(',') {
                         let key = if self.known.contains_key(id) { id } else { js::trim(id) };
-                        self.known.entry(key.into()).or_default().styles = styles.clone();
+                        str_entry(&mut self.known, key, Default::default).styles = styles.clone();
                     }
                 }
                 Stmt::ApplyClass(ids, value) => {
                     for id in js::trim(ids).split(',') {
                         let key = if self.known.contains_key(id) { id } else { js::trim(id) };
-                        self.known.entry(key.into()).or_default().classes.push(value.clone());
+                        str_entry(&mut self.known, key, Default::default).classes.push(value.clone());
                     }
                 }
                 Stmt::Click { id, url, tooltip } => {
