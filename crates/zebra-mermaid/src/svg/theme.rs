@@ -21,64 +21,50 @@ pub const RADIUS: &str = "var(--pele-radius,4px)";
 /// theme may put those in any order.
 pub const CRITICAL: &str = "var(--pele-critical,#e45756)";
 
-fn quoted_family(s: &[char], i: usize, quote: char) -> Option<usize> {
-    let mut j = i + 1;
-    while j < s.len() {
-        let c = s[j];
-        if c == quote {
-            return Some(j + 1);
-        }
-        if matches!(c, '"' | '\'' | '\\' | '\n' | '<' | '>' | '{' | '}' | '(' | ')' | ';' | ':' | '@') {
-            return None;
-        }
-        j += 1;
+fn family_word(c: char) -> bool {
+    if c.is_ascii() {
+        c.is_ascii_alphanumeric() || c == '_' || c == '-'
+    } else {
+        is_letter_property(c) || is_number_property(c)
     }
-    None
 }
 
-fn family(s: &[char], i: usize) -> Option<usize> {
-    let c = *s.get(i)?;
-    if c == '"' || c == '\'' {
-        return quoted_family(s, i, c);
+fn family(s: &mut std::iter::Peekable<std::str::Chars<'_>>) -> bool {
+    let Some(first) = s.next() else { return false };
+    if first == '"' || first == '\'' {
+        for c in s.by_ref() {
+            if c == first {
+                return true;
+            }
+            if matches!(c, '"' | '\'' | '\\' | '\n' | '<' | '>' | '{' | '}' | '(' | ')' | ';' | ':' | '@') {
+                return false;
+            }
+        }
+        return false;
     }
-    let lead = |c: char| is_letter_property(c) || is_number_property(c) || c == '_' || c == '-';
-    if !lead(c) {
-        return None;
+    if !family_word(first) {
+        return false;
     }
-    let mut j = i + 1;
-    while j < s.len() && (lead(s[j]) || s[j] == ' ' || s[j] == '.') {
-        j += 1;
-    }
-    Some(j)
+    while s.next_if(|&c| family_word(c) || c == ' ' || c == '.').is_some() {}
+    true
 }
 
 /// `^\s*FAMILY(?:\s*,\s*FAMILY)*\s*$`: a list of font names, quoted or not, and nothing that
 /// could end the declaration it is put in.
 pub fn is_font_list(list: &str) -> bool {
-    let s: Vec<char> = list.chars().collect();
-    let skip = |mut i: usize| {
-        while i < s.len() && is_space(s[i]) {
-            i += 1;
-        }
-        i
-    };
-    let mut i = skip(0);
-    let Some(e) = family(&s, i) else {
-        return false;
-    };
-    i = e;
+    // The validator needs neither character indices nor an owned copy of the list.
+    // ASCII names avoid Unicode range searches; other scalars keep the same properties.
+    let mut s = list.chars().peekable();
     loop {
-        i = skip(i);
-        if i == s.len() {
-            return true;
-        }
-        if s[i] != ',' {
+        while s.next_if(|&c| is_space(c)).is_some() {}
+        if !family(&mut s) {
             return false;
         }
-        i = skip(i + 1);
-        match family(&s, i) {
-            Some(e) => i = e,
-            None => return false,
+        while s.next_if(|&c| is_space(c)).is_some() {}
+        match s.next() {
+            None => return true,
+            Some(',') => {}
+            _ => return false,
         }
     }
 }
