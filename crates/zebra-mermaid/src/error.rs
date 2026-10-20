@@ -8,7 +8,7 @@
 use std::fmt;
 use std::ops::Range;
 
-use crate::detect::DiagramType;
+use crate::detect::{Detected, DiagramType, MermaidType};
 use crate::util::js;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -51,6 +51,8 @@ pub struct Error {
     pub code: ErrorCode,
     pub message: String,
     pub diagram_type: Option<DiagramType>,
+    /// Mermaid's type name, once the engine has detected the diagram.
+    pub mermaid_type: Option<MermaidType>,
     /// 1-based line in the parsed text, or 0 when the error has no position.
     pub line: usize,
     /// 1-based column in UTF-16 code units, or 0 when the error has no position.
@@ -65,7 +67,17 @@ pub struct Error {
 
 impl Error {
     pub fn new(message: impl Into<String>, code: ErrorCode) -> Self {
-        Error { code, message: message.into(), diagram_type: None, line: 0, column: 0, snippet: String::new(), span: None, offset: None }
+        Error {
+            code,
+            message: message.into(),
+            diagram_type: None,
+            mermaid_type: None,
+            line: 0,
+            column: 0,
+            snippet: String::new(),
+            span: None,
+            offset: None,
+        }
     }
 
     pub fn syntax(message: impl Into<String>) -> Self {
@@ -82,6 +94,13 @@ impl Error {
 
     pub fn with_type(mut self, diagram_type: DiagramType) -> Self {
         self.diagram_type = Some(diagram_type);
+        self
+    }
+
+    /// Adds detected names without replacing more specific information from the parser.
+    pub(crate) fn tag(mut self, found: Detected) -> Self {
+        self.diagram_type.get_or_insert(found.diagram_type);
+        self.mermaid_type.get_or_insert(found.mermaid_type);
         self
     }
 

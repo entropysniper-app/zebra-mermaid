@@ -12,7 +12,7 @@ import { build } from '../../.research/pele/node_modules/esbuild/lib/main.js';
 import { createInterface } from 'node:readline';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-import { mkdirSync, statSync, existsSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '../..');
@@ -22,18 +22,17 @@ const outFile = join(outDir, 'oracle.bundle.mjs');
 export async function loadOracle() {
   mkdirSync(outDir, { recursive: true });
   const entry = join(here, 'oracle-entry.ts');
-  const stale = !existsSync(outFile) || statSync(outFile).mtimeMs < statSync(entry).mtimeMs;
-  if (stale) {
-    await build({
-      entryPoints: [entry],
-      bundle: true,
-      format: 'esm',
-      platform: 'node',
-      outfile: outFile,
-      logLevel: 'error',
-      loader: { '.json': 'json' },
-    });
-  }
+  // The entry's mtime does not change when the pinned upstream checkout changes.
+  // Always build from its current source so reference values cannot use an old bundle.
+  await build({
+    entryPoints: [entry],
+    bundle: true,
+    format: 'esm',
+    platform: 'node',
+    outfile: outFile,
+    logLevel: 'error',
+    loader: { '.json': 'json' },
+  });
   const mod = await import(pathToFileURL(outFile).href);
   mod.register(...mod.all);
   return mod;
@@ -59,7 +58,7 @@ export function plain(value) {
 
 function errorOf(e) {
   if (e && e.name === 'PeleError') {
-    return { code: e.code, message: e.message, line: e.line, column: e.column, snippet: e.snippet, type: e.type };
+    return { code: e.code, message: e.message, line: e.line, column: e.column, snippet: e.snippet, type: e.type, mermaidType: e.mermaidType };
   }
   return { code: 'exception', name: e?.name ?? 'Error', message: String(e?.message ?? e) };
 }
@@ -78,7 +77,7 @@ export function answer(o, req) {
         for (const [k, v] of Object.entries(options)) if (v && typeof v === 'object' && typeof v.$number === 'string') options[k] = Number(v.$number);
         if (options.icons) options.icons = iconsFrom(options.icons);
         const r = o.render(req.source, options);
-        return { id, ok: true, type: r.type, width: r.width, height: r.height, svg: r.svg, links: r.links };
+        return { id, ok: true, type: r.type, mermaidType: r.mermaidType, width: r.width, height: r.height, svg: r.svg, links: r.links };
       }
       case 'parse': {
         const m = o.parse(req.source, req.options ?? {});

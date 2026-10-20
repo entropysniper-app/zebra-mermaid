@@ -4,13 +4,13 @@
 
 ## 完整参照
 
-- 固定版本：`44da152bbb79b91f03e68016f42499bb25bf6e82`。
+- 固定版本：Pele 1.7.0，`8603bf3313add9143cd417015d4a6bd6c522dada`（按用户 2026-10-20 升级要求替换原 `44da152b` 基线）。
 - 逐项清单：[`tests/upstream/inventory.json`](../tests/upstream/inventory.json)。保存文件、SHA-256、完整测试名称、位置、文件内序号、执行模式、原始 Vitest 超时值和稳定 ID。
 - 完整原始测试及辅助文件：`tests/upstream/source/tests/`，保留上游版权注释，许可证在 `tests/upstream/source/LICENSE` 与 `THIRD_PARTY_NOTICES.md`。
 - 参数化测试展开为独立项；重复名称通过文件内序号区分。
 - 测试范围是全部 `tests/**/*.{test,spec}.{ts,js}`，包含 `tests/website/`、mount、zoom、browser、字体加载与入口打包测试。不能沿用 `npm test` 排除 website 的范围。
 
-完整上游复跑结果：**291 个文件，6,810 个测试项；6,705 通过、103 跳过、2 todo**。这是 TypeScript 参照基线，不是 Rust 结果。网站依赖按其现有锁文件安装，未改动测试或实现源文件。
+完整上游复跑结果：**292 个文件，6,826 个测试项；6,721 通过、103 跳过、2 todo**。这是 TypeScript 参照基线，不是 Rust 结果。网站依赖按其现有锁文件安装，未改动测试或实现源文件。
 
 ## 1:1 的含义
 
@@ -48,13 +48,13 @@ node tools/test-parity/check.mjs --require-complete
 
 ## 当前移植结果
 
-| 原文件 | 已映射项数 | Rust 通过 | 保留上游跳过 |
+| 原文件 | 已映射项数 | Rust 验收通过 | 保留上游跳过 |
 | --- | ---: | ---: | ---: |
 | `tests/agentflow/stress.test.ts` | 69 | 69 | 0 |
 | `tests/class/stress.test.ts` | 56 | 56 | 0 |
-| `tests/compat/class/classDiagram.spec.ts`（原文件 384 项） | 382 | 382 | 0 |
+| `tests/compat/class/classDiagram.spec.ts`（原文件 384 项） | 382 | 381 | 1 |
 | `tests/compat/class/classTypes.spec.ts` | 93 | 93 | 0 |
-| `tests/compat/er/erDiagram.spec.js`（原文件 634 项） | 632 | 632 | 0 |
+| `tests/compat/er/erDiagram.spec.js`（原文件 634 项） | 632 | 631 | 1 |
 | `tests/compat/flowchart/flow-arrows.spec.js` | 14 | 14 | 0 |
 | `tests/compat/flowchart/flow-comments.spec.js` | 9 | 9 | 0 |
 | `tests/compat/flowchart/flow-direction.spec.js` | 4 | 4 | 0 |
@@ -81,23 +81,25 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/layout/lanes.test.ts` | 24 | 24 | 0 |
 | `tests/render/edges.test.ts` | 6 | 6 | 0 |
 | `tests/render/info.test.ts` | 5 | 5 | 0 |
+| `tests/render/mermaid-type.test.ts` | 16 | 16 | 0 |
+| `tests/render/cjk-wrap.test.ts` | 6 | 6 | 0 |
 | `tests/requirement/stress.test.ts` | 36 | 36 | 0 |
 | `tests/sequence/stress.test.ts` | 47 | 47 | 0 |
 | `tests/state/stress.test.ts` | 53 | 53 | 0 |
 | `tests/util/preprocess.test.ts` | 9 | 9 | 0 |
 | `tests/util/url.test.ts` | 30 | 30 | 0 |
 | `tests/util/yaml.test.ts` | 29 | 29 | 0 |
-| **合计** | **2,770** | **2,765** | **5** |
+| **合计** | **2,792** | **2,785** | **7** |
 
 未映射项按范围分为 **Rust 核心 3,977 项、宿主/打包 53 项、网站 10 项**，三个范围均保留在目标内。
 
-还有 **4,040 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,810 项计算，当前 1:1 通过率约 **40.60%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；39/39 是此前基准快照，本批未重新计时。
+还有 **4,034 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,826 项计算，当前可计入验收的 1:1 通过率约 **40.80%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；39/39 是此前基准快照，本批未重新计时。
 
-ER 文件共有 634 项。其中 632 项通过机械转换保留解析调用、字段访问、全部断言与异常检查；生成过程中模型观察值保持符号形式，未拿原版或 Rust 输出生成期望值。转换流分别在原版 Pele 和真实 Rust 原始解析器上运行通过。原先跳过的 Unicode 名称测试已启用并通过，原跳过标记仍保存在清单。其余两项虽然在上游显示 passed，但函数体只有 `/* TODO */`，没有输入、断言或受测调用，当前保持未移植，不生成空测试凑数。
+ER 文件共有 634 项。其中 632 项通过机械转换保留解析调用、字段访问、全部断言与异常检查；生成过程中模型观察值保持符号形式，未拿原版或 Rust 输出生成期望值。转换流分别在原版 Pele 和真实 Rust 原始解析器上运行通过。原先跳过的 Unicode 名称测试已启用并实际执行通过，但仍按原 skip 标记计入跳过，不计入正式验收通过数；class 前导换行测试同理。其余两项虽然在上游显示 passed，但函数体只有 `/* TODO */`，没有输入、断言或受测调用，当前保持未移植，不生成空测试凑数。
 
 相关工具：`tools/test-parity/compile-er.mjs`（生成/校验逐项转换）、`tools/test-parity/verify-er-reference.mjs`（用原始 Pele 解析器验证同一断言流）。不支持的测试语法会记为未转换；审计运行前重新生成比对 IR 与测试映射，防止期望值被手动改成 Rust 输出。
 
-首批测试暴露 `info` 默认版本文本与上游不同。已修正库默认输出为固定参照的 `Pele v1.6.0`，原始断言不变；调用方仍可显式设置 `info_text`。CLI 自身版本继续使用项目版本。此前采集差分显式传入版本文本，不能证明默认行为一致。
+首批测试暴露 `info` 默认版本文本与上游不同。库默认输出跟随固定参照，升级至 1.7.0 后为 `Pele v1.7.0`，原始断言不变；调用方仍可显式设置 `info_text`。CLI 自身版本继续使用项目版本。此前采集差分显式传入版本文本，不能证明默认行为一致。
 
 33 类解析与渲染已接通；后续继续补齐原始测试逐项映射、宿主适配、网站和打包测试。全量完成前不宣布“完整替代 Pele”。
 
@@ -113,7 +115,7 @@ ER 文件共有 634 项。其中 632 项通过机械转换保留解析调用、�
 
 生成校验脚本为 `compile-utilities.mjs`、`compile-gantt-dates.mjs`、`compile-class-members.mjs` 和 `compile-class-parser.mjs`，均由审计门禁调用。Gantt、class 成员与 class 解析器另有对应 `verify-*-reference.mjs`，验证断言流的原版行为；原版跳过项的失败独立记录。
 
-此前完整门禁实际执行了全部已映射项及各自原始超时：**2,629 通过、0 失败、5 跳过、4,176 未映射**。后续 ER/State/Requirement 压力测试批次新增 136 项，见本文末尾的验证记录；全量完成目标保持全部 6,810 项。
+此前完整门禁实际执行了全部已映射项及各自原始超时：**2,629 通过、0 失败、5 跳过、4,176 未映射**。后续 ER/State/Requirement 压力测试批次新增 136 项，见本文末尾的验证记录；当时全量完成目标为 6,810 项；1.7.0 已扩展到 6,826 项。
 
 ## Flowchart 兼容测试批次
 
@@ -161,3 +163,12 @@ Class 解析器现为 382/384 项逐项通过：379 项生成断言流，加上 
 本批最终严格门禁 `node tools/test-parity/check.mjs --require-complete` 实际结果为 **2,765 通过、0 失败、5 跳过、4,040 未映射、0 待验证**，`complete: false`，按预期退出 1。常规工作区回归为 **3,163 通过、0 失败、5 跳过**；已提交采集样本独立对照 **13,194/13,194 一致**，另 6 条孤立代理项输入未执行，不计通过，也不豁免原测试验收。本轮未复跑本地缺失的采集全集，亦未刷新此前 39/39 性能基准。
 
 后续按用户发布要求完成了 [完整性能复测](BENCHMARK-COMPLETE.zh-CN.md)，刷新 39/39 组基准与四引擎数据，并在测量后重跑上述严格门禁和工作区回归，结果数量不变。性能标签 `v0.1.0-benchmark.20261020` 不增加原始测试映射或通过数量；全量验收仍未完成。
+
+
+## 2026-10-20：Pele 1.7.0
+
+基线升级至 `8603bf3313add9143cd417015d4a6bd6c522dada`。原有 6,810 项全部保留，新增 `mermaidType` 的 16 项后清单为 6,826 项。新增 16 项类型测试和 6 项 CJK 换行测试均逐项映射并执行；info 模型断言同步增加 `mermaidType`。
+
+最终 `node tools/test-parity/check.mjs --require-complete` 结果：**2,785 验收通过、0 失败、7 保留上游跳过、4,034 未映射、0 待验证**，每项采用原 Vitest 超时、独立进程执行，`complete: false`，退出 1。实际 Rust 执行是 2,787 passed、5 ignored；其中 Class 前导换行与 ER Unicode 两个测试在上游仍标记 skip，因此分别保留 `executionState: passed` 和验收 `state: skipped`，不计入 2,785。旧报告的执行通过数不追溯改写，当前统计遵守原 skip/todo 不计通过的约束。
+
+图表覆盖 **33/33**，本轮新参照完整响应 **761/761**，原始测试正式验收通过率 **40.80%**，三种指标互不替代。宿主入口与 mount 新增断言仍保持未移植，源文件和哈希已同步。完整变更与复现见 [PELE-1.7.0.md](PELE-1.7.0.md)。

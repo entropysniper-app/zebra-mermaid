@@ -6,6 +6,8 @@ import {fileURLToPath} from 'node:url';
 import {spawnSync,execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 const root=fileURLToPath(new URL('../..',import.meta.url));
+const referenceCommit=execFileSync('git',['-C',resolve(root,'.research/pele'),'rev-parse','HEAD'],{encoding:'utf8'}).trim();
+if(referenceCommit!=='8603bf3313add9143cd417015d4a6bd6c522dada')throw Error('Unexpected Pele revision');
 const dir=resolve(root,'target/bench');mkdirSync(dir,{recursive:true});
 const target=resolve(root,process.env.CARGO_TARGET_DIR??'target');
 const rust=resolve(target,'release/examples/bench'),cli=resolve(target,'release/zebra-mermaid');
@@ -44,6 +46,6 @@ for(let i=0;i<31;i++)for(const key of i%2?['rust','nodeReference']:['nodeReferen
 }
 const coldSummary=Object.fromEntries(Object.entries(cold).map(([k,v])=>[k,{medianMs:med(v),minMs:Math.min(...v),maxMs:Math.max(...v),samples:v}]));
 const runtime={node:process.version,rustc:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim()};
-const report={createdAt:new Date().toISOString(),commit:'44da152bbb79b91f03e68016f42499bb25bf6e82',enabledTypes:runs[0].rust.enabledTypes,inputSha256:createHash('sha256').update(input).digest('hex'),runtime,method:{runs:3,minimumSamples:Number(process.env.BENCH_SAMPLES??9),minimumSamplingMs:Number(process.env.BENCH_MS??300),calibrationMs:10,mode:'css',font:'default Arial metrics',now:1792368000000,timezone:'UTC',correctness:'Every success must match UTF-8 SVG FNV-1a-64 and dimensions; every rejection must match code, message, line and column. Successful render and expected rejection workloads are timed separately.'},rows,cold:coldSummary,size:{rustCliBytes:statSync(cli).size,peleBundleBytes:statSync(resolve(root,'.research/pele/dist/pele.js')).size}};
+const report={createdAt:new Date().toISOString(),commit:'8603bf3313add9143cd417015d4a6bd6c522dada',enabledTypes:runs[0].rust.enabledTypes,inputSha256:createHash('sha256').update(input).digest('hex'),runtime,method:{runs:3,minimumSamples:Number(process.env.BENCH_SAMPLES??9),minimumSamplingMs:Number(process.env.BENCH_MS??300),calibrationMs:10,mode:'css',font:'default Arial metrics',now:1792368000000,timezone:'UTC',correctness:'Every success must match UTF-8 SVG FNV-1a-64 and dimensions; every rejection must match code, message, line and column. Successful render and expected rejection workloads are timed separately.'},rows,cold:coldSummary,size:{rustCliBytes:statSync(cli).size,peleBundleBytes:statSync(resolve(root,'.research/pele/dist/pele.js')).size}};
 writeFileSync(resolve(dir,'comparison.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({eligible:rows.filter(r=>r.eligible).length,total:rows.length,cold:coldSummary},null,2));
 if(rows.some(row=>!row.consistent))process.exitCode=1;

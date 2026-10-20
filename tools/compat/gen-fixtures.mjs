@@ -8,12 +8,17 @@
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { loadOracle, answer } from './oracle.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '../..');
 const pele = join(root, '.research/pele');
 const out = join(root, 'tests/fixtures');
+const commit = execFileSync('git', ['-C', pele, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+if (commit !== '44da152bbb79b91f03e68016f42499bb25bf6e82') {
+  throw Error('Historical fixtures require the original 44da152b reference. For the current release use tools/compat/gen-release-fixtures.mjs.');
+}
 
 // Fixed options for every render fixture, so that output does not depend on the clock.
 export const RENDER_OPTIONS = { idPrefix: 'baseline', now: Date.parse('2026-10-19T00:00:00Z') };

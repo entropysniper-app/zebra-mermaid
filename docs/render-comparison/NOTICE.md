@@ -1,6 +1,6 @@
-# Sample 与主题来源
+# Sample and theme attribution
 
-Pele 源码、CSS 与 Sample 使用根目录 THIRD_PARTY_NOTICES.md 中的许可。Playground 图标许可如下：
+Pele source, styles, and samples use the licenses recorded in the root THIRD_PARTY_NOTICES.md. Playground icon license:
 
 ```text
 Icon shapes from Lucide v1.14.0 (https://lucide.dev), drawn on a 24 by 24 grid with a 2 unit stroke,

@@ -59,6 +59,7 @@ impl Failure {
         let position = e.source_position(source);
         let detail = json!({
             "diagramType": e.diagram_type.map(|t| t.as_str()),
+            "mermaidType": e.mermaid_type.map(|t| t.as_str()),
             "line": e.line,
             "column": e.column,
             "snippet": e.snippet,
@@ -86,6 +87,7 @@ pub struct Rendered {
     pub width: f64,
     pub height: f64,
     pub diagram_type: String,
+    pub mermaid_type: String,
     pub links: Vec<(String, String, bool)>,
 }
 
@@ -220,16 +222,22 @@ pub fn render_source(source: String, plan: &Plan) -> Result<Rendered, Failure> {
                     width: r.width,
                     height: r.height,
                     diagram_type: r.diagram_type.as_str().into(),
+                    mermaid_type: r.mermaid_type.as_str().into(),
                     links: r.links.into_iter().map(|l| (l.id, l.href, l.internal)).collect(),
                 })
                 .map_err(|e| Failure::from_error(&e, &source)),
             Plan::Zebra(options) => zebra::render_for_zebra(&source, options)
-                .map(|r| Rendered {
-                    svg: r.svg,
-                    width: r.width,
-                    height: r.height,
-                    diagram_type: zebra_mermaid::detect_type(&source).ok().flatten().map_or("unknown".into(), |t| t.as_str().into()),
-                    links: Vec::new(),
+                .map(|r| {
+                    let found =
+                        zebra_mermaid::preprocess::preprocess(&source).ok().and_then(|p| zebra_mermaid::detect::detect_diagram(&p.text));
+                    Rendered {
+                        svg: r.svg,
+                        width: r.width,
+                        height: r.height,
+                        diagram_type: found.map_or("unknown".into(), |t| t.diagram_type.as_str().into()),
+                        mermaid_type: found.map_or("unknown".into(), |t| t.mermaid_type.as_str().into()),
+                        links: Vec::new(),
+                    }
                 })
                 .map_err(|e| {
                     let (exit, code) = match e.kind {
@@ -267,6 +275,7 @@ fn result_json(r: &Rendered, file: Option<&str>) -> Value {
         "ok": true,
         "file": file,
         "type": r.diagram_type,
+        "mermaidType": r.mermaid_type,
         "width": r.width,
         "height": r.height,
         "links": r.links.iter().map(|(id, href, internal)| json!({ "id": id, "href": href, "internal": internal })).collect::<Vec<_>>(),
@@ -341,7 +350,7 @@ fn run_check(inputs: &[String], format: Format, r: &RenderArgs) -> i32 {
             Ok(rendered) => match format {
                 Format::Json => println!(
                     "{}",
-                    json!({ "ok": true, "file": file, "type": rendered.diagram_type, "width": rendered.width, "height": rendered.height })
+                    json!({ "ok": true, "file": file, "type": rendered.diagram_type, "mermaidType": rendered.mermaid_type, "width": rendered.width, "height": rendered.height })
                 ),
                 Format::Text => eprintln!("zebra-mermaid: {}: ok ({})", file.unwrap_or("standard input"), rendered.diagram_type),
             },

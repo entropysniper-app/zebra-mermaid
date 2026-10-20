@@ -237,8 +237,8 @@ pub enum DiagramModel {
 
 impl DiagramModel {
     pub fn diagram_type(&self) -> DiagramType {
-        #[allow(unreachable_patterns)]
-        match self {
+        // Match the value so an empty feature set also has an exhaustive match.
+        match *self {
             #[cfg(feature = "flowchart")]
             DiagramModel::Flowchart(_) => DiagramType::Flowchart,
             #[cfg(feature = "sequence")]
@@ -428,73 +428,73 @@ pub(crate) fn parse(t: DiagramType, input: &ParseInput) -> Result<DiagramModel, 
 
 #[allow(unused_variables)]
 pub(crate) fn render(model: &DiagramModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
-    match model {
+    match *model {
         #[cfg(feature = "flowchart")]
-        DiagramModel::Flowchart(model) => flowchart::render(model, config, ctx),
+        DiagramModel::Flowchart(ref model) => flowchart::render(model, config, ctx),
         #[cfg(feature = "sequence")]
-        DiagramModel::Sequence(model) => sequence::render(model, config, ctx),
+        DiagramModel::Sequence(ref model) => sequence::render(model, config, ctx),
         #[cfg(feature = "class")]
-        DiagramModel::Class(model) => class::render(model, config, ctx),
+        DiagramModel::Class(ref model) => class::render(model, config, ctx),
         #[cfg(feature = "state")]
-        DiagramModel::State(model) => state::render(model, config, ctx),
+        DiagramModel::State(ref model) => state::render(model, config, ctx),
         #[cfg(feature = "er")]
-        DiagramModel::Er(model) => er::render(model, config, ctx),
+        DiagramModel::Er(ref model) => er::render(model, config, ctx),
         #[cfg(feature = "pie")]
-        DiagramModel::Pie(model) => pie::render(model, config, ctx),
+        DiagramModel::Pie(ref model) => pie::render(model, config, ctx),
         #[cfg(feature = "gantt")]
-        DiagramModel::Gantt(model) => gantt::render(model, config, ctx),
+        DiagramModel::Gantt(ref model) => gantt::render(model, config, ctx),
         #[cfg(feature = "gitGraph")]
-        DiagramModel::GitGraph(model) => git_graph::render(model, config, ctx),
+        DiagramModel::GitGraph(ref model) => git_graph::render(model, config, ctx),
         #[cfg(feature = "mindmap")]
-        DiagramModel::Mindmap(model) => mindmap::render(model, config, ctx),
+        DiagramModel::Mindmap(ref model) => mindmap::render(model, config, ctx),
         #[cfg(feature = "timeline")]
-        DiagramModel::Timeline(model) => timeline::render(model, config, ctx),
+        DiagramModel::Timeline(ref model) => timeline::render(model, config, ctx),
         #[cfg(feature = "journey")]
-        DiagramModel::Journey(model) => journey::render(model, config, ctx),
+        DiagramModel::Journey(ref model) => journey::render(model, config, ctx),
         #[cfg(feature = "xychart")]
-        DiagramModel::Xychart(model) => xychart::render(model, config, ctx),
+        DiagramModel::Xychart(ref model) => xychart::render(model, config, ctx),
         #[cfg(feature = "quadrantChart")]
-        DiagramModel::QuadrantChart(model) => quadrant::render(model, config, ctx),
+        DiagramModel::QuadrantChart(ref model) => quadrant::render(model, config, ctx),
         #[cfg(feature = "requirement")]
-        DiagramModel::Requirement(model) => requirement::render(model, config, ctx),
+        DiagramModel::Requirement(ref model) => requirement::render(model, config, ctx),
         #[cfg(feature = "c4")]
-        DiagramModel::C4(model) => c4::render(model, config, ctx),
+        DiagramModel::C4(ref model) => c4::render(model, config, ctx),
         #[cfg(feature = "sankey")]
-        DiagramModel::Sankey(model) => sankey::render(model, config, ctx),
+        DiagramModel::Sankey(ref model) => sankey::render(model, config, ctx),
         #[cfg(feature = "block")]
-        DiagramModel::Block(model) => block::render(model, config, ctx),
+        DiagramModel::Block(ref model) => block::render(model, config, ctx),
         #[cfg(feature = "packet")]
-        DiagramModel::Packet(model) => packet::render(model, config, ctx),
+        DiagramModel::Packet(ref model) => packet::render(model, config, ctx),
         #[cfg(feature = "kanban")]
-        DiagramModel::Kanban(model) => kanban::render(model, config, ctx),
+        DiagramModel::Kanban(ref model) => kanban::render(model, config, ctx),
         #[cfg(feature = "architecture")]
-        DiagramModel::Architecture(model) => architecture::render(model, config, ctx),
+        DiagramModel::Architecture(ref model) => architecture::render(model, config, ctx),
         #[cfg(feature = "radar")]
-        DiagramModel::Radar(model) => radar::render(model, config, ctx),
+        DiagramModel::Radar(ref model) => radar::render(model, config, ctx),
         #[cfg(feature = "treemap")]
-        DiagramModel::Treemap(model) => treemap::render(model, config, ctx),
+        DiagramModel::Treemap(ref model) => treemap::render(model, config, ctx),
         #[cfg(feature = "info")]
-        DiagramModel::Info(model) => info::render(model, config, ctx),
+        DiagramModel::Info(ref model) => info::render(model, config, ctx),
         #[cfg(feature = "agentflow")]
-        DiagramModel::Agentflow(model) => agentflow::render(model, config, ctx),
+        DiagramModel::Agentflow(ref model) => agentflow::render(model, config, ctx),
         #[cfg(feature = "usecase")]
-        DiagramModel::Usecase(model) => usecase::render(model, config, ctx),
+        DiagramModel::Usecase(ref model) => usecase::render(model, config, ctx),
         #[cfg(feature = "railroad")]
-        DiagramModel::Railroad(model) => railroad::render(model, config, ctx),
+        DiagramModel::Railroad(ref model) => railroad::render(model, config, ctx),
         #[cfg(feature = "treeView")]
-        DiagramModel::TreeView(model) => treeview::render(model, config, ctx),
+        DiagramModel::TreeView(ref model) => treeview::render(model, config, ctx),
         #[cfg(feature = "venn")]
-        DiagramModel::Venn(model) => venn::render(model, config, ctx),
+        DiagramModel::Venn(ref model) => venn::render(model, config, ctx),
         #[cfg(feature = "cynefin")]
-        DiagramModel::Cynefin(model) => cynefin::render(model, config, ctx),
+        DiagramModel::Cynefin(ref model) => cynefin::render(model, config, ctx),
         #[cfg(feature = "wardley")]
-        DiagramModel::Wardley(model) => wardley::render(model, config, ctx),
+        DiagramModel::Wardley(ref model) => wardley::render(model, config, ctx),
         #[cfg(feature = "swimlane")]
-        DiagramModel::Swimlane(model) => swimlane::render(model, config, ctx),
+        DiagramModel::Swimlane(ref model) => swimlane::render(model, config, ctx),
         #[cfg(feature = "ishikawa")]
-        DiagramModel::Ishikawa(model) => ishikawa::render(model, config, ctx),
+        DiagramModel::Ishikawa(ref model) => ishikawa::render(model, config, ctx),
         #[cfg(feature = "eventmodeling")]
-        DiagramModel::Eventmodeling(model) => eventmodeling::render(model, config, ctx),
+        DiagramModel::Eventmodeling(ref model) => eventmodeling::render(model, config, ctx),
     }
 }
 

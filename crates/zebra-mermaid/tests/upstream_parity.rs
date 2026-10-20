@@ -12,6 +12,14 @@ mod info_render;
 #[path = "upstream/info_stress.rs"]
 mod info_stress;
 
+#[cfg(all(feature = "flowchart", feature = "class", feature = "state", feature = "railroad", feature = "sequence", feature = "pie"))]
+#[path = "upstream/mermaid_type.rs"]
+mod mermaid_type;
+
+#[cfg(feature = "flowchart")]
+#[path = "upstream/cjk_wrap.rs"]
+mod cjk_wrap;
+
 #[path = "upstream/compound.rs"]
 mod compound;
 

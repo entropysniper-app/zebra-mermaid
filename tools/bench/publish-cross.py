@@ -30,6 +30,8 @@ for e in ['mermaid','pele','zebra','mmdr']:
 shutil.copytree(source/'svg',destination/'svg')
 paths=[root/'tools/cross-bench/Cargo.toml',root/'tools/cross-bench/Cargo.lock',root/'tools/cross-bench/src/main.rs']
 paths.extend(root/'tools/bench'/name for name in ['run-cross.py','cross-pele.mjs','cross-mermaid.mjs'])
+paths.extend(sorted((root/'crates/zebra-mermaid/src').rglob('*.rs')))
+paths.extend([root/'Cargo.toml',root/'Cargo.lock',root/'crates/zebra-mermaid/Cargo.toml'])
 metadata={'files':[{'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}for p in paths],
     'nativeBinarySha256':report['nativeBinarySha256'],'sourceSelection':'Original pinned Pele Playground sampleGroups: 33 groups, 167 samples. No sample source rewriting.',
     'mmdrSource':'https://github.com/1jehuang/mermaid-rs-renderer/tree/'+report['versions']['mmdrCommit'],
@@ -39,73 +41,81 @@ names={'mermaid':'Mermaid.js','pele':'Pele','zebra':'zebra-mermaid','mmdr':'merm
 engines=list(names)
 totals={e:sum(r['ok']for r in verification[e].values())for e in engines}
 returned={e:sum(r.get('returnedSvg',False)for r in verification[e].values())for e in engines}
-matrix='| 图表场景 | 共同样本 / 原样本 | Mermaid.js ms | Pele ms | zebra-mermaid ms | mermaid-rs-renderer ms |\n| --- | ---: | ---: | ---: | ---: | ---: |\n'
+matrix='| Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |\n| --- | ---: | ---: | ---: | ---: | ---: |\n'
 for c in report['coverage']:
     r=next((r for r in report['rows']if r['name']==c['name']),None)
     values=[f"{r['timings'][e]['ms']:.5f}" if r else '—' for e in engines]
     matrix+='| '+c['type']+' | '+str(c['common'])+' / '+str(c['total'])+' | '+' | '.join(values)+' |\n'
-coverage_table='| 引擎 | 返回 SVG / 167 | 通过类型与 SVG 检查 / 167 |\n| --- | ---: | ---: |\n'
+coverage_table='| Renderer | Returned SVG / 167 | Passed type and SVG checks / 167 |\n| --- | ---: | ---: |\n'
 for e in engines:coverage_table+=f'| {names[e]} | {returned[e]} | {totals[e]} |\n'
 common=sum(c['common']for c in report['coverage'])
-text=f'''# 四引擎性能横向对比
+text=f'''# Performance comparison
 
-测量时间：{report['createdAt']}。
+Measured: {report['createdAt']}.
 
-本次实际比较 Mermaid.js、Pele、zebra-mermaid 和 [mermaid-rs-renderer](https://github.com/1jehuang/mermaid-rs-renderer/tree/{report['versions']['mmdrCommit']})。输入为固定 Pele Playground 的 **33 类、167 个 Sample**，四个引擎逐项尝试完全相同的源码，不为某个引擎改写语法。
+The current library is compared with three other renderers using the same **167 Playground samples across 33 diagram types**. All four engines attempt every original input without syntax rewriting. Timing includes only samples that pass type and SVG validation in all four engines.
 
-## 版本与口径
+## Versions
 
-- Mermaid.js {report['versions']['mermaid']}，Chromium {report['versions']['browser']}，真实浏览器中调用 `mermaid.render`。
-- Pele {report['versions']['pele']}，固定提交 `{report['versions']['peleCommit']}`；zebra-mermaid {report['versions']['zebra']}，本轮优化后的 Rust 库。
-- mermaid-rs-renderer {report['versions']['mmdr']}，固定提交 `{report['versions']['mmdrCommit']}`；直接调用原版 `render_with_options`，保留默认原生字体测量，`fast_text_metrics=false`。
-- 两个 Rust 库使用相同 release / thin LTO / codegen-units=1 编译配置。第三方引擎仅进入独立开发驱动，不进入 zebra-mermaid 生产依赖。{report['versions']['rustc']}；Node {report['versions']['node']}。
-- 请求 Arial 16；Pele/Rust 保留 Pele CSS 变量，Mermaid.js/mmdr 使用 dark 主题；输入自身指令保留。各引擎的字体测量、布局和样式实现不同，输出尺寸和视觉效果不保证一致。
+| Renderer | Version | Execution |
+| --- | --- | --- |
+| zebra-mermaid | {report['versions']['zebra']} | Native Rust, release, thin LTO, codegen-units=1 |
+| Pele | {report['versions']['pele']} | Node, commit `{report['versions']['peleCommit']}` |
+| Mermaid.js | {report['versions']['mermaid']} | Chromium {report['versions']['browser']} |
+| mermaid-rs-renderer | {report['versions']['mmdr']} | Native Rust, release, thin LTO, codegen-units=1; commit `{report['versions']['mmdrCommit']}` |
 
-计时为**完整 parse + layout + SVG 生成的稳态墙钟耗时**，单位为同一行全部共同样本的 ms。每轮预热五批，校准到至少 10 ms，每次采样至少九个样本且累计至少 300 ms，三个独立进程轮次交错引擎顺序。每轮取样本中位数，再取三轮中位数。
+Runtime versions: {report['versions']['rustc']}; Node {report['versions']['node']}. The two native libraries share one development benchmark driver and matching optimization settings. The comparison renderer is not a dependency of the production library.
 
-浏览器启动、模块加载、字体首次预热、验证、跨进程通信及写盘不计时；Mermaid 的测量在浏览器内部完成。DOM 清理计入 Mermaid 调用循环；mmdr 的 API 消费 options，因此配置克隆计入其调用成本。未测 CLI 冷启动，本表不能用于宣称 CLI 启动速度。
+## Method
 
-## 支持范围与比较集合
+- Measure full parsing, layout, and SVG generation, with no parsed-model or output-cache reuse.
+- Use identical inputs within each row. Values are milliseconds for the **entire batch**, not per diagram.
+- Run five warm-up batches, calibrate each timed segment to at least 10 ms, then collect at least nine samples and 300 ms per group.
+- Run three independent processes per engine, alternating engine order. Take the lower median within each run, then the median of the three runs.
+- Exclude process/browser startup, imports, font warm-up, validation, IPC, and disk output. Mermaid DOM cleanup and mermaid-rs-renderer's owned-options clone remain inside their loops.
+- Request Arial 16. Rust/Pele use the same Arial metrics and CSS output; Mermaid uses browser measurements and a dark theme; mermaid-rs-renderer uses its default native font measurement with `fast_text_metrics=false`. Authored directives remain active. The clock is fixed to 2026-10-19 00:00 UTC where supported.
+
+These are steady-state rendering measurements. Layout and font behavior differ between engines, so timings are not a claim of identical work or pixel equivalence across all four engines. Compare values within a row; batch sizes and diagram complexity differ across rows.
+
+## Coverage
 
 {coverage_table}
-最终共同集合为 **{common} 个 Sample、{len(report['rows'])} 个图表组**。每行四个引擎都只测该行同一组共同输入；没有共同输入的行保留 `—`。原始 167 项的成功、失败和排除原因全部保存。
+The common set contains **{common}/167 samples across {len(report['rows'])} diagram types**. A dash means no shared eligible input, not a zero rendering cost. The complete success, failure, and exclusion records are retained.
 
-SVG 检查包含 XML、有限正尺寸，以及 mmdr 的 `DiagramKind` 是否符合输入图表类型。验证中发现 mmdr 会将部分带 `-beta` 的其他图表头识别为 Flowchart；这些结果记录为“返回 SVG、类型不匹配”，不计入合格成功或耗时排名。Mermaid 的 HTML 形式 SVG 在计时外通过 DOM 序列化；Info 没有 viewBox，使用浏览器实际 viewport 尺寸。
+SVG validation requires valid XML and positive finite dimensions. The native comparison renderer must also report the expected diagram kind: inputs misidentified as flowcharts are recorded as returned SVG but excluded from eligible success and timing. Mermaid HTML output is serialized through the DOM outside timing; its Info output uses the browser viewport when no viewBox is present.
 
-Pele 与 zebra-mermaid 的 **167/167 SVG 字节与尺寸完全一致**。另外两个引擎只进行了可渲染性与类型校验，不能由此断言所有节点、边、文字、布局或像素语义完全等价。可在原始 SVG 中进一步核对。
+Rust/Pele SVG bytes and dimensions match on **167/167 samples**. The other engines are checked for renderability and type; this does not establish full semantic or visual equivalence.
 
-## 同输入耗时
+## Results
 
 {matrix}
-只应在同一行内比较。单个样例数量、图复杂度、实现的布局和字体行为会影响比值，不把某一行的倍率推广为所有 Mermaid 输入的性能结论。
+## Per-engine coverage
 
-## 覆盖明细
-
-| 图表场景 | 原样本数 | Mermaid.js 合格 | Pele 合格 | zebra-mermaid 合格 | mmdr 合格 |
+| Diagram | Samples | Mermaid.js | Pele | zebra-mermaid | mermaid-rs-renderer |
 | --- | ---: | ---: | ---: | ---: | ---: |
 '''
 for c in report['coverage']:text+='| '+c['type']+' | '+str(c['total'])+' | '+' | '.join(str(c['success'][e])for e in engines)+' |\n'
 text+=f'''
-## 复现与证据
+## Reproduce
+
+Use the reference revisions listed above, the locked website dependencies, and Playwright with Chromium installed. From the repository root:
 
 ```sh
-git clone https://github.com/1jehuang/mermaid-rs-renderer.git .research/mermaid-rs-renderer
-git -C .research/mermaid-rs-renderer checkout 3726ccbffe0e8032361eb9668694b24f77858060
-CARGO_TARGET_DIR=target/cross-bench-build cargo build --release --locked --manifest-path tools/cross-bench/Cargo.toml
-# 需要固定 Mermaid.js 12.1.0 和已安装 Chromium 的 Playwright。
-# PLAYWRIGHT_MODULE / PLAYWRIGHT_BROWSERS_PATH 可指向自己的安装目录。
+cargo build --release --locked --manifest-path tools/cross-bench/Cargo.toml --target-dir target/cross-bench-build
 python3 tools/bench/run-cross.py
-python3 tools/bench/publish-cross.py
+BENCH_REPORT_SUFFIX=-pele-1-7-0 python3 tools/bench/publish-cross.py
 ```
 
-结果见 [汇总及版本](research/{directory}/comparison.json)、[逐输入错误与 SVG 路径](research/{directory}/verification.json)、[共同输入](research/{directory}/common.json)、[全部原始输入](research/{directory}/cases.json)、[源码/依赖/二进制指纹](research/{directory}/metadata.json)。同目录有十二份压缩原始计时、SVG 文件与 Pele/Rust 一致性记录。
+`PLAYWRIGHT_MODULE` and `PLAYWRIGHT_BROWSERS_PATH` can point to a separate browser installation. Publishing requires a fresh report suffix to preserve existing measurement evidence.
 
-这份报告与 [Pele 原脚本五组协议](BENCHMARK-PELE-PROTOCOL.zh-CN.md)、[39 组 Rust 优化前后测量](PROFILING-MULTI-DIAGRAM.zh-CN.md) 使用不同的输入集合，分别保存，不拼接比值。图表渲染成功也不增加 6,810 项原始测试的迁移通过数。
+[Summary and versions](research/{directory}/comparison.json) · [Per-input outcomes](research/{directory}/verification.json) · [Shared inputs](research/{directory}/common.json) · [All inputs](research/{directory}/cases.json) · [Source and binary fingerprints](research/{directory}/metadata.json)
+
+The same directory contains twelve compressed raw timing reports, SVG output, and Rust/Pele equality records. Benchmark success is separate from [original-test acceptance](UPSTREAM-TEST-PARITY.md).
 '''
-(root/'docs/BENCHMARK-FOUR-ENGINES.zh-CN.md').write_text(text)
+(root/'docs/BENCHMARK.md').write_text(text)
 readme=root/'README.md';body=readme.read_text()
-section='<!-- four-engine-benchmark:start -->\n## 四引擎性能对比\n\n同一批 Pele Playground Sample，比较 Mermaid.js / Pele / zebra-mermaid / mermaid-rs-renderer。下面每行单位为共同输入整批的 ms，三轮独立进程中位数，启动与预热不计时。\n\n'+matrix+f'\n四者共同通过类型与 SVG 检查的样本为 **{common}/167**；mmdr 对其他图表的 Flowchart 误识别单独排除，完整覆盖率、失败原因、测量限制与源码版本见 [四引擎报告](docs/BENCHMARK-FOUR-ENGINES.zh-CN.md)。SVG 返回成功不等于四者视觉或语义完全一致。\n<!-- four-engine-benchmark:end -->\n'
-if '<!-- four-engine-benchmark:start -->' in body:body=re.sub(r'<!-- four-engine-benchmark:start -->.*?<!-- four-engine-benchmark:end -->\n',lambda _:section,body,flags=re.S)
-else:body=body.replace('## 文档\n',section+'\n## 文档\n')
+section='<!-- four-engine-benchmark:start -->\n## Performance\n\nCurrent-version results on identical inputs, measured as **milliseconds per complete batch**. Each value is the median of three independent runs; parsing, layout, and SVG generation are included, while startup and warm-up are excluded. Lower is faster within the same row.\n\n'+matrix+f'\nThe shared benchmark set contains **{common}/167 samples across {len(report["rows"])} diagram types**. A dash means no input passed type and SVG checks in all four engines. Layout and font measurement differ between engines. See the [benchmark report](docs/BENCHMARK.md) for versions, coverage, methodology, and raw results.\n<!-- four-engine-benchmark:end -->\n'
+assert '<!-- four-engine-benchmark:start -->' in body, 'README is missing performance comparison markers'
+body=re.sub(r'<!-- four-engine-benchmark:start -->.*?<!-- four-engine-benchmark:end -->\n',lambda _:section,body,flags=re.S)
 readme.write_text(body)
 print(json.dumps({'common':common,'groups':len(report['rows']),'returnedSvg':returned,'eligible':totals},ensure_ascii=False))

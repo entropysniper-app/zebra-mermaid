@@ -1,7 +1,7 @@
 //! A pure Rust Mermaid to SVG renderer, ported from [Pele](https://github.com/obsidianmd/pele).
 //!
 //! The library parses Mermaid text, lays it out and writes SVG without a JavaScript engine,
-//! browser or external layout program. Output follows Pele 1.6.0 (commit `44da152b`), which
+//! browser or external layout program. Output follows Pele 1.7.0 (commit `8603bf3`), which
 //! targets Mermaid 12.1.0 syntax.
 //!
 //! ```
@@ -40,9 +40,11 @@ mod upstream_stress;
 
 pub use cache::{CacheStats, RenderCache};
 pub use config::{Config, ConfigMap, ConfigValue};
-pub use detect::DiagramType;
+pub use detect::{DiagramType, MermaidType};
 pub use diagrams::{enabled as type_enabled, DiagramModel};
 pub use engine::{detect_type, parse, render, render_parsed, supports, ParsedDiagram, RenderResult};
+/// Pele 1.7's parsed model contract, represented by an immutable Rust model envelope.
+pub type ParsedDiagramModel = ParsedDiagram;
 pub use error::{Error, ErrorCode, SourcePosition};
 pub use options::{ParseOptions, RenderOptions, DEFAULT_LIMIT, DEFAULT_MAX_EDGES, DEFAULT_OUTPUT_LIMIT};
 pub use text::{IconResolver, IconTable, MetricsMeasurer, TextMeasurer};
@@ -50,6 +52,6 @@ pub use theme::{CanvasBackground, ColorMode, MermaidPalette, MermaidThemeMode, P
 pub use util::url::LinkInfo;
 
 /// The upstream this library follows.
-pub const PELE_VERSION: &str = "1.6.0";
-pub const PELE_COMMIT: &str = "44da152bbb79b91f03e68016f42499bb25bf6e82";
+pub const PELE_VERSION: &str = "1.7.0";
+pub const PELE_COMMIT: &str = "8603bf3313add9143cd417015d4a6bd6c522dada";
 pub const MERMAID_SYNTAX_VERSION: &str = "12.1.0";

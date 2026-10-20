@@ -126,6 +126,7 @@ fn json_errors_with_positions() {
     assert_eq!(v["ok"], false);
     assert_eq!(v["error"]["code"], "syntax");
     assert_eq!(v["error"]["diagramType"], "pie");
+    assert_eq!(v["error"]["mermaidType"], "pie");
     // Pele counts lines after the front matter; the source position counts them all.
     assert_eq!(v["error"]["line"], 2);
     assert_eq!(v["error"]["source"]["line"], 5);
@@ -152,7 +153,7 @@ fn exit_codes() {
     assert_eq!(code(&o), 2);
     let o = run(&["--version"], None);
     assert_eq!(code(&o), 0);
-    assert!(stdout(&o).contains("Pele 1.6.0"));
+    assert!(stdout(&o).contains("Pele 1.7.0"));
 }
 
 #[test]
@@ -162,7 +163,38 @@ fn detect_and_json_render() {
     let o = run(&["render", "-", "--format", "json"], Some(PIE.as_bytes()));
     let v: Value = serde_json::from_str(&stdout(&o)).unwrap();
     assert_eq!(v["type"], "pie");
+    assert_eq!(v["mermaidType"], "pie");
     assert!(v["svg"].as_str().unwrap().starts_with("<svg"));
+}
+
+#[test]
+fn mermaid_type_in_render_check_and_errors() {
+    let source = b"flowchart-elk TD\n  A --> B";
+    for command in ["render", "check"] {
+        for profile in [None, Some("--zebra")] {
+            let mut args = vec![command, "-", "--format", "json"];
+            args.extend(profile);
+            let output = run(&args, Some(source));
+            assert_eq!(code(&output), 0, "{}", stderr(&output));
+            let value: Value = serde_json::from_str(&stdout(&output)).unwrap();
+            assert_eq!(value["type"], "flowchart");
+            assert_eq!(value["mermaidType"], "flowchart-elk");
+        }
+    }
+    for (source, args, status, diagram_type, mermaid_type) in [
+        ("flowchart LR\n A -->", vec![], 3, Value::from("flowchart"), Value::from("flowchart-v2")),
+        ("classDiagram\n class A", vec!["--output-limit", "10"], 4, Value::from("class"), Value::from("classDiagram")),
+        ("not a diagram", vec![], 3, Value::Null, Value::Null),
+        ("graph TD\n A", vec!["--limit", "5"], 4, Value::Null, Value::Null),
+    ] {
+        let mut command = vec!["render", "-", "--format", "json"];
+        command.extend(args);
+        let output = run(&command, Some(source.as_bytes()));
+        assert_eq!(code(&output), status, "{}", stderr(&output));
+        let value: Value = serde_json::from_str(&stdout(&output)).unwrap();
+        assert_eq!(value["error"]["diagramType"], diagram_type);
+        assert_eq!(value["error"]["mermaidType"], mermaid_type);
+    }
 }
 
 #[test]

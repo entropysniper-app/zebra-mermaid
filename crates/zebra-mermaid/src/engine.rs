@@ -1,7 +1,7 @@
 //! Parsing and rendering from text to SVG. Ported from Pele `src/core.ts`.
 
 use crate::config::{Config, ConfigMap};
-use crate::detect::{detect, DiagramType};
+use crate::detect::{detect, detect_diagram, Detected, DiagramType, MermaidType};
 use crate::diagrams::{self, DiagramModel, ParseInput, RenderCtx};
 use crate::error::{Error, ErrorCode};
 use crate::options::{ParseLimits, ParseOptions, RenderOptions, DEFAULT_LIMIT, DEFAULT_MAX_EDGES, DEFAULT_OUTPUT_LIMIT};
@@ -17,6 +17,7 @@ use crate::util::url::LinkInfo;
 #[derive(Debug, Clone)]
 pub struct ParsedDiagram {
     diagram_type: DiagramType,
+    mermaid_type: MermaidType,
     config: Config,
     title: Option<String>,
     model: DiagramModel,
@@ -25,6 +26,11 @@ pub struct ParsedDiagram {
 impl ParsedDiagram {
     pub fn diagram_type(&self) -> DiagramType {
         self.diagram_type
+    }
+
+    /// Mermaid's original type name. This also survives cloning and repeated rendering.
+    pub fn mermaid_type(&self) -> MermaidType {
+        self.mermaid_type
     }
 
     /// The configuration from the host, front matter and directives, merged.
@@ -49,6 +55,7 @@ pub struct RenderResult {
     pub width: f64,
     pub height: f64,
     pub diagram_type: DiagramType,
+    pub mermaid_type: MermaidType,
     /// Links drawn in the SVG, with the id of what each is on.
     pub links: Vec<LinkInfo>,
 }
@@ -74,11 +81,12 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
         return Err(Error::limit(format!("Diagram source is longer than the limit of {} characters.", limit)));
     }
     let Preprocessed { text: cleaned, title, config: own, with_comments, line_offset, text_map, with_comments_map } = preprocess(source)?;
-    let Some(diagram_type) = detect(&cleaned) else {
+    let Some(found) = detect_diagram(&cleaned) else {
         return Err(Error::new("No diagram type detected for the given text.", ErrorCode::UnsupportedDiagram));
     };
+    let Detected { diagram_type, mermaid_type } = found;
     if !diagrams::enabled(diagram_type) {
-        return Err(diagrams::unsupported(diagram_type));
+        return Err(diagrams::unsupported(diagram_type).tag(found));
     }
     // `{ ...extra, ...pre.config }`: a shallow merge in which the diagram's own keys win.
     let config = match &options.config {
@@ -108,9 +116,9 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
             let at = map.to_source(offset).min(source.len());
             e.span = Some(at..at);
         }
-        e
+        e.tag(found)
     })?;
-    Ok(ParsedDiagram { diagram_type, config, title, model })
+    Ok(ParsedDiagram { diagram_type, mermaid_type, config, title, model })
 }
 
 /// Parses and renders diagram text.
@@ -123,6 +131,8 @@ pub fn render(source: &str, options: &RenderOptions) -> Result<RenderResult, Err
 /// read again.
 pub fn render_parsed(parsed: &ParsedDiagram, options: &RenderOptions) -> Result<RenderResult, Error> {
     let diagram_type = parsed.diagram_type;
+    let mermaid_type = parsed.mermaid_type;
+    let found = Detected { diagram_type, mermaid_type };
     if let Some(palette) = &options.palette {
         palette.validate().map_err(|e| Error::new(format!("Invalid Mermaid palette: {e}."), ErrorCode::InvalidOptions))?;
     }
@@ -137,17 +147,22 @@ pub fn render_parsed(parsed: &ParsedDiagram, options: &RenderOptions) -> Result<
         None => &default_measurer,
     };
     let ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
-    let mut rendered = diagrams::render(&parsed.model, &parsed.config, &ctx)?;
+    let mut rendered = diagrams::render(&parsed.model, &parsed.config, &ctx).map_err(|e| e.tag(found))?;
     let output_limit = options.output_limit.unwrap_or(DEFAULT_OUTPUT_LIMIT);
     if rendered.svg.len() > output_limit && js::len16(&rendered.svg) > output_limit {
-        return Err(
-            Error::limit(format!("Diagram output is longer than the limit of {} characters.", output_limit)).with_type(diagram_type)
-        );
+        return Err(Error::limit(format!("Diagram output is longer than the limit of {} characters.", output_limit)).tag(found));
     }
     for link in &mut rendered.links {
         if let std::borrow::Cow::Owned(decoded) = decode_entities_cow(&link.id) {
             link.id = decoded;
         }
     }
-    Ok(RenderResult { svg: rendered.svg, width: rendered.width, height: rendered.height, diagram_type, links: rendered.links })
+    Ok(RenderResult {
+        svg: rendered.svg,
+        width: rendered.width,
+        height: rendered.height,
+        diagram_type,
+        mermaid_type,
+        links: rendered.links,
+    })
 }

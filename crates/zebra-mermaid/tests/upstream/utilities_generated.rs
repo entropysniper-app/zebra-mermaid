@@ -1,111 +1,111 @@
 // Generated from frozen upstream callbacks by compile-utilities.mjs.
 #[test]
-fn url_00() { check("6aa568a48498b5d660e44783"); }
+fn url_00() { check("4825746d72fcc32cb3776e04"); }
 #[test]
-fn url_01() { check("863b323a050781aa221cf9c9"); }
+fn url_01() { check("37ee037de5172ce6ea9cfd88"); }
 #[test]
-fn url_02() { check("664145779cd681411fa90c49"); }
+fn url_02() { check("41b8970db6c1bd1e84cb9aa1"); }
 #[test]
-fn url_03() { check("014abd014e61d07e4a465bee"); }
+fn url_03() { check("bd32cbb80932ce0a76571037"); }
 #[test]
-fn url_04() { check("f3a6c728167eaa9ff64b4752"); }
+fn url_04() { check("873c9b069f18c0a6e29f4245"); }
 #[test]
-fn url_05() { check("58aa8fbbed06f59cb86ca292"); }
+fn url_05() { check("92ed9c46e55c8e3b5d70b2c0"); }
 #[test]
-fn url_06() { check("970c50996d4ec4e36195f963"); }
+fn url_06() { check("4e991e27d0bbdd674ec5c9a6"); }
 #[test]
-fn url_07() { check("a57cbba770c0c18771a6610c"); }
+fn url_07() { check("5cb93d8a9b5a5402991908de"); }
 #[test]
-fn url_08() { check("1cd4477e688c016c7d0b3422"); }
+fn url_08() { check("500202dfd723cf3f0c154e25"); }
 #[test]
-fn url_09() { check("bf7e0dd2f208abb04c6fc4bf"); }
+fn url_09() { check("3d1c0b6844f7f8506efd433e"); }
 #[test]
-fn url_10() { check("71cbd19687c0494cb53ec023"); }
+fn url_10() { check("c367567e6fb523e2c1a3fb16"); }
 #[test]
-fn url_11() { check("a6a400907d23e33075c53a70"); }
+fn url_11() { check("5c3ca6a9604280eab2393155"); }
 #[test]
-fn url_12() { check("61bf8b8f814013660ccde648"); }
+fn url_12() { check("d0159f30eee17978a6e7120c"); }
 #[test]
-fn url_13() { check("afc9269f483828099dd89aea"); }
+fn url_13() { check("bdb02298ed4e4a575f8297cd"); }
 #[test]
-fn url_14() { check("f9a3bd8b2a6f35a69ab277fa"); }
+fn url_14() { check("e29fffa5d9d9e7cba7e084ad"); }
 #[test]
-fn url_15() { check("1c6432978c3defea92e282d4"); }
+fn url_15() { check("f56377effa72518819824bf7"); }
 #[test]
-fn url_16() { check("81fb5c83b2e98dab87e969e5"); }
+fn url_16() { check("e8299ed055337d1fd24e0193"); }
 #[test]
-fn url_17() { check("e9fba976615df055ef9ef9d5"); }
+fn url_17() { check("80dac4de9717efd6fbc936f2"); }
 #[test]
-fn url_18() { check("8d3155d9c1d87d49697ba257"); }
+fn url_18() { check("858cf931356e17ab80502468"); }
 #[test]
-fn url_19() { check("cc761cfd4bbc2d1a3dc0c621"); }
+fn url_19() { check("5f40229226ec7927a5b3e3b6"); }
 #[test]
-fn url_20() { check("5b29b9a0f963772289bb4b98"); }
+fn url_20() { check("5ab4c6c48d01a70e445bc6f5"); }
 #[test]
-fn url_21() { check("c621f86bd17fc7a0972b93e1"); }
+fn url_21() { check("41b4e697e9c228ad2b9d6969"); }
 #[test]
-fn url_22() { check("775df4349c23a08dab8d6f25"); }
+fn url_22() { check("a1e39df2c7ce74ce80117ef9"); }
 #[test]
-fn url_23() { check("3e388508d343b9a4f293b230"); }
+fn url_23() { check("423110c2b70503fd4fd172c3"); }
 #[test]
-fn url_24() { check("1d084f89d5035b60cf958913"); }
+fn url_24() { check("585e9cee0f1f456f15a8dc0c"); }
 #[test]
-fn url_25() { check("0c1d321fb8d4c6a284dbe40e"); }
+fn url_25() { check("d8fee02064d9b9c8095be3c0"); }
 #[test]
-fn url_26() { check("77bee979c5f2152695320cc3"); }
+fn url_26() { check("b689da0d2127d0b9d2a70da8"); }
 #[test]
-fn url_27() { check("0e6dfe2ee665f520a85ba811"); }
+fn url_27() { check("93c39644d845da695d0572ad"); }
 #[test]
-fn url_28() { check("2b5514ae034338d945e6e8dc"); }
+fn url_28() { check("337f529a937f5ab647532685"); }
 #[test]
-fn url_29() { check("b4c95a44da5aa6ba904dcabe"); }
+fn url_29() { check("e734e1c6e368282a93dddaa3"); }
 #[test]
-fn yaml_00() { check("02c5cd0c1016b3dec5569464"); }
+fn yaml_00() { check("a67d335f9b11307d66476fc8"); }
 #[test]
-fn yaml_01() { check("6e083050b282a562bbfc5377"); }
+fn yaml_01() { check("e13e49e53c4a2137353bba2a"); }
 #[test]
-fn yaml_02() { check("181cf432b6f402e9b68ebe56"); }
+fn yaml_02() { check("3a621e150ae221800d09a5c4"); }
 #[test]
-fn yaml_03() { check("10f92e4af8ff3551b4c76471"); }
+fn yaml_03() { check("d2e0f1b63c5e264d186b95df"); }
 #[test]
-fn yaml_04() { check("e492544d98bcdab9a1fef39d"); }
+fn yaml_04() { check("551321bedc445aec0ef794e5"); }
 #[test]
-fn yaml_05() { check("e9942c1d0e556fed9f412684"); }
+fn yaml_05() { check("093970c0253650d69901f0e1"); }
 #[test]
-fn yaml_06() { check("6f1790846307e39e289f6877"); }
+fn yaml_06() { check("4fe69a4089e42387c0543386"); }
 #[test]
-fn yaml_07() { check("448c1b9bb3280c73f600f1cf"); }
+fn yaml_07() { check("2bc10d84fba2df3eb77905ed"); }
 #[test]
-fn yaml_08() { check("a89be10ca151d9491f39a7e5"); }
+fn yaml_08() { check("402ebe5d6305ec4a73775aa4"); }
 #[test]
-fn yaml_09() { check("697b61fa015207920d436060"); }
+fn yaml_09() { check("2525916472836ddab3de2db7"); }
 #[test]
-fn yaml_10() { check("d0d4e3d5014e555806372e34"); }
+fn yaml_10() { check("a12590594771e320beb08233"); }
 #[test]
-fn yaml_11() { check("67eebde19f36ace005ba4f5d"); }
+fn yaml_11() { check("0593048414a623a3441112be"); }
 #[test]
-fn yaml_12() { check("f3fad2e215e6fc009674690c"); }
+fn yaml_12() { check("c119d21ed376eb6f405b1110"); }
 #[test]
-fn yaml_13() { check("45087b605a2c67cf58853915"); }
+fn yaml_13() { check("7eb33681615898db1939d458"); }
 #[test]
-fn yaml_14() { check("c0fc621afc8e4adfca4dfd02"); }
+fn yaml_14() { check("221cccd3cf84354eb9426b9f"); }
 #[test]
-fn yaml_15() { check("7ac2575573dbbd2f7262c737"); }
+fn yaml_15() { check("251bc9c552fd0ecd1d2c1cea"); }
 #[test]
-fn yaml_16() { check("d23587cc7b4a50f0bd7021af"); }
+fn yaml_16() { check("71afd03db031575bbb106f46"); }
 #[test]
-fn yaml_17() { check("f2daf66d3ba7157d9018240e"); }
+fn yaml_17() { check("006914686b80aa914f2cabb8"); }
 #[test]
-fn yaml_18() { check("8db8a69f79b4f5e76b0a5d75"); }
+fn yaml_18() { check("1251e48ea4f7db0895f7cda3"); }
 #[test]
-fn yaml_19() { check("d5f273422e19a55a4cf3bdd0"); }
+fn yaml_19() { check("b7f27f012bdf8247c522539e"); }
 #[test]
-fn yaml_20() { check("8dc4e10bc909989099aa6833"); }
+fn yaml_20() { check("9bbd14e2d53965312c6e8647"); }
 #[test]
-fn yaml_21() { check("2876eefaadcfae4800506097"); }
+fn yaml_21() { check("c6eb021abbef97a48cbd00a2"); }
 #[test]
-fn yaml_22() { check("af810b25551f268662d327ec"); }
+fn yaml_22() { check("9a6d71db5ad6ab44fc7116be"); }
 #[test]
-fn yaml_23() { check("03cf5c234808e795d4166d20"); }
+fn yaml_23() { check("2a6e4d6ab5341ebb380db739"); }
 #[test]
-fn yaml_24() { check("fa07a963f097be35657a3a4a"); }
+fn yaml_24() { check("25b40c82b987e50aaa2a2de3"); }

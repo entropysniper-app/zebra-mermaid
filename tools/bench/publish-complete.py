@@ -152,13 +152,13 @@ sections.append(f'''# 完整性能对比：{tag}
 | 常规工作区回归 | {workspace['passed']} 通过、{workspace['failed']} 失败、{workspace['skipped']} 跳过 |
 | 已提交输出样本差分 | 13,194/13,194 一致；另 6 条孤立代理项未执行、不计通过 |
 
-三个覆盖指标分别统计：图类型接通、SVG/错误对照通过、原始测试逐项通过互不替代。该标签是性能快照，不能解读为全部 6,810 项测试已移植完成。本轮没有重新生成或运行本地缺失的 70,183 条采集全集，历史全集结果不算本次验证。
+三个覆盖指标分别统计：图类型接通、SVG/错误对照通过、原始测试逐项通过互不替代。该标签是性能快照，不能解读为全部 {parity['summary']['total']:,} 项测试已移植完成。本轮没有重新生成或运行本地缺失的 70,183 条采集全集，历史全集结果不算本次验证。
 
 几何平均对每种图表等权，仅概括这 33 类文档工作负载，不是任意应用的总加速倍数。39 组共有 {success + rejection} 次输入出现、{summary['uniqueSources']} 份不同源码；流程图文档在原脚本组与 corpus 组中重复，不能相加当作独立测试覆盖。
 
 ## 2. 版本、测量方法与单位
 
-- Pele 1.6.0，固定提交 `44da152bbb79b91f03e68016f42499bb25bf6e82`；重新执行其原始构建脚本生成生产 bundle。
+- Pele {cross['versions']['pele']}，固定提交 `{extended['commit']}`；重新执行其原始构建脚本生成生产 bundle。
 - zebra-mermaid 0.1.0；{extended['runtime']['rustc']}；Node {extended['runtime']['node']}。Rust release、thin LTO、codegen-units=1，启用全部图类型。
 - Mermaid.js {cross['versions']['mermaid']}、Chromium {cross['versions']['browser']}、Playwright {playwright_version}；mermaid-rs-renderer {cross['versions']['mmdr']}，固定提交 `{cross['versions']['mmdrCommit']}`。
 - Rust/Pele 采用相同输入、CSS 输出、默认 Arial 字宽表，固定 now=1792368000000、UTC。完整 render 包含解析、布局和 SVG 生成，没有预解析或输出缓存命中。
@@ -281,7 +281,7 @@ sections.append(f'''
 
 ```sh
 git clone https://github.com/obsidianmd/pele.git .research/pele
-git -C .research/pele checkout 44da152bbb79b91f03e68016f42499bb25bf6e82
+git -C .research/pele checkout {extended['commit']}
 npm ci --prefix .research/pele
 pnpm --dir .research/pele/website install --frozen-lockfile
 git clone https://github.com/1jehuang/mermaid-rs-renderer.git .research/mermaid-rs-renderer
@@ -301,7 +301,7 @@ BENCHMARK_TAG={tag} BENCH_REPORT_SUFFIX=-reproduction python3 tools/bench/run-co
 - [Pele 原协议数据](research/{upstream_directory}/comparison.json)，同目录保存原控制台表、输入及完整 SVG 验证结果。
 - [四引擎汇总](research/{cross_directory}/comparison.json)、[全部成功/失败及排除原因](research/{cross_directory}/verification.json)、[实际共同输入](research/{cross_directory}/common.json)，同目录保存十二份压缩计时记录及 SVG。
 
-分项阅读：[Pele 原协议](BENCHMARK-PELE-PROTOCOL.zh-CN.md)、[33 类扩展报告](BENCHMARK.zh-CN.md)、[四引擎报告](BENCHMARK-FOUR-ENGINES.zh-CN.md)、[实施状态](IMPLEMENTATION-STATUS.md)、[原始测试逐项验收](UPSTREAM-TEST-PARITY.md)。
+分项阅读：[Pele 原协议](BENCHMARK-PELE-PROTOCOL.zh-CN.md)、[33 类扩展报告](BENCHMARK.zh-CN.md)、[四引擎报告](BENCHMARK.md)、[实施状态](IMPLEMENTATION-STATUS.md)、[原始测试逐项验收](UPSTREAM-TEST-PARITY.md)。
 ''')
 (root / 'docs/BENCHMARK-COMPLETE.zh-CN.md').write_text('\n'.join(sections))
 print(json.dumps(summary, ensure_ascii=False, indent=2))

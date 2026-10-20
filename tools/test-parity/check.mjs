@@ -5,6 +5,7 @@ import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { acceptanceState } from './result.mjs';
 
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const read = p => readFileSync(join(root,p),'utf8');
@@ -124,14 +125,17 @@ if(run&&ports.length){
 }
 const summary={total:inventory.total,mapped:ports.length,unmapped:inventory.total-ports.length,passed:0,failed:0,skipped:0,unverified:0};
 const cases=inventory.tests.map(test=>{
-  const port=byId.get(test.id);const state=port?(observed.get(port.target.test)??'unverified'):'unmapped';
+  const port=byId.get(test.id);
+  const executionState=port?(observed.get(port.target.test)??'unverified'):'unmapped';
+  const state=acceptanceState(test.mode,executionState);
   if(state!=='unmapped')summary[state]++;
-  return {id:test.id,file:test.file,name:test.fullName,upstreamMode:test.mode,timeoutMs:test.timeoutMs,target:port?.target.test??null,state};
+  return {id:test.id,file:test.file,name:test.fullName,upstreamMode:test.mode,timeoutMs:test.timeoutMs,target:port?.target.test??null,executionState,state};
 });
 // A skipped/todo reference case never becomes a passing target merely by being preserved as ignored.
 const complete=isolated&&!processFailed&&summary.passed===inventory.total;
 const execution={isolated,timeoutBasis:isolated?'Original per-test Vitest timeout; process startup included, no added grace period':'Batch execution; original timeout audit requires --isolate or --require-complete'};
-const report={commit:inventory.commit,upstreamBaseline:inventory.baseline,summary,complete,execution,executables,sourceHashes,cases};
+const executedUpstreamSkips=cases.filter(test=>test.executionState==='passed'&&test.state==='skipped').length;
+const report={commit:inventory.commit,upstreamBaseline:inventory.baseline,summary,executedUpstreamSkips,complete,execution,executables,sourceHashes,cases};
 writeFileSync(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({upstream:inventory.baseline,...summary,complete},null,2));
+console.log(JSON.stringify({upstream:inventory.baseline,...summary,executedUpstreamSkips,complete},null,2));
 if(processFailed||summary.failed||(full&&!complete))process.exitCode=1;

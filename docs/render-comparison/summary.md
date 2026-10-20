@@ -1,10 +1,10 @@
-# Pele Sample 三引擎渲染对照
+# Rendering comparison
 
-[打开可视化对照表](index.html)。每行展示同一份源码的 Rust、Pele 和 Mermaid.js 输出；支持按类型、源码和状态筛选，点击图形放大。
+[Open the interactive gallery](index.html). Each row shows the same source rendered by zebra-mermaid, Pele, and Mermaid.js. Filter by diagram type, source, or result, and click a preview to inspect the full SVG.
 
-样例：固定 Pele 提交 `44da152bbb79b91f03e68016f42499bb25bf6e82` 的 `sampleGroups()`，共 33 类、167 个，包含上游自有示例及原始选择顺序。版本：zebra-mermaid 0.1.0、Pele 1.6.0、Mermaid.js 12.1.0。
+The sample set is selected by the unmodified `sampleGroups()` function at commit `8603bf3313add9143cd417015d4a6bd6c522dada`: **33 diagram types and 167 samples**, including its built-in examples and original selection order. Engine versions: zebra-mermaid 0.1.0, Pele 1.7.0, Mermaid.js 12.1.0.
 
-| 类型 | Sample 数 | Rust 成功 | Pele 成功 | Mermaid.js 成功 | Rust/Pele SVG 与尺寸一致 |
+| Diagram | Samples | zebra-mermaid | Pele | Mermaid.js | Identical Rust/Pele SVG and dimensions |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | flowchart | 6 | 6 | 6 | 6 | 6/6 |
 | block | 6 | 6 | 6 | 6 | 6/6 |
@@ -39,24 +39,27 @@
 | usecase | 6 | 6 | 6 | 6 | 6/6 |
 | venn | 6 | 6 | 6 | 6 | 6/6 |
 | wardley | 6 | 6 | 6 | 6 | 6/6 |
-| **合计** | **167** | **167** | **167** | **167** | **167/167** |
+| **Total** | **167** | **167** | **167** | **167** | **167/167** |
 
-样式对齐 Pele Playground 默认深色：直接编译 base.scss、pele-theme.scss、playground.scss，并从浏览器读取最终 CSS 变量。背景 #1c1b1a、节点表面 #282726、前景 #cecdc3、圆角 6px。Rust/Pele 使用 Playground 系统字体栈、siteIcon 和同一真实浏览器宿主字体测量；Rust 的解析、布局和 SVG 仍独立执行。Mermaid 按 Playground 初始化为 dark 主题，保留输入中的 front matter 设置。画布宽 760px，可布局宽 712px，时钟固定为 2026-10-19 00:00 UTC。实际变量和源码哈希见 playground-style.json。
+## Method
 
-Mermaid 的输出按其支持的 HTML DOM 插入方式呈现，再通过 XMLSerializer 导出独立 SVG；其中 17 份原始字符串含 HTML 标签，无法直接按 XML 解析。原始字符串、规范化后的 SVG、源输入、尺寸及各自 SHA-256 均保留在 [results.json](results.json) 和相邻目录。这些是导出格式处理，不算引擎渲染失败。
+The gallery uses the Playground's default dark appearance. Its original base, theme, and playground stylesheets are compiled directly, and the browser supplies the resulting CSS variables. Rust/Pele share the system font stack, site icons, and browser font measurements; their parsing, layout, and SVG generation remain independent. Mermaid.js uses its own layout with `theme: dark`. Authored front matter remains active.
 
-渲染成功只表示返回了可展示结果，不证明与 Mermaid 语义或像素完全一致，也不替代 6,810 项原始测试验收。外部资源请求和失败信息逐项保留；Pele/Rust 使用上游 siteIcon；Mermaid 未额外注册图标包，与 Playground 保持一致。
+The canvas is 760 px wide with 712 px available for layout. Time is fixed to 2026-10-19 00:00 UTC. Style values and source hashes are recorded in [playground-style.json](playground-style.json).
 
-## 复现
+17 Mermaid.js responses contain HTML labels. They are inserted into the browser DOM and exported with XMLSerializer so the SVG files can open independently. Original returned strings are also preserved. This export step is outside rendering comparisons and does not count as a rendering failure.
 
-需要固定的 Pele 研究 checkout、其 website 锁定依赖和已安装浏览器的 Playwright。
+[results.json](results.json) records source files, dimensions, raw and exported SVG hashes, blocked external requests, and warnings. Rust/Pele use the original site icon resolver; no extra icon packs are registered for Mermaid.js. Sample success does not establish complete original-test acceptance or semantic and pixel equivalence across all engines.
+
+## Reproduce
+
+Use the pinned reference checkout, its locked website dependencies, and Playwright with Chromium installed:
 
 ```sh
-cargo build --release -p zebra-mermaid --example playground_sample
-# 若 Playwright 安装在其他目录，可通过 PLAYWRIGHT_MODULE 指定其模块位置。
+cargo build --release --locked -p zebra-mermaid --example playground_sample
 node tools/compare/render-samples.mjs
 node tools/compare/build-report.mjs
 node tools/compare/readme-previews.mjs
 ```
 
-可用 CARGO_TARGET_DIR 和 PLAYWRIGHT_BROWSERS_PATH 覆盖构建与浏览器缓存目录。生成的 index.html 可直接打开，也可通过任意静态 HTTP 服务查看。
+Set `PLAYWRIGHT_MODULE` and `PLAYWRIGHT_BROWSERS_PATH` if using a separate installation. `CARGO_TARGET_DIR` can select another build directory. Open `index.html` locally or serve it with any static HTTP server.

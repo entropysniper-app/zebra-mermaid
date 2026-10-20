@@ -33,6 +33,7 @@ fn writes_accessible_names_and_exposes_the_model() {
     assert!(svg.contains("<desc id=\"pele-desc\">Text</desc>"));
     let parsed = parse(src, &ParseOptions::default()).unwrap();
     assert_eq!(parsed.diagram_type(), DiagramType::Info);
+    assert_eq!(parsed.mermaid_type().as_str(), "info");
     let DiagramModel::Info(model) = parsed.model() else { panic!("expected Info model") };
     assert_eq!(model, &InfoModel { title: None, acc_title: Some("Name".into()), acc_descr: Some("Text".into()) });
 }

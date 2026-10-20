@@ -67,7 +67,8 @@ url.workspace = true
 serde = { workspace = true, optional = true, features = ["rc"] }
 
 [dev-dependencies]
-zebra-mermaid = { path = ".", features = ["serde"] }
+# Feature-matrix tests must not enable all diagrams through the self dependency.
+zebra-mermaid = { path = ".", default-features = false, features = ["serde"] }
 serde = { workspace = true }
 serde_json.workspace = true
 quick-xml.workspace = true

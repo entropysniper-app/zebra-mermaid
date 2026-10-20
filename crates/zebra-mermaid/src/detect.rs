@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::util::chars::{is_space, is_word};
 
-/// The 33 diagram types, named as Pele and Mermaid name them.
+/// The 33 diagram types, named as Pele names them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum DiagramType {
     Flowchart,
@@ -153,6 +153,212 @@ impl serde::Serialize for DiagramType {
     fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         s.serialize_str(self.as_str())
     }
+}
+
+/// The type name reported by Mermaid 12.1, preserved independently of Pele's SVG type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MermaidType {
+    FlowchartV2,
+    Sequence,
+    ClassDiagram,
+    StateDiagram,
+    Er,
+    Pie,
+    Gantt,
+    GitGraph,
+    Mindmap,
+    Timeline,
+    Journey,
+    Xychart,
+    QuadrantChart,
+    Requirement,
+    C4,
+    Sankey,
+    Block,
+    Packet,
+    Kanban,
+    Architecture,
+    Radar,
+    Treemap,
+    Info,
+    Agentflow,
+    Usecase,
+    Railroad,
+    TreeView,
+    Venn,
+    Cynefin,
+    Wardley,
+    Swimlane,
+    Ishikawa,
+    Eventmodeling,
+    FlowchartElk,
+    RailroadEbnf,
+    RailroadAbnf,
+    RailroadPeg,
+}
+
+impl MermaidType {
+    pub const ALL: [Self; 37] = [
+        Self::FlowchartV2,
+        Self::Sequence,
+        Self::ClassDiagram,
+        Self::StateDiagram,
+        Self::Er,
+        Self::Pie,
+        Self::Gantt,
+        Self::GitGraph,
+        Self::Mindmap,
+        Self::Timeline,
+        Self::Journey,
+        Self::Xychart,
+        Self::QuadrantChart,
+        Self::Requirement,
+        Self::C4,
+        Self::Sankey,
+        Self::Block,
+        Self::Packet,
+        Self::Kanban,
+        Self::Architecture,
+        Self::Radar,
+        Self::Treemap,
+        Self::Info,
+        Self::Agentflow,
+        Self::Usecase,
+        Self::Railroad,
+        Self::TreeView,
+        Self::Venn,
+        Self::Cynefin,
+        Self::Wardley,
+        Self::Swimlane,
+        Self::Ishikawa,
+        Self::Eventmodeling,
+        Self::FlowchartElk,
+        Self::RailroadEbnf,
+        Self::RailroadAbnf,
+        Self::RailroadPeg,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::FlowchartV2 => "flowchart-v2",
+            Self::Sequence => "sequence",
+            Self::ClassDiagram => "classDiagram",
+            Self::StateDiagram => "stateDiagram",
+            Self::Er => "er",
+            Self::Pie => "pie",
+            Self::Gantt => "gantt",
+            Self::GitGraph => "gitGraph",
+            Self::Mindmap => "mindmap",
+            Self::Timeline => "timeline",
+            Self::Journey => "journey",
+            Self::Xychart => "xychart",
+            Self::QuadrantChart => "quadrantChart",
+            Self::Requirement => "requirement",
+            Self::C4 => "c4",
+            Self::Sankey => "sankey",
+            Self::Block => "block",
+            Self::Packet => "packet",
+            Self::Kanban => "kanban",
+            Self::Architecture => "architecture",
+            Self::Radar => "radar",
+            Self::Treemap => "treemap",
+            Self::Info => "info",
+            Self::Agentflow => "agentflow",
+            Self::Usecase => "usecase",
+            Self::Railroad => "railroad",
+            Self::TreeView => "treeView",
+            Self::Venn => "venn",
+            Self::Cynefin => "cynefin",
+            Self::Wardley => "wardley",
+            Self::Swimlane => "swimlane",
+            Self::Ishikawa => "ishikawa",
+            Self::Eventmodeling => "eventmodeling",
+            Self::FlowchartElk => "flowchart-elk",
+            Self::RailroadEbnf => "railroadEbnf",
+            Self::RailroadAbnf => "railroadAbnf",
+            Self::RailroadPeg => "railroadPeg",
+        }
+    }
+
+    fn for_diagram(diagram_type: DiagramType) -> Self {
+        match diagram_type {
+            DiagramType::Flowchart => Self::FlowchartV2,
+            DiagramType::Sequence => Self::Sequence,
+            DiagramType::Class => Self::ClassDiagram,
+            DiagramType::State => Self::StateDiagram,
+            DiagramType::Er => Self::Er,
+            DiagramType::Pie => Self::Pie,
+            DiagramType::Gantt => Self::Gantt,
+            DiagramType::GitGraph => Self::GitGraph,
+            DiagramType::Mindmap => Self::Mindmap,
+            DiagramType::Timeline => Self::Timeline,
+            DiagramType::Journey => Self::Journey,
+            DiagramType::Xychart => Self::Xychart,
+            DiagramType::QuadrantChart => Self::QuadrantChart,
+            DiagramType::Requirement => Self::Requirement,
+            DiagramType::C4 => Self::C4,
+            DiagramType::Sankey => Self::Sankey,
+            DiagramType::Block => Self::Block,
+            DiagramType::Packet => Self::Packet,
+            DiagramType::Kanban => Self::Kanban,
+            DiagramType::Architecture => Self::Architecture,
+            DiagramType::Radar => Self::Radar,
+            DiagramType::Treemap => Self::Treemap,
+            DiagramType::Info => Self::Info,
+            DiagramType::Agentflow => Self::Agentflow,
+            DiagramType::Usecase => Self::Usecase,
+            DiagramType::Railroad => Self::Railroad,
+            DiagramType::TreeView => Self::TreeView,
+            DiagramType::Venn => Self::Venn,
+            DiagramType::Cynefin => Self::Cynefin,
+            DiagramType::Wardley => Self::Wardley,
+            DiagramType::Swimlane => Self::Swimlane,
+            DiagramType::Ishikawa => Self::Ishikawa,
+            DiagramType::Eventmodeling => Self::Eventmodeling,
+        }
+    }
+}
+
+impl fmt::Display for MermaidType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl FromStr for MermaidType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, ()> {
+        Self::ALL.iter().copied().find(|t| t.as_str() == s).ok_or(())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for MermaidType {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.serialize_str(self.as_str())
+    }
+}
+
+/// The two names selected by the first matching upstream detector.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Detected {
+    pub diagram_type: DiagramType,
+    pub mermaid_type: MermaidType,
+}
+
+/// Detects both names in already preprocessed text, preserving Mermaid's detector order.
+pub fn detect_diagram(text: &str) -> Option<Detected> {
+    let diagram_type = detect(text)?;
+    let t = after_space(text);
+    let mermaid_type = match diagram_type {
+        DiagramType::Flowchart if t.starts_with("flowchart-elk") => MermaidType::FlowchartElk,
+        DiagramType::Railroad if starts_ci(t, "railroad-ebnf-beta") => MermaidType::RailroadEbnf,
+        DiagramType::Railroad if starts_ci(t, "railroad-abnf-beta") => MermaidType::RailroadAbnf,
+        DiagramType::Railroad if starts_ci(t, "railroad-peg-beta") => MermaidType::RailroadPeg,
+        other => MermaidType::for_diagram(other),
+    };
+    Some(Detected { diagram_type, mermaid_type })
 }
 
 /// `^\s*`: the text after leading white space.
