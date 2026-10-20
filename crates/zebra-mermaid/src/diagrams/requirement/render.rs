@@ -8,12 +8,12 @@ use crate::layout::{
 };
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num, shared_style, span_style, text_style},
-    edges::{default_reach, edge_label_svg, route_path, EdgePath},
+    builder::{esc, esc_text, num, render_label_svg as label_svg, render_shared_style as shared_style, span_style, text_style},
+    edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path, EdgePath},
     root::{svg_document, Accessible},
     theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
 };
-use crate::text::{layout_label, style, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 use crate::{Config, Error};
@@ -37,32 +37,14 @@ struct View<'a> {
     h: f64,
 }
 fn restyle(mut label: Label, bits: u8, m: &Measure) -> Label {
-    if bits == 0 || label.lines.is_empty() {
-        return label;
-    }
-    let mut width = 0.0;
-    let mut widths = vec![];
-    for line in &mut label.lines {
-        let mut total = 0.0;
-        for span in line {
-            span.style |= bits;
-            if span.icon.is_none() {
-                span.width = m.width(&span.text, label.size, span.style);
-            }
-            total += span.width;
-        }
-        widths.push(total);
-        width = js::max(width, total);
-    }
-    label.width = width;
-    label.widths = widths;
+    label.restyle(bits, m);
     label
 }
 fn start_text(label: &Label, x: f64, top: f64, attrs: &str) -> String {
     let mut y = top + label.line_height / 2.0 + label.size * 0.35;
     let shared = shared_style(label);
     let mut body = String::new();
-    for line in &label.lines {
+    for line in &label.lines() {
         let mut first = true;
         for span in line {
             if span.icon.is_some() || span.text.is_empty() {

@@ -1,7 +1,8 @@
 //! Plain labels and labels fitted to a box. Ported from Pele `src/diagrams/common/fit.ts`.
 
 use crate::text::label::br_end;
-use crate::text::{layout_label, Label, Measure};
+use crate::text::render_label::LabelRead;
+use crate::text::{layout_label, layout_render_label, Label, Measure, RenderLabel};
 use crate::util::{js, strs};
 use std::borrow::Cow;
 
@@ -25,6 +26,21 @@ fn escape_tags(text: &str) -> String {
 /// `<br>` is markup, so other tags and icon names show as written instead of being read as
 /// formatting.
 pub fn plain_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8) -> Label {
+    plain_with(raw, m, size, max, base, layout_label)
+}
+
+pub(crate) fn plain_render_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8) -> RenderLabel {
+    plain_with(raw, m, size, max, base, layout_render_label)
+}
+
+fn plain_with<T>(
+    raw: Option<&str>,
+    m: &Measure,
+    size: f64,
+    max: f64,
+    base: u8,
+    layout: impl Fn(Option<&str>, bool, &Measure, f64, f64, u8) -> T,
+) -> T {
     let text = raw.map(|t| {
         let mut t = Cow::Borrowed(t);
         if t.contains('<') {
@@ -35,7 +51,7 @@ pub fn plain_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8
         }
         t
     });
-    layout_label(text.as_deref(), false, m, size, max, base)
+    layout(text.as_deref(), false, m, size, max, base)
 }
 
 /// The pieces a word can be cut between: `/<br\s*\/?>|ﬂ°°?\w+¶ß|&#?\w+;|[\ud800-\udbff][\udc00-\udfff]|[\s\S]/gi`.
@@ -85,9 +101,23 @@ fn units(raw: &str) -> Vec<&str> {
 /// `layout_label` wraps at spaces only. For a box of fixed width, this also cuts any word too
 /// long to fit.
 pub fn fit_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8) -> Label {
-    let label = plain_label(raw, m, size, max, base);
+    fit_with(raw, m, size, max, base, plain_label)
+}
+pub(crate) fn fit_render_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8) -> RenderLabel {
+    fit_with(raw, m, size, max, base, plain_render_label)
+}
+
+fn fit_with<T: LabelRead>(
+    raw: Option<&str>,
+    m: &Measure,
+    size: f64,
+    max: f64,
+    base: u8,
+    plain: impl Fn(Option<&str>, &Measure, f64, f64, u8) -> T,
+) -> T {
+    let label = plain(raw, m, size, max, base);
     let Some(raw) = raw else { return label };
-    if label.width <= max {
+    if label.view().width <= max {
         return label;
     }
     let mut out = String::new();
@@ -107,7 +137,7 @@ pub fn fit_label(raw: Option<&str>, m: &Measure, size: f64, max: f64, base: u8) 
         }
         out.push_str(unit);
     }
-    plain_label(Some(&out), m, size, max, base)
+    plain(Some(&out), m, size, max, base)
 }
 
 #[cfg(test)]

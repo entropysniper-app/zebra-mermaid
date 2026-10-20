@@ -13,13 +13,13 @@ use crate::layout::{
 };
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num},
+    builder::{esc, esc_text, num, render_label_svg as label_svg},
     cluster::{mark_crossings, Crossings},
-    edges::{default_reach, edge_label_svg, marker, marker_trim, route_path, EdgePath},
+    edges::{default_reach, marker, marker_trim, render_edge_label_svg as edge_label_svg, route_path, EdgePath},
     root::{svg_document, Accessible},
     theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
 };
-use crate::text::{layout_label, style, Icons, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Icons, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
 use crate::{Config, ConfigValue, Error};
@@ -239,19 +239,23 @@ fn title_x(c: &CNode, width: f64, crossings: &Crossings) -> f64 {
     best
 }
 fn left_label(label: &Label, x: f64, cy: f64, attrs: &str, icons: Option<&Icons>) -> String {
-    if label.lines.len() < 2 {
+    if label.lines().len() < 2 {
         return label_svg(label, x + label.width / 2.0, cy, attrs, icons).to_string();
     }
     let mut out = String::new();
-    for i in 0..label.lines.len() {
-        let mut line = label.clone();
-        line.lines = vec![label.lines[i].clone()];
-        line.widths = vec![label.widths[i]];
-        line.height = label.line_height;
+    for i in 0..label.lines().len() {
+        let line = Label::from_lines(
+            vec![label.lines()[i].to_vec()],
+            vec![label.widths()[i]],
+            label.width,
+            label.line_height,
+            label.size,
+            label.line_height,
+        );
         write!(
             out,
             "{}",
-            label_svg(&line, x + label.widths[i] / 2.0, cy - label.height / 2.0 + (i as f64 + 0.5) * label.line_height, attrs, icons,)
+            label_svg(&line, x + label.widths()[i] / 2.0, cy - label.height / 2.0 + (i as f64 + 0.5) * label.line_height, attrs, icons,)
         )
         .unwrap();
     }

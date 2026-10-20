@@ -10,11 +10,11 @@ use crate::config::{Config, ConfigValue};
 use crate::diagrams::common::fit_width::{tighten, title_room};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc_text, label_svg, num};
-use crate::svg::edges::{edge_label_svg, marker, marker_trim};
+use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
+use crate::svg::edges::{marker, marker_trim, render_edge_label_svg as edge_label_svg};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::RADIUS;
-use crate::text::{layout_label, style, Icons, Label, Measure, Span};
+use crate::text::{layout_render_label as layout_label, style, Icons, Measure, RenderLabel as Label, Span};
 use crate::theme::Role;
 use crate::util::{js, math};
 use std::fmt::Write as _;
@@ -87,7 +87,7 @@ fn high_surrogate_at(text: &str, unit: usize) -> bool {
 
 /// Cuts a label down to a box, ending what is left with an ellipsis.
 fn fit(label: &Label, max_width: f64, max_lines: usize, m: &Measure) -> Label {
-    let cut = label.lines.len() > max_lines;
+    let cut = label.lines().len() > max_lines;
     if !cut && label.width <= max_width {
         return label.clone();
     }
@@ -95,9 +95,9 @@ fn fit(label: &Label, max_width: f64, max_lines: usize, m: &Measure) -> Label {
     let mut lines: Vec<Vec<Span>> = Vec::new();
     let mut widths: Vec<f64> = Vec::new();
     let mut widest: f64 = 0.0;
-    for i in 0..max_lines.min(label.lines.len()) {
-        let mut line = label.lines[i].clone();
-        let mut width = label.widths[i];
+    for i in 0..max_lines.min(label.lines().len()) {
+        let mut line = label.lines()[i].to_vec();
+        let mut width = label.widths()[i];
         if width > max_width || (cut && i + 1 == max_lines) {
             loop {
                 let Some(span) = line.last_mut() else {
@@ -135,7 +135,7 @@ fn fit(label: &Label, max_width: f64, max_lines: usize, m: &Measure) -> Label {
         widest = js::max(widest, width);
     }
     let height = lines.len() as f64 * label.line_height;
-    Label { lines, widths, width: widest, height, size: label.size, line_height: label.line_height }
+    Label::from_lines(lines, widths, widest, height, label.size, label.line_height)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -827,6 +827,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered { svg: svg_document("architecture", width, height, size, ctx, acc, &content), width, height, links: Vec::new() }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

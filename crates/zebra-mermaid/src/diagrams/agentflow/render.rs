@@ -15,14 +15,14 @@ use crate::layout::{
 };
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num},
+    builder::{esc, esc_text, num, render_label_svg as label_svg},
     cluster::{cluster_title_x, mark_crossings, Crossings},
-    edges::{default_reach, edge_label_svg, loop_path, marker, marker_trim, route_path, EdgePath, LoopLabel},
+    edges::{default_reach, loop_path, marker, marker_trim, render_edge_label_svg as edge_label_svg, route_path, EdgePath, LoopLabel},
     root::{svg_document, Accessible},
     shapes::{draw_shape, inset_route, shape_size, PAD_X, PAD_Y},
     theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
 };
-use crate::text::{entities::decode_entities, layout_label, style, Label};
+use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{
     js,

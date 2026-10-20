@@ -1,9 +1,9 @@
 //! Participant shapes. Ported from Pele `src/diagrams/sequence/actors.ts`.
 
 use crate::diagrams::RenderCtx;
-use crate::svg::builder::{label_svg, num};
+use crate::svg::builder::{num, render_label_svg as label_svg};
 use crate::svg::theme::RADIUS;
-use crate::text::{Icons, Label};
+use crate::text::{Icons, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 

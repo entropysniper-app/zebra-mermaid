@@ -102,11 +102,10 @@ impl<const N: usize> fmt::Write for DecimalBuffer<N> {
 #[inline]
 pub fn round(x: f64) -> f64 {
     let f = x.floor();
-    if x - f >= 0.5 {
-        f + 1.0
-    } else {
-        f
-    }
+    let rounded = if x - f >= 0.5 { f + 1.0 } else { f };
+    // Math.round retains a negative zero for -0.5 <= x < 0. All nonzero results
+    // already have the input's sign; copying it also fixes that zero interval.
+    rounded.copysign(x)
 }
 
 /// `Math.sign`, which keeps NaN and the sign of zero.

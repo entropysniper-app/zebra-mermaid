@@ -14,14 +14,14 @@ use super::placement;
 use super::{SeqActor, SeqContent, SeqMessage, SequenceModel};
 use crate::config::{Config, ConfigValue};
 use crate::diagrams::common::fit_width::{tighten, title_room};
-use crate::diagrams::common::literal_label::break_label;
+use crate::diagrams::common::literal_label::break_render_label as break_label;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc, esc_text, label_svg, num, push_label_svg};
+use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, render_push_label_svg as push_label_svg};
 use crate::svg::edges::{marker, push_marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, resolve_style, RADIUS};
-use crate::text::{layout_label, style, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 
@@ -1227,7 +1227,8 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         let cx = (min_x + max_x) / 2.0;
         extend(&mut min_x, &mut max_x, cx - title.width / 2.0, cx + title.width / 2.0);
         min_y = -title.height - 12.0;
-        title_out = label_svg(&title, cx, min_y + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", icons).to_string();
+        title_out =
+            label_svg(&title, cx, min_y + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", icons).to_string();
     }
 
     let width = (max_x - min_x + 2.0 * pad).ceil();

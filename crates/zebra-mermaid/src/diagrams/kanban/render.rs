@@ -6,11 +6,11 @@ use crate::diagrams::common::fit_width::title_room;
 use crate::diagrams::common::icon::icon_svg;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc, esc_text, label_svg, num, text_style};
+use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, text_style};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, RADIUS};
-use crate::text::{layout_label, style, Icons, Label, Measure, Span};
+use crate::text::{layout_render_label as layout_label, style, Icons, Measure, RenderLabel as Label, Span};
 use crate::theme::Role;
 use crate::util::js;
 use crate::util::url::{link_url, rel_attr, safe_url, LinkInfo};
@@ -55,14 +55,14 @@ fn fit_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max: f64
         *widest = js::max(*widest, *width);
         *width = 0.0;
     };
-    for i in 0..label.lines.len() {
-        if label.widths[i] <= max {
-            line = label.lines[i].clone();
-            width = label.widths[i];
+    for i in 0..label.lines().len() {
+        if label.widths()[i] <= max {
+            line = label.lines()[i].to_vec();
+            width = label.widths()[i];
             commit(&mut lines, &mut widths, &mut widest, &mut line, &mut width);
             continue;
         }
-        for span in &label.lines[i] {
+        for span in &label.lines()[i] {
             if span.icon.is_some() {
                 if width > 0.0 && width + span.width > max {
                     commit(&mut lines, &mut widths, &mut widest, &mut line, &mut width);
@@ -93,13 +93,13 @@ fn fit_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max: f64
         commit(&mut lines, &mut widths, &mut widest, &mut line, &mut width);
     }
     let height = lines.len() as f64 * label.line_height;
-    Label { lines, widths, width: widest, height, ..label }
+    Label::from_lines(lines, widths, widest, height, label.size, label.line_height)
 }
 
 /// Writes a label with every line starting at x, or ending there, and the first line's box starting at y.
 fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>, end: bool) -> String {
     let mut out = String::new();
-    for (i, line) in label.lines.iter().enumerate() {
+    for (i, line) in label.lines().iter().enumerate() {
         let cy = y + (i as f64 + 0.5) * label.line_height;
         if line.len() == 1 && line[0].icon.is_none() {
             svg_write!(
@@ -118,15 +118,8 @@ fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>,
             )
             .unwrap();
         } else {
-            let width = label.widths[i];
-            let one = Label {
-                lines: vec![line.clone()],
-                widths: vec![width],
-                width,
-                height: label.line_height,
-                size: label.size,
-                line_height: label.line_height,
-            };
+            let width = label.widths()[i];
+            let one = Label::from_lines(vec![line.to_vec()], vec![width], width, label.line_height, label.size, label.line_height);
             let half = (if end { -width } else { width }) / 2.0;
             write!(out, "{}", label_svg(&one, x + half, cy, attrs, icons)).unwrap();
         }

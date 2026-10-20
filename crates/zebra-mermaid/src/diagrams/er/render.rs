@@ -11,13 +11,16 @@ use crate::layout::{
 };
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, joined, label_svg, num, push_esc, push_num, shared_style, span_style, text_style},
+    builder::{
+        esc, esc_text, joined, num, push_esc, push_num, render_label_svg as label_svg, render_shared_style as shared_style, span_style,
+        text_style,
+    },
     cluster::{cluster_title_x, mark_crossings, Crossings},
-    edges::{default_reach, edge_label_svg, route_path},
+    edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path},
     root::{svg_document, Accessible},
     theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
 };
-use crate::text::{entities::decode_entities, layout_label, style, Icons, Label};
+use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, Icons, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math, url::*};
 use crate::{Config, ConfigValue, Error};
@@ -146,10 +149,10 @@ fn cell(raw: &str) -> String {
 }
 /// Appends a label laid out from its left edge at `x`.
 fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &str, icons: Option<&Icons>) {
-    if label.lines.is_empty() {
+    if label.lines().is_empty() {
         return;
     }
-    if label.lines.len() == 1 && label.lines[0].len() == 1 && label.lines[0][0].icon.is_none() && label.lines[0][0].style == 0 {
+    if label.lines().len() == 1 && label.lines()[0].len() == 1 && label.lines()[0][0].icon.is_none() && label.lines()[0][0].style == 0 {
         out.push_str("<text");
         out.push_str(attrs);
         out.push_str(" x=\"");
@@ -157,7 +160,7 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
         out.push_str("\" y=\"");
         push_num(out, y);
         out.push_str("\">");
-        push_esc(out, &label.lines[0][0].text);
+        push_esc(out, &label.lines()[0][0].text);
         out.push_str("</text>");
         return;
     }
@@ -165,7 +168,7 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
     svg_write!(out, "<text", text_style(attrs, shared), " xml:space=\"preserve\">").unwrap();
     // Icons are drawn after the text element.
     let mut extra = String::new();
-    for line in &label.lines {
+    for line in &label.lines() {
         let has_icon = line.iter().any(|s| s.icon.is_some());
         let mut sx = x;
         let mut placed = false;

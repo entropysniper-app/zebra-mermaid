@@ -1,8 +1,9 @@
 //! Edge paths, markers, labels and self-loops. Ported from Pele `src/svg/edges.ts`.
 
-use super::builder::{num, push_num, write_esc, write_label_svg, write_num};
+use super::builder::{num, push_num, write_esc, write_num};
 use crate::svg::concat::svg_format;
-use crate::text::{Icons, Label};
+use crate::text::render_label::{LabelRead, LabelView};
+use crate::text::{Icons, Label, RenderLabel};
 use crate::util::hash::IndexedMap;
 use crate::util::{js, math};
 use std::fmt;
@@ -404,7 +405,7 @@ pub fn write_marker<W: fmt::Write + ?Sized>(out: &mut W, kind: &str, x: f64, y: 
 #[derive(Clone, Copy)]
 pub struct EdgeLabelSvg<'a> {
     id: &'a str,
-    label: &'a Label,
+    label: LabelView<'a>,
     x: f64,
     y: f64,
     attrs: &'a str,
@@ -414,7 +415,7 @@ pub struct EdgeLabelSvg<'a> {
 
 impl fmt::Display for EdgeLabelSvg<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write_edge_label_svg(f, self.id, self.label, self.x, self.y, self.attrs, self.icons, self.patch)
+        write_edge_label_view(f, self.id, self.label, self.x, self.y, self.attrs, self.icons, self.patch)
     }
 }
 
@@ -430,7 +431,19 @@ pub fn edge_label_svg<'a>(
     icons: Option<&'a Icons>,
     patch: &'a str,
 ) -> EdgeLabelSvg<'a> {
-    EdgeLabelSvg { id, label, x, y, attrs, icons, patch }
+    EdgeLabelSvg { id, label: label.view(), x, y, attrs, icons, patch }
+}
+
+pub(crate) fn render_edge_label_svg<'a>(
+    id: &'a str,
+    label: &'a RenderLabel,
+    x: f64,
+    y: f64,
+    attrs: &'a str,
+    icons: Option<&'a Icons>,
+    patch: &'a str,
+) -> EdgeLabelSvg<'a> {
+    EdgeLabelSvg { id, label: label.view(), x, y, attrs, icons, patch }
 }
 
 /// Appends [`edge_label_svg`] to a buffer.
@@ -439,12 +452,40 @@ pub fn push_edge_label_svg(out: &mut String, id: &str, label: &Label, x: f64, y:
     let _ = write_edge_label_svg(out, id, label, x, y, attrs, icons, patch);
 }
 
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn render_push_edge_label_svg(
+    out: &mut String,
+    id: &str,
+    label: &RenderLabel,
+    x: f64,
+    y: f64,
+    attrs: &str,
+    icons: Option<&Icons>,
+    patch: &str,
+) {
+    let _ = write_edge_label_view(out, id, label.view(), x, y, attrs, icons, patch);
+}
+
 /// Writes [`edge_label_svg`].
 #[allow(clippy::too_many_arguments)]
 pub fn write_edge_label_svg<W: fmt::Write + ?Sized>(
     out: &mut W,
     id: &str,
     label: &Label,
+    x: f64,
+    y: f64,
+    attrs: &str,
+    icons: Option<&Icons>,
+    patch: &str,
+) -> fmt::Result {
+    write_edge_label_view(out, id, label.view(), x, y, attrs, icons, patch)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn write_edge_label_view<W: fmt::Write + ?Sized>(
+    out: &mut W,
+    id: &str,
+    label: LabelView<'_>,
     x: f64,
     y: f64,
     attrs: &str,
@@ -469,7 +510,7 @@ pub fn write_edge_label_svg<W: fmt::Write + ?Sized>(
     out.write_str("\" rx=\"3\" fill=\"")?;
     out.write_str(patch)?;
     out.write_str("\"/>")?;
-    write_label_svg(out, label, x, y, attrs, icons)?;
+    super::builder::write_label_view(out, label, x, y, attrs, icons)?;
     out.write_str("</g>")
 }
 
@@ -521,6 +562,7 @@ pub fn loop_path(cx: f64, cy: f64, w: f64, h: f64, k: f64, sideways: bool, base:
         edy: if sideways { -reach / len } else { -spread / len },
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

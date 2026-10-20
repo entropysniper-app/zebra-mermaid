@@ -9,10 +9,10 @@ use crate::config::{Config, ConfigMap, ConfigValue};
 use crate::diagrams::common::fit_width::{fit_width, title_room};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc, esc_text, label_svg, num};
+use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::resolve_style;
-use crate::text::{layout_label, style};
+use crate::text::{layout_render_label as layout_label, style};
 use crate::theme::Role;
 use crate::util::js;
 

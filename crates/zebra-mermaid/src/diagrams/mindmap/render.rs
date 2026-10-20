@@ -6,12 +6,12 @@ use crate::diagrams::common::fit_width::{title_room, turn_to_fit};
 use crate::diagrams::common::icon::icon_svg;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::shapes::{draw_shape, shape_inset, shape_size};
 use crate::svg::theme::class_names;
-use crate::text::{layout_label, style, Icons, Label};
+use crate::text::{layout_render_label as layout_label, style, Icons, RenderLabel as Label};
 use crate::theme::color::mix_hex;
 use crate::theme::Role;
 use crate::util::js;
@@ -39,21 +39,14 @@ const ROW_GAP: f64 = 10.0;
 
 /// A label with each line starting at `left`, for an outline, where centered lines would look ragged.
 fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> String {
-    if label.lines.len() < 2 {
+    if label.lines().len() < 2 {
         return label_svg(label, left + label.width / 2.0, cy, " class=\"pele-label\"", icons).to_string();
     }
     let mut out = String::new();
-    let count = label.lines.len() as f64;
-    for (k, line) in label.lines.iter().enumerate() {
-        let width = label.widths[k];
-        let one = Label {
-            lines: vec![line.clone()],
-            widths: vec![width],
-            width,
-            height: label.line_height,
-            size: label.size,
-            line_height: label.line_height,
-        };
+    let count = label.lines().len() as f64;
+    for (k, line) in label.lines().iter().enumerate() {
+        let width = label.widths()[k];
+        let one = Label::from_lines(vec![line.to_vec()], vec![width], width, label.line_height, label.size, label.line_height);
         write!(
             out,
             "{}",

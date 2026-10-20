@@ -10,14 +10,14 @@ use crate::layout::{
 };
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num},
-    edges::{edge_label_svg, marker, marker_trim, route_path, side_reach, EdgePath},
+    builder::{esc, esc_text, num, render_label_svg as label_svg},
+    edges::{marker, marker_trim, render_edge_label_svg as edge_label_svg, route_path, side_reach, EdgePath},
     root::{svg_document, Accessible},
     shapes::end_side,
     theme::{class_names, resolve_style, ResolvedStyle},
     title::with_title,
 };
-use crate::text::{entities::decode_entities, layout_label, style, Label};
+use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{
     js, math,

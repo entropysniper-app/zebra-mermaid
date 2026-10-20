@@ -12,9 +12,9 @@ use crate::diagrams::common::tokens::{
 use crate::diagrams::{ParseInput, RenderCtx, Rendered};
 use crate::error::Error;
 use crate::keyword_token;
-use crate::svg::builder::label_svg;
+use crate::svg::builder::render_label_svg as label_svg;
 use crate::svg::root::{svg_document, Accessible};
-use crate::text::{layout_label, style};
+use crate::text::{layout_render_label as layout_label, style};
 use crate::theme::Role;
 use crate::util::js;
 

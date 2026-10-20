@@ -4,7 +4,9 @@
 use crate::svg::concat::svg_format;
 use std::collections::HashMap;
 
-use super::builder::{label_svg, num};
+use super::builder::{num, view_label_svg};
+use crate::text::render_label::{LabelRead, LabelView};
+use crate::text::RenderLabel;
 use crate::text::{Icons, Label};
 use crate::theme::{Role, Theming};
 use crate::util::js;
@@ -81,6 +83,36 @@ pub fn struck_title(
     icons: Option<&Icons>,
     theming: &Theming,
 ) -> String {
+    struck_title_view(label.view(), x, y, attrs, id, parent_of, index, icons, theming)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn render_struck_title(
+    label: &RenderLabel,
+    x: f64,
+    y: f64,
+    attrs: &str,
+    id: &str,
+    parent_of: impl Fn(usize) -> isize,
+    index: usize,
+    icons: Option<&Icons>,
+    theming: &Theming,
+) -> String {
+    struck_title_view(label.view(), x, y, attrs, id, parent_of, index, icons, theming)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn struck_title_view(
+    label: LabelView<'_>,
+    x: f64,
+    y: f64,
+    attrs: &str,
+    id: &str,
+    parent_of: impl Fn(usize) -> isize,
+    index: usize,
+    icons: Option<&Icons>,
+    theming: &Theming,
+) -> String {
     let mut depth = 1;
     let mut p = parent_of(index);
     while p >= 0 && depth < 8 {
@@ -94,8 +126,14 @@ pub fn struck_title(
         "<g class=\"pele-cluster-title\" data-id=\"",
         id,
         "\">",
-        label_svg(label, x, y, &svg_format!(" fill=\"none\" stroke=\"", fill, "\" stroke-width=\"5\" stroke-linejoin=\"round\""), icons),
-        label_svg(label, x, y, attrs, icons),
+        view_label_svg(
+            label,
+            x,
+            y,
+            &svg_format!(" fill=\"none\" stroke=\"", fill, "\" stroke-width=\"5\" stroke-linejoin=\"round\""),
+            icons
+        ),
+        view_label_svg(label, x, y, attrs, icons),
         "</g>"
     )
 }

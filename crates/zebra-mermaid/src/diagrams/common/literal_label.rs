@@ -1,7 +1,8 @@
 //! Labels that keep every character. Ported from Pele `src/diagrams/common/literal-label.ts`.
 
-use crate::svg::builder::{label_svg, shared_style, span_style, text_style, write_esc, write_num};
-use crate::text::{Label, Measure, Span};
+use crate::svg::builder::{label_svg, shared_style_view, span_style, text_style, write_esc, write_num};
+use crate::text::render_label::{LabelRead, LabelView};
+use crate::text::{Label, Measure, RenderLabel, Span};
 use crate::util::chars::is_space;
 use crate::util::js;
 use std::fmt;
@@ -85,11 +86,26 @@ pub fn break_label(label: &Label, m: &Measure, room: f64) -> Label {
     if label.width <= room {
         return label.clone();
     }
+    break_view(label.view(), m, room)
+}
+
+pub(crate) fn break_render_label(label: &RenderLabel, m: &Measure, room: f64) -> RenderLabel {
+    if label.width <= room {
+        return label.clone();
+    }
+    RenderLabel::from_owned(break_view(label.view(), m, room))
+}
+
+pub(crate) fn literal_render_label(text: &str, m: &Measure, size: f64, room: f64, style: u8) -> RenderLabel {
+    RenderLabel::from_owned(literal_label(text, m, size, room, style))
+}
+
+fn break_view(label: LabelView<'_>, m: &Measure, room: f64) -> Label {
     let mut lines: Vec<Vec<Span>> = Vec::new();
     let mut widths: Vec<f64> = Vec::new();
     for (i, line) in label.lines.iter().enumerate() {
         if label.widths[i] <= room {
-            lines.push(line.clone());
+            lines.push(line.to_vec());
             widths.push(label.widths[i]);
             continue;
         }
@@ -161,19 +177,25 @@ pub fn left_label_svg(label: &Label, x: f64, top: f64, attrs: &str) -> String {
     body
 }
 
-pub(crate) fn push_left_label_svg(out: &mut String, label: &Label, x: f64, top: f64, attrs: &str) {
-    let _ = write_left_label_svg(out, label, x, top, attrs);
+pub(crate) fn render_left_label_svg(label: &RenderLabel, x: f64, top: f64, attrs: &str) -> String {
+    let mut body = String::new();
+    push_left_label_svg(&mut body, label, x, top, attrs);
+    body
+}
+
+pub(crate) fn push_left_label_svg(out: &mut String, label: &impl LabelRead, x: f64, top: f64, attrs: &str) {
+    let _ = write_left_label_svg(out, label.view(), x, top, attrs);
 }
 
 pub(crate) struct LeftLabelSvg<'a> {
-    label: &'a Label,
+    label: LabelView<'a>,
     x: f64,
     top: f64,
     attrs: &'a str,
 }
 
-pub(crate) fn left_label_markup<'a>(label: &'a Label, x: f64, top: f64, attrs: &'a str) -> LeftLabelSvg<'a> {
-    LeftLabelSvg { label, x, top, attrs }
+pub(crate) fn left_label_markup<'a>(label: &'a impl LabelRead, x: f64, top: f64, attrs: &'a str) -> LeftLabelSvg<'a> {
+    LeftLabelSvg { label: label.view(), x, top, attrs }
 }
 
 impl fmt::Display for LeftLabelSvg<'_> {
@@ -185,19 +207,19 @@ impl fmt::Display for LeftLabelSvg<'_> {
 impl crate::svg::concat::Part for LeftLabelSvg<'_> {
     #[inline]
     fn append(&self, out: &mut String) {
-        push_left_label_svg(out, self.label, self.x, self.top, self.attrs);
+        let _ = write_left_label_svg(out, self.label, self.x, self.top, self.attrs);
     }
 }
 
-fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: &Label, x: f64, top: f64, attrs: &str) -> fmt::Result {
-    let shared = shared_style(label);
+fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: LabelView<'_>, x: f64, top: f64, attrs: &str) -> fmt::Result {
+    let shared = shared_style_view(label);
     let open = text_style(attrs, shared);
     for (i, spans) in label.lines.iter().enumerate() {
         let cy = top + (i as f64 + 0.5) * label.line_height;
         if spans.iter().any(|s| s.icon.is_some()) {
             let width = label.widths[i];
             let single = Label {
-                lines: vec![spans.clone()],
+                lines: vec![spans.to_vec()],
                 widths: vec![width],
                 width,
                 height: label.line_height,

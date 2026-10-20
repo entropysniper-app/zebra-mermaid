@@ -6,7 +6,8 @@ use std::borrow::Cow;
 use std::fmt;
 
 use crate::text::entities::decode_entities_cow;
-use crate::text::{style, Icons, Label};
+use crate::text::render_label::{LabelRead, LabelView};
+use crate::text::{style, Icons, Label, RenderLabel};
 use crate::util::{js, strs};
 
 #[inline]
@@ -184,9 +185,16 @@ pub fn span_style(st: u8) -> &'static str {
 /// The emphasis every span of a label has. It is written once, on the text element, where a
 /// CSS rule for the label reaches it.
 pub fn shared_style(label: &Label) -> u8 {
+    shared_style_view(label.view())
+}
+pub(crate) fn render_shared_style(label: &RenderLabel) -> u8 {
+    shared_style_view(label.view())
+}
+
+pub(crate) fn shared_style_view(label: LabelView<'_>) -> u8 {
     let mut shared = style::BOLD | style::ITALIC;
     let mut any = false;
-    for line in &label.lines {
+    for line in label.lines.iter() {
         for span in line {
             if span.icon.is_some() || span.text.is_empty() {
                 continue;
@@ -265,7 +273,18 @@ pub fn write_label_svg<W: fmt::Write + ?Sized>(
     attrs: &str,
     icons: Option<&Icons>,
 ) -> fmt::Result {
-    let lines = &label.lines;
+    write_label_view(out, label.view(), cx, cy, attrs, icons)
+}
+
+pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
+    out: &mut W,
+    label: LabelView<'_>,
+    cx: f64,
+    cy: f64,
+    attrs: &str,
+    icons: Option<&Icons>,
+) -> fmt::Result {
+    let lines = label.lines;
     if lines.is_empty() {
         return Ok(());
     }
@@ -285,7 +304,7 @@ pub fn write_label_svg<W: fmt::Write + ?Sized>(
         return out.write_str("</text>");
     }
 
-    let shared = shared_style(label);
+    let shared = shared_style_view(label);
     let attrs = text_style(attrs, shared);
     out.write_str("<text")?;
     out.write_str(&attrs)?;
@@ -349,6 +368,42 @@ impl super::concat::Part for LabelSvg<'_> {
         push_label_svg(out, self.label, self.cx, self.cy, self.attrs, self.icons);
     }
 }
+pub(crate) struct RenderLabelSvg<'a> {
+    label: LabelView<'a>,
+    cx: f64,
+    cy: f64,
+    attrs: &'a str,
+    icons: Option<&'a Icons>,
+}
+
+impl fmt::Display for RenderLabelSvg<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_label_view(f, self.label, self.cx, self.cy, self.attrs, self.icons)
+    }
+}
+impl super::concat::Part for RenderLabelSvg<'_> {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        let _ = write_label_view(out, self.label, self.cx, self.cy, self.attrs, self.icons);
+    }
+}
+pub(crate) fn render_label_svg<'a>(
+    label: &'a RenderLabel,
+    cx: f64,
+    cy: f64,
+    attrs: &'a str,
+    icons: Option<&'a Icons>,
+) -> RenderLabelSvg<'a> {
+    view_label_svg(label.view(), cx, cy, attrs, icons)
+}
+pub(crate) fn view_label_svg<'a>(label: LabelView<'a>, cx: f64, cy: f64, attrs: &'a str, icons: Option<&'a Icons>) -> RenderLabelSvg<'a> {
+    RenderLabelSvg { label, cx, cy, attrs, icons }
+}
+
+pub(crate) fn render_push_label_svg(out: &mut String, label: &RenderLabel, cx: f64, cy: f64, attrs: &str, icons: Option<&Icons>) {
+    let _ = write_label_view(out, label.view(), cx, cy, attrs, icons);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -3,15 +3,15 @@
 use super::IshikawaModel;
 use crate::config::Config;
 use crate::diagrams::common::fit_width::{title_room, turn_to_fit};
-use crate::diagrams::common::literal_label::break_label;
+use crate::diagrams::common::literal_label::break_render_label as break_label;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::edges::{marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::RADIUS;
-use crate::text::{layout_label, style, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
 use std::fmt::Write as _;

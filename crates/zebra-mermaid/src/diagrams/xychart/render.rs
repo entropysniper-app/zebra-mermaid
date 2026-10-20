@@ -12,10 +12,10 @@ use crate::detect::DiagramType;
 use crate::diagrams::common::fit_width::cap_width;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc, esc_text, label_svg, num};
+use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
-use crate::text::{layout_label, style, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 use std::fmt::Write as _;
@@ -77,8 +77,8 @@ impl Anchor {
 /// Writes a label with its left edge, center or right edge at x. A plain one-line label keeps
 /// its place when the text is wider or narrower than measured.
 fn aligned(label: &Label, x: f64, y: f64, anchor: Anchor) -> String {
-    if label.lines.len() == 1 {
-        let line = &label.lines[0];
+    if label.lines().len() == 1 {
+        let line = &label.lines()[0];
         if line.len() == 1 && line[0].icon.is_none() && line[0].style == 0 {
             return svg_format!(
                 "<text x=\"",

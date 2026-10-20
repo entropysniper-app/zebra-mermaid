@@ -9,11 +9,11 @@ use crate::config::{Config, ConfigValue};
 use crate::diagrams::common::fit_width::fit_width;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc, esc_text, label_svg, num, shared_style, span_style, text_style};
+use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, render_shared_style as shared_style, span_style, text_style};
 use crate::svg::edges::{marker, marker_trim};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::RADIUS;
-use crate::text::{layout_label, style, Label};
+use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
 use std::fmt::Write as _;
@@ -60,7 +60,7 @@ fn start_label(label: &Label, x: f64, y: f64, attrs: &str) -> String {
     let shared = shared_style(label);
     let mut body = String::new();
     let mut baseline = y;
-    for line in &label.lines {
+    for line in &label.lines() {
         let mut first = true;
         for span in line {
             if span.icon.is_some() {

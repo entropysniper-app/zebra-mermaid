@@ -12,12 +12,12 @@ use crate::config::{Config, ConfigValue};
 use crate::diagrams::common::fit_width::{tighten, title_room};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc_text, label_svg, num};
-use crate::svg::edges::{edge_label_svg, marker, marker_trim, EdgePath};
+use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
+use crate::svg::edges::{marker, marker_trim, render_edge_label_svg as edge_label_svg, EdgePath};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::shapes::{draw_shape, shape_inset, shape_size};
 use crate::svg::theme::{class_names, resolve_style, ResolvedStyle, RADIUS};
-use crate::text::{layout_label, style, Label};
+use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
 
@@ -506,7 +506,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         } else if kind_str == "block_arrow" {
             kind = Kind::Arrow;
             label = layout_label(block.label.as_deref(), false, &m, font_size, wrap, text_style);
-            let blank = label.lines.iter().all(|line| line.iter().all(|part| part.icon.is_none() && js::trim(&part.text).is_empty()));
+            let blank = label.lines().iter().all(|line| line.iter().all(|part| part.icon.is_none() && js::trim(&part.text).is_empty()));
             mask = arrow_mask(block.directions.as_deref());
             let s = if blank { arrow_size(mask, 0.0, 0.0) } else { arrow_size(mask, label.width, label.height) };
             nw = s.w;

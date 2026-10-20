@@ -2,16 +2,16 @@
 
 use super::TimelineModel;
 use crate::config::{Config, ConfigValue};
-use crate::diagrams::common::fit::{fit_label, plain_label};
+use crate::diagrams::common::fit::{fit_render_label as fit_label, plain_render_label as plain_label};
 use crate::diagrams::common::fit_width::turn_to_fit;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::edges::{marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::RADIUS;
-use crate::text::{style, Label};
+use crate::text::{style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 

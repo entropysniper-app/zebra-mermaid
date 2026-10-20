@@ -1,8 +1,8 @@
 //! A diagram title above content laid out without one. Ported from Pele `src/svg/title.ts`.
 
-use super::builder::{label_svg, num};
+use super::builder::{num, render_label_svg as label_svg};
 use crate::svg::concat::svg_format;
-use crate::text::{layout_label, style, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure};
 
 pub struct Titled {
     pub width: f64,

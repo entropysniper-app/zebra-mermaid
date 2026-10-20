@@ -8,9 +8,11 @@ use crate::diagrams::common::fit_width::{runs_across, tighten, title_room, turn_
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::layout::compound::{cnode, compound_layout, direction, shift_layout, CEdge, Dir};
 use crate::layout::{lanes::lane_layout, layered::LayeredOptions};
+use crate::svg::cluster::render_struck_title as struck_title;
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::edges::render_push_edge_label_svg as push_edge_label_svg;
 use crate::svg::{
-    builder::{esc, esc_text, joined, label_svg, num, push_label_svg, push_num},
+    builder::{esc, esc_text, joined, num, push_num, render_label_svg as label_svg, render_push_label_svg as push_label_svg},
     cluster::*,
     edges::*,
     root::{svg_document, Accessible},
@@ -18,7 +20,7 @@ use crate::svg::{
     theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
 };
 use crate::text::entities::decode_entities;
-use crate::text::{layout_label, style, Label};
+use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, url::*};
 use crate::{Config, ConfigMap, ConfigValue, Error};

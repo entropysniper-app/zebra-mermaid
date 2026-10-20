@@ -470,8 +470,52 @@ fn wrap(line: Vec<Span>, m: &Measure, size: f64, max: f64, out: &mut Vec<Vec<Spa
 /// `<b>`/`<i>` (and `*`/`_` emphasis when `markdown`), makes room for icons the host has, and
 /// wraps lines wider than `max_width` at spaces and between Chinese and Japanese characters.
 pub fn layout_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max_width: f64, base: u8) -> Label {
+    layout_as::<Label>(raw, markdown, m, size, max_width, base)
+}
+
+pub(crate) fn layout_render_label(
+    raw: Option<&str>,
+    markdown: bool,
+    m: &Measure,
+    size: f64,
+    max_width: f64,
+    base: u8,
+) -> super::RenderLabel {
+    layout_as::<super::RenderLabel>(raw, markdown, m, size, max_width, base)
+}
+
+trait LabelOutput {
+    fn empty() -> Self;
+    fn single(span: Span, size: f64, line_height: f64) -> Self;
+    fn from_owned(label: Label) -> Self;
+}
+impl LabelOutput for Label {
+    fn empty() -> Self {
+        Label::empty()
+    }
+    fn single(span: Span, size: f64, line_height: f64) -> Self {
+        let width = span.width;
+        Self { lines: vec![vec![span]], widths: vec![width], width, height: line_height, size, line_height }
+    }
+    fn from_owned(label: Label) -> Self {
+        label
+    }
+}
+impl LabelOutput for super::RenderLabel {
+    fn empty() -> Self {
+        Self::empty()
+    }
+    fn single(span: Span, size: f64, line_height: f64) -> Self {
+        Self::single(span, size, line_height)
+    }
+    fn from_owned(label: Label) -> Self {
+        Self::from_owned(label)
+    }
+}
+
+fn layout_as<T: LabelOutput>(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max_width: f64, base: u8) -> T {
     let raw = match raw {
-        None | Some("") => return Label::empty(),
+        None | Some("") => return T::empty(),
         Some(r) => r,
     };
     let line_height = js::round(size * LINE_HEIGHT);
@@ -480,14 +524,7 @@ pub fn layout_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, m
         let text = js::trim(raw);
         let width = m.width(text, size, base);
         if width <= max_width || !(text.contains(' ') || text.chars().any(is_cjk)) {
-            return Label {
-                lines: vec![vec![Span { text: text.to_string(), style: base, icon: None, width }]],
-                widths: vec![width],
-                width,
-                height: line_height,
-                size,
-                line_height,
-            };
+            return T::single(Span { text: text.to_string(), style: base, icon: None, width }, size, line_height);
         }
         let mut lines = Vec::new();
         let mut widths = Vec::new();
@@ -499,7 +536,7 @@ pub fn layout_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, m
             }
         }
         let height = lines.len() as f64 * line_height;
-        return Label { lines, widths, width: widest, height, size, line_height };
+        return T::from_owned(Label { lines, widths, width: widest, height, size, line_height });
     }
 
     let source = if markdown {
@@ -528,7 +565,7 @@ pub fn layout_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, m
         }
     }
     let height = lines.len() as f64 * line_height;
-    Label { lines, widths, width, height, size, line_height }
+    T::from_owned(Label { lines, widths, width, height, size, line_height })
 }
 
 #[cfg(test)]

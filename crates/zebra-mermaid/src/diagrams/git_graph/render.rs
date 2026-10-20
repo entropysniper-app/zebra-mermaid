@@ -10,14 +10,14 @@ use std::collections::HashMap;
 
 use super::{commit_type, GitCommit, GitDirection, GitModel};
 use crate::config::{Config, ConfigValue};
-use crate::diagrams::common::fit::plain_label;
+use crate::diagrams::common::fit::plain_render_label as plain_label;
 use crate::diagrams::common::fit_width::turn_to_fit;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc_text, label_svg, num};
+use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::RADIUS;
-use crate::text::{layout_label, style, Label};
+use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 use std::fmt::Write as _;
@@ -212,7 +212,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
         let mut tags = Vec::new();
         for tag in &commit.tags {
             let label = plain_label(Some(tag), &m, small, 4000.0, 0);
-            if !label.lines.is_empty() {
+            if !label.lines().is_empty() {
                 tags.push(label);
             }
         }
@@ -249,7 +249,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
         }
         let mut label_main = 0.0;
         let mut label_cross = 0.0;
-        if let Some(label) = view.label.as_ref().filter(|l| !l.lines.is_empty()) {
+        if let Some(label) = view.label.as_ref().filter(|l| !l.lines().is_empty()) {
             if rotate {
                 label_cross = 3.0 + HALF * (label.width + label.height);
             } else {
@@ -315,7 +315,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
     let mut cross = vec![0.0; lane_count];
     for i in 0..lane_count {
         let name = &names[i];
-        let reach = if name.lines.is_empty() {
+        let reach = if name.lines().is_empty() {
             0.0
         } else if vertical {
             name.width / 2.0 + 8.0
@@ -360,7 +360,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
             let w = name.width + 16.0;
             let h = name.height + 4.0;
             let along = if vertical { h } else { w };
-            let from = if name.lines.is_empty() { -LABEL_GAP } else { -LABEL_GAP - along };
+            let from = if name.lines().is_empty() { -LABEL_GAP } else { -LABEL_GAP - along };
             let cx = px(from + along / 2.0, c);
             let cy = py(from + along / 2.0, c);
             b.grow(px(-LABEL_GAP, c), py(-LABEL_GAP, c), px(-LABEL_GAP, c), py(-LABEL_GAP, c));
@@ -378,7 +378,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 "\" stroke-dasharray=\"2 4\"/>"
             )
             .unwrap();
-            if !name.lines.is_empty() {
+            if !name.lines().is_empty() {
                 b.grow(cx - w / 2.0, cy - h / 2.0, cx + w / 2.0, cy + h / 2.0);
                 svg_write!(
                     branches,
@@ -523,7 +523,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
         let mut body = if written { svg_format!("<title>", esc_text(&commit.message), "</title>") } else { String::new() };
         body.push_str(&symbol(ctx, kind, x, y, &branch_color(ctx, view.lane)));
 
-        if let Some(label) = view.label.as_ref().filter(|l| !l.lines.is_empty()) {
+        if let Some(label) = view.label.as_ref().filter(|l| !l.lines().is_empty()) {
             let w = label.width;
             let h = label.height;
             // The patch under a commit id: Zebra's commit label background.

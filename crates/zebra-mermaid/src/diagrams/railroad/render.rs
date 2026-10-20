@@ -13,11 +13,11 @@ use crate::config::{Config, ConfigValue};
 use crate::diagrams::common::fit_width::{tighten, title_room};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
-use crate::svg::builder::{esc, esc_text, label_svg, num};
+use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{FONT_MONO, RADIUS};
 use crate::text::entities::decode_entities;
-use crate::text::{layout_label, style, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure};
 use crate::theme::Role;
 use crate::util::js;
 
@@ -743,6 +743,7 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         links: Vec::new(),
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

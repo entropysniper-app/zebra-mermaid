@@ -2,17 +2,17 @@
 use super::{EntityKind, EventModelingModel};
 use crate::diagrams::common::{
     fit_width::turn_to_fit,
-    literal_label::{break_label, left_label_markup as left_label_svg, literal_label},
+    literal_label::{break_render_label as break_label, left_label_markup as left_label_svg, literal_render_label as literal_label},
 };
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num},
+    builder::{esc, esc_text, num, render_label_svg as label_svg},
     edges::{marker, marker_trim},
     root::{svg_document, Accessible},
     theme::{FONT_MONO, RADIUS},
 };
-use crate::text::{entities::decode_entities, layout_label, style, Label, Measure};
+use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
 use crate::{Config, Error};
@@ -394,7 +394,7 @@ struct VerticalPlaced {
     lane: f64,
 }
 fn label_rows(label: &Label) -> Vec<String> {
-    label.lines.iter().map(|line| line.iter().map(|span| span.text.as_str()).collect::<String>()).collect()
+    label.lines().iter().map(|line| line.iter().map(|span| span.text.as_str()).collect::<String>()).collect()
 }
 fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Error> {
     let size = ctx.font_size();

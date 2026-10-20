@@ -5,6 +5,9 @@ pub mod icons;
 pub mod label;
 pub mod measurer;
 mod metrics;
+pub(crate) mod render_label;
+pub(crate) use label::layout_render_label;
+pub(crate) use render_label::RenderLabel;
 
 use std::rc::Rc;
 

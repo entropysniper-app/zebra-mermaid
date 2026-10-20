@@ -9,11 +9,11 @@ use crate::diagrams::common::fit_width::cap_width;
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
-    builder::{esc, esc_text, label_svg, num},
+    builder::{esc, esc_text, num, render_label_svg as label_svg},
     root::{svg_document, Accessible},
     theme::{resolve_style, CRITICAL, RADIUS},
 };
-use crate::text::{layout_label, style, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, url::linked};
 use crate::{Config, ConfigValue, Error};
@@ -52,12 +52,7 @@ fn one_line(raw: &str, m: &Measure, size: f64) -> Label {
     }
     cooked.push_str(&raw[from..]);
     let mut label = layout_label(Some(&cooked), false, m, size, 4000.0, 0);
-    if label.lines.len() > 1 {
-        label.lines.truncate(1);
-        label.widths.truncate(1);
-        label.width = label.widths[0];
-        label.height = label.line_height;
-    }
+    label.keep_first_line();
     label
 }
 struct Bar {

@@ -2,7 +2,7 @@
 
 use super::route::{Bx, HEAD, LANE};
 use super::{C4Model, C4Shape};
-use crate::text::{layout_label, style, Label, Measure};
+use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::util::js;
 
 pub(super) const SHAPE_W: f64 = 216.0;
