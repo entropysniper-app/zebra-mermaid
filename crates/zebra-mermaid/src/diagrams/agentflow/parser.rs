@@ -73,9 +73,15 @@ impl Parser<'_> {
         self.types.get(self.i).copied().unwrap_or(END)
     }
     fn take(&mut self) -> String {
-        let s = self.texts.get(self.i).cloned().unwrap_or_default();
+        let s = self.texts.get_mut(self.i).map(std::mem::take).unwrap_or_default();
         self.i += 1;
         s
+    }
+    fn append_next(&mut self, out: &mut String) {
+        if let Some(text) = self.texts.get_mut(self.i) {
+            out.push_str(&std::mem::take(text));
+        }
+        self.i += 1;
     }
     fn fail(&self, expected: &str) -> Error {
         let t = self.kind();
@@ -109,7 +115,7 @@ impl Parser<'_> {
         }
         let mut s = self.take();
         while test(self.kind()) {
-            s.push_str(&self.take());
+            self.append_next(&mut s);
         }
         Ok(s)
     }
@@ -128,7 +134,7 @@ impl Parser<'_> {
         };
         let mut text = self.take();
         while matches!(self.kind(), TEXT | TAGSTART | TAGEND | UNICODE_TEXT) {
-            text.push_str(&self.take());
+            self.append_next(&mut text);
         }
         Ok(FlowText { text, kind: kind.into() })
     }
@@ -141,7 +147,7 @@ impl Parser<'_> {
         };
         let mut text = self.take();
         while matches!(self.kind(), EDGE_TEXT | UNICODE_TEXT) {
-            text.push_str(&self.take());
+            self.append_next(&mut text);
         }
         Ok(FlowText { text, kind: kind.into() })
     }
@@ -155,7 +161,7 @@ impl Parser<'_> {
         };
         let mut text = self.take();
         while no_tag(self.kind()) {
-            text.push_str(&self.take());
+            self.append_next(&mut text);
         }
         Ok(FlowText { text, kind: kind.into() })
     }
@@ -163,7 +169,7 @@ impl Parser<'_> {
         self.data_from = self.i;
         let mut s = self.take();
         while self.kind() == SHAPE_DATA {
-            s.push_str(&self.take());
+            self.append_next(&mut s);
         }
         self.data_to = self.i - 1;
         s

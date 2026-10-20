@@ -4,6 +4,7 @@ use crate::error::syntax_error;
 use crate::util::{chars::is_space, js};
 use crate::{DiagramType, Error};
 use indexmap::IndexMap;
+use std::borrow::Cow;
 
 const TEXT_TOKENS: &str = "'UNICODE_TEXT', 'TEXT', 'TAGSTART'";
 const STATEMENT_START:&str="'SEMI', 'NEWLINE', 'SPACE', 'EOF', 'subgraph', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'STYLE', 'LINKSTYLE', 'CLASSDEF', 'CLASS', 'CLICK', 'NODE_STRING'";
@@ -44,7 +45,7 @@ fn style_token(t: u8) -> bool {
 struct Parser<'a> {
     src: &'a str,
     types: Vec<u8>,
-    texts: Vec<String>,
+    texts: Vec<Cow<'a, str>>,
     starts: Vec<usize>,
     i: usize,
     db: &'a mut FlowchartModel,
@@ -63,9 +64,15 @@ impl Parser<'_> {
         self.types.get(self.i).copied().unwrap_or(END)
     }
     fn take(&mut self) -> String {
-        let s = self.texts.get(self.i).cloned().unwrap_or_default();
+        let s = self.texts.get_mut(self.i).map(std::mem::take).unwrap_or_default().into_owned();
         self.i += 1;
         s
+    }
+    fn append_next(&mut self, out: &mut String) {
+        if let Some(text) = self.texts.get_mut(self.i) {
+            out.push_str(&std::mem::take(text));
+        }
+        self.i += 1;
     }
     fn fail(&self, expected: &str) -> Error {
         let t = self.kind();
@@ -99,7 +106,7 @@ impl Parser<'_> {
         }
         let mut s = self.take();
         while test(self.kind()) {
-            s.push_str(&self.take());
+            self.append_next(&mut s);
         }
         Ok(s)
     }
@@ -118,7 +125,7 @@ impl Parser<'_> {
         };
         let mut text = self.take();
         while matches!(self.kind(), TEXT | TAGSTART | TAGEND | UNICODE_TEXT) {
-            text.push_str(&self.take());
+            self.append_next(&mut text);
         }
         Ok(FlowText { text, kind: kind.into() })
     }
@@ -131,7 +138,7 @@ impl Parser<'_> {
         };
         let mut text = self.take();
         while matches!(self.kind(), EDGE_TEXT | UNICODE_TEXT) {
-            text.push_str(&self.take());
+            self.append_next(&mut text);
         }
         Ok(FlowText { text, kind: kind.into() })
     }
@@ -145,14 +152,14 @@ impl Parser<'_> {
         };
         let mut text = self.take();
         while no_tag(self.kind()) {
-            text.push_str(&self.take());
+            self.append_next(&mut text);
         }
         Ok(FlowText { text, kind: kind.into() })
     }
     fn shape_data(&mut self) -> String {
         let mut s = self.take();
         while self.kind() == SHAPE_DATA {
-            s.push_str(&self.take());
+            self.append_next(&mut s);
         }
         s
     }
@@ -595,15 +602,7 @@ fn brace_trailing(source: &str) -> String {
 pub fn parse(source: &str, db: &mut FlowchartModel) -> Result<(), Error> {
     let src = brace_trailing(source);
     let t = tokenize(&src);
-    let mut p = Parser {
-        src: &src,
-        types: t.types,
-        texts: t.texts.into_iter().map(|s| s.into_owned()).collect(),
-        starts: t.starts,
-        i: 0,
-        db,
-        pending: None,
-    };
+    let mut p = Parser { src: &src, types: t.types, texts: t.texts, starts: t.starts, i: 0, db, pending: None };
     while matches!(p.kind(), SPACE | NEWLINE) {
         p.i += 1;
     }

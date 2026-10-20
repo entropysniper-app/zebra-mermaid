@@ -194,42 +194,36 @@ fn infer_kind(props: &[Property]) -> Option<String> {
         None
     }
 }
-fn publish(model: &mut UsecaseModel, state: &State, boundaries: &[DraftBoundary]) {
-    let id = &state.named.id;
+// Class/style assignments run after state validation and publication. Consume each final
+// state once, reusing its map key and owned strings instead of republishing cloned models.
+fn publish(model: &mut UsecaseModel, id: String, state: State, boundaries: &[DraftBoundary]) {
     let actor = state.kind == "actor";
-    let styles = if actor {
-        model.use_cases.shift_remove(id);
-        model.actors.get(id)
-    } else {
-        model.actors.shift_remove(id);
-        model.use_cases.get(id)
-    }
-    .map_or_else(Vec::new, |e| e.styles.clone());
+    let icon = state.icon.filter(|s| !s.is_empty());
     let e = Element {
-        id: id.clone(),
-        label: state.named.label.text.clone(),
-        label_type: state.named.label.kind.clone(),
+        id: state.named.id,
+        label: state.named.label.text,
+        label_type: state.named.label.kind,
         kind: if actor {
-            if state.icon.as_ref().is_some_and(|s| !s.is_empty()) {
+            if icon.is_some() {
                 "icon".into()
             } else {
-                state.actor_type.clone().unwrap_or_else(|| "normal".into())
+                state.actor_type.unwrap_or_else(|| "normal".into())
             }
         } else {
             String::new()
         },
-        shape: if actor { String::new() } else { state.shape.clone().unwrap_or_else(|| "ellipse".into()) },
-        icon: state.icon.clone().filter(|s| !s.is_empty()),
+        shape: if actor { String::new() } else { state.shape.unwrap_or_else(|| "ellipse".into()) },
+        icon,
         business: state.business.unwrap_or(false),
-        stereotype: state.stereotype.clone().filter(|s| !s.is_empty()),
+        stereotype: state.stereotype.filter(|s| !s.is_empty()),
         parent: state.parent.map(|i| boundaries[i].named.id.clone()).filter(|s| !s.is_empty()),
-        classes: state.classes.clone(),
-        styles,
+        classes: state.classes,
+        styles: Vec::new(),
     };
     if actor {
-        model.actors.insert(id.clone(), e);
+        model.actors.insert(id, e);
     } else {
-        model.use_cases.insert(id.clone(), e);
+        model.use_cases.insert(id, e);
     }
 }
 fn mention(first: &mut IndexMap<String, usize>, id: &str, offset: usize) {
@@ -447,11 +441,6 @@ pub fn resolve(
             }
         }
     }
-    let mut ordered: Vec<_> = elements.values().collect();
-    ordered.sort_by_key(|e| first.get(&e.named.id).copied().unwrap_or(0));
-    for state in ordered {
-        publish(&mut model, state, &drafts.boundaries);
-    }
     let mut ordered: Vec<_> = boundaries.values().collect();
     ordered.sort_by_key(|b| first.get(&b.draft.named.id).copied().unwrap_or(0));
     for state in ordered {
@@ -526,19 +515,6 @@ pub fn resolve(
             animate: false,
             animation: None,
         });
-    }
-    let old_actors = std::mem::take(&mut model.actors);
-    let old_cases = std::mem::take(&mut model.use_cases);
-    let mut ordered: Vec<_> = elements.values().collect();
-    ordered.sort_by_key(|e| first.get(&e.named.id).copied().unwrap_or(0));
-    for state in ordered {
-        if let Some(actor) = old_actors.get(&state.named.id) {
-            model.actors.insert(state.named.id.clone(), actor.clone());
-        } else if let Some(case) = old_cases.get(&state.named.id) {
-            model.use_cases.insert(state.named.id.clone(), case.clone());
-        } else {
-            publish(&mut model, state, &drafts.boundaries);
-        }
     }
     for d in &drafts.metadata {
         let Some(origin) = symbols.get(&d.target) else {
@@ -615,7 +591,13 @@ pub fn resolve(
         } else if state.shape.as_deref() == Some("rect") && state.business == Some(true) {
             return Err(fail(src, format!("Rectangular use case '{id}' cannot be a business use case"), state.named.span));
         }
-        publish(&mut model, state, &drafts.boundaries);
+    }
+    // Validate in the original insertion order so the first error remains unchanged, then
+    // publish in first-mention order (stable for ties), as the previous model reordering did.
+    let mut ordered: Vec<_> = elements.into_iter().collect();
+    ordered.sort_by_key(|(_, state)| first.get(&state.named.id).copied().unwrap_or(0));
+    for (id, state) in ordered {
+        publish(&mut model, id, state, &drafts.boundaries);
     }
     let mut ordered: Vec<_> = drafts.elements.iter().collect();
     ordered.sort_by_key(|d| d.named.span[0]);
