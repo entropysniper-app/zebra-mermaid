@@ -1,0 +1,141 @@
+{
+  "method": "Same external CPU captures as the per-phase CPU summaries. Counts are inclusive frame occurrences across stack branches, including recursive occurrences. They overlap and are not additive exclusive CPU percentages. Raw captures remain ignored; their SHA-256 values identify the source evidence.",
+  "phases": {
+    "before": [
+      {
+        "case": "samples: agentflow",
+        "threadSamples": 3576,
+        "inclusiveFrameOccurrences": {
+          "preprocess::preprocess": 32,
+          "compound_layout": 591,
+          "layered::layered": 463,
+          "reduce_crossings": 2,
+          "svg_document": 83,
+          "write_label_view": 22
+        },
+        "rawSha256": "b1bd3901ff5abaad8232d3efcbbae9ed78ead2c2e6abb408dbc446764c482ecc"
+      },
+      {
+        "case": "samples: flowchart",
+        "threadSamples": 3571,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 1147,
+          "layered::layered": 1043,
+          "reduce_crossings": 8,
+          "svg_document": 156,
+          "write_label_view": 44,
+          "generic Display::to_string": 2,
+          "preprocess::preprocess": 49
+        },
+        "rawSha256": "cb7a9ef9a06d2da494cdb180792bfed9de234f1b39ec801c56c845a53d1bbde8"
+      },
+      {
+        "case": "samples: state",
+        "threadSamples": 3574,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 1049,
+          "layered::layered": 1039,
+          "reduce_crossings": 8,
+          "svg_document": 104,
+          "write_label_view": 65,
+          "preprocess::preprocess": 23
+        },
+        "rawSha256": "608bdd79ecb4f4264969a0feec33a11ede73d9f3e71d45c5e0e3d202b50bc3f2"
+      },
+      {
+        "case": "samples: er",
+        "threadSamples": 3543,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 518,
+          "layered::layered": 471,
+          "reduce_crossings": 3,
+          "svg_document": 292,
+          "write_label_view": 36,
+          "preprocess::preprocess": 36
+        },
+        "rawSha256": "f9f66d083027df10986cdc2b246d320ee3d91354ecb4b3cff87e5e76223d3124"
+      },
+      {
+        "case": "samples: class",
+        "threadSamples": 3581,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 875,
+          "layered::layered": 721,
+          "reduce_crossings": 9,
+          "svg_document": 216,
+          "write_label_view": 108,
+          "preprocess::preprocess": 159
+        },
+        "rawSha256": "252a40e73d7b88541e313b71653c3b44ba4a477049111ecb5a6d3d5b27002d2d"
+      }
+    ],
+    "after": [
+      {
+        "case": "samples: agentflow",
+        "threadSamples": 3553,
+        "inclusiveFrameOccurrences": {
+          "preprocess::preprocess": 23,
+          "compound_layout": 569,
+          "layered::layered": 437,
+          "reduce_crossings": 3,
+          "svg_document": 81,
+          "write_label_view": 44
+        },
+        "rawSha256": "1f901708f7b1500958a13ba583833cac12945dae9a971ad3f0c73e635e09a7af"
+      },
+      {
+        "case": "samples: flowchart",
+        "threadSamples": 3564,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 1085,
+          "layered::layered": 1029,
+          "reduce_crossings": 5,
+          "svg_document": 159,
+          "write_label_view": 46,
+          "generic Display::to_string": 3,
+          "preprocess::preprocess": 55
+        },
+        "rawSha256": "9748b3067ee9025960dbd8fe7d8fcceca27e4342af61e735000ad99c4fab502e"
+      },
+      {
+        "case": "samples: state",
+        "threadSamples": 3575,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 1002,
+          "layered::layered": 975,
+          "reduce_crossings": 5,
+          "svg_document": 80,
+          "write_label_view": 66,
+          "preprocess::preprocess": 31
+        },
+        "rawSha256": "617f75e87b4f0cb0f447cb99e97ff70581af4b423d0e7b520cdccb037ff34503"
+      },
+      {
+        "case": "samples: er",
+        "threadSamples": 3556,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 523,
+          "layered::layered": 483,
+          "reduce_crossings": 3,
+          "svg_document": 312,
+          "write_label_view": 37,
+          "preprocess::preprocess": 38
+        },
+        "rawSha256": "74345b74212c309a603e81e489f20523018f80058cfe2bce63a5cef4562cdaec"
+      },
+      {
+        "case": "samples: class",
+        "threadSamples": 3563,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 901,
+          "layered::layered": 732,
+          "reduce_crossings": 8,
+          "svg_document": 159,
+          "write_label_view": 107,
+          "preprocess::preprocess": 136
+        },
+        "rawSha256": "495c551caaabbaaaedcb0d9e976ffcc454a1a8807927ea571d64ddf35b50e476"
+      }
+    ]
+  }
+}

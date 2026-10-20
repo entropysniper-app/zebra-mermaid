@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（[解析器所有权与模型发布](PARSER-OWNERSHIP-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（[借用插入键及取舍](BORROWED-ENTRY-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -102,7 +102,16 @@
 
 ## 5. 已运行的验证（实际结果）
 
-最新解析器所有权轮次（基线 `7235d3f`，代码 `9de7ca5`）：**167 Sample / 33 类原生耗时 −0.55%，API 1.78×，2× 未达**。
+最新借用插入键轮次（基线 `9497f7e`，代码 `c1ca29b`）：**体积/分配下降，Sample 原生耗时 +0.58%，不宣告速度提升，2× 未达**。
+
+- 12 个文件 24 处 owned-key entry 改为私有借用查找；使用原 map 的随机哈希器和相同 String/str 哈希，仅缺失时分配键和调用原工厂。公开类型、键比较、插入顺序、ID 规范化及随机种子策略不变，无新依赖/unsafe/缓存。
+- 新增两项补充回归：种子 `0x51e17`，普通和强制碰撞哈希器各 512 次混合 owned/borrowed entry、删除重插、顺序、工厂懒调用与 panic 后状态。工作区 **3,239 通过、0 失败、5 ignored**，无默认 feature 4 项通过，Clippy 警告不变；761 完整响应、167 Sample SVG、39 扩展验证记录一致。原始独立时限 **2,791 通过、0 失败、7 跳过、4,028 未映射**，未增加原测试映射，完整验收未完成。
+- 全 33 类 Sample after/before **1.00584（+0.58%）**，9 类观测中位数下降、24 类回退：cynefin +3.69%、treeview +3.14%、treemap +3.12%、usecase +2.34%、kanban +2.32%、sequence +1.77%、flowchart +1.53%、sankey +1.35%、packet +1.31%、wardley +0.98%、eventmodeling +0.89%、mindmap +0.80%、gantt +0.71%、architecture +0.63%、ishikawa +0.60%、xychart +0.48%、requirement +0.46%、git +0.38%、journey +0.36%、quadrant +0.28%、c4 +0.27%、pie +0.20%、venn +0.14%、state +0.01%。33 类文档 render **−0.72%**、parse **−0.22%**，所有 39 组与单进程原始数据保留。不能以分配减少替代速度目标，不作小幅差异显著性声明。
+- 当前 API / UTF-8 **1.79× / 1.90×**，端点独立，Node 每轮重测，不跨轮相除推导原生增益。CLI 文件/代码段 **−18,432 / −3,480 bytes**，FFI 动态库 **−16,688 / −4,184**、静态库 **−8,840 / −4,184 bytes**，构建参数一致且启用全部类型，未 strip。
+- Sample 分配与申请 **8 降/25 平**，扩展 **14 降/25 平**；扩容与额外存活峰值全不变，批后净保留全 0，不作通用泄漏结论。另测真实 OS RSS：Sample **17 降/4 平/12 增**，扩展 **29 降/4 平/6 增**。全部回退保留，申请字节不替代 RSS。
+- [报告](BORROWED-ENTRY-OPTIMIZATION.md)、[完整证据](research/borrowed-entry-optimization-2026-10-20/summary.json)、[验证](research/borrowed-entry-optimization-2026-10-20/validation.json)及终态性能/体积、消费者远程固定提交已更新。后续继续以全 33 类 API 2× 和代码体积为目标，优先验证更大开销，原始测试迁移继续。
+
+解析器所有权历史轮次（基线 `7235d3f`，代码 `9de7ca5`）：**167 Sample / 33 类原生耗时 −0.55%，API 1.78×，2× 未达**。
 
 - Flowchart/Swimlane 私有解析器保留词法借用 token，消费时移动或按需取得所有权，后续片段直接追加；Agentflow 消费已有 token 字符串而非复制。Usecase 在原插入顺序验证完状态后，按稳定首次提及顺序一次移动到公开模型；原错误优先级、映射顺序、公开类型及拥有的数据保持不变。不缓存输入/token/模型/输出，原解析、布局、SVG、精度与限额不变。
 - 新增独立固定 Node 语义参照 **161 项（132 模型、29 预期拒绝）**，种子 `0x4a0e14`、128 个生成输入；它是补充回归，不新增原始测试映射。当前完整工作区 **3,237 通过、0 失败、5 ignored**，无默认 feature 4 项通过；761 完整响应、167 Sample SVG、39 扩展验证记录一致，原始独立时限仍 **2,791 通过、0 失败、7 跳过、4,028 未映射**、`complete: false`。
