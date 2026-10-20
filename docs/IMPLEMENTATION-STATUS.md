@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType` 与 6 项 CJK 换行映射。逐项独立进程超时验收为 2,785 通过、0 失败、7 保留上游跳过、4,034 未映射，正式通过率 40.80%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（第二轮样式、Block 层级和 Sequence token/actor 借用优化；[实现与测量记录](RENDER-OPTIMIZATION-2.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（全图类型共享预处理、源位置映射、SVG 写入和标签换行优化；[实现与测量记录](SHARED-PIPELINE-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -98,7 +98,17 @@
 
 ## 5. 已运行的验证（实际结果）
 
-当前第二轮渲染优化（基线 `488bdee`）：
+当前全图类型共享路径优化（基线 `a937258`，代码提交 `6df32f8`）：
+
+- 普通输入在预处理阶段借用源文本，含前置配置、指令、注释、换行归一化或属性改写候选的输入保留完整处理流程；源位置映射首个点内联存储，解析前复用已有文本缓冲区。SVG 坐标整段写入，标签换行改用迭代器并原地裁剪尾部空白。公开预处理结果、模型所有权、数值舍入、文本测量顺序和布局算法不变。
+- `cargo test --workspace --all-features --locked -- --test-threads=1`：**3,195 通过、0 失败、5 ignored**；无默认 feature 的 4 项回归通过。新增两项项目回归覆盖源映射空步骤、复制与替换、末尾钳制，以及借用/完整预处理的双文本视图和全部字节位置；不计入原测试映射。
+- 三轮交替扩展基准 **39/39 组行为一致**。33 类文档 render 等权 after/before 为 **0.97335**（耗时 -2.67%），parse 为 **0.93186**（-6.81%）；33/33 类观察到更低的渲染中位数。Info render -15.91%、parse -34.41%；Block render -4.38%；Mindmap parse -20.63%。C4 parse +2.19%、50 节点树 render +1.09% 等结果完整保留，不将小幅变化声明为统计显著性。
+- 全部 167 个 Sample 的配对 render 耗时比为 **0.98229**（-1.77%），30/33 类中位数下降；flowchart +0.46%、ER +0.54%、swimlane +0.12%。当前 Rust/Pele 等权加速 **API 返回 1.53×、UTF-8 就绪 1.62×**。四引擎共同可比的 110 个 Sample/22 类另外复测，不混合两种输入集合。
+- 分配探针覆盖全部 33 类 Sample 和 39 组扩展负载，分配次数与累计申请字节全部下降。Info 分配 **62 → 42**，Mindmap **855 → 776**，Block **1,240 → 1,170**。Sample 额外存活峰值 27 类持平、6 类略增（最多 157 bytes），不宣称峰值或 RSS 下降；全部测量批后净保留均为 0。
+- 761/761 完整响应、167/167 Sample SVG 对照通过。原始超时门禁：**2,785 验收通过、0 失败、7 保留上游跳过、4,034 未映射、0 待验证**；`complete: false`、退出 1。原有测试、fixture、映射、断言、种子、次数和阈值均未改变；完整[验证记录](research/shared-pipeline-optimization-2026-10-20/validation.json)另存。
+- 最终构建后未修改生产源码，计时与编译、测试、CPU 采样及分配探针错开。Clippy 可完成，保留仓库已有警告。首页仍为英文并只显示终态对比；CLI 和库依赖均使用锁定当前代码提交的远程 Git 地址。
+
+第二轮渲染优化历史记录（基线 `488bdee`）：
 
 - 上一轮优化已提交并推送到 `main`：`488bdee08ea9d6c19fe034c6c1596ee9c90cd349`。
 - `cargo test --workspace --all-features --locked -- --test-threads=1`：**3,193 通过、0 失败、5 ignored**；无默认 feature 的 4 项回归通过。新增独立上游 2,902 组样式对照和 Sequence UTF-16 全边界回归，均为补充项目测试，不增加原测试映射数量。

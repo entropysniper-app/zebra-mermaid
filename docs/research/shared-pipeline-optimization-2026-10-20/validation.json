@@ -1,0 +1,81 @@
+{
+  "workspace": {
+    "passed": 3195,
+    "failed": 0,
+    "ignored": 5
+  },
+  "originalTestAcceptance": {
+    "total": 6826,
+    "mapped": 2792,
+    "unmapped": 4034,
+    "passed": 2785,
+    "failed": 0,
+    "skipped": 7,
+    "unverified": 0
+  },
+  "executedUpstreamSkips": 2,
+  "complete": false,
+  "strictGateExitCode": 1,
+  "originalTimeouts": {
+    "isolated": true,
+    "timeoutBasis": "Original per-test Vitest timeout; process startup included, no added grace period"
+  },
+  "testExecutables": [
+    {
+      "binary": "upstream_parity",
+      "sha256": "20a8c4a47f4ff17c45a82e7c98965174ff2f3f39085091df594c5d29021ab540"
+    },
+    {
+      "binary": "lib",
+      "sha256": "f8fa06f1b7dfe602e6bb44446aaae90f04e12236a8712a105a76441caa4e2719"
+    }
+  ],
+  "testSources": {
+    "crates/zebra-mermaid/tests/upstream/info_render.rs": "4310ef991264d0e8b036d32aa38966ebe2745de28067b85d6b97367cf1163f1a",
+    "crates/zebra-mermaid/tests/upstream/edges.rs": "11bb37c9803fc196ab955b85095158c7ffe0962b8b8fe99bbd1814dfa418c575",
+    "crates/zebra-mermaid/tests/upstream/info_parser.rs": "5bff1f47e29024cdf3d86225267bb48cebb193aaeb359c71f65c854a91967034",
+    "crates/zebra-mermaid/tests/upstream/info_stress.rs": "90e8acfa4f55ad716234d9db0d51b10f2f949f38d9180c24b81d13e5e4ca8b9f",
+    "crates/zebra-mermaid/tests/upstream/compound.rs": "54a0a35062daeec03de5069aa4f43af38e86348e411c9b410702b300f40d4652",
+    "crates/zebra-mermaid/tests/upstream/lanes.rs": "40ddc835655c9e2a01d189cadf7251b2d2aeb2bdd4bc5d9ddcfdece73f51c187",
+    "crates/zebra-mermaid/tests/upstream/er_generated.rs": "d253c71d7044e6b15318cdacdb714c4862801ff845ab63f431935112833a7be1",
+    "crates/zebra-mermaid/tests/upstream/utilities_generated.rs": "ed09dc98817939e405934448343d92bc753dfb7f07efc1d3de1ed18d3dee32cb",
+    "crates/zebra-mermaid/tests/upstream/preprocess.rs": "822caf99e495ae78ec12a88124cb4268b294b6f40c5216c35a303b8c0f3a5fff",
+    "crates/zebra-mermaid/tests/upstream/utilities.rs": "54d9004d9ba70cd1b2e7d7a607e6b8f0abb90410086d1a3c003381f43e103ebb",
+    "crates/zebra-mermaid/tests/upstream/flowchart_parser.rs": "f4019eeff056c50e1cb705108559ac59b09c57c76bf93b8e3f30803ac46e80c6",
+    "crates/zebra-mermaid/tests/upstream/gantt_dates_generated.rs": "c8937547d5009f1d25617fd34c8ed06c6b52080b5a689d33065312416b45727a",
+    "crates/zebra-mermaid/tests/upstream/gantt_dates.rs": "e8a795b4b9d9160f71d5cbc63e37a56a12aa69ac0399b6085b485da680e507b5",
+    "crates/zebra-mermaid/tests/upstream/class_members_generated.rs": "2c247e3cb7bb9c2886971c166360c8ed2dcb025bb7f37d6723bff8ec84409dc2",
+    "crates/zebra-mermaid/tests/upstream/flow_parser_generated.rs": "ebb00a0cf91bf79ae2d98e7ff49b5a3ad333f4dc576d6365ea041acc04c0b730",
+    "crates/zebra-mermaid/tests/upstream/flowchart_db.rs": "2a2d6b549d826d7f264932974f287284d6b9a342d277106083d9b333c51d57e4",
+    "crates/zebra-mermaid/tests/upstream/sequence_parser_generated.rs": "75e209e106c7e0e325bb4f73889debb7a9094fd102980bd0ded6ab94b74efa91",
+    "crates/zebra-mermaid/tests/upstream/class_parser_generated.rs": "65cfc5e38a883cf980e7cfd1613beb93fce3c9bc5b5ce098d346ef324c981f0f",
+    "crates/zebra-mermaid/tests/upstream/class_graph.rs": "ffa3e8fe196d53451818a7343f418ae3bebe7c4568a98397edb72283bab817d2",
+    "crates/zebra-mermaid/tests/upstream/sequence_stress_generated.rs": "1fdffef4e3536da33c335bdd6d742bd2602bea42f53baa04cb8d32adab17eae1",
+    "crates/zebra-mermaid/tests/upstream/class_stress_generated.rs": "56b9104053276f3afbd1e6a65d21be209d4b831396b93c4dc7c9805ad1214a7f",
+    "crates/zebra-mermaid/tests/upstream/agentflow_stress_generated.rs": "5f49dabe1818dbcb1cf91a4792229719966ac991ac883efe91a2aa2f29951817",
+    "crates/zebra-mermaid/tests/upstream/er_stress_generated.rs": "df450cf2132ec67bcc6b326956219f12c85ddd973ed7f2baf551b2ef2546f52f",
+    "crates/zebra-mermaid/tests/upstream/state_stress_generated.rs": "c2a723f3286d1c5e71639e9df6a898016ce0570d5bb5e722088f1ba396d60e61",
+    "crates/zebra-mermaid/tests/upstream/requirement_stress_generated.rs": "6a1a81e631f0a276b9428138047dd93c10199b0bc82fec3f1b1ac0d98308fc53",
+    "crates/zebra-mermaid/tests/upstream/mermaid_type.rs": "fa8760148156188242626400dbb920565e85f67fac0f88d4201227fe748f4d7e",
+    "crates/zebra-mermaid/tests/upstream/cjk_wrap.rs": "202c0bc631f4881ccce8553f68692452f19fcf28540dd5a987844a418478407d"
+  },
+  "referenceResponsesIdentical": 761,
+  "sampleSvgsIdentical": 167,
+  "extendedGroupsIdentical": 39,
+  "noDefaultFeatures": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "note": "Disabled-diagram rejection is not implementation coverage."
+  },
+  "supplementaryRegressions": [
+    "Source-map offsets, empty/default steps, cloning, suffixes, mixed copied/replaced runs, and end clamping.",
+    "Borrowed and full preprocessing: both comment views, title, config, line offset, every byte offset, and entity encoding."
+  ],
+  "frozenUpstreamUnchanged": true,
+  "measuredSourceHashesMatch": true,
+  "clippy": {
+    "completed": true,
+    "existingRepositoryWarningsRemain": true
+  }
+}
