@@ -613,7 +613,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
         )
         .unwrap();
     }
-    write!(titles, "{}", label_svg(&bottom_title, left + plot_width / 2.0, height - pad - bottom_title.height / 2.0, "", None)).unwrap();
+    svg_write!(titles, label_svg(&bottom_title, left + plot_width / 2.0, height - pad - bottom_title.height / 2.0, "", None)).unwrap();
 
     let mut legend_out = String::new();
     let mut legend_height = 0.0;
@@ -656,7 +656,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
             )
             .unwrap();
         }
-        write!(legend_out, "{}", label_svg(label, lx + SWATCH + 8.0 + label.width / 2.0, y, "", None)).unwrap();
+        svg_write!(legend_out, label_svg(label, lx + SWATCH + 8.0 + label.width / 2.0, y, "", None)).unwrap();
         legend_out.push_str("</g>");
         ly += row;
     }

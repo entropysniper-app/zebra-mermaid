@@ -794,7 +794,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         if route.label.width > 0.0 {
             let x = route.lx + ox;
             let y = route.ly + oy;
-            write!(labels, "{}", edge_label_svg(edge.id.as_deref().unwrap_or(""), &route.label, x, y, "", icons, patch)).unwrap();
+            svg_write!(labels, edge_label_svg(edge.id.as_deref().unwrap_or(""), &route.label, x, y, "", icons, patch)).unwrap();
         }
     }
 

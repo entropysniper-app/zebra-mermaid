@@ -26,7 +26,6 @@ use crate::util::{
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
 use std::collections::BTreeMap;
-use std::fmt::Write as _;
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum K {
     State,
@@ -579,9 +578,8 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                 if v.title_h > 0.0 {
                     svg_write!(body, "<path d=\"M", num(left), ",", num(top + v.title_h), "H", num(left + c.w), "\"", rule, st.line, "/>")
                         .unwrap();
-                    write!(
+                    svg_write!(
                         body,
-                        "{}",
                         label_svg(
                             &v.label,
                             title_x(c, v.label.width, &crossings) + pad,
@@ -680,7 +678,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             _ => {
                 body = rect(-w / 2.0, -h / 2.0, w, h, &svg_format!(" rx=\"", num(js::min(10.0, h / 2.0)), "\"", surface, st.shape));
                 if v.kind == K::State {
-                    write!(body, "{}", label_svg(&v.label, 0.0, 0.0, &label_attrs, icons)).unwrap();
+                    svg_write!(body, label_svg(&v.label, 0.0, 0.0, &label_attrs, icons)).unwrap();
                 } else {
                     let mut at = 10.0 - h / 2.0 + v.label.height;
                     svg_write!(
@@ -700,9 +698,8 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                     .unwrap();
                     at += 14.0;
                     for l in &v.lines {
-                        write!(
+                        svg_write!(
                             body,
-                            "{}",
                             label_svg(
                                 l,
                                 0.0,
@@ -858,7 +855,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         )
         .unwrap();
         if label.width > 0.0 {
-            write!(labels_out, "{}", edge_label_svg(&edge.id, label, ce.label_x + pad, ce.label_y + pad, "", icons, bg)).unwrap();
+            svg_write!(labels_out, edge_label_svg(&edge.id, label, ce.label_x + pad, ce.label_y + pad, "", icons, bg)).unwrap();
         }
     }
     let mut content = String::new();

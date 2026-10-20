@@ -16,7 +16,6 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 const DEFAULT_STAGES: [&str; 4] = ["Genesis", "Custom Built", "Product", "Commodity"];
 /// Mermaid's canvas has this much room around the plot on every side.
@@ -231,9 +230,8 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         own_fill(Role::SecondaryText)
     );
     let mut axis_labels = centered(&mut ext, &x_title, plot_w / 2.0, stage_bottom + 6.0 + x_title.height / 2.0, &axis_attrs);
-    write!(
+    svg_write!(
         axis_labels,
-        "{}",
         label_svg(&y_title, -16.0, plot_h / 2.0, &svg_format!(axis_attrs, " transform=\"rotate(-90 -16 ", num(plot_h / 2.0), ")\""), None,)
     )
     .unwrap();
@@ -386,12 +384,12 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         let mut y2 = ty - uy * end;
         let mut heads = String::new();
         if matches!(link.flow, Some(Flow::Forward | Flow::Bidirectional)) {
-            write!(heads, "{}", marker("arrow_point", x2, y2, ux, uy, arrow)).unwrap();
+            svg_write!(heads, marker("arrow_point", x2, y2, ux, uy, arrow)).unwrap();
             x2 -= ux * trim;
             y2 -= uy * trim;
         }
         if matches!(link.flow, Some(Flow::Backward | Flow::Bidirectional)) {
-            write!(heads, "{}", marker("arrow_point", x1, y1, -ux, -uy, arrow)).unwrap();
+            svg_write!(heads, marker("arrow_point", x1, y1, -ux, -uy, arrow)).unwrap();
             x1 += ux * trim;
             y1 += uy * trim;
         }
@@ -714,7 +712,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 "\"/>"
             )
             .unwrap();
-            write!(marks, "{}", label_svg(&label, x, y, &svg_format!(" font-size=\"", tiny_s, "\" font-weight=\"var(--_hw)\""), None))
+            svg_write!(marks, label_svg(&label, x, y, &svg_format!(" font-size=\"", tiny_s, "\" font-weight=\"var(--_hw)\""), None))
                 .unwrap();
         }
         svg_write!(annotations, "<g class=\"pele-wardley-annotation\" data-id=\"", esc_text(&number), "\">", marks, "</g>").unwrap();

@@ -271,9 +271,8 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
             "\"/>"
         )
         .unwrap();
-        write!(
+        svg_write!(
             vert_labels,
-            "{}",
             label_svg(
                 &label,
                 cx,
@@ -315,9 +314,8 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
             .unwrap();
         }
         let label = &section_labels[section];
-        write!(
+        svg_write!(
             section_out,
-            "{}",
             label_svg(
                 label,
                 pad + 8.0 + label.width / 2.0,

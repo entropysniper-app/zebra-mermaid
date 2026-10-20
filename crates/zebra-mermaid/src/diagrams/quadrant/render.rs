@@ -18,7 +18,6 @@ use crate::svg::theme::{class_names, resolve_style, RADIUS};
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
-use std::fmt::Write as _;
 
 const GAP: f64 = 4.0;
 const CAREFUL: usize = 300;
@@ -147,9 +146,9 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     let mut axes = String::new();
     if has_x {
         let y = if x_below { top + h + x_pad + x_height / 2.0 } else { top - x_pad - x_height / 2.0 };
-        write!(axes, "{}", label_svg(&x_left, if x_right.height > 0.0 { left + w / 4.0 } else { left + x_left.width / 2.0 }, y, "", None))
+        svg_write!(axes, label_svg(&x_left, if x_right.height > 0.0 { left + w / 4.0 } else { left + x_left.width / 2.0 }, y, "", None))
             .unwrap();
-        write!(axes, "{}", label_svg(&x_right, left + (w * 3.0) / 4.0, y, "", None)).unwrap();
+        svg_write!(axes, label_svg(&x_right, left + (w * 3.0) / 4.0, y, "", None)).unwrap();
     }
     if has_y {
         let x = if y_right { left + w + y_pad + y_height / 2.0 } else { left - y_pad - y_height / 2.0 };
@@ -268,7 +267,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         if careful {
             taken.extend_from_slice(&[tx - half_w, ty - half_h, tx + half_w, ty + half_h]);
         }
-        write!(labels, "{}", label_svg(text, tx, ty, " class=\"pele-label\"", None)).unwrap();
+        svg_write!(labels, label_svg(text, tx, ty, " class=\"pele-label\"", None)).unwrap();
     }
 
     // Mermaid puts each new point under the ones before it.

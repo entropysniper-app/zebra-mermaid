@@ -15,7 +15,6 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 /// (domain, column, row, series color)
 const QUADRANTS: [(&str, f64, f64, i64); 4] =
@@ -270,9 +269,8 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
             label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None).to_string();
         y += b.title.height;
         for s in &b.subtitles {
-            write!(
+            svg_write!(
                 out,
-                "{}",
                 label_svg(
                     s,
                     b.cx,
@@ -329,7 +327,7 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
                 "\"",
                 if item.overflow { svg_format!(" fill=\"", secondary, "\"") } else { String::new() }
             );
-            write!(out, "{}", label_svg(&item.label, b.cx, y + item.h / 2.0, &attrs, icons)).unwrap();
+            svg_write!(out, label_svg(&item.label, b.cx, y + item.h / 2.0, &attrs, icons)).unwrap();
             out.push_str("</g>");
             y += item.h;
         }

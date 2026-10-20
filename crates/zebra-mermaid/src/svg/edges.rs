@@ -415,7 +415,7 @@ pub struct EdgeLabelSvg<'a> {
 
 impl fmt::Display for EdgeLabelSvg<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write_edge_label_view(f, self.id, self.label, self.x, self.y, self.attrs, self.icons, self.patch)
+        write_edge_label_view(f, self.id, &self.label, self.x, self.y, self.attrs, self.icons, self.patch)
     }
 }
 
@@ -434,6 +434,26 @@ pub fn edge_label_svg<'a>(
     EdgeLabelSvg { id, label: label.view(), x, y, attrs, icons, patch }
 }
 
+pub(crate) struct RenderEdgeLabelSvg<'a> {
+    id: &'a str,
+    label: &'a RenderLabel,
+    x: f64,
+    y: f64,
+    attrs: &'a str,
+    icons: Option<&'a Icons>,
+    patch: &'a str,
+}
+impl fmt::Display for RenderEdgeLabelSvg<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_edge_label_view(f, self.id, &self.label.view(), self.x, self.y, self.attrs, self.icons, self.patch)
+    }
+}
+impl super::concat::Part for RenderEdgeLabelSvg<'_> {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        let _ = write_edge_label_view(out, self.id, &self.label.view(), self.x, self.y, self.attrs, self.icons, self.patch);
+    }
+}
 pub(crate) fn render_edge_label_svg<'a>(
     id: &'a str,
     label: &'a RenderLabel,
@@ -442,8 +462,8 @@ pub(crate) fn render_edge_label_svg<'a>(
     attrs: &'a str,
     icons: Option<&'a Icons>,
     patch: &'a str,
-) -> EdgeLabelSvg<'a> {
-    EdgeLabelSvg { id, label: label.view(), x, y, attrs, icons, patch }
+) -> RenderEdgeLabelSvg<'a> {
+    RenderEdgeLabelSvg { id, label, x, y, attrs, icons, patch }
 }
 
 /// Appends [`edge_label_svg`] to a buffer.
@@ -463,7 +483,7 @@ pub(crate) fn render_push_edge_label_svg(
     icons: Option<&Icons>,
     patch: &str,
 ) {
-    let _ = write_edge_label_view(out, id, label.view(), x, y, attrs, icons, patch);
+    let _ = write_edge_label_view(out, id, &label.view(), x, y, attrs, icons, patch);
 }
 
 /// Writes [`edge_label_svg`].
@@ -478,14 +498,14 @@ pub fn write_edge_label_svg<W: fmt::Write + ?Sized>(
     icons: Option<&Icons>,
     patch: &str,
 ) -> fmt::Result {
-    write_edge_label_view(out, id, label.view(), x, y, attrs, icons, patch)
+    write_edge_label_view(out, id, &label.view(), x, y, attrs, icons, patch)
 }
 
 #[allow(clippy::too_many_arguments)]
 fn write_edge_label_view<W: fmt::Write + ?Sized>(
     out: &mut W,
     id: &str,
-    label: LabelView<'_>,
+    label: &LabelView<'_>,
     x: f64,
     y: f64,
     attrs: &str,

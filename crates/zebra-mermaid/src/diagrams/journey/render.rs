@@ -499,9 +499,8 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
             section = Some(task.section.as_str());
             let head = fit_label(section, &m, size, room - 16.0, style::BOLD);
             if truthy(head.height) {
-                write!(
+                svg_write!(
                     body,
-                    "{}",
                     label_svg(
                         &head,
                         pad + 8.0 + head.width / 2.0,
@@ -551,9 +550,8 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
             "\"/>"
         )
         .unwrap();
-        write!(
+        svg_write!(
             body,
-            "{}",
             label_svg(
                 &label,
                 pad + PAD_X + label.width / 2.0,
@@ -598,9 +596,8 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
                 "\"/>"
             )
             .unwrap();
-            write!(
+            svg_write!(
                 body,
-                "{}",
                 label_svg(
                     &person.label,
                     pad + 28.0 + person.label.width / 2.0,

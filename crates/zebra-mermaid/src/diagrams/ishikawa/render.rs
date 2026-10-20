@@ -14,7 +14,6 @@ use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 /// How far a bone moves toward the tail for each unit it rises from the spine.
 const SLANT: f64 = 0.5;
@@ -239,7 +238,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
                 // Causes below the first level are secondary.
                 let fill =
                     if bone.depth > 2 { svg_format!(" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"") } else { String::new() };
-                write!(texts, "{}", label_svg(&bone.label, right - bone.label.width / 2.0, y, &fill, None)).unwrap();
+                svg_write!(texts, label_svg(&bone.label, right - bone.label.width / 2.0, y, &fill, None)).unwrap();
                 min_x = js::min(min_x, right - bone.label.width);
             }
             let box_y = end_y + sign * (category.box_h / 2.0);
@@ -250,7 +249,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             svg_write!(groups, "<g class=\"pele-ishikawa-category\" data-id=\"", esc_text(&model.nodes[category.node].text), "\">")
                 .unwrap();
             svg_write!(groups, "<path class=\"pele-ishikawa-bones\" d=\"", d, "\" fill=\"none\" stroke=\"", line, "\"/>").unwrap();
-            write!(groups, "{}", marker("arrow_point", ax, 0.0, SLANT / length, -sign / length, arrow)).unwrap();
+            svg_write!(groups, marker("arrow_point", ax, 0.0, SLANT / length, -sign / length, arrow)).unwrap();
             svg_write!(
                 groups,
                 "<rect x=\"",
@@ -270,7 +269,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
                 "\"/>"
             )
             .unwrap();
-            write!(groups, "{}", label_svg(&category.label, end_x, box_y, " class=\"pele-label\"", None)).unwrap();
+            svg_write!(groups, label_svg(&category.label, end_x, box_y, " class=\"pele-label\"", None)).unwrap();
             if !texts.is_empty() {
                 svg_write!(groups, "<g class=\"pele-ishikawa-causes\" font-size=\"", js::to_string(small), "\">", texts, "</g>").unwrap();
             }
@@ -311,8 +310,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             "\" stroke-linejoin=\"round\"/>"
         )
         .unwrap();
-        write!(body, "{}", label_svg(&head, 12.0 + head.width / 2.0, 0.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None))
-            .unwrap();
+        svg_write!(body, label_svg(&head, 12.0 + head.width / 2.0, 0.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None)).unwrap();
         body.push_str("</g>");
     }
 
@@ -428,7 +426,7 @@ fn vertical_causes(model: &IshikawaModel, ctx: &RenderCtx) -> Rendered {
             if entry_depth < 2 { " font-weight=\"var(--_hw)\"" } else { "" },
             if entry_depth > 1 { svg_format!(" font-size=\"", js::to_string(small), "\"") } else { String::new() }
         );
-        write!(nodes, "{}", label_svg(&label, x + w / 2.0, top + h / 2.0, &attrs, None)).unwrap();
+        svg_write!(nodes, label_svg(&label, x + w / 2.0, top + h / 2.0, &attrs, None)).unwrap();
         nodes.push_str("</g>");
         if let Some(p) = order[k].parent {
             let parent = &order[p];

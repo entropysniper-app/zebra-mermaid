@@ -18,7 +18,6 @@ use crate::text::{layout_render_label as layout_label, style, RenderLabel as Lab
 use crate::theme::color::mix_hex;
 use crate::theme::Role;
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 const RADIUS: f64 = 100.0;
 const MAX_GROWTH: f64 = 1.6;
@@ -325,7 +324,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
                     style_of(std::slice::from_ref(id)).text
                 ),
             };
-            write!(content, "{}", label_svg(&line.label, x, y + line.label.height / 2.0, &attrs, None)).unwrap();
+            svg_write!(content, label_svg(&line.label, x, y + line.label.height / 2.0, &attrs, None)).unwrap();
             y += line.label.height;
         }
         svg_write!(labels, "<g class=\"pele-venn-region\" data-id=\"", id, "\">", content, "</g>").unwrap();

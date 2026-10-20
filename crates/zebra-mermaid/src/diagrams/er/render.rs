@@ -764,7 +764,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         )
         .unwrap();
         if label.width > 0.0 {
-            write!(labels_out, "{}", edge_label_svg(&edge.id, label, e.label_x, e.label_y, "", icons, bg)).unwrap();
+            svg_write!(labels_out, edge_label_svg(&edge.id, label, e.label_x, e.label_y, "", icons, bg)).unwrap();
         }
     }
     let mut content =

@@ -14,7 +14,6 @@ use crate::text::{layout_render_label as layout_label, style, Icons, Measure, Re
 use crate::theme::Role;
 use crate::util::js;
 use crate::util::url::{link_url, rel_attr, safe_url, LinkInfo};
-use std::fmt::Write as _;
 
 const COLUMN_GAP: f64 = 12.0;
 const COLUMN_PAD: f64 = 8.0;
@@ -121,7 +120,7 @@ fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>,
             let width = label.widths()[i];
             let one = Label::from_lines(vec![line.to_vec()], vec![width], width, label.line_height, label.size, label.line_height);
             let half = (if end { -width } else { width }) / 2.0;
-            write!(out, "{}", label_svg(&one, x + half, cy, attrs, icons)).unwrap();
+            svg_write!(out, label_svg(&one, x + half, cy, attrs, icons)).unwrap();
         }
     }
     out

@@ -184,34 +184,34 @@ pub(crate) fn render_left_label_svg(label: &RenderLabel, x: f64, top: f64, attrs
 }
 
 pub(crate) fn push_left_label_svg(out: &mut String, label: &impl LabelRead, x: f64, top: f64, attrs: &str) {
-    let _ = write_left_label_svg(out, label.view(), x, top, attrs);
+    let _ = write_left_label_svg(out, &label.view(), x, top, attrs);
 }
 
-pub(crate) struct LeftLabelSvg<'a> {
-    label: LabelView<'a>,
+pub(crate) struct LeftLabelSvg<'a, L: LabelRead> {
+    label: &'a L,
     x: f64,
     top: f64,
     attrs: &'a str,
 }
 
-pub(crate) fn left_label_markup<'a>(label: &'a impl LabelRead, x: f64, top: f64, attrs: &'a str) -> LeftLabelSvg<'a> {
-    LeftLabelSvg { label: label.view(), x, top, attrs }
+pub(crate) fn left_label_markup<'a, L: LabelRead>(label: &'a L, x: f64, top: f64, attrs: &'a str) -> LeftLabelSvg<'a, L> {
+    LeftLabelSvg { label, x, top, attrs }
 }
 
-impl fmt::Display for LeftLabelSvg<'_> {
+impl<L: LabelRead> fmt::Display for LeftLabelSvg<'_, L> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write_left_label_svg(f, self.label, self.x, self.top, self.attrs)
+        write_left_label_svg(f, &self.label.view(), self.x, self.top, self.attrs)
     }
 }
 
-impl crate::svg::concat::Part for LeftLabelSvg<'_> {
+impl<L: LabelRead> crate::svg::concat::Part for LeftLabelSvg<'_, L> {
     #[inline]
     fn append(&self, out: &mut String) {
-        let _ = write_left_label_svg(out, self.label, self.x, self.top, self.attrs);
+        let _ = write_left_label_svg(out, &self.label.view(), self.x, self.top, self.attrs);
     }
 }
 
-fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: LabelView<'_>, x: f64, top: f64, attrs: &str) -> fmt::Result {
+fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: &LabelView<'_>, x: f64, top: f64, attrs: &str) -> fmt::Result {
     let shared = shared_style_view(label);
     let open = text_style(attrs, shared);
     for (i, spans) in label.lines.iter().enumerate() {
@@ -260,4 +260,40 @@ fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: LabelView<'_
         out.write_str("</text>")?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod adapter_reference {
+    use super::*;
+    use crate::svg::builder::adapter_reference::{bits, label};
+    use serde_json::Value;
+
+    #[test]
+    fn direct_left_label_parts_match_independent_node_svg() {
+        let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
+            &include_bytes!("../../../../../tests/fixtures/unit/literal-label-regression.json.gz")[..],
+        ))
+        .unwrap();
+        assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);
+        assert_eq!(data["seed"], "0x17e2b6");
+        let cases = data["svg"].as_array().unwrap();
+        assert_eq!(cases.len(), 444);
+        for (index, case) in cases.iter().enumerate() {
+            let owned = label(&case["label"]);
+            let compact = RenderLabel::from_owned(owned.clone());
+            let x = bits(case["x"].as_str().unwrap());
+            let top = bits(case["top"].as_str().unwrap());
+            let attrs = case["attrs"].as_str().unwrap();
+            assert_eq!(
+                crate::svg::concat::svg_format!(left_label_markup(&owned, x, top, attrs)),
+                case["expected"].as_str().unwrap(),
+                "owned {index}"
+            );
+            assert_eq!(
+                crate::svg::concat::svg_format!(left_label_markup(&compact, x, top, attrs)),
+                case["expected"].as_str().unwrap(),
+                "render {index}"
+            );
+        }
+    }
 }

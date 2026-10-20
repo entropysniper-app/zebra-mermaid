@@ -185,13 +185,13 @@ pub fn span_style(st: u8) -> &'static str {
 /// The emphasis every span of a label has. It is written once, on the text element, where a
 /// CSS rule for the label reaches it.
 pub fn shared_style(label: &Label) -> u8 {
-    shared_style_view(label.view())
+    shared_style_view(&label.view())
 }
 pub(crate) fn render_shared_style(label: &RenderLabel) -> u8 {
-    shared_style_view(label.view())
+    shared_style_view(&label.view())
 }
 
-pub(crate) fn shared_style_view(label: LabelView<'_>) -> u8 {
+pub(crate) fn shared_style_view(label: &LabelView<'_>) -> u8 {
     let mut shared = style::BOLD | style::ITALIC;
     let mut any = false;
     for line in label.lines.iter() {
@@ -273,12 +273,12 @@ pub fn write_label_svg<W: fmt::Write + ?Sized>(
     attrs: &str,
     icons: Option<&Icons>,
 ) -> fmt::Result {
-    write_label_view(out, label.view(), cx, cy, attrs, icons)
+    write_label_view(out, &label.view(), cx, cy, attrs, icons)
 }
 
 pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
     out: &mut W,
-    label: LabelView<'_>,
+    label: &LabelView<'_>,
     cx: f64,
     cy: f64,
     attrs: &str,
@@ -369,22 +369,21 @@ impl super::concat::Part for LabelSvg<'_> {
     }
 }
 pub(crate) struct RenderLabelSvg<'a> {
-    label: LabelView<'a>,
+    label: &'a RenderLabel,
     cx: f64,
     cy: f64,
     attrs: &'a str,
     icons: Option<&'a Icons>,
 }
-
 impl fmt::Display for RenderLabelSvg<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write_label_view(f, self.label, self.cx, self.cy, self.attrs, self.icons)
+        write_label_view(f, &self.label.view(), self.cx, self.cy, self.attrs, self.icons)
     }
 }
 impl super::concat::Part for RenderLabelSvg<'_> {
     #[inline]
     fn append(&self, out: &mut String) {
-        let _ = write_label_view(out, self.label, self.cx, self.cy, self.attrs, self.icons);
+        let _ = write_label_view(out, &self.label.view(), self.cx, self.cy, self.attrs, self.icons);
     }
 }
 pub(crate) fn render_label_svg<'a>(
@@ -394,15 +393,39 @@ pub(crate) fn render_label_svg<'a>(
     attrs: &'a str,
     icons: Option<&'a Icons>,
 ) -> RenderLabelSvg<'a> {
-    view_label_svg(label.view(), cx, cy, attrs, icons)
-}
-pub(crate) fn view_label_svg<'a>(label: LabelView<'a>, cx: f64, cy: f64, attrs: &'a str, icons: Option<&'a Icons>) -> RenderLabelSvg<'a> {
     RenderLabelSvg { label, cx, cy, attrs, icons }
 }
 
-pub(crate) fn render_push_label_svg(out: &mut String, label: &RenderLabel, cx: f64, cy: f64, attrs: &str, icons: Option<&Icons>) {
-    let _ = write_label_view(out, label.view(), cx, cy, attrs, icons);
+pub(crate) struct ViewLabelSvg<'a, 'v> {
+    label: &'v LabelView<'a>,
+    cx: f64,
+    cy: f64,
+    attrs: &'v str,
+    icons: Option<&'v Icons>,
 }
+impl super::concat::Part for ViewLabelSvg<'_, '_> {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        let _ = write_label_view(out, self.label, self.cx, self.cy, self.attrs, self.icons);
+    }
+}
+pub(crate) fn view_label_svg<'a, 'v>(
+    label: &'v LabelView<'a>,
+    cx: f64,
+    cy: f64,
+    attrs: &'v str,
+    icons: Option<&'v Icons>,
+) -> ViewLabelSvg<'a, 'v> {
+    ViewLabelSvg { label, cx, cy, attrs, icons }
+}
+
+pub(crate) fn render_push_label_svg(out: &mut String, label: &RenderLabel, cx: f64, cy: f64, attrs: &str, icons: Option<&Icons>) {
+    let _ = write_label_view(out, &label.view(), cx, cy, attrs, icons);
+}
+
+#[cfg(test)]
+#[path = "adapter_reference.rs"]
+pub(crate) mod adapter_reference;
 
 #[cfg(test)]
 mod tests {

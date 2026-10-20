@@ -15,7 +15,6 @@ use crate::text::{layout_render_label as layout_label, style, Icons, RenderLabel
 use crate::theme::color::mix_hex;
 use crate::theme::Role;
 use crate::util::js;
-use std::fmt::Write as _;
 
 /// Indexed by Mermaid's node type. A node without delimiters is text on a line, except the root.
 const SHAPES: [&str; 7] = ["", "rounded", "rect", "circle", "cloud", "bang", "hex"];
@@ -47,9 +46,8 @@ fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> Strin
     for (k, line) in label.lines().iter().enumerate() {
         let width = label.widths()[k];
         let one = Label::from_lines(vec![line.to_vec()], vec![width], width, label.line_height, label.size, label.line_height);
-        write!(
+        svg_write!(
             out,
-            "{}",
             label_svg(&one, left + width / 2.0, cy + (k as f64 - (count - 1.0) / 2.0) * label.line_height, " class=\"pele-label\"", icons,)
         )
         .unwrap();

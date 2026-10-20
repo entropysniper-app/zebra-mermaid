@@ -83,7 +83,7 @@ pub fn struck_title(
     icons: Option<&Icons>,
     theming: &Theming,
 ) -> String {
-    struck_title_view(label.view(), x, y, attrs, id, parent_of, index, icons, theming)
+    struck_title_view(&label.view(), x, y, attrs, id, parent_of, index, icons, theming)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -98,12 +98,12 @@ pub(crate) fn render_struck_title(
     icons: Option<&Icons>,
     theming: &Theming,
 ) -> String {
-    struck_title_view(label.view(), x, y, attrs, id, parent_of, index, icons, theming)
+    struck_title_view(&label.view(), x, y, attrs, id, parent_of, index, icons, theming)
 }
 
 #[allow(clippy::too_many_arguments)]
 fn struck_title_view(
-    label: LabelView<'_>,
+    label: &LabelView<'_>,
     x: f64,
     y: f64,
     attrs: &str,

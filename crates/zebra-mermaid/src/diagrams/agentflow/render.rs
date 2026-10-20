@@ -30,7 +30,6 @@ use crate::util::{
 };
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
-use std::fmt::Write as _;
 struct View<'a> {
     node: &'a Node,
     style: ResolvedStyle,
@@ -138,9 +137,8 @@ fn put(edge: &Edge, label: &Label, path: &EdgePath, x: f64, y: f64, ctx: &Render
     )
     .unwrap();
     if label.width > 0.0 {
-        write!(
+        svg_write!(
             labels,
-            "{}",
             edge_label_svg(
                 &edge.id,
                 label,

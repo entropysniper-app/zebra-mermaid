@@ -248,10 +248,10 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
         )
         .unwrap();
         if start_arrow {
-            write!(edges_out, "{}", marker("arrow_point", r.sx, r.sy, r.sdx, r.sdy, &color)).unwrap();
+            svg_write!(edges_out, marker("arrow_point", r.sx, r.sy, r.sdx, r.sdy, &color)).unwrap();
         }
         if end_arrow {
-            write!(edges_out, "{}", marker("arrow_point", r.ex, r.ey, r.edx, r.edy, &color)).unwrap();
+            svg_write!(edges_out, marker("arrow_point", r.ex, r.ey, r.edx, r.edy, &color)).unwrap();
         }
         edges_out.push_str("</g>");
         routes.push(r);
@@ -491,9 +491,8 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             )
             .unwrap();
             y += labels[1].height;
-            write!(
+            svg_write!(
                 text,
-                "{}",
                 label_svg(
                     &labels[2],
                     dx,

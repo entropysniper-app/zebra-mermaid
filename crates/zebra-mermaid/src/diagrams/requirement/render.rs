@@ -18,7 +18,6 @@ use crate::theme::Role;
 use crate::util::js;
 use crate::{Config, Error};
 use indexmap::IndexMap;
-use std::fmt::Write as _;
 struct Row {
     key: Label,
     value: Label,
@@ -450,7 +449,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
             "</g>"
         )
         .unwrap();
-        write!(labels_svg, "{}", edge_label_svg(id, label, lx, ly, "", None, ctx.paint(Role::Background, "var(--_bg)"))).unwrap();
+        svg_write!(labels_svg, edge_label_svg(id, label, lx, ly, "", None, ctx.paint(Role::Background, "var(--_bg)"))).unwrap();
     }
     let mut content =
         label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();

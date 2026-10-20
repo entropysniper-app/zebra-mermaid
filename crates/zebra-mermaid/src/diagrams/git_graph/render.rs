@@ -398,7 +398,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 )
                 .unwrap();
                 let text = ctx.theming.text_on(&color, "var(--_bg)");
-                write!(branches, "{}", label_svg(name, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", text, "\""), None)).unwrap();
+                svg_write!(branches, label_svg(name, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", text, "\""), None)).unwrap();
             }
             branches.push_str("</g>");
         }

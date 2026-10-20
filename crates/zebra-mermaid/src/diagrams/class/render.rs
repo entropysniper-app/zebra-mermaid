@@ -32,7 +32,6 @@ use crate::util::{
 use crate::{Config, ConfigMap, ConfigValue, Error};
 use indexmap::IndexMap;
 use std::collections::HashMap;
-use std::fmt::Write as _;
 struct Line {
     text: String,
     width: f64,
@@ -729,9 +728,8 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         )
         .unwrap();
         if label.width > 0.0 {
-            write!(
+            svg_write!(
                 labels_out,
-                "{}",
                 edge_label_svg(&edge.id, label, e.label_x + ox, e.label_y + oy, "", ctx.icons(), ctx.paint(Role::Background, "var(--_bg)"),)
             )
             .unwrap();
@@ -882,9 +880,8 @@ fn class_svg(
         y += tiny_h;
     }
     let title_size = if v.font_size == size { String::new() } else { svg_format!(" font-size=\"", num(v.font_size), "\"") };
-    write!(
+    svg_write!(
         body,
-        "{}",
         label_svg(
             &v.label,
             0.0,

@@ -578,10 +578,10 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
         svg_write!(edges_out, "<g class=\"pele-edge\" data-id=\"", id, "\"><path d=\"", path_data(&points, start_trim, end_trim), "\"/>")
             .unwrap();
         if edge.lhs_into {
-            write!(edges_out, "{}", marker("arrow_point", s.x + s.dx * s.gap, s.y + s.dy * s.gap, -s.dx, -s.dy, arrow)).unwrap();
+            svg_write!(edges_out, marker("arrow_point", s.x + s.dx * s.gap, s.y + s.dy * s.gap, -s.dx, -s.dy, arrow)).unwrap();
         }
         if edge.rhs_into {
-            write!(edges_out, "{}", marker("arrow_point", e.x + e.dx * e.gap, e.y + e.dy * e.gap, -e.dx, -e.dy, arrow)).unwrap();
+            svg_write!(edges_out, marker("arrow_point", e.x + e.dx * e.gap, e.y + e.dy * e.gap, -e.dx, -e.dy, arrow)).unwrap();
         }
         edges_out.push_str("</g>");
         let mut best = 0usize;
@@ -638,7 +638,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             max_x = js::max(max_x, x + w / 2.0);
             min_y = js::min(min_y, y - label.height / 2.0);
             max_y = js::max(max_y, y + label.height / 2.0);
-            write!(labels_out, "{}", edge_label_svg(&format!("{}-{}", edge.lhs_id, edge.rhs_id), label, x, y, "", icons, patch)).unwrap();
+            svg_write!(labels_out, edge_label_svg(&format!("{}-{}", edge.lhs_id, edge.rhs_id), label, x, y, "", icons, patch)).unwrap();
         }
     }
 
@@ -686,9 +686,8 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
                 head.push_str(&icon_slot(icon, start, cy - badge / 2.0, badge, icons, &glyph_color));
                 text_x += badge + 6.0;
             }
-            write!(
+            svg_write!(
                 head,
-                "{}",
                 label_svg(
                     label,
                     text_x + label.width / 2.0,

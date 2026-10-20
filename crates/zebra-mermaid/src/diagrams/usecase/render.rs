@@ -252,9 +252,8 @@ fn left_label(label: &Label, x: f64, cy: f64, attrs: &str, icons: Option<&Icons>
             label.size,
             label.line_height,
         );
-        write!(
+        svg_write!(
             out,
-            "{}",
             label_svg(&line, x + label.widths()[i] / 2.0, cy - label.height / 2.0 + (i as f64 + 0.5) * label.line_height, attrs, icons,)
         )
         .unwrap();
@@ -539,9 +538,8 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             }
             for (key, value) in &v.rows {
                 let rh = js::max(value.height, js::round(small * 1.5)) + 8.0;
-                write!(
+                svg_write!(
                     cells,
-                    "{}",
                     label_svg(
                         key,
                         x0 + 10.0 + key.width / 2.0,
@@ -844,7 +842,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                 if semantic { svg_format!(" fill=\"", muted, "\"") } else { String::new() },
                 st.as_ref().map_or("", |s| s.text.as_str())
             );
-            write!(labels_out, "{}", edge_label_svg(&e.id, label, ce.label_x, ce.label_y, &attrs, icons, bg)).unwrap();
+            svg_write!(labels_out, edge_label_svg(&e.id, label, ce.label_x, ce.label_y, &attrs, icons, bg)).unwrap();
         }
     }
     let mut content =

@@ -17,7 +17,6 @@ use crate::text::entities::decode_entities;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
-use std::fmt::Write as _;
 
 pub(crate) fn render(model: &PacketModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
     turn_to_fit(ctx.options, |down| Ok(draw(model, config, ctx, down)))
@@ -172,7 +171,7 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
             )
             .unwrap();
             if down {
-                write!(fields, "{}", label_svg(&labels[index][i], x + w / 2.0, y + row_height / 2.0, "", ctx.icons())).unwrap();
+                svg_write!(fields, label_svg(&labels[index][i], x + w / 2.0, y + row_height / 2.0, "", ctx.icons())).unwrap();
             } else {
                 let max = w - 6.0;
                 let text = fits
@@ -259,9 +258,8 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
         .unwrap();
     }
     // Mermaid puts a packet's title under it.
-    write!(
+    svg_write!(
         content,
-        "{}",
         label_svg(
             &title,
             total_width / 2.0,
