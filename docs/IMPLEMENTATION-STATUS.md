@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType` 与 6 项 CJK 换行映射。逐项独立进程超时验收为 2,785 通过、0 失败、7 保留上游跳过、4,034 未映射，正式通过率 40.80%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（十进制转换与 JavaScript 舍入修正；[实现与测量记录](DECIMAL-FORMATTING-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（普通渲染标签内联存储与负零舍入修正；[实现与测量记录](COMPACT-LABEL-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -98,7 +98,19 @@
 
 ## 5. 已运行的验证（实际结果）
 
-最新 SVG 拼接轮次（基线 `0a3d676`，代码提交 `9f1eefa`）：**全部 33 类 Sample 中位数下降，主目标仍未达到**。
+最新普通标签内联轮次（基线 `b202b94`，代码提交 `f1c5a83`）：**主 Sample 集合耗时下降 4.49%，存在类型回退，10× 未达到**。
+
+- 根据 Info/C4/Mindmap/Block/Sequence 的新采样，将渲染内部普通单 span 标签的三层容器分配改为内联存储；复杂标签继续保留原有 Vec，公开 `Label` 字段与所有权不变。两种表示共用布局算法和 SVG view，保留测量回调参数、顺序、浮点运算及完整渲染工作量，不使用标签/模型/输出缓存。结构变大带来的集合内存代价完整保留。
+- 新增独立固定 Node 参照：**6,048 组标签、18,144 组 Requirement restyle、4,108 个舍入值**，精确比较 binary64、完整测量轨迹与有/无图标 resolver 的 SVG。该参照在修复前证明旧公开 Label 对负字号空白输入返回 +0，而 Node 返回 -0；修正 `Math.round(-0.1)` 等保留负零的语义。保留旧源码指纹与失败事实，不改原 fixture 预期。3 项补充测试不计入原测试映射。
+- 全部 167 个 Sample / 33 类三轮交替配对 render after/before **0.95511**（耗时 -4.49%），27 类观测中位数下降、6 类增加。全部 Sample 回退：**Treeview +4.44%、Eventmodeling +1.03%、Wardley +0.42%、Packet +0.34%、Agentflow +0.14%、Timeline +0.06%**。33 类文档 render **0.98839**（-1.16%），24 类下降；Journey +12.70%、C4 +9.64%、Flowchart +5.16%，全 Flowchart 文档批次 +9.29%。parse **1.00351**（+0.35%，解析算法未变）。全部 39 组与单轮数据保留，不作小幅变化显著性的声明。
+- 当前主集合 Rust/Pele 等权加速 **API 1.74×、UTF-8 1.84×**；API 分布 **Agentflow 1.22×…Sankey 3.26×**，26 类低于 2×、7 类至少 2×、0 类达到 10×。四引擎共同成功的 110 个 Sample / 22 类单独复测，不代替全类型主指标。
+- Sample 分配次数 **30 类下降、3 类不变**；扩容 33 类不变；累计申请 26 类下降、2 类不变、5 类增加；额外存活峰值 28 类下降、4 类不变、1 类增加。C4 分配 **4,972 → 4,348**、Sequence **1,132 → 988**、Info **42 → 36**。Treeview 申请 **159,650 → 163,490 bytes**、峰值 **16,764 → 17,148 bytes**；Block/Kanban/State/Agentflow 的申请增加亦完整记录。39 扩展组分配 36 降/3 平，申请 31 降/3 平/5 增，峰值 33 降/5 平/1 增；批后净保留全为 0。分配器字节不代表 RSS，不作通用泄漏声明。
+- 二进制代价：跨引擎驱动 **9,310,832 → 9,360,112 bytes（+0.53%）**，扩展驱动 **5,017,008 → 5,066,064 bytes（+0.98%）**，其他两个驱动各约增加 49 KB。
+- 完整工作区 **3,207 通过、0 失败、5 ignored**；无默认 feature 4 项通过；Clippy 完成，无新增警告类别。761/761 完整响应、167/167 SVG、39/39 扩展行为一致。计时与构建、测试、CPU/分配采样分离，末尾核对测量源码与二进制指纹。
+- 原始独立超时门禁 **2,785 通过、0 失败、7 保留上游跳过、4,034 未映射、0 待验证**，严格完整门禁退出 1、`complete: false`，完整原测试验收未完成。原测试正文、预期、断言、种子、次数、阈值和映射未修改。[报告](COMPACT-LABEL-OPTIMIZATION.md)、[原始证据](research/compact-label-optimization-2026-10-20/summary.json)、[验证](research/compact-label-optimization-2026-10-20/validation.json)与[当前终态性能](OUTPUT-BENCHMARK.md)已更新，远程 Git 安装锁定 `f1c5a83`。
+- 下一步仍需以新 profiling 确认瓶颈，处理 Treeview 等类型的结构体体积回退，并评估临时集合/输出生命周期；未完成的 Sequence/Swimlane 标准格式化保留待办。Ondine 的 Wasm arena 仅作为研究方向，尚未集成，不将其预编译、等宽测量或共同成功子集计入本项目 10× 目标。
+
+SVG 拼接历史轮次（基线 `0a3d676`，代码提交 `9f1eefa`）：**全部 33 类 Sample 中位数下降，主目标仍未达到**。
 
 - 根据 C4/Agentflow/Info/Block/Sequence 的新调用栈，将已知字符串、坐标、标签与箭头的输出改为私有静态分发；38 个源文件中的 340 处格式化和 298 处追加调用已转换，另外 12 处候选调用保留标准库实现。参数先求值再写出，临时值、释放顺序、数值格式、公开 SVG API、解析与布局工作量保持不变；不使用图表/标签/输出缓存。Sequence、Swimlane 仍有较多标准 SVG 格式化，未声称已全部替换。
 - 全部 167 个 Sample / 33 类三轮交替配对 render after/before **0.91387**（耗时 -8.61%），**33/33 类**观测中位数下降。33 类文档 render **0.91846**（-8.15%），32 类下降，Venn +0.012%；parse **0.99490**（-0.51%，解析算法未改，不将小幅差异归因为解析优化）。Timeline 文档 -18.48%、Mindmap -15.26%、Journey -14.74%；全部回退和每轮数据保留，不作小幅差异的统计显著性声明。
