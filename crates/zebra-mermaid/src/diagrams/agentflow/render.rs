@@ -539,7 +539,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         .unwrap();
     }
     if !labels_out.is_empty() {
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(edge_size), "\">", labels_out, "</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(edge_size), "\">", labels_out, "</g>").unwrap();
     }
     svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     Ok(Rendered {

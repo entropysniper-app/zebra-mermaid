@@ -83,7 +83,7 @@ pub fn font_style(size: f64, family: Option<&str>, mono: Option<&str>) -> String
     format!(
         ";--_fm:var(--pele-font-mono,{});font:{}px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,{})",
         families(mono, "monospace"),
-        js::to_string(size),
+        js::number_text(size),
         families(family, "sans-serif")
     )
 }
@@ -92,7 +92,7 @@ pub fn font_style(size: f64, family: Option<&str>, mono: Option<&str>) -> String
 pub fn resolved_font_style(size: f64, family: Option<&str>) -> String {
     format!(
         ";font:{}px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:{}",
-        js::to_string(size),
+        js::number_text(size),
         families(family, "sans-serif")
     )
 }

@@ -262,7 +262,7 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
     let chart_bottom = chart_top + 4.0 * LEVEL;
     let right = left + plot_w;
 
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     let mut body = String::new();
     let mut bottom = top;
     if n > 0 {
@@ -280,7 +280,7 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
             "\" fill=\"none\" stroke=\"",
             ctx.paint(Role::InnerStroke, "var(--_a)"),
             "\"/><g class=\"pele-scale\" font-size=\"",
-            js::to_string(tiny),
+            js::number_text(tiny),
             "\" text-anchor=\"end\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",
@@ -492,7 +492,7 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
     names.retain(|name| !name.is_empty());
     let actors: HashMap<&str, usize> = names.iter().enumerate().map(|(i, name)| (*name, i)).collect();
     let colors = section_colors(model);
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     let truthy = |v: f64| v != 0.0 && !v.is_nan();
     let mut y = pad + if truthy(title.height) { title.height + 16.0 } else { 0.0 };
     let mut section: Option<&str> = None;

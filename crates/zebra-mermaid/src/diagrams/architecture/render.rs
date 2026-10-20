@@ -737,7 +737,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
                 "><circle cy=\"",
                 num(half),
                 "\" r=\"",
-                js::to_string(DOT),
+                js::number_text(DOT),
                 "\" fill=\"",
                 ctx.paint(Role::Line, "var(--_l)"),
                 "\"/></g>"
@@ -758,7 +758,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
                 &fitted,
                 0.0,
                 half,
-                &svg_format!(" class=\"pele-icon-text\" font-size=\"", js::to_string(text_size), "\""),
+                &svg_format!(" class=\"pele-icon-text\" font-size=\"", js::number_text(text_size), "\""),
                 icons,
             ));
         }
@@ -812,7 +812,8 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
         // Pele lets edge labels take the text color. Zebra writes them in the secondary text
         // color, as its edge labels are.
         let fill = if ctx.resolved() { svg_format!(" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"") } else { String::new() };
-        svg_write!(body, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\"", fill, ">", labels_out, "</g>").unwrap();
+        svg_write!(body, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(small), "\"", fill, ">", labels_out, "</g>")
+            .unwrap();
     }
     if !nodes_out.is_empty() {
         svg_write!(body, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
@@ -820,7 +821,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     let mut content =
         svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !body.is_empty() {
-        svg_write!(content, "<g transform=\"translate(", js::to_string(ox), ",", js::to_string(oy), ")\">", body, "</g>").unwrap();
+        svg_write!(content, "<g transform=\"translate(", js::number_text(ox), ",", js::number_text(oy), ")\">", body, "</g>").unwrap();
     }
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered { svg: svg_document("architecture", width, height, size, ctx, acc, &content), width, height, links: Vec::new() }

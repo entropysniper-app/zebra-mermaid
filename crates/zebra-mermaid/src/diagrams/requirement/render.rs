@@ -312,7 +312,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 top + 10.0 + v.kind.height / 2.0,
                 &svg_format!(
                     " class=\"pele-stereotype\" font-size=\"",
-                    js::to_string(v.kind.size),
+                    js::number_text(v.kind.size),
                     "\" fill=\"",
                     ctx.paint(Role::SecondaryText, "var(--_m)"),
                     "\"",
@@ -324,7 +324,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 &v.name,
                 0.0,
                 top + 10.0 + v.kind.height + v.name.height / 2.0,
-                &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(v.name.size), "\" font-weight=\"var(--_hw)\"", st.text),
+                &svg_format!(" class=\"pele-label\" font-size=\"", js::number_text(v.name.size), "\" font-weight=\"var(--_hw)\"", st.text),
                 None
             )
         );
@@ -362,7 +362,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 ));
                 y += row.height + 2.0;
             }
-            svg_write!(body, "<g class=\"pele-fields\" font-size=\"", js::to_string(v.rows[0].key.size), "\">", row_svg, "</g>").unwrap();
+            svg_write!(body, "<g class=\"pele-fields\" font-size=\"", js::number_text(v.rows[0].key.size), "\">", row_svg, "</g>").unwrap();
         }
         let classes = v.node.classes.join(" ");
         let classes = classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&classes);
@@ -469,7 +469,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
         svg_write!(
             content,
             "<g class=\"pele-edge-labels\" font-size=\"",
-            js::to_string(small),
+            js::number_text(small),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",

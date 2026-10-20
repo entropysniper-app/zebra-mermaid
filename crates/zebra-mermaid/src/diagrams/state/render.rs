@@ -666,7 +666,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                         0.0,
                         &svg_format!(
                             " class=\"pele-label\" font-size=\"",
-                            js::to_string(small),
+                            js::number_text(small),
                             "\" fill=\"",
                             ctx.paint(Role::WarningText, "var(--_m)"),
                             "\""
@@ -704,7 +704,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                                 l,
                                 0.0,
                                 at + l.height / 2.0,
-                                &svg_format!(" class=\"pele-state-description\" font-size=\"", js::to_string(small), "\"", st.text),
+                                &svg_format!(" class=\"pele-state-description\" font-size=\"", js::number_text(small), "\"", st.text),
                                 icons,
                             )
                         )
@@ -870,7 +870,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             .unwrap();
     }
     if !labels_out.is_empty() {
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\">", labels_out, "</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(small), "\">", labels_out, "</g>").unwrap();
     }
     svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, notes_out, "</g>").unwrap();
     let titled = with_title(db.title.as_deref(), &m, size, pad, width, height, content);

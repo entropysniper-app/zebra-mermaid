@@ -185,7 +185,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
         svg_format!(
             "<g class=\"pele-node pele-event\">",
             rect(x, y, event_w, h, &svg_format!(" fill=\"", color, "\" fill-opacity=\"0.16\"")),
-            label_svg(label, x + event_w / 2.0, y + h / 2.0, &svg_format!(" font-size=\"", js::to_string(small), "\""), None),
+            label_svg(label, x + event_w / 2.0, y + h / 2.0, &svg_format!(" font-size=\"", js::number_text(small), "\""), None),
             "</g>"
         )
     };

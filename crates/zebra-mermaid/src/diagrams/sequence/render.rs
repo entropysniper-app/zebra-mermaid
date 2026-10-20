@@ -439,7 +439,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     };
     let badge_width = |i: usize| -> f64 {
         if numbering.shown[i] {
-            js::max(BADGE_H, m.width(&js::to_string(numbering.index[i]), tiny, 0) + 8.0)
+            js::max(BADGE_H, m.width(&js::number_text(numbering.index[i]), tiny, 0) + 8.0)
         } else {
             0.0
         }
@@ -799,7 +799,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             "\" y=\"",
             num(start),
             "\" width=\"",
-            js::to_string(ACT_W),
+            js::number_text(ACT_W),
             "\" height=\"",
             num(bottom - start),
             "\" rx=\"2\"/>"
@@ -854,7 +854,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             "</g>"
         )
     };
-    let tiny_s = js::to_string(tiny);
+    let tiny_s = js::number_text(tiny);
     let badge = |i: usize, cx: f64, cy: f64, w: f64| -> String {
         svg_format!(
             "<g class=\"pele-sequence-number\"><rect x=\"",
@@ -864,9 +864,9 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             "\" width=\"",
             num(w),
             "\" height=\"",
-            js::to_string(BADGE_H),
+            js::number_text(BADGE_H),
             "\" rx=\"",
-            js::to_string(BADGE_H / 2.0),
+            js::number_text(BADGE_H / 2.0),
             "\" fill=\"",
             badge_fill,
             "\" stroke=\"none\"/><text x=\"",
@@ -878,7 +878,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             "\" fill=\"",
             badge_text,
             "\" stroke=\"none\">",
-            esc(&js::to_string(numbering.index[i])),
+            esc(&js::number_text(numbering.index[i])),
             "</text></g>"
         )
     };
@@ -964,7 +964,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     "\" width=\"",
                     num(frame.tab_w),
                     "\" height=\"",
-                    js::to_string(TAB_H),
+                    js::number_text(TAB_H),
                     "\" rx=\"",
                     RADIUS,
                     "\" fill=\"",
@@ -1065,7 +1065,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     "\" cy=\"",
                     num(cy),
                     "\" r=\"",
-                    js::to_string(CENTRAL_R),
+                    js::number_text(CENTRAL_R),
                     "\" fill=\"",
                     paint.arrow,
                     "\" stroke=\"none\"/>"
@@ -1343,7 +1343,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
 
     let width = (max_x - min_x + 2.0 * pad).ceil();
     let height = (bottom - min_y + 2.0 * pad).ceil();
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     let mut content = svg_format!("<g transform=\"translate(", num(pad - min_x), ",", num(pad - min_y), ")\">");
     content.push_str(&title_out);
     if !boxes_out.is_empty() {

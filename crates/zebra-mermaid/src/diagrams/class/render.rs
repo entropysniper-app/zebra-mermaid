@@ -627,7 +627,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                     0.0,
                     &svg_format!(
                         " class=\"pele-label\" font-size=\"",
-                        js::to_string(small),
+                        js::number_text(small),
                         "\"",
                         if ctx.resolved() {
                             svg_format!(" fill=\"", ctx.paint(Role::WarningText, "var(--_fg)"), "\"")
@@ -648,7 +648,13 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 "\"",
                 at,
                 ">",
-                label_svg(&v.label, 0.0, 0.0, &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(small), "\""), ctx.icons()),
+                label_svg(
+                    &v.label,
+                    0.0,
+                    0.0,
+                    &svg_format!(" class=\"pele-label\" font-size=\"", js::number_text(small), "\""),
+                    ctx.icons()
+                ),
                 "</g>"
             )
             .unwrap();
@@ -768,13 +774,13 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         svg_write!(content, "<g class=\"pele-cluster-titles\">", struck_titles, "</g>").unwrap();
     }
     if !labels_out.is_empty() {
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\">", labels_out, "</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(small), "\">", labels_out, "</g>").unwrap();
     }
     if !cards_out.is_empty() {
         svg_write!(
             content,
             "<g class=\"pele-cardinalities\" font-size=\"",
-            js::to_string(tiny),
+            js::number_text(tiny),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",
@@ -869,7 +875,7 @@ fn class_svg(
             "<text class=\"pele-annotation\" x=\"0\" y=\"",
             num(y + tiny_h / 2.0 + tiny * 0.35),
             "\" text-anchor=\"middle\" font-size=\"",
-            js::to_string(tiny),
+            js::number_text(tiny),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",
@@ -931,7 +937,7 @@ fn class_svg(
         svg_write!(
             body,
             "<g class=\"pele-members\" font-size=\"",
-            js::to_string(member_size),
+            js::number_text(member_size),
             "\">",
             lines(&v.attributes, "attribute", first),
             lines(&v.methods, "method", second),

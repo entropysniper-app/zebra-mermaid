@@ -262,7 +262,7 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
         let row_top = row_tops.get(row as usize).copied().filter(|_| row >= 0.0).unwrap_or(f64::NAN);
         let mut body = svg_format!(
             "<rect width=\"",
-            js::to_string(column_width),
+            js::number_text(column_width),
             "\" height=\"",
             num(row_height),
             "\" rx=\"",
@@ -282,11 +282,11 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
         svg_write!(
             body,
             "<text class=\"pele-count\" x=\"",
-            js::to_string(edge),
+            js::number_text(edge),
             "\" y=\"",
             num(COLUMN_PAD + line / 2.0 + small * 0.35),
             "\" text-anchor=\"end\" font-size=\"",
-            js::to_string(small),
+            js::number_text(small),
             "\" fill=\"",
             muted,
             "\">",
@@ -305,7 +305,7 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
             let color = priority_attrs(&priority, ctx);
             let mut inner = svg_format!(
                 "<rect width=\"",
-                js::to_string(card_width),
+                js::number_text(card_width),
                 "\" height=\"",
                 num(card.height),
                 "\" rx=\"",
@@ -379,11 +379,11 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                 "\" data-id=\"",
                 esc_text(&item.id),
                 "\" transform=\"translate(",
-                js::to_string(COLUMN_PAD),
+                js::number_text(COLUMN_PAD),
                 ",",
                 num(y),
                 ")\" font-size=\"",
-                js::to_string(small),
+                js::number_text(small),
                 "\">",
                 inner,
                 "</g>"

@@ -150,9 +150,9 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
             svg_write!(
                 fields,
                 "<g class=\"pele-node\" data-id=\"",
-                js::to_string(block.start),
+                js::number_text(block.start),
                 "-",
-                js::to_string(block.end),
+                js::number_text(block.end),
                 "\"><rect x=\"",
                 num(x),
                 "\" y=\"",
@@ -202,8 +202,8 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
             if !show_bits {
                 continue;
             }
-            let leading = js::to_string(if descending { block.end } else { block.start });
-            let trailing = js::to_string(if descending { block.start } else { block.end });
+            let leading = js::number_text(if descending { block.end } else { block.start });
+            let trailing = js::number_text(if descending { block.start } else { block.end });
             if count == 1.0 {
                 svg_write!(bits, "<text x=\"", num(x + w / 2.0), "\" y=\"", num(y - 4.0), "\" text-anchor=\"middle\">", leading, "</text>")
                     .unwrap();
@@ -236,7 +236,7 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
         svg_write!(
             content,
             "<g class=\"pele-packet-fields\" font-size=\"",
-            js::to_string(label_size),
+            js::number_text(label_size),
             "\" text-anchor=\"middle\">",
             fields,
             "</g>"
@@ -248,7 +248,7 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
         svg_write!(
             content,
             "<g class=\"pele-packet-bits\" font-size=\"",
-            js::to_string(bit_size),
+            js::number_text(bit_size),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",

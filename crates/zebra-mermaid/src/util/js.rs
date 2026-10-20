@@ -178,65 +178,120 @@ fn shortest_digits(x: f64) -> (DecimalBuffer<32>, i32) {
     (digits, point as i32 - leading + exponent)
 }
 
-/// `String(x)` / `Number.prototype.toString()` in base 10.
-pub fn to_string(x: f64) -> String {
+/// Shortest binary64 text uses at most 17 significant digits. JavaScript's notation
+/// cutoffs add at most seven bytes and a sign, so the complete spelling fits here.
+pub(crate) struct NumberText {
+    bytes: [u8; 32],
+    len: u8,
+}
+
+impl NumberText {
+    fn new() -> Self {
+        Self { bytes: [0; 32], len: 0 }
+    }
+    fn push(&mut self, byte: u8) {
+        self.bytes[self.len as usize] = byte;
+        self.len += 1;
+    }
+    fn push_str(&mut self, text: &str) {
+        let start = self.len as usize;
+        let end = start + text.len();
+        self.bytes[start..end].copy_from_slice(text.as_bytes());
+        self.len = end as u8;
+    }
+    fn push_unsigned(&mut self, mut value: u64) {
+        let start = self.len as usize;
+        loop {
+            self.push(b'0' + (value % 10) as u8);
+            value /= 10;
+            if value == 0 {
+                break;
+            }
+        }
+        self.bytes[start..self.len as usize].reverse();
+    }
+    pub(crate) fn as_str(&self) -> &str {
+        std::str::from_utf8(&self.bytes[..self.len as usize]).expect("decimal ASCII")
+    }
+    pub(crate) fn len(&self) -> usize {
+        self.len as usize
+    }
+}
+
+impl std::ops::Deref for NumberText {
+    type Target = str;
+    fn deref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl fmt::Display for NumberText {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(self.as_str())
+    }
+}
+
+/// The same complete JavaScript spelling, kept in per-call stack storage.
+pub(crate) fn number_text(x: f64) -> NumberText {
+    let mut out = NumberText::new();
     if x.is_nan() {
-        return "NaN".into();
+        out.push_str("NaN");
+        return out;
     }
     if x == 0.0 {
-        return "0".into();
+        out.push(b'0');
+        return out;
     }
     if x.is_infinite() {
-        return if x > 0.0 { "Infinity".into() } else { "-Infinity".into() };
+        out.push_str(if x > 0.0 { "Infinity" } else { "-Infinity" });
+        return out;
+    }
+    let negative = x < 0.0;
+    if negative {
+        out.push(b'-');
     }
     // Every integer in the safe-integer range has its exact decimal spelling in JS.
     // Dimensions, font sizes and ticks usually take this path; avoid constructing and
     // splitting an exponential string before reconstructing the same integer.
     if x.abs() <= 9_007_199_254_740_991.0 && x.fract() == 0.0 {
-        return (x as i64).to_string();
+        out.push_unsigned(x.abs() as u64);
+        return out;
     }
-    let negative = x < 0.0;
     let (digits, n) = shortest_digits(x.abs());
     let digits = digits.as_str();
     let k = digits.len() as i32;
-    let capacity = if k <= n && n <= 21 {
-        n as usize
-    } else if 0 < n && n <= 21 {
-        digits.len() + 1
-    } else if -6 < n && n <= 0 {
-        2 + (-n) as usize + digits.len()
-    } else {
-        digits.len() + 7
-    };
-    let mut out = String::with_capacity(capacity + usize::from(negative));
-    if negative {
-        out.push('-');
-    }
     if k <= n && n <= 21 {
         out.push_str(digits);
         for _ in 0..(n - k) {
-            out.push('0');
+            out.push(b'0');
         }
     } else if 0 < n && n <= 21 {
         out.push_str(&digits[..n as usize]);
-        out.push('.');
+        out.push(b'.');
         out.push_str(&digits[n as usize..]);
     } else if -6 < n && n <= 0 {
         out.push_str("0.");
         for _ in 0..(-n) {
-            out.push('0');
+            out.push(b'0');
         }
         out.push_str(digits);
     } else {
         let e = n - 1;
         out.push_str(&digits[..1]);
         if k > 1 {
-            out.push('.');
+            out.push(b'.');
             out.push_str(&digits[1..]);
         }
-        write!(out, "e{e:+}").unwrap();
+        out.push(b'e');
+        out.push(if e < 0 { b'-' } else { b'+' });
+        out.push_unsigned(e.unsigned_abs() as u64);
     }
     out
+}
+
+/// `String(x)` / `Number.prototype.toString()` in base 10. The public result remains owned.
+pub fn to_string(x: f64) -> String {
+    number_text(x).as_str().to_owned()
 }
 
 /// Writes an integer-valued double the way `String(n)` does, without the general formatter.
@@ -626,6 +681,30 @@ pub fn rem(a: f64, b: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn stack_number_text_and_svg_parts_match_independent_node_strings() {
+        use crate::svg::concat::Part;
+        let data: serde_json::Value = serde_json::from_reader(flate2::read::GzDecoder::new(
+            &include_bytes!("../../../../tests/fixtures/unit/js-decimal-regression.json.gz")[..],
+        ))
+        .unwrap();
+        assert_eq!(data["seed"], "0x6d0d3e");
+        assert_eq!(data["randomCases"], 4096);
+        let cases = data["cases"].as_array().unwrap();
+        assert_eq!(cases.len(), 6905);
+        for row in cases {
+            let bits = u64::from_str_radix(row["bits"].as_str().unwrap(), 16).unwrap();
+            let expected = row["string"].as_str().unwrap();
+            let text = number_text(f64::from_bits(bits));
+            assert_eq!(text.as_str(), expected, "bits {bits:016x}");
+            assert_eq!(text.size_hint(), expected.len(), "bits {bits:016x}");
+            let mut appended = String::from("prefix");
+            text.append(&mut appended);
+            assert_eq!(appended, format!("prefix{expected}"), "bits {bits:016x}");
+            assert_eq!(format!("{text:>30.3}"), format!("{expected:>30.3}"), "bits {bits:016x}");
+        }
+    }
 
     #[test]
     fn strings_of_numbers() {

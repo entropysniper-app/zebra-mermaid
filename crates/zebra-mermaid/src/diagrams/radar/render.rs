@@ -257,7 +257,7 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
     let total_height = (y1 - y0 + title_height + 2.0 * pad).ceil();
     let origin = format!("translate({},{})", num(pad + (body_width - (x1 - x0)) / 2.0 - x0), num(pad + title_height - y0));
 
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     let mut content = svg_format!(label_svg(
         &title,
         total_width / 2.0,

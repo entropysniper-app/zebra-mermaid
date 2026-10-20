@@ -155,7 +155,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     for (i, band) in bands.iter_mut().enumerate() {
         band.y = y;
         band.h += 24.0;
-        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&svg_format!(" class=\"pele-cluster-label\" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\" fill=\"", ctx.paint(Role::SecondaryText,"var(--_m)"), "\""),None)).unwrap();
+        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&svg_format!(" class=\"pele-cluster-label\" font-size=\"", js::number_text(small), "\" font-weight=\"var(--_hw)\" fill=\"", ctx.paint(Role::SecondaryText,"var(--_m)"), "\""),None)).unwrap();
         y += band.h + 8.0;
     }
     let mut bottom = if bands.is_empty() { top } else { y - 8.0 };
@@ -209,14 +209,14 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             &item.name,
             item.x + item.w / 2.0,
             item.y + 10.0 + item.name.height / 2.0,
-            &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(name_size), "\" font-weight=\"var(--_hw)\""),
+            &svg_format!(" class=\"pele-label\" font-size=\"", js::number_text(name_size), "\" font-weight=\"var(--_hw)\""),
             None,
         )) + &lines(
             &item.data,
             item.x + 12.0,
             item.y + 10.0 + item.name.height + 6.0 + mono_step / 2.0 + mono * 0.35,
             mono_step,
-            &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::to_string(mono), "\""),
+            &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::number_text(mono), "\""),
         );
         svg_write!(
             nodes,
@@ -348,7 +348,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
                 &head,
                 left + 12.0 + head.width / 2.0,
                 cy + 10.0 + head.height / 2.0,
-                &svg_format!(" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\""),
+                &svg_format!(" font-size=\"", js::number_text(small), "\" font-weight=\"var(--_hw)\""),
                 None
             ),
             lines(
@@ -356,7 +356,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
                 left + 12.0,
                 cy + 10.0 + head.height + small_step / 2.0 + small * 0.35,
                 small_step,
-                &svg_format!(" font-size=\"", js::to_string(small), "\"")
+                &svg_format!(" font-size=\"", js::number_text(small), "\"")
             ),
             "</g>"
         )
@@ -466,7 +466,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
                 y,
                 &svg_format!(
                     " class=\"pele-cluster-label\" font-size=\"",
-                    js::to_string(small),
+                    js::number_text(small),
                     "\" font-weight=\"var(--_hw)\" fill=\"",
                     ctx.paint(Role::SecondaryText, "var(--_m)"),
                     "\""
@@ -492,7 +492,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
                 &name,
                 pad + 12.0 + name.width / 2.0,
                 cy + 10.0 + name.height / 2.0,
-                &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\""),
+                &svg_format!(" class=\"pele-label\" font-size=\"", js::number_text(small), "\" font-weight=\"var(--_hw)\""),
                 None
             ),
             "<text class=\"pele-em-frame\" x=\"",
@@ -500,7 +500,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
             "\" y=\"",
             num(cy + 10.0 + small),
             "\" text-anchor=\"end\" font-size=\"",
-            js::to_string(mono),
+            js::number_text(mono),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",
@@ -511,7 +511,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
                 pad + 12.0,
                 cy + 10.0 + name.height + 6.0 + d.line_height / 2.0 + mono * 0.35,
                 d.line_height,
-                &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::to_string(mono), "\"")
+                &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::number_text(mono), "\"")
             )),
             "</g></g>"
         )
@@ -605,7 +605,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
                 &head,
                 pad + 12.0 + head.width / 2.0,
                 y + 10.0 + head.height / 2.0,
-                &svg_format!(" font-size=\"", js::to_string(small), "\" font-weight=\"var(--_hw)\""),
+                &svg_format!(" font-size=\"", js::number_text(small), "\" font-weight=\"var(--_hw)\""),
                 None
             ),
             lines(
@@ -613,7 +613,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
                 pad + 12.0,
                 y + 10.0 + head.height + body.line_height / 2.0 + small * 0.35,
                 body.line_height,
-                &svg_format!(" font-size=\"", js::to_string(small), "\"")
+                &svg_format!(" font-size=\"", js::number_text(small), "\"")
             ),
             "</g>"
         )

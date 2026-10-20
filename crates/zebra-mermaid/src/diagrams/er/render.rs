@@ -559,7 +559,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
             let type_attrs = svg_format!(" class=\"pele-er-type\" fill=\"", secondary, "\"", text);
             let name_attrs = joined(" class=\"pele-er-name\"", text);
             let key_attrs =
-                svg_format!(" class=\"pele-er-keys\" font-size=\"", js::to_string(v.key_size), "\" fill=\"", secondary, "\"", text);
+                svg_format!(" class=\"pele-er-keys\" font-size=\"", js::number_text(v.key_size), "\" fill=\"", secondary, "\"", text);
             let comment_attrs = svg_format!(" class=\"pele-er-comment\" fill=\"", secondary, "\"", text);
             let mut stripes = String::new();
             let mut cells = String::new();
@@ -627,7 +627,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                 "/>",
                 name,
                 "<g class=\"pele-er-attributes\" font-size=\"",
-                js::to_string(v.row_size),
+                js::number_text(v.row_size),
                 "\">",
                 cells,
                 "</g>"
@@ -783,7 +783,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         .unwrap();
     }
     if !labels_out.is_empty() {
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\">", labels_out, "</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(small), "\">", labels_out, "</g>").unwrap();
     }
     svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     Ok(Rendered {

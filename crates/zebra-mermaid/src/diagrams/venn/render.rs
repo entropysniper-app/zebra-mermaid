@@ -309,7 +309,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
             let attrs = match &line.id {
                 None => svg_format!(
                     " class=\"pele-label\"",
-                    if line.size == size { String::new() } else { svg_format!(" font-size=\"", js::to_string(line.size), "\"") },
+                    if line.size == size { String::new() } else { svg_format!(" font-size=\"", js::number_text(line.size), "\"") },
                     label_fill(&region.inside),
                     region.style.text
                 ),
@@ -317,7 +317,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
                     " class=\"pele-venn-text\" data-id=\"",
                     esc_text(id),
                     "\" font-size=\"",
-                    js::to_string(tiny),
+                    js::number_text(tiny),
                     "\" fill=\"",
                     text_fill,
                     "\"",

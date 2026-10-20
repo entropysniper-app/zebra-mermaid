@@ -564,7 +564,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
     }
     if !labels_out.is_empty() {
         content.push_str("<g class=\"pele-edge-labels\" font-size=\"");
-        content.push_str(&js::to_string(edge_size));
+        content.push_str(&js::number_text(edge_size));
         content.push_str("\">");
         content.push_str(&labels_out);
         content.push_str("</g>");

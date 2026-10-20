@@ -121,7 +121,7 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
     let mut max_y = chart_height;
     let mut labels_out = String::new();
     let mut nodes_out = String::new();
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     for (i, node) in nodes.iter().enumerate() {
         let id = model.nodes[i].id.as_str();
         let height = js::max(node.height, 1.0);
@@ -147,7 +147,7 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
         )
         .unwrap();
 
-        let value = if show_values { format!("{}{}{}", prefix, js::to_string(rounded(node.value)), suffix) } else { String::new() };
+        let value = if show_values { format!("{}{}{}", prefix, js::number_text(rounded(node.value)), suffix) } else { String::new() };
         let after = if outlined { node.layer >= central } else { node.x < chart_width / 2.0 };
         let text_width = m.width(if !value.is_empty() { format!("{} {}", id, value) } else { id.to_string() }.as_str(), small, 0);
         let x = if after { node.x + node_width + LABEL_GAP } else { node.x - LABEL_GAP };
@@ -243,7 +243,7 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
             to,
             ": ",
             esc_text(&prefix),
-            js::to_string(rounded(link.value)),
+            js::number_text(rounded(link.value)),
             esc_text(&suffix),
             "</title></path>"
         )

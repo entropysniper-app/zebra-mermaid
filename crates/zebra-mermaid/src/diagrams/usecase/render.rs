@@ -522,7 +522,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     &v.stereotype,
                     0.0,
                     sy,
-                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::to_string(tiny), "\" fill=\"", muted, "\""),
+                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(tiny), "\" fill=\"", muted, "\""),
                     icons
                 ),
                 label_svg(&v.label, 0.0, h / 2.0 - v.label.height / 2.0, &svg_format!(" class=\"pele-label\"", text_attrs), icons)
@@ -587,7 +587,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     icons
                 ),
                 "<g font-size=\"",
-                js::to_string(small),
+                js::number_text(small),
                 "\">",
                 cells,
                 "</g>"
@@ -686,7 +686,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     &v.stereotype,
                     0.0,
                     -v.label.height / 2.0,
-                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::to_string(tiny), "\" fill=\"", muted, "\""),
+                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(tiny), "\" fill=\"", muted, "\""),
                     icons
                 ),
                 label_svg(
@@ -695,7 +695,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     label_y,
                     &svg_format!(
                         " class=\"pele-label\"",
-                        if n.shape == "note" { svg_format!(" font-size=\"", js::to_string(small), "\"") } else { String::new() },
+                        if n.shape == "note" { svg_format!(" font-size=\"", js::number_text(small), "\"") } else { String::new() },
                         text_attrs
                     ),
                     icons
@@ -862,7 +862,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
         .unwrap();
     }
     if !labels_out.is_empty() {
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(small), "\">", labels_out, "</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(small), "\">", labels_out, "</g>").unwrap();
     }
     svg_write!(content, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     Ok(Rendered {

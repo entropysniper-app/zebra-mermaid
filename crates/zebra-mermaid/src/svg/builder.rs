@@ -143,7 +143,7 @@ impl fmt::Display for Num {
         let mut buf = [0_u8; 32];
         match num_digits(self.0, &mut buf) {
             Some(start) => f.write_str(&std::str::from_utf8(&buf).expect("decimal ASCII")[start..]),
-            None => f.write_str(&js::to_string(js::round(self.0 * 100.0) / 100.0)),
+            None => f.write_str(js::number_text(js::round(self.0 * 100.0) / 100.0).as_str()),
         }
     }
 }
@@ -162,7 +162,7 @@ pub fn write_num<W: fmt::Write + ?Sized>(out: &mut W, value: f64) -> fmt::Result
         // All bytes are ASCII, including the zero-filled prefix. Validate the fixed buffer
         // from its aligned start, then write only the exact same decimal suffix.
         Some(start) => out.write_str(&std::str::from_utf8(&buf).expect("decimal ASCII")[start..]),
-        None => out.write_str(&js::to_string(js::round(value * 100.0) / 100.0)),
+        None => out.write_str(js::number_text(js::round(value * 100.0) / 100.0).as_str()),
     }
 }
 

@@ -293,7 +293,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         svg_write!(
             content,
             "<g class=\"pele-axis-labels\" font-size=\"",
-            js::to_string(axis_size),
+            js::number_text(axis_size),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",
@@ -311,7 +311,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         svg_write!(
             content,
             "<g class=\"pele-point-labels\" font-size=\"",
-            js::to_string(point_size),
+            js::number_text(point_size),
             "\"",
             label_fill,
             ">",

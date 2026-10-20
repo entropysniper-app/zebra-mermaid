@@ -125,7 +125,7 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
     let legend: Vec<Label> = entries
         .iter()
         .map(|&(label, value)| {
-            let text = if model.show_data { format!("{} [{}]", label, js::to_string(value)) } else { label.clone() };
+            let text = if model.show_data { format!("{} [{}]", label, js::number_text(value)) } else { label.clone() };
             layout_label(Some(&text), false, &m, small, 4000.0, 0)
         })
         .collect();
@@ -263,7 +263,7 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
     if slices.is_empty() {
         slices = svg_format!(
             "<circle class=\"pele-slice\" r=\"",
-            js::to_string(radius),
+            js::number_text(radius),
             "\" fill=\"none\" stroke=\"",
             ctx.paint(Role::NodeStroke, "var(--_b)"),
             "\"/>"
@@ -301,7 +301,7 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     let mut content = svg_format!(label_svg(
         &title,
         total_width / 2.0,

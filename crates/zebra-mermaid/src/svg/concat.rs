@@ -88,6 +88,17 @@ impl Part for super::builder::Num {
     }
 }
 
+impl Part for crate::util::js::NumberText {
+    #[inline]
+    fn append(&self, out: &mut String) {
+        out.push_str(self.as_str());
+    }
+    #[inline]
+    fn size_hint(&self) -> usize {
+        self.len()
+    }
+}
+
 macro_rules! display_parts {
     ($($t:ty),* $(,)?) => {
         $(impl Part for $t {

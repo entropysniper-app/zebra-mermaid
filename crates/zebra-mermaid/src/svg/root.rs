@@ -143,8 +143,10 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
         svg_write!(aria, " aria-describedby=\"", prefix, "-desc\"").unwrap();
     }
     let fit = if ctx.responsive { "max-width:100%;height:auto;" } else { "" };
-    let w = js::to_string(width);
-    let h = js::to_string(height);
+    let width_text = js::number_text(width);
+    let height_text = js::number_text(height);
+    let w = width_text.as_str();
+    let h = height_text.as_str();
     let canvas = |fill: &str| {
         svg_format!(
             "<rect class=\"pele-canvas\" data-mermaid-canvas-background=\"opaque\" x=\"0\" y=\"0\" width=\"",
@@ -200,7 +202,7 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
                 ";--_fm:var(--pele-font-mono,",
                 esc(families(options.font_family_mono.as_deref(), "monospace")),
                 ");font:",
-                js::to_string(font_size),
+                js::number_text(font_size),
                 "px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,",
                 esc(families(options.font_family.as_deref(), "sans-serif")),
                 ")\" fill=\"var(--_fg)\" role=\"graphics-document document\" aria-roledescription=\"",
@@ -240,7 +242,7 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
                 "color:",
                 text,
                 ";font:",
-                js::to_string(font_size),
+                js::number_text(font_size),
                 "px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:",
                 esc(families(options.font_family.as_deref(), "sans-serif")),
                 "\" fill=\"",
@@ -262,6 +264,7 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
     out.push_str("</svg>");
     out
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

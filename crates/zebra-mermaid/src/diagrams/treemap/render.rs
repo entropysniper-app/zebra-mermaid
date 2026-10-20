@@ -109,7 +109,7 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                         "<text class=\"pele-value\" x=\"{}\" y=\"{}\" font-size=\"{}\" text-anchor=\"end\" fill=\"{}\"{}>{}</text>",
                         num(x + b.w - SIDE - 2.0),
                         num(baseline + tiny * 0.35),
-                        js::to_string(tiny),
+                        js::number_text(tiny),
                         ctx.paint(Role::SecondaryText, "var(--_m)"),
                         style.text,
                         esc(&value)
@@ -209,7 +209,7 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
         ctx.icons()
     ));
     if !sections.is_empty() {
-        svg_write!(content, "<g class=\"pele-sections\" font-size=\"", js::to_string(small), "\">", sections, "</g>").unwrap();
+        svg_write!(content, "<g class=\"pele-sections\" font-size=\"", js::number_text(small), "\">", sections, "</g>").unwrap();
     }
     if !leaves.is_empty() {
         svg_write!(

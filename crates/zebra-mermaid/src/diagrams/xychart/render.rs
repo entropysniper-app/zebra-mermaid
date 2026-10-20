@@ -212,7 +212,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
         let (lo, hi) = (*lo, *hi);
         ticks_between(js::min(lo, hi), js::max(lo, hi), step)
             .into_iter()
-            .map(|value| Mark { at: (value - lo) / (hi - lo), label: text(&m, Some(&js::to_string(value)), small, 4000.0) })
+            .map(|value| Mark { at: (value - lo) / (hi - lo), label: text(&m, Some(&js::number_text(value)), small, 4000.0) })
             .collect()
     };
 
@@ -312,11 +312,11 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
             for value in ticks_between(js::min(x0, x1), js::max(x0, x1), step) {
                 marks.push(Mark {
                     at: inset + ((value - x0) / (x1 - x0)) * (1.0 - 2.0 * inset),
-                    label: text(&m, Some(&js::to_string(value)), small, 4000.0),
+                    label: text(&m, Some(&js::number_text(value)), small, 4000.0),
                 });
             }
         } else if let Some(x0) = x0 {
-            marks.push(Mark { at: 0.5, label: text(&m, Some(&js::to_string(x0)), small, 4000.0) });
+            marks.push(Mark { at: 0.5, label: text(&m, Some(&js::number_text(x0)), small, 4000.0) });
         }
         marks
     };
@@ -423,7 +423,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     for mark in &left_marks {
         let y = if horizontal { top + mark.at * plot_height } else { bottom - mark.at * plot_height };
         if left_tick != 0.0 {
-            svg_write!(axis, "M", num(left), ",", num(y), "h", js::to_string(-left_tick)).unwrap();
+            svg_write!(axis, "M", num(left), ",", num(y), "h", js::number_text(-left_tick)).unwrap();
         }
         if left_labels {
             labels.push_str(&aligned(&mark.label, left - left_tick - 6.0, y, Anchor::End));
@@ -432,7 +432,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     for mark in &bottom_marks {
         let at = left + mark.at * plot_width;
         if bottom_tick != 0.0 {
-            svg_write!(axis, "M", num(at), ",", num(bottom), "v", js::to_string(bottom_tick)).unwrap();
+            svg_write!(axis, "M", num(at), ",", num(bottom), "v", js::number_text(bottom_tick)).unwrap();
         }
         if bottom_labels {
             labels.push_str(&aligned(&mark.label, at, bottom + bottom_tick + 4.0 + mark.label.height / 2.0, Anchor::Middle));
@@ -481,7 +481,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
                 if !show_values {
                     continue;
                 }
-                let label = js::to_string(value);
+                let label = js::number_text(value);
                 let w = m.width(&label, tiny, 0);
                 // Towards the end of the bar: 1 when it runs up or right from the baseline, -1
                 // the other way.
@@ -661,8 +661,8 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
         ly += row;
     }
 
-    let small_s = js::to_string(small);
-    let tiny_s = js::to_string(tiny);
+    let small_s = js::number_text(small);
+    let tiny_s = js::number_text(tiny);
     let mut content =
         svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !grid.is_empty() {

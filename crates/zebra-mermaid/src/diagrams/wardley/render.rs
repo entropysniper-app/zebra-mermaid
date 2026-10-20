@@ -121,7 +121,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     let size = options.font_size.unwrap_or(16.0);
     let small = js::round(size * 0.8125);
     let tiny = js::round(size * 0.6875);
-    let small_s = js::to_string(small);
+    let small_s = js::number_text(small);
     let m = ctx.measure();
     let pad = options.padding.unwrap_or(8.0);
     let icons = ctx.icons();
@@ -408,7 +408,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 (fy + ty) / 2.0 + py * away,
                 &svg_format!(
                     " class=\"pele-edge-label\" font-size=\"",
-                    js::to_string(tiny + 1.0),
+                    js::number_text(tiny + 1.0),
                     "\" fill=\"",
                     ctx.paint(Role::SecondaryText, "var(--_m)"),
                     "\""
@@ -487,7 +487,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             "\" cy=\"",
             num(ty),
             "\" r=\"",
-            js::to_string(R),
+            js::number_text(R),
             "\" fill=\"",
             ctx.paint(Role::Background, "var(--_bg)"),
             "\" stroke=\"",
@@ -527,7 +527,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 "\" cy=\"",
                 num(y),
                 "\" r=\"",
-                js::to_string(2.0 * R),
+                js::number_text(2.0 * R),
                 "\" fill=\"",
                 fill,
                 "\" stroke=\"",
@@ -581,9 +581,9 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 "\" y=\"",
                 num(y - SQUARE / 2.0),
                 "\" width=\"",
-                js::to_string(SQUARE),
+                js::number_text(SQUARE),
                 "\" height=\"",
-                js::to_string(SQUARE),
+                js::number_text(SQUARE),
                 "\" fill=\"",
                 node_fill,
                 "\" stroke=\"",
@@ -599,7 +599,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 "\" cy=\"",
                 num(y),
                 "\" r=\"",
-                js::to_string(R),
+                js::number_text(R),
                 "\" fill=\"",
                 node_fill,
                 "\" stroke=\"",
@@ -617,7 +617,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
                 "\" y=\"",
                 num(y - R),
                 "\" width=\"4\" height=\"",
-                js::to_string(2.0 * R),
+                js::number_text(2.0 * R),
                 "\" fill=\"",
                 line,
                 "\"/>"
@@ -687,9 +687,9 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     }
 
     let mut annotations = String::new();
-    let tiny_s = js::to_string(tiny);
+    let tiny_s = js::number_text(tiny);
     for annotation in &model.annotations {
-        let number = js::to_string(annotation.number);
+        let number = js::number_text(annotation.number);
         let label = text(&number, tiny, 4000.0, style::BOLD);
         let mut marks = String::new();
         for &(cx, cy) in &annotation.coordinates {
@@ -723,7 +723,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
         let room = if tight { js::max(80.0, plot_w - 20.0) } else { 320.0 };
         let lines: Vec<Label> = listed
             .iter()
-            .map(|a| text(&format!("{}. {}", js::to_string(a.number), a.text.as_deref().unwrap_or("")), small, room, 0))
+            .map(|a| text(&format!("{}. {}", js::number_text(a.number), a.text.as_deref().unwrap_or("")), small, room, 0))
             .collect();
         let mut width: f64 = 0.0;
         let mut height: f64 = 0.0;
@@ -781,7 +781,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
 
     // Accelerators point right, deaccelerators left.
     let mut forces = String::new();
-    let force_attrs = svg_format!(" font-size=\"", js::to_string(tiny + 1.0), "\" font-weight=\"var(--_hw)\"");
+    let force_attrs = svg_format!(" font-size=\"", js::number_text(tiny + 1.0), "\" font-weight=\"var(--_hw)\"");
     let mut force = |ext: &mut Extent, name: &str, px: f64, py: f64, forward: bool| {
         let x = project_x(px);
         let y = project_y(py);

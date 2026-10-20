@@ -271,7 +271,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
             .unwrap();
             svg_write!(groups, label_svg(&category.label, end_x, box_y, " class=\"pele-label\"", None)).unwrap();
             if !texts.is_empty() {
-                svg_write!(groups, "<g class=\"pele-ishikawa-causes\" font-size=\"", js::to_string(small), "\">", texts, "</g>").unwrap();
+                svg_write!(groups, "<g class=\"pele-ishikawa-causes\" font-size=\"", js::number_text(small), "\">", texts, "</g>").unwrap();
             }
             groups.push_str("</g>");
         }
@@ -424,7 +424,7 @@ fn vertical_causes(model: &IshikawaModel, ctx: &RenderCtx) -> Rendered {
         let attrs = svg_format!(
             " class=\"pele-label\"",
             if entry_depth < 2 { " font-weight=\"var(--_hw)\"" } else { "" },
-            if entry_depth > 1 { svg_format!(" font-size=\"", js::to_string(small), "\"") } else { String::new() }
+            if entry_depth > 1 { svg_format!(" font-size=\"", js::number_text(small), "\"") } else { String::new() }
         );
         svg_write!(nodes, label_svg(&label, x + w / 2.0, top + h / 2.0, &attrs, None)).unwrap();
         nodes.push_str("</g>");

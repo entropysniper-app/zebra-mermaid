@@ -66,9 +66,9 @@ fn symbol(ctx: &RenderCtx, kind: u8, x: f64, y: f64, color: &str) -> String {
             "\" y=\"",
             num(y - DOT - 1.0),
             "\" width=\"",
-            js::to_string(2.0 * DOT + 2.0),
+            js::number_text(2.0 * DOT + 2.0),
             "\" height=\"",
-            js::to_string(2.0 * DOT + 2.0),
+            js::number_text(2.0 * DOT + 2.0),
             "\" rx=\"2\" fill=\"",
             color,
             "\"/>"
@@ -80,7 +80,7 @@ fn symbol(ctx: &RenderCtx, kind: u8, x: f64, y: f64, color: &str) -> String {
             "<circle ",
             at,
             " r=\"",
-            js::to_string(DOT - 1.0),
+            js::number_text(DOT - 1.0),
             "\" fill=\"",
             ctx.paint(Role::Background, "var(--_bg)"),
             "\" stroke=\"",
@@ -92,7 +92,7 @@ fn symbol(ctx: &RenderCtx, kind: u8, x: f64, y: f64, color: &str) -> String {
             "\"/>"
         );
     }
-    let dot = svg_format!("<circle ", at, " r=\"", js::to_string(DOT), "\" fill=\"", color, "\"/>");
+    let dot = svg_format!("<circle ", at, " r=\"", js::number_text(DOT), "\" fill=\"", color, "\"/>");
     // The marks of a reverse or cherry-pick are drawn on the branch color, so in resolved mode
     // they take the color that reads on it, as the branch name does.
     let mark = ctx.theming.text_on(color, "var(--_bg)");
@@ -653,7 +653,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
         svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     svg_write!(content, "<g transform=\"translate(", num(dx), ",", num(dy), ")\">").unwrap();
     if !branches.is_empty() {
-        svg_write!(content, "<g class=\"pele-branches\" fill=\"none\" font-size=\"", js::to_string(medium), "\">", branches, "</g>")
+        svg_write!(content, "<g class=\"pele-branches\" fill=\"none\" font-size=\"", js::number_text(medium), "\">", branches, "</g>")
             .unwrap();
     }
     if !curves.is_empty() || !lines.is_empty() {
@@ -665,7 +665,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
         svg_write!(
             content,
             "<g class=\"pele-commits\" font-size=\"",
-            js::to_string(small),
+            js::number_text(small),
             "\" fill=\"",
             ctx.paint(Role::Text, "var(--_m)"),
             "\">",

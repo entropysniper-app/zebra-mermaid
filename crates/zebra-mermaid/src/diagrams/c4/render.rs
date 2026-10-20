@@ -381,8 +381,8 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     let mut nodes_out = String::new();
     // Boundary titles are secondary text in Zebra; Pele lets the name inherit the text color.
     let heading_fill = if resolved { svg_format!(" fill=\"", theming.resolved.color(Role::SecondaryText), "\"") } else { String::new() };
-    let small_s = js::to_string(small);
-    let type_size = js::to_string(small - 1.0);
+    let small_s = js::number_text(small);
+    let type_size = js::number_text(small - 1.0);
     for &g in &layout.order {
         let group = &layout.groups[g];
         if g != root {

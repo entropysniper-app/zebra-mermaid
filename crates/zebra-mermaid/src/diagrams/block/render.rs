@@ -819,7 +819,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         // Pele lets edge labels take the text color. Zebra writes them in the secondary text
         // color, which resolved output sets on their group.
         let fill = if ctx.resolved() { svg_format!(" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"") } else { String::new() };
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::to_string(edge_size), "\"", fill, ">", labels, "</g>")
+        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", js::number_text(edge_size), "\"", fill, ">", labels, "</g>")
             .unwrap();
     }
 

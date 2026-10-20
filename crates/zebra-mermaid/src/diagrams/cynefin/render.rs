@@ -261,8 +261,8 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
     let secondary = ctx.paint(Role::SecondaryText, "var(--_m)");
     let item_fill = ctx.paint(Role::NodeFill, "var(--_bg)");
     let item_stroke = ctx.paint(Role::NodeStroke, "var(--_b)");
-    let item_size_s = js::to_string(item_size);
-    let small_s = js::to_string(small);
+    let item_size_s = js::number_text(item_size);
+    let small_s = js::number_text(small);
     let draw_block = |b: &Block| -> String {
         let mut y = b.cy - b.h / 2.0;
         let mut out =
