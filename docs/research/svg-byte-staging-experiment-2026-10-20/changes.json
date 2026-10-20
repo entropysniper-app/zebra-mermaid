@@ -1,0 +1,18 @@
+{
+  "baselineRevision": "57384aa34c572776103f1348e4b84e296e23ade0",
+  "baselineProduction": "528010f970b8b9b54d94d88275c43e96f4b32015",
+  "mechanisms": [
+    "One private Output abstraction shared by original String and byte SVG staging; static Part writes preserve argument and callback order.",
+    "Private byte vector only accepts valid str/char fragments and the exact generated ASCII coordinate/raw-number bytes. Coordinates retain the same rounding/digits/fallback; no unchecked UTF-8 conversion is used.",
+    "Checked UTF-8 conversion remains at string views/ownership boundaries. Public String, Display, formatting, model and FFI APIs remain. Numeric fields do not each need conversion to str in the byte path."
+  ],
+  "buffers": 133,
+  "renderFiles": 29,
+  "invariants": [
+    "Full 167 original Samples/33 types and all 39 extended loads, original tests/expectations/seeds/loops/thresholds/mappings retained",
+    "No dependency, toolchain, release profile, feature, precision or workload change",
+    "No source/model/output cache, no preparse, no new unsafe code"
+  ],
+  "newSupplementaryTests": 4,
+  "newOriginalPorts": 0
+}

@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（[栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -101,6 +101,15 @@
 状态：1–12 的基础实现已完成。33 类的 702 条成功文档/参考输入已通过双调色板测试，确认 SVG 属性使用具体值、颜色变化不改变尺寸；新增三类另通过 4 项主题、画布及原生 SVG 策略测试。原生 App 内视觉与缓存验证尚未执行。C ABI v2 crate 与 C 头文件已建立，3 项 ABI 测试通过；库内适配覆盖参数校验、错误码与 target_width 不参与布局。完整 Zebra 集成（xcframework 替换、App 内主题切换与缓存测试）不在本项目单元测试范围内，不得冒充。
 
 ## 5. 已运行的验证（实际结果）
+
+SVG 字节暂存实验（基线 `57384aa`，运行时补丁未保留）：**候选主集合耗时 −0.59%，代码段增长、分配不变，生产继续使用 `528010f`**。
+
+- 九类 / 52 输入 CPU 捕获后，实验通过私有 Output 为 29 个渲染文件的 133 个缓冲区引入安全字节暂存，保留公开 String/Display/FFI 接口，数字/UTF-8/回调规则及完整工作量不变。候选工作区 **3,247 通过、0 失败、5 ignored**；761 完整响应、167 SVG、39 扩展验证一致，四项新补充测试保留在候选补丁，不计生产或原始测试通过。
+- 候选全 33 类配对 after/before **0.99415**（−0.59%），21 类中位数下降 / 12 类回退。候选重新测得 API **1.83×**、UTF-8 **1.94×**，33 类文档 render **−0.70%**、parse **−0.22%**。这些实验值不替换当前生产报告，不以跨轮 Node 比值推断原生增益；所有回退/三轮进程原始数据保留，不作微小差异显著性声明。
+- 候选 CLI 文件/代码段 **+35,056 / +31,776 bytes**，FFI 动态库 **+18,480 / +27,344**、静态库 **+466,360 / +28,104 bytes**；相同工具链、锁定依赖、全功能 release 配置，未 strip。默认/主口径样本和 39 扩展的计数分配、扩容、申请及额外存活峰值全不变。
+- 候选真实 OS RSS：Sample **12 降/1 平/20 增**，扩展 **20 降/3 平/16 增**。微小耗时收益不足以抵消代码/文件增长和更广的内部接口复杂度，本广泛方案未采用；完整补丁与源码/输入/二进制指纹保留，不删除失败或不利结果。
+- 恢复后的生产源码与冻结基线指纹完全一致，并重新执行工作区 **3,243 通过、0 失败、5 ignored**、无默认 feature 四项、Clippy、原独立时限门禁。原验收仍 **2,791 通过、0 失败、7 保留跳过、4,028 未映射、0 待验证**，完整验收未完成。当前有效终态仍 API **1.85×** / UTF-8 **1.97×**，消费者固定提交与 README 性能/体积表保持。
+- [实验报告](SVG-BYTE-STAGING-EXPERIMENT.md)、[全部证据](research/svg-byte-staging-experiment-2026-10-20/summary.json)、[实验验证](research/svg-byte-staging-experiment-2026-10-20/validation.json)、[生产恢复验证](research/svg-byte-staging-experiment-2026-10-20/production-revalidation.json)、[精确候选补丁](research/svg-byte-staging-experiment-2026-10-20/candidate.patch.gz)。下一轮继续从已验证的生产代码推进完整 2× 与代码体积目标。
 
 最新栈数值文本轮次（基线 `28dbcd3`，代码 `528010f`）：**全 33 类配对原生耗时 -1.09%，API 1.85×，2× 未达**。
 
