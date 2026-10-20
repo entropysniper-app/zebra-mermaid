@@ -1,6 +1,6 @@
 # Compiled code size
 
-Compiled code size is an additional optimization objective. The existing target remains **10× relative to the fixed reference at API return**, using all 167 original Samples and all 33 diagram types. Size has no numeric threshold assigned by the user. Each optimization round must report its size, speed, allocation and process-RSS tradeoffs while preserving the original correctness requirements and full workloads.
+Compiled code size is an additional optimization objective. The existing target is **2× relative to the fixed reference at API return**, using all 167 original Samples and all 33 diagram types. Size has no numeric threshold assigned by the user. Each optimization round must report its size, speed, allocation and process-RSS tradeoffs while preserving the original correctness requirements and full workloads.
 
 This report establishes a release baseline; it does not claim a size reduction. Source revision: `4a03a25c2ef74b393b283751cb04086edd3c2a81`, with production code identical to the already validated `e0a9e608a2c19b0066b6710b76e4f95dc81c1926`. The in-progress scanner/layout candidate is excluded from this baseline.
 

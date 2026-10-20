@@ -1,0 +1,409 @@
+diff --git a/crates/zebra-mermaid/src/diagrams/common/tokens.rs b/crates/zebra-mermaid/src/diagrams/common/tokens.rs
+index 2c20d02..e5d37f7 100644
+--- a/crates/zebra-mermaid/src/diagrams/common/tokens.rs
++++ b/crates/zebra-mermaid/src/diagrams/common/tokens.rs
+@@ -19,6 +19,59 @@ pub type MatchFn = fn(&str, usize) -> Option<usize>;
+ /// A matcher that may remember what it scanned, made once per text.
+ pub type Scanner = Box<dyn FnMut(&str, usize) -> Option<usize>>;
+ 
++struct ScannerEntry {
++    kind: usize,
++    scanner: Scanner,
++}
++
++/// Most grammars use at most two stateful matchers. Keep their handles inline, retaining
++/// lazy creation and the original token-index drop order, with no limit on larger tables.
++struct ScannerStates {
++    inline: [Option<ScannerEntry>; 4],
++    overflow: Vec<ScannerEntry>,
++    len: usize,
++}
++
++impl ScannerStates {
++    fn new() -> Self {
++        Self { inline: std::array::from_fn(|_| None), overflow: Vec::new(), len: 0 }
++    }
++
++    fn get(&mut self, kind: usize, make: fn() -> Scanner) -> &mut Scanner {
++        if self.len <= self.inline.len() {
++            let at = self.inline[..self.len].partition_point(|entry| entry.as_ref().unwrap().kind < kind);
++            if at < self.len && self.inline[at].as_ref().unwrap().kind == kind {
++                return &mut self.inline[at].as_mut().unwrap().scanner;
++            }
++            // Invoke a fallible factory before moving any live state. If it panics, existing
++            // handles still drop in the same order as the original type-indexed vector.
++            let scanner = make();
++            if self.len < self.inline.len() {
++                self.inline[at..=self.len].rotate_right(1);
++                self.inline[at] = Some(ScannerEntry { kind, scanner });
++                self.len += 1;
++                return &mut self.inline[at].as_mut().unwrap().scanner;
++            }
++            self.overflow = Vec::with_capacity(self.inline.len() * 2);
++            for entry in &mut self.inline {
++                self.overflow.push(entry.take().unwrap());
++            }
++            self.overflow.insert(at, ScannerEntry { kind, scanner });
++            self.len += 1;
++            return &mut self.overflow[at].scanner;
++        }
++        match self.overflow.binary_search_by_key(&kind, |entry| entry.kind) {
++            Ok(at) => &mut self.overflow[at].scanner,
++            Err(at) => {
++                let scanner = make();
++                self.overflow.insert(at, ScannerEntry { kind, scanner });
++                self.len += 1;
++                &mut self.overflow[at].scanner
++            }
++        }
++    }
++}
++
+ #[derive(Clone, Copy)]
+ pub enum Pattern {
+     /// A literal string.
+@@ -176,14 +229,16 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
+     diagram: DiagramType,
+ ) -> Result<T, Error> {
+     let mut out = T::new(src, types.len());
+-    let mut dead = vec![false; types.len()];
+-    let mut scanners: Vec<Option<Scanner>> = (0..types.len()).map(|_| None).collect();
++    let mut inline_dead = [false; 64];
++    let mut heap_dead = if types.len() > inline_dead.len() { vec![false; types.len()] } else { Vec::new() };
++    let dead = if types.len() <= inline_dead.len() { &mut inline_dead[..types.len()] } else { heap_dead.as_mut_slice() };
++    let mut scanners = ScannerStates::new();
+     let starting = &table.ascii;
+     let every = &table.every;
+     let b = src.as_bytes();
+     let n = b.len();
+ 
+-    let mut matcher = |k: usize, p: usize, dead: &mut Vec<bool>| -> Option<usize> {
++    let mut matcher = |k: usize, p: usize, dead: &mut [bool]| -> Option<usize> {
+         if dead[k] {
+             return None;
+         }
+@@ -192,7 +247,7 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
+             Pattern::Literal(s) => src[p..].starts_with(s).then(|| p + s.len()),
+             Pattern::Fn(f) => f(src, p),
+             Pattern::Scanner(make) => {
+-                let scanner = scanners[k].get_or_insert_with(make);
++                let scanner = scanners.get(k, make);
+                 scanner(src, p)
+             }
+         };
+@@ -211,13 +266,13 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
+         let c = b[p];
+         let list = if c < 128 { &starting[c as usize] } else { every };
+         for &k in list {
+-            let Some(mut end) = matcher(k, p, &mut dead) else { continue };
++            let Some(mut end) = matcher(k, p, dead) else { continue };
+             if end <= p {
+                 continue;
+             }
+             let mut kind = k;
+             for &alt in types[k].longer {
+-                if let Some(alt_end) = matcher(alt, p, &mut dead) {
++                if let Some(alt_end) = matcher(alt, p, dead) {
+                     if alt_end > end {
+                         kind = alt;
+                         end = alt_end;
+@@ -723,6 +778,10 @@ macro_rules! keyword_token {
+     }};
+ }
+ 
++#[cfg(test)]
++#[path = "scanner_reference.rs"]
++mod state_contract;
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+diff --git a/crates/zebra-mermaid/src/layout/layered.rs b/crates/zebra-mermaid/src/layout/layered.rs
+index 82290b2..98514d9 100644
+--- a/crates/zebra-mermaid/src/layout/layered.rs
++++ b/crates/zebra-mermaid/src/layout/layered.rs
+@@ -2060,6 +2060,29 @@ fn past_labels(g: &Graph, xs: &mut [f64], first_dummy: &[isize], span: &[usize],
+     }
+ }
+ 
++/// Counts strictly inverted targets in their original order. The Fenwick tree stores the
++/// same integer frequencies as the crossing counter's former segment tree.
++fn count_inversions(targets: &[usize], positions: usize, tree: &mut [i64]) -> i64 {
++    tree[..=positions].fill(0);
++    let mut total = 0i64;
++    for (seen, &target) in targets.iter().enumerate() {
++        let mut at = target + 1;
++        let mut not_after = 0i64;
++        while at > 0 {
++            not_after += tree[at];
++            at &= at - 1;
++        }
++        // An allocated target slice has fewer than i64::MAX entries.
++        total += seen as i64 - not_after;
++        let mut at = target + 1;
++        while at <= positions {
++            tree[at] += 1;
++            at += at & at.wrapping_neg();
++        }
++    }
++    total
++}
++
+ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
+     let n = g.n;
+     let real = g.real;
+@@ -2072,11 +2095,8 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
+     // With offsets, edges that reach one node at different offsets take separate places along
+     // it.
+     let mut place: Option<Vec<usize>> = if g.offsets { Some(vec![0usize; segments]) } else { None };
+-    let mut size = 1usize;
+-    while size < if place.is_some() { widest + segments } else { widest } {
+-        size <<= 1;
+-    }
+-    let mut tree = vec![0i64; 2 * size];
++    let size = if place.is_some() { widest + segments } else { widest };
++    let mut tree = vec![0i64; size + 1];
+     let mut targets = vec![0usize; segments];
+ 
+     let count = |g: &Graph, place: &mut Option<Vec<usize>>, tree: &mut [i64], targets: &mut [usize]| -> i64 {
+@@ -2165,22 +2185,7 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
+             if t < 2 {
+                 continue;
+             }
+-            let mut leaves = 1usize;
+-            while leaves < south_len {
+-                leaves <<= 1;
+-            }
+-            tree[..2 * leaves].fill(0);
+-            for &target in targets.iter().take(t) {
+-                let mut i = target + leaves;
+-                tree[i] += 1;
+-                while i > 1 {
+-                    if (i & 1) == 0 {
+-                        total += tree[i + 1];
+-                    }
+-                    i >>= 1;
+-                    tree[i] += 1;
+-                }
+-            }
++            total += count_inversions(&targets[..t], south_len, tree);
+         }
+         total
+     };
+@@ -2620,3 +2625,7 @@ fn position(g: &mut Graph, opt: &LayeredOptions) -> Vec<f64> {
+     }
+     out
+ }
++
++#[cfg(test)]
++#[path = "inversion_reference.rs"]
++mod inversion_reference;
+diff --git a/crates/zebra-mermaid/src/diagrams/common/scanner_reference.rs b/crates/zebra-mermaid/src/diagrams/common/scanner_reference.rs
+new file mode 100644
+index 0000000..f21fbca
+--- /dev/null
++++ b/crates/zebra-mermaid/src/diagrams/common/scanner_reference.rs
+@@ -0,0 +1,164 @@
++//! Observable scanner lifecycle contracts, including spill and panic paths.
++use super::*;
++use std::cell::RefCell;
++use std::panic::{catch_unwind, AssertUnwindSafe};
++
++#[derive(Debug, Clone, PartialEq, Eq)]
++enum Event {
++    Create(u8),
++    Call(u8, usize),
++    Drop(u8),
++    Panic,
++    Pattern,
++    Opener,
++}
++thread_local! { static EVENTS: RefCell<Vec<Event>> = const { RefCell::new(Vec::new()) }; }
++fn record(event: Event) {
++    EVENTS.with(|events| events.borrow_mut().push(event));
++}
++
++struct Probe(u8);
++impl Probe {
++    fn called(&self, count: usize) {
++        record(Event::Call(self.0, count));
++    }
++}
++impl Drop for Probe {
++    fn drop(&mut self) {
++        record(Event::Drop(self.0));
++    }
++}
++fn make(letter: u8) -> Scanner {
++    record(Event::Create(letter));
++    let probe = Probe(letter);
++    let mut count = 0;
++    Box::new(move |src: &str, at: usize| {
++        count += 1;
++        probe.called(count);
++        (src.as_bytes().get(at) == Some(&letter)).then_some(at + 1)
++    })
++}
++fn a() -> Scanner {
++    make(b'a')
++}
++fn b() -> Scanner {
++    make(b'b')
++}
++fn c() -> Scanner {
++    make(b'c')
++}
++fn d() -> Scanner {
++    make(b'd')
++}
++fn e() -> Scanner {
++    make(b'e')
++}
++fn f() -> Scanner {
++    make(b'f')
++}
++fn panic_factory() -> Scanner {
++    record(Event::Panic);
++    panic!("scanner factory control");
++}
++
++fn table(len: usize) -> Vec<TokenType> {
++    let mut types = vec![TokenType::literal("unused", "~"); len];
++    let makers: [fn() -> Scanner; 6] = [a, b, c, d, e, f];
++    for (index, first) in ["a", "b", "c", "d", "e", "f"].into_iter().enumerate() {
++        types[index] = TokenType {
++            name: first,
++            pattern: Pattern::Scanner(makers[index]),
++            first: Some(first),
++            hidden: false,
++            opener: None,
++            longer: &[],
++        };
++    }
++    types[6] =
++        TokenType { name: "panic", pattern: Pattern::Scanner(panic_factory), first: Some("p"), hidden: false, opener: None, longer: &[] };
++    types
++}
++
++fn expected(source: &str, panic: bool) -> Vec<Event> {
++    let mut counts = [0usize; 6];
++    let mut out = Vec::new();
++    for letter in source.bytes().take_while(|c| (b'a'..=b'f').contains(c)) {
++        let index = (letter - b'a') as usize;
++        if counts[index] == 0 {
++            out.push(Event::Create(letter));
++        }
++        counts[index] += 1;
++        out.push(Event::Call(letter, counts[index]));
++    }
++    if panic {
++        out.push(Event::Panic);
++    }
++    // The original type-indexed Vec drops live handles in table order, regardless of
++    // the order their factories ran. Unused factories produce no handle to drop.
++    for (index, count) in counts.into_iter().enumerate() {
++        if count > 0 {
++            out.push(Event::Drop(b'a' + index as u8));
++        }
++    }
++    out
++}
++
++#[test]
++fn scanner_laziness_state_and_drop_order_survive_inline_and_spill() {
++    for len in [7, 130] {
++        for source in ["fedcbaafedcba", "fedcbaafedcba?"] {
++            EVENTS.with(|events| events.borrow_mut().clear());
++            let types = table(len);
++            let result = tokenize(source, &types, DiagramType::Info);
++            if source.ends_with('?') {
++                let error = result.unwrap_err();
++                assert_eq!(error.code, crate::ErrorCode::Syntax);
++                assert_eq!(error.column, source.len());
++            } else {
++                let tokens = result.unwrap();
++                let mut kinds: Vec<_> = source.bytes().map(|c| (c - b'a') as usize).collect();
++                kinds.push(EOF);
++                assert_eq!(tokens.kinds, kinds);
++                assert_eq!(tokens.starts, (0..=source.len()).collect::<Vec<_>>());
++            }
++            assert_eq!(EVENTS.with(|events| events.borrow().clone()), expected(source, false), "{len} {source}");
++        }
++    }
++}
++
++#[test]
++fn scanner_factory_panics_preserve_drop_order_before_and_after_spill() {
++    for len in [7, 130] {
++        for source in ["fedcp", "fedcbap"] {
++            EVENTS.with(|events| events.borrow_mut().clear());
++            let types = table(len);
++            let result = catch_unwind(AssertUnwindSafe(|| tokenize(source, &types, DiagramType::Info)));
++            assert!(result.is_err());
++            assert_eq!(EVENTS.with(|events| events.borrow().clone()), expected(source, true), "{len} {source}");
++        }
++    }
++}
++
++fn failed_pattern(_: &str, _: usize) -> Option<usize> {
++    record(Event::Pattern);
++    None
++}
++fn opener(_: &str, at: usize) -> Option<usize> {
++    record(Event::Opener);
++    Some(at + 1)
++}
++
++#[test]
++fn failed_openers_are_disabled_in_small_and_large_tables() {
++    for len in [2, 130] {
++        EVENTS.with(|events| events.borrow_mut().clear());
++        let mut types = vec![TokenType::literal("unused", "~"); len];
++        types[len - 2] = TokenType::func("failed", failed_pattern, Some("@")).with_opener(opener);
++        types[len - 1] = TokenType::literal("at", "@");
++        let tokens = tokenize("@@@", &types, DiagramType::Info).unwrap();
++        assert_eq!(tokens.kinds, vec![len - 1, len - 1, len - 1, EOF]);
++        assert_eq!(tokens.starts, vec![0, 1, 2, 3]);
++        assert_eq!(tokens.ends, vec![1, 2, 3, 3]);
++        assert_eq!(EVENTS.with(|events| events.borrow().clone()), vec![Event::Pattern, Event::Opener]);
++    }
++}
+diff --git a/crates/zebra-mermaid/src/layout/inversion_reference.rs b/crates/zebra-mermaid/src/layout/inversion_reference.rs
+new file mode 100644
+index 0000000..8f77676
+--- /dev/null
++++ b/crates/zebra-mermaid/src/layout/inversion_reference.rs
+@@ -0,0 +1,33 @@
++//! The strict crossing definition is independent of the frequency-tree representation.
++use super::count_inversions;
++
++fn pairwise(targets: &[usize]) -> i64 {
++    let mut total = 0;
++    for i in 0..targets.len() {
++        for j in i + 1..targets.len() {
++            if targets[i] > targets[j] {
++                total += 1;
++            }
++        }
++    }
++    total
++}
++
++#[test]
++fn inversion_counts_preserve_order_duplicates_and_dirty_scratch() {
++    let mut tree = vec![93i64; 65];
++    for targets in [vec![], vec![0], vec![0, 0, 0], vec![3, 2, 1, 0], vec![0, 1, 2, 3], vec![3, 0, 3, 0]] {
++        assert_eq!(count_inversions(&targets, 4, &mut tree), pairwise(&targets));
++    }
++    let mut seed = 0x11c0de_u32;
++    let mut next = || {
++        seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
++        seed
++    };
++    for case in 0..2048 {
++        let positions = 1 + (next() % 64) as usize;
++        let len = (next() % 129) as usize;
++        let targets: Vec<_> = (0..len).map(|_| next() as usize % positions).collect();
++        assert_eq!(count_inversions(&targets, positions, &mut tree), pairwise(&targets), "case {case}");
++    }
++}

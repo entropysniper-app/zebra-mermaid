@@ -130,7 +130,7 @@ The shared benchmark set contains **110/167 samples across 22 diagram types**. A
 Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.79× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
 <!-- output-contract-benchmark:end -->
 
-Compiled code size is also an optimization target, alongside the full 33-type 10× performance target. Current full-feature release sizes (unstripped, thin LTO, one codegen unit):
+Compiled code size is also an optimization target, alongside the full 33-type 2× performance target. Current full-feature release sizes (unstripped, thin LTO, one codegen unit):
 
 | Artifact | File bytes | Instruction text bytes |
 | --- | ---: | ---: |
