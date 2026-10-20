@@ -15,7 +15,7 @@ Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from G
 
 ```sh
 cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
-  --rev 35db1ee76e1921ab164f432fdf670c2927b2ef06 \
+  --rev e0a9e608a2c19b0066b6710b76e4f95dc81c1926 \
   --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
@@ -89,35 +89,35 @@ Current-version results on identical inputs, measured as **milliseconds per comp
 
 | Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 / 6 | 85.40000 | 0.32151 | 0.19600 | 88.50025 |
-| block | 6 / 6 | 79.30000 | 0.09391 | 0.07170 | 0.14249 |
-| c4 | 6 / 6 | 93.70000 | 0.47354 | 0.31777 | 1.12045 |
-| class | 5 / 6 | 119.00000 | 0.19982 | 0.13188 | 0.36328 |
-| er | 6 / 6 | 79.60000 | 0.20841 | 0.14902 | 6.11662 |
+| flowchart | 6 / 6 | 90.40000 | 0.31368 | 0.19788 | 93.69671 |
+| block | 6 / 6 | 82.00000 | 0.09453 | 0.07110 | 0.16108 |
+| c4 | 6 / 6 | 100.20000 | 0.46335 | 0.31600 | 1.13248 |
+| class | 5 / 6 | 125.10000 | 0.23300 | 0.15064 | 0.38698 |
+| er | 6 / 6 | 83.40000 | 0.24643 | 0.15743 | 6.47056 |
 | eventmodeling | 0 / 6 | — | — | — | — |
-| gantt | 6 / 6 | 16.10000 | 0.24293 | 0.14449 | 0.39284 |
-| git | 6 / 6 | 102.00000 | 0.40823 | 0.21561 | 0.60844 |
+| gantt | 6 / 6 | 16.40000 | 0.26032 | 0.14723 | 0.40528 |
+| git | 6 / 6 | 107.00000 | 0.42475 | 0.21608 | 0.62659 |
 | info | 0 / 2 | — | — | — | — |
-| journey | 1 / 1 | 2.85000 | 0.01596 | 0.00840 | 0.03947 |
-| kanban | 3 / 3 | 26.30000 | 0.05211 | 0.03765 | 0.12417 |
-| mindmap | 6 / 6 | 84.40000 | 0.09448 | 0.05150 | 0.34857 |
-| packet | 4 / 4 | 6.35000 | 0.05965 | 0.03040 | 2.37497 |
-| pie | 3 / 3 | 4.50000 | 0.03309 | 0.01886 | 0.07340 |
-| quadrant | 3 / 3 | 9.00000 | 0.05509 | 0.03358 | 0.08500 |
-| requirement | 6 / 6 | 79.00000 | 0.23213 | 0.14723 | 1.81565 |
-| sankey | 6 / 6 | 30.10000 | 0.29652 | 0.10721 | 0.43429 |
-| sequence | 4 / 6 | 22.40000 | 0.09023 | 0.06205 | 0.70581 |
-| state | 6 / 6 | 115.60000 | 0.32246 | 0.19566 | 5.27583 |
-| timeline | 6 / 6 | 27.90000 | 0.19780 | 0.10021 | 0.37381 |
-| xychart | 6 / 6 | 24.40000 | 0.11557 | 0.07442 | 0.20947 |
+| journey | 1 / 1 | 3.00000 | 0.01599 | 0.00851 | 0.04095 |
+| kanban | 3 / 3 | 26.70000 | 0.05185 | 0.03761 | 0.12656 |
+| mindmap | 6 / 6 | 86.50000 | 0.09944 | 0.05227 | 0.35289 |
+| packet | 4 / 4 | 6.65000 | 0.06471 | 0.03052 | 2.36506 |
+| pie | 3 / 3 | 4.70000 | 0.03312 | 0.01876 | 0.07304 |
+| quadrant | 3 / 3 | 8.95000 | 0.05430 | 0.03420 | 0.08506 |
+| requirement | 6 / 6 | 85.20000 | 0.23241 | 0.14683 | 1.84171 |
+| sankey | 6 / 6 | 32.10000 | 0.36112 | 0.10551 | 0.43326 |
+| sequence | 4 / 6 | 24.60000 | 0.08942 | 0.05784 | 0.71722 |
+| state | 6 / 6 | 125.70000 | 0.32237 | 0.19279 | 5.45860 |
+| timeline | 6 / 6 | 30.30000 | 0.20446 | 0.10524 | 0.38077 |
+| xychart | 6 / 6 | 25.90000 | 0.13866 | 0.07540 | 0.21637 |
 | agentflow | 0 / 6 | — | — | — | — |
-| architecture | 6 / 6 | 65.30000 | 0.21039 | 0.08815 | 0.25936 |
+| architecture | 6 / 6 | 72.50000 | 0.22967 | 0.09720 | 0.26008 |
 | cynefin | 0 / 3 | — | — | — | — |
 | ishikawa | 0 / 1 | — | — | — | — |
-| radar | 3 / 3 | 5.85000 | 0.07166 | 0.03086 | 0.08951 |
+| radar | 3 / 3 | 6.15000 | 0.08749 | 0.03203 | 0.09142 |
 | railroad | 0 / 6 | — | — | — | — |
 | swimlane | 0 / 6 | — | — | — | — |
-| treemap | 6 / 6 | 14.10000 | 0.14240 | 0.06557 | 0.25367 |
+| treemap | 6 / 6 | 15.50000 | 0.16388 | 0.06758 | 0.25794 |
 | treeview | 0 / 6 | — | — | — | — |
 | usecase | 0 / 6 | — | — | — | — |
 | venn | 0 / 6 | — | — | — | — |
@@ -127,7 +127,7 @@ The shared benchmark set contains **110/167 samples across 22 diagram types**. A
 <!-- four-engine-benchmark:end -->
 
 <!-- output-contract-benchmark:start -->
-Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.73× at API return** and **1.83× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
+Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.79× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
 <!-- output-contract-benchmark:end -->
 
 ## Library API
@@ -136,7 +136,7 @@ Add the library to your application's `Cargo.toml`. Both installation examples p
 
 ```toml
 [dependencies]
-zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "35db1ee76e1921ab164f432fdf670c2927b2ef06" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "e0a9e608a2c19b0066b6710b76e4f95dc81c1926" }
 ```
 
 ```rust
@@ -176,10 +176,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,224 passed**, 0 failed, 5 ignored |
+| Workspace tests | **3,226 passed**, 0 failed, 5 ignored |
 | Original-test acceptance | **2,785/6,826 passed** (40.80%); 7 preserved skips, 4,034 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/compact-token-optimization-2026-10-20/validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/svg-adapter-optimization-2026-10-20/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1

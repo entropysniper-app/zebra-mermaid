@@ -1,0 +1,109 @@
+{
+  "method": "Same external CPU captures as the per-phase CPU summaries. Counts are inclusive frame occurrences across stack branches, including recursive occurrences. They overlap and are not additive exclusive CPU percentages. Raw captures remain ignored; their SHA-256 values identify the source evidence.",
+  "phases": {
+    "before": [
+      {
+        "case": "corpus: info-docs",
+        "threadSamples": 3501,
+        "inclusiveFrameOccurrences": {
+          "write_label_view": 685,
+          "alloc::fmt::format_inner": 90,
+          "core::fmt::write": 44
+        },
+        "rawSha256": "ba44080798153749a34d993a6d2dd08dd8fcc81f22f575749bea10d96b693d48"
+      },
+      {
+        "case": "corpus: c4-docs",
+        "threadSamples": 3590,
+        "inclusiveFrameOccurrences": {
+          "core::fmt::write": 489,
+          "write_label_view": 431,
+          "alloc::fmt::format_inner": 217
+        },
+        "rawSha256": "b514eba4783a89dfef2d0c03dec825229248a582b3a6b97900ecab94ae81e4f1"
+      },
+      {
+        "case": "corpus: block-docs",
+        "threadSamples": 3537,
+        "inclusiveFrameOccurrences": {
+          "core::fmt::write": 309,
+          "write_label_view": 97,
+          "alloc::fmt::format_inner": 181
+        },
+        "rawSha256": "3b6815f196275179857d8a92bcef383f5e982a6f926e31f3c603d7b332ccc226"
+      },
+      {
+        "case": "corpus: sequence-docs",
+        "threadSamples": 3559,
+        "inclusiveFrameOccurrences": {
+          "alloc::fmt::format_inner": 634,
+          "core::fmt::write": 969,
+          "write_label_view": 358
+        },
+        "rawSha256": "9f6e2708341f80ba2fbb677586c5518963ca3f1111311c61119f079f848eea7e"
+      },
+      {
+        "case": "corpus: swimlane-docs",
+        "threadSamples": 3548,
+        "inclusiveFrameOccurrences": {
+          "alloc::fmt::format_inner": 47,
+          "core::fmt::write": 39,
+          "write_label_view": 89
+        },
+        "rawSha256": "ea52a097fb05ad2c0b1f2cf4f76548466c831768437a5e55203fd22720c408dc"
+      }
+    ],
+    "after": [
+      {
+        "case": "corpus: info-docs",
+        "threadSamples": 3439,
+        "inclusiveFrameOccurrences": {
+          "write_label_view": 802,
+          "alloc::fmt::format_inner": 88,
+          "core::fmt::write": 42
+        },
+        "rawSha256": "7da91a7590efd0e8f9fe0fb434448de326e8552dfa4f93319cf6a2cc571d8474"
+      },
+      {
+        "case": "corpus: c4-docs",
+        "threadSamples": 3520,
+        "inclusiveFrameOccurrences": {
+          "core::fmt::write": 429,
+          "write_label_view": 473,
+          "alloc::fmt::format_inner": 215
+        },
+        "rawSha256": "78dc4e7760445e4f173e3a776a36c2221315643b7be4724a4c372d3a3fe49fa1"
+      },
+      {
+        "case": "corpus: block-docs",
+        "threadSamples": 3499,
+        "inclusiveFrameOccurrences": {
+          "core::fmt::write": 318,
+          "write_label_view": 122,
+          "alloc::fmt::format_inner": 191
+        },
+        "rawSha256": "43e98178d9a38e24f9bd885ee6e7136305e54520fb714d14d897f2bc2e55d759"
+      },
+      {
+        "case": "corpus: sequence-docs",
+        "threadSamples": 3519,
+        "inclusiveFrameOccurrences": {
+          "write_label_view": 384,
+          "alloc::fmt::format_inner": 359,
+          "core::fmt::write": 346
+        },
+        "rawSha256": "7a30b0dea748a8e6c9746505d07393cc3865f654f863f20ed98599e4271f2598"
+      },
+      {
+        "case": "corpus: swimlane-docs",
+        "threadSamples": 3524,
+        "inclusiveFrameOccurrences": {
+          "alloc::fmt::format_inner": 43,
+          "core::fmt::write": 30,
+          "write_label_view": 73
+        },
+        "rawSha256": "b4d4af5ac0e4ccb006d679ba86404693529e48db53109247fd0dbe9a94c26762"
+      }
+    ]
+  }
+}
