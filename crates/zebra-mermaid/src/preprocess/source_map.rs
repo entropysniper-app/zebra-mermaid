@@ -15,7 +15,10 @@ struct Mark {
 /// The map of one step, from its output back to its input.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct StepMap {
-    marks: Vec<Mark>,
+    // Every completed step has a first mark. Identity and suffix steps need no heap
+    // storage; only changes within the text add further marks.
+    first: Option<Mark>,
+    rest: Vec<Mark>,
     out_len: usize,
     src_len: usize,
 }
@@ -23,28 +26,30 @@ pub struct StepMap {
 impl StepMap {
     /// A step that kept the text as it was.
     pub fn identity(len: usize) -> Self {
-        StepMap { marks: vec![Mark { out: 0, src: 0, exact: true }], out_len: len, src_len: len }
+        StepMap { first: Some(Mark { out: 0, src: 0, exact: true }), rest: Vec::new(), out_len: len, src_len: len }
     }
 
     /// A step that kept the text from byte `start` of its `len` bytes: what a [`Builder`] that
     /// copies that one run produces.
     pub fn suffix(len: usize, start: usize) -> Self {
         if start >= len {
-            return StepMap { marks: vec![Mark { out: 0, src: 0, exact: false }], out_len: 0, src_len: len };
+            return StepMap { first: Some(Mark { out: 0, src: 0, exact: false }), rest: Vec::new(), out_len: 0, src_len: len };
         }
-        StepMap { marks: vec![Mark { out: 0, src: start, exact: true }], out_len: len - start, src_len: len }
+        StepMap { first: Some(Mark { out: 0, src: start, exact: true }), rest: Vec::new(), out_len: len - start, src_len: len }
     }
 
     pub fn to_src(&self, out: usize) -> usize {
         if out >= self.out_len {
             return self.src_len;
         }
-        let k = match self.marks.binary_search_by(|m| m.out.cmp(&out)) {
-            Ok(k) => k,
-            Err(0) => return 0,
-            Err(k) => k - 1,
+        let m = match self.rest.binary_search_by(|m| m.out.cmp(&out)) {
+            Ok(k) => self.rest[k],
+            Err(0) => match self.first {
+                Some(first) if out >= first.out => first,
+                _ => return 0,
+            },
+            Err(k) => self.rest[k - 1],
         };
-        let m = self.marks[k];
         if m.exact {
             (m.src + (out - m.out)).min(self.src_len)
         } else {
@@ -57,17 +62,18 @@ impl StepMap {
 pub struct Builder<'a> {
     src: &'a str,
     out: String,
-    marks: Vec<Mark>,
+    first: Option<Mark>,
+    rest: Vec<Mark>,
 }
 
 impl<'a> Builder<'a> {
     pub fn new(src: &'a str) -> Self {
-        Builder { src, out: String::with_capacity(src.len()), marks: Vec::new() }
+        Builder { src, out: String::with_capacity(src.len()), first: None, rest: Vec::new() }
     }
 
     fn mark(&mut self, src: usize, exact: bool) {
         let out = self.out.len();
-        if let Some(last) = self.marks.last_mut() {
+        if let Some(last) = self.rest.last_mut().or(self.first.as_mut()) {
             if last.out == out {
                 *last = Mark { out, src, exact };
                 return;
@@ -77,7 +83,12 @@ impl<'a> Builder<'a> {
                 return;
             }
         }
-        self.marks.push(Mark { out, src, exact });
+        let mark = Mark { out, src, exact };
+        if self.first.is_none() {
+            self.first = Some(mark);
+        } else {
+            self.rest.push(mark);
+        }
     }
 
     /// Copies `src[from..to]` to the output.
@@ -100,11 +111,8 @@ impl<'a> Builder<'a> {
 
     pub fn finish(self) -> (String, StepMap) {
         let out_len = self.out.len();
-        let mut marks = self.marks;
-        if marks.is_empty() {
-            marks.push(Mark { out: 0, src: 0, exact: false });
-        }
-        (self.out, StepMap { marks, out_len, src_len: self.src.len() })
+        let first = self.first.or(Some(Mark { out: 0, src: 0, exact: false }));
+        (self.out, StepMap { first, rest: self.rest, out_len, src_len: self.src.len() })
     }
 }
 
@@ -115,6 +123,14 @@ pub struct SourceMap {
 }
 
 impl SourceMap {
+    /// A single preprocessing step, with room for the entity-encoding step appended by
+    /// the parser. Avoid the general Vec growth capacity for these short maps.
+    pub(crate) fn single(step: StepMap) -> Self {
+        let mut steps = Vec::with_capacity(2);
+        steps.push(step);
+        Self { steps }
+    }
+
     pub fn push(&mut self, step: StepMap) {
         self.steps.push(step);
     }
@@ -173,5 +189,42 @@ mod tests {
         assert_eq!(map.to_source(1), 4);
         assert_eq!(map.to_source(2), 5);
         assert_eq!(map.to_source(3), 6);
+    }
+
+    #[test]
+    fn preserves_offsets_for_inline_and_multiple_marks_and_empty_steps() {
+        // An unbuilt default map and an explicit empty step have distinct equality,
+        // although both clamp offsets to zero.
+        assert_ne!(StepMap::default(), Builder::new("").finish().1);
+        assert_ne!(StepMap::identity(0), Builder::new("").finish().1);
+        let mut b = Builder::new("abcdef");
+        b.copy(2, 4);
+        b.write("XY", 4);
+        b.copy(4, 5);
+        b.copy(5, 6);
+        let (text, step) = b.finish();
+        assert_eq!(text, "cdXYef");
+        let expected = [2, 3, 4, 4, 4, 5, 6, 6];
+        for (at, expected) in expected.into_iter().enumerate() {
+            assert_eq!(step.to_src(at), expected);
+            assert_eq!(step.clone().to_src(at), expected);
+        }
+        assert_eq!(step.to_src(usize::MAX), 6);
+        for len in [0, 1, 6] {
+            let identity = StepMap::identity(len);
+            for at in 0..=len + 1 {
+                assert_eq!(identity.to_src(at), at.min(len));
+            }
+            let (_, empty) = Builder::new(&"abcdef"[..len]).finish();
+            assert_eq!(empty.to_src(0), len);
+            assert_eq!(empty.to_src(usize::MAX), len);
+            assert_eq!(StepMap::suffix(len, len).to_src(0), len);
+        }
+        let mut map = SourceMap::default();
+        map.push(StepMap::suffix(6, 2));
+        map.push(StepMap::identity(4));
+        for at in 0..=5 {
+            assert_eq!(map.to_source(at), (at + 2).min(6));
+        }
     }
 }

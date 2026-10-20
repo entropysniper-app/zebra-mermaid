@@ -5,7 +5,7 @@ use crate::detect::{detect, detect_diagram, Detected, DiagramType, MermaidType};
 use crate::diagrams::{self, DiagramModel, ParseInput, RenderCtx};
 use crate::error::{Error, ErrorCode};
 use crate::options::{ParseLimits, ParseOptions, RenderOptions, DEFAULT_LIMIT, DEFAULT_MAX_EDGES, DEFAULT_OUTPUT_LIMIT};
-use crate::preprocess::{encode_entities, preprocess, Preprocessed};
+use crate::preprocess::{encode_entities_for_parse, preprocess, preprocess_for_parse, ParseSource};
 use crate::text::entities::decode_entities_cow;
 use crate::text::{Icons, MetricsMeasurer, TextMeasurer};
 use crate::theme::Theming;
@@ -80,7 +80,8 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
     if source.len() > limit && js::len16(source) > limit {
         return Err(Error::limit(format!("Diagram source is longer than the limit of {} characters.", limit)));
     }
-    let Preprocessed { text: cleaned, title, config: own, with_comments, line_offset, text_map, with_comments_map } = preprocess(source)?;
+    let ParseSource { text: cleaned, title, config: own, with_comments, line_offset, text_map, with_comments_map } =
+        preprocess_for_parse(source)?;
     let Some(found) = detect_diagram(&cleaned) else {
         return Err(Error::new("No diagram type detected for the given text.", ErrorCode::UnsupportedDiagram));
     };
@@ -100,8 +101,7 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
         None => own,
     };
     let (text, mut map) = if diagram_type.keeps_comments() { (with_comments, with_comments_map) } else { (cleaned, text_map) };
-    let (mut source_text, entity_map) = encode_entities(&text);
-    drop(text);
+    let (mut source_text, entity_map) = encode_entities_for_parse(text);
     map.extend(entity_map);
     source_text.push('\n');
     let input = ParseInput {

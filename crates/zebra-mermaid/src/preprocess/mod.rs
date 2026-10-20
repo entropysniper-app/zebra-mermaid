@@ -31,6 +31,45 @@ pub struct Preprocessed {
     pub with_comments_map: SourceMap,
 }
 
+/// The parser can borrow source that requires only leading-whitespace trimming. Keep
+/// the public preprocessing result owned, including both comment views.
+pub(crate) struct ParseSource<'a> {
+    pub text: Cow<'a, str>,
+    pub title: Option<String>,
+    pub config: Config,
+    pub with_comments: Cow<'a, str>,
+    pub line_offset: usize,
+    pub text_map: SourceMap,
+    pub with_comments_map: SourceMap,
+}
+
+pub(crate) fn preprocess_for_parse(source: &str) -> Result<ParseSource<'_>, Error> {
+    if source.contains('\r') || source.contains("%%") || source.contains("---") || (source.contains('<') && source.contains("=\"")) {
+        let Preprocessed { text, title, config, with_comments, line_offset, text_map, with_comments_map } = preprocess(source)?;
+        return Ok(ParseSource {
+            text: Cow::Owned(text),
+            title,
+            config,
+            with_comments: Cow::Owned(with_comments),
+            line_offset,
+            text_map,
+            with_comments_map,
+        });
+    }
+    let text = js::trim_start(source);
+    let text_map = SourceMap::single(StepMap::suffix(source.len(), source.len() - text.len()));
+    let with_comments_map = SourceMap::single(StepMap::identity(source.len()));
+    Ok(ParseSource {
+        text: Cow::Borrowed(text),
+        title: None,
+        config: ConfigMap::new(),
+        with_comments: Cow::Borrowed(source),
+        line_offset: 0,
+        text_map,
+        with_comments_map,
+    })
+}
+
 /// `/\r\n?/g` → `\n`.
 fn normalize_breaks(source: &str) -> (Cow<'_, str>, StepMap) {
     if !source.contains('\r') {
@@ -453,9 +492,8 @@ fn hide_entities(text: &str) -> (String, StepMap) {
 /// Mermaid hides `#name;` entity codes behind placeholder characters so `#` and `;` survive
 /// parsing. Returns the text and the steps that map it back to its input.
 pub fn encode_entities(text: &str) -> (String, SourceMap) {
-    let mut map = SourceMap::default();
     if !text.contains('#') {
-        map.push(StepMap::identity(text.len()));
+        let map = SourceMap::single(StepMap::identity(text.len()));
         // Room for the line break a parser's input ends with, so it is not grown again.
         let mut copy = String::with_capacity(text.len() + 1);
         copy.push_str(text);
@@ -464,10 +502,22 @@ pub fn encode_entities(text: &str) -> (String, SourceMap) {
     let (a, m1) = drop_color_semicolons(text, "style");
     let (b, m2) = drop_color_semicolons(&a, "classDef");
     let (c, m3) = hide_entities(&b);
+    let mut map = SourceMap::default();
     map.push(m1);
     map.push(m2);
     map.push(m3);
     (c, map)
+}
+
+/// Reuses an owned preprocessed buffer when there are no entity codes to rewrite.
+pub(crate) fn encode_entities_for_parse(text: Cow<'_, str>) -> (String, SourceMap) {
+    let Cow::Owned(mut text) = text else { return encode_entities(&text) };
+    if text.contains('#') {
+        return encode_entities(&text);
+    }
+    let map = SourceMap::single(StepMap::identity(text.len()));
+    text.reserve_exact(1);
+    (text, map)
 }
 
 fn is_record(v: &ConfigValue) -> bool {
@@ -479,7 +529,7 @@ pub fn preprocess(source: &str) -> Result<Preprocessed, Error> {
     let mut map = SourceMap::default();
     let (text, step) = normalize_breaks(source);
     map.push(step);
-    let text = if text.contains('<') { Cow::Owned(quote_attributes(&text)) } else { text };
+    let text = if text.contains('<') && text.contains("=\"") { Cow::Owned(quote_attributes(&text)) } else { text };
 
     let mut config = ConfigMap::new();
     let mut title = None;
@@ -595,5 +645,41 @@ mod tests {
         assert_eq!(out, "style A fill:#f9f");
         let (out, _) = encode_entities("classDef c fill:#f9f,stroke:#333;");
         assert_eq!(out, "classDef c fill:#f9f,stroke:#333");
+    }
+
+    #[test]
+    fn borrowed_preprocessing_preserves_both_views_and_every_source_offset() {
+        for prefix in ["", " \n", "\u{feff}\u{3000}", " \r\n"] {
+            for body in [
+                "",
+                "graph TD\nA[中文😀] --> B",
+                "graph TD\nA[\"<b>x</b>\"]",
+                "graph TD\nA[\"<span title=\"x\">x</span>\"]",
+                "graph TD\nA[#quot;x#59;]\nstyle A fill:#f9f;",
+                "%% comment\nagentflow\n%%\n",
+                "%%{wrap}%%\nsequenceDiagram\nA->>B: x",
+                "---\ntitle: x\n---\npie\n",
+                "eventmodeling\n\u{2028}\u{2029}",
+            ] {
+                let source = format!("{prefix}{body}");
+                let expected = preprocess(&source).unwrap();
+                let actual = preprocess_for_parse(&source).unwrap();
+                assert_eq!(actual.text, expected.text);
+                assert_eq!(actual.with_comments, expected.with_comments);
+                assert_eq!(actual.title, expected.title);
+                assert_eq!(actual.config, expected.config);
+                assert_eq!(actual.line_offset, expected.line_offset);
+                for at in 0..=source.len() + 1 {
+                    assert_eq!(actual.text_map.to_source(at), expected.text_map.to_source(at), "{source:?} at {at}");
+                    assert_eq!(actual.with_comments_map.to_source(at), expected.with_comments_map.to_source(at));
+                }
+                let (encoded, map) = encode_entities_for_parse(actual.text);
+                let (expected_encoded, expected_map) = encode_entities(&expected.text);
+                assert_eq!(encoded, expected_encoded);
+                for at in 0..=encoded.len() + 1 {
+                    assert_eq!(map.to_source(at), expected_map.to_source(at));
+                }
+            }
+        }
     }
 }

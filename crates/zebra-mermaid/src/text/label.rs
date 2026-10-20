@@ -5,11 +5,12 @@
 //! JavaScript semantics it replaces: `\s` is JavaScript white space, `\w` is ASCII, and the
 //! `i` flag makes the letters of `<br>` and `\n` match in either case.
 
-use super::entities::decode_entities;
+use super::entities::decode_entities_cow;
 use super::measurer::style;
 use super::Measure;
 use crate::util::chars::{char_at, char_before, is_space, is_word};
 use crate::util::{js, strs};
+use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Span {
@@ -215,14 +216,14 @@ fn push_text(line: &mut Vec<Span>, text: &str, style: u8) {
     if text.is_empty() {
         return;
     }
-    let decoded = decode_entities(text);
+    let decoded = decode_entities_cow(text);
     if let Some(last) = line.last_mut() {
         if last.style == style && last.icon.is_none() {
             last.text.push_str(&decoded);
             return;
         }
     }
-    line.push(Span { text: decoded, style, icon: None, width: 0.0 });
+    line.push(Span { text: decoded.into_owned(), style, icon: None, width: 0.0 });
 }
 
 fn push_icons(line: &mut Vec<Span>, text: &str, style: u8, m: &Measure) {
@@ -245,7 +246,7 @@ fn push_icons(line: &mut Vec<Span>, text: &str, style: u8, m: &Measure) {
         } else if last == text.len() {
             if let Some(before) = line.last_mut() {
                 if before.icon.is_none() {
-                    before.text = js::trim_end(&before.text).to_string();
+                    before.text.truncate(js::trim_end(&before.text).len());
                 }
             }
         }
@@ -329,21 +330,28 @@ fn measure_spans(line: &mut [Span], m: &Measure, size: f64) -> f64 {
 
 /// The pieces of `/\s*(?:[OPEN]*[CJK][CLOSE]*|[^\sCJK]+[CLOSE]*)\s*|\s+/g`: a word with the
 /// space around it, or one Chinese or Japanese character with its punctuation.
-pub(crate) fn pieces(text: &str) -> Vec<&str> {
-    let mut out = Vec::new();
+fn piece_iter(text: &str) -> impl Iterator<Item = &str> {
     let mut p = 0;
-    while p < text.len() {
-        match piece_at(text, p) {
-            Some(end) if end > p => {
-                out.push(&text[p..end]);
-                p = end;
+    std::iter::from_fn(move || {
+        while p < text.len() {
+            match piece_at(text, p) {
+                Some(end) if end > p => {
+                    let piece = &text[p..end];
+                    p = end;
+                    return Some(piece);
+                }
+                // Every character is white space, CJK or neither, so a match always exists;
+                // keep the iterator finite should that ever change.
+                _ => p += char_at(text, p).map_or(1, char::len_utf8),
             }
-            // Every character is white space, CJK or neither, so a match always exists; this
-            // arm only keeps the loop finite should that ever change.
-            _ => p += char_at(text, p).map_or(1, char::len_utf8),
         }
-    }
-    out
+        None
+    })
+}
+
+#[cfg(test)]
+pub(crate) fn pieces(text: &str) -> Vec<&str> {
+    piece_iter(text).collect()
 }
 
 fn skip_while(text: &str, mut p: usize, f: impl Fn(char) -> bool) -> usize {
@@ -409,10 +417,9 @@ fn wrap(line: Vec<Span>, m: &Measure, size: f64, max: f64, out: &mut Vec<Vec<Spa
             if last.icon.is_none() {
                 let trimmed = js::trim_end(&last.text);
                 if trimmed.len() != last.text.len() {
-                    let trimmed = trimmed.to_string();
-                    let w = m.width(&trimmed, size, last.style);
+                    let w = m.width(trimmed, size, last.style);
                     *width += w - last.width;
-                    last.text = trimmed;
+                    last.text.truncate(trimmed.len());
                     last.width = w;
                 }
             }
@@ -431,7 +438,7 @@ fn wrap(line: Vec<Span>, m: &Measure, size: f64, max: f64, out: &mut Vec<Vec<Spa
             width += w;
             continue;
         }
-        for piece in pieces(&span.text) {
+        for piece in piece_iter(&span.text) {
             let mut part = piece;
             if width > 0.0 && width + m.width(js::trim_end(part), size, span.style) > max {
                 commit(&mut current, &mut width, out, widths);
@@ -497,9 +504,9 @@ pub fn layout_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, m
 
     let source = if markdown {
         let normalized = raw.replace("\r\n", "\n").replace('\r', "\n");
-        js::trim(&dedent(&normalized)).to_string()
+        Cow::Owned(js::trim(&dedent(&normalized)).to_string())
     } else {
-        js::trim(raw).to_string()
+        Cow::Borrowed(js::trim(raw))
     };
     let mut lines: Vec<Vec<Span>> = Vec::new();
     let mut widths: Vec<f64> = Vec::new();

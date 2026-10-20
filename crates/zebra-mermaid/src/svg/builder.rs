@@ -158,12 +158,7 @@ pub fn push_num(out: &mut String, value: f64) {
 pub fn write_num<W: fmt::Write + ?Sized>(out: &mut W, value: f64) -> fmt::Result {
     let mut buf = [0_u8; 32];
     match num_digits(value, &mut buf) {
-        Some(start) => {
-            for &b in &buf[start..] {
-                out.write_char(b as char)?;
-            }
-            Ok(())
-        }
+        Some(start) => out.write_str(std::str::from_utf8(&buf[start..]).expect("decimal ASCII")),
         None => out.write_str(&js::to_string(js::round(value * 100.0) / 100.0)),
     }
 }
