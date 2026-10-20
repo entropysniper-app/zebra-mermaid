@@ -1,10 +1,10 @@
 //! Labels that keep every character. Ported from Pele `src/diagrams/common/literal-label.ts`.
 
-use crate::svg::builder::{esc, label_svg, num, shared_style, span_style, text_style};
+use crate::svg::builder::{label_svg, shared_style, span_style, text_style, write_esc, write_num};
 use crate::text::{Label, Measure, Span};
 use crate::util::chars::is_space;
 use crate::util::js;
-use std::fmt::Write as _;
+use std::fmt;
 
 /// Literal labels, including filenames and protocol fields, must retain every character but
 /// the spaces a line breaks at. Long words can break between code points; measurement stays
@@ -12,19 +12,23 @@ use std::fmt::Write as _;
 pub fn literal_label(text: &str, m: &Measure, size: f64, room: f64, style: u8) -> Label {
     let mut lines: Vec<String> = Vec::new();
     for raw in text.split('\n') {
-        let chars: Vec<char> = raw.chars().collect();
-        if chars.is_empty() {
+        // ASCII scalar indices are already byte offsets. Other strings need one
+        // boundary table, shared by every probe instead of allocating each prefix.
+        let boundaries =
+            (!raw.is_ascii()).then(|| raw.char_indices().map(|(i, _)| i).chain(std::iter::once(raw.len())).collect::<Vec<_>>());
+        let count = boundaries.as_ref().map_or(raw.len(), |v| v.len() - 1);
+        let byte_at = |i: usize| boundaries.as_ref().map_or(i, |v| v[i]);
+        let space_at = |i: usize| is_space(raw[byte_at(i)..].chars().next().unwrap());
+        if count == 0 {
             lines.push(String::new());
         }
         let mut from = 0;
-        while from < chars.len() {
-            let fits = |length: usize| -> bool {
-                let s: String = chars[from..from + length].iter().collect();
-                m.width(&s, size, style) <= room
-            };
+        while from < count {
+            let start = byte_at(from);
+            let fits = |length: usize| m.width(&raw[start..byte_at(from + length)], size, style) <= room;
             let mut hi = 1usize;
-            while hi < chars.len() - from && fits(hi) {
-                hi = (chars.len() - from).min(hi * 2);
+            while hi < count - from && fits(hi) {
+                hi = (count - from).min(hi * 2);
             }
             let mut lo = 1usize;
             while lo < hi {
@@ -36,26 +40,22 @@ pub fn literal_label(text: &str, m: &Measure, size: f64, room: f64, style: u8) -
                 }
             }
             let mut take = lo;
-            let wraps = from + take < chars.len();
-            if wraps && !is_space(chars[from + take]) {
+            let wraps = from + take < count;
+            if wraps && !space_at(from + take) {
                 let mut i = take - 1;
                 while i > 0 {
-                    if is_space(chars[from + i]) {
+                    if space_at(from + i) {
                         take = i + 1;
                         break;
                     }
                     i -= 1;
                 }
             }
-            let line: String = chars[from..from + take].iter().collect();
-            if wraps {
-                let trimmed = js::trim_end(&line);
-                lines.push(if trimmed.is_empty() { line.clone() } else { trimmed.to_string() });
-            } else {
-                lines.push(line);
-            }
+            let line = &raw[start..byte_at(from + take)];
+            let trimmed = if wraps { js::trim_end(line) } else { line };
+            lines.push(if trimmed.is_empty() { line } else { trimmed }.to_owned());
             from += take;
-            while wraps && from < chars.len() && is_space(chars[from]) {
+            while wraps && from < count && space_at(from) {
                 from += 1;
             }
         }
@@ -107,28 +107,35 @@ pub fn break_label(label: &Label, m: &Measure, room: f64) -> Label {
                 continue;
             }
             for ch in span.text.chars() {
+                let mut bytes = [0; 4];
+                let character = ch.encode_utf8(&mut bytes);
                 let joined = matches!(current.last(), Some(last) if last.icon.is_none() && last.style == span.style);
+                // Measure the actual mutable prefix. If it wraps, remove the candidate
+                // before committing the old line; callbacks see the same strings/order.
                 let next_width = if joined {
-                    let last = current.last().unwrap();
-                    m.width(&format!("{}{}", last.text, ch), label.size, span.style)
+                    let last = current.last_mut().unwrap();
+                    last.text.push(ch);
+                    m.width(&last.text, label.size, span.style)
                 } else {
-                    m.width(&ch.to_string(), label.size, span.style)
+                    m.width(character, label.size, span.style)
                 };
                 let mut added = next_width - if joined { current.last().unwrap().width } else { 0.0 };
                 let mut can_join = joined;
                 if !current.is_empty() && width + added > room {
+                    if joined {
+                        let last = current.last_mut().unwrap();
+                        last.text.truncate(last.text.len() - ch.len_utf8());
+                    }
                     lines.push(std::mem::take(&mut current));
                     widths.push(width);
                     width = 0.0;
                     can_join = false;
-                    added = m.width(&ch.to_string(), label.size, span.style);
+                    added = m.width(character, label.size, span.style);
                 }
                 if can_join {
-                    let last = current.last_mut().unwrap();
-                    last.text.push(ch);
-                    last.width += added;
+                    current.last_mut().unwrap().width += added;
                 } else {
-                    current.push(Span { text: ch.to_string(), style: span.style, icon: None, width: added });
+                    current.push(Span { text: character.to_owned(), style: span.style, icon: None, width: added });
                 }
                 width += added;
             }
@@ -149,9 +156,35 @@ pub fn break_label(label: &Label, m: &Measure, room: f64) -> Label {
 /// Writes a label with every line starting at x. A line is anchored at its start and keeps its
 /// spaces, so that where it begins does not depend on how its text was measured.
 pub fn left_label_svg(label: &Label, x: f64, top: f64, attrs: &str) -> String {
-    let shared = shared_style(label);
-    let open = format!("<text{}", text_style(attrs, shared));
     let mut body = String::new();
+    push_left_label_svg(&mut body, label, x, top, attrs);
+    body
+}
+
+pub(crate) fn push_left_label_svg(out: &mut String, label: &Label, x: f64, top: f64, attrs: &str) {
+    let _ = write_left_label_svg(out, label, x, top, attrs);
+}
+
+pub(crate) struct LeftLabelSvg<'a> {
+    label: &'a Label,
+    x: f64,
+    top: f64,
+    attrs: &'a str,
+}
+
+pub(crate) fn left_label_markup<'a>(label: &'a Label, x: f64, top: f64, attrs: &'a str) -> LeftLabelSvg<'a> {
+    LeftLabelSvg { label, x, top, attrs }
+}
+
+impl fmt::Display for LeftLabelSvg<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_left_label_svg(f, self.label, self.x, self.top, self.attrs)
+    }
+}
+
+fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: &Label, x: f64, top: f64, attrs: &str) -> fmt::Result {
+    let shared = shared_style(label);
+    let open = text_style(attrs, shared);
     for (i, spans) in label.lines.iter().enumerate() {
         let cy = top + (i as f64 + 0.5) * label.line_height;
         if spans.iter().any(|s| s.icon.is_some()) {
@@ -164,27 +197,38 @@ pub fn left_label_svg(label: &Label, x: f64, top: f64, attrs: &str) -> String {
                 size: label.size,
                 line_height: label.line_height,
             };
-            write!(body, "{}", label_svg(&single, x + width / 2.0, cy, attrs, None)).unwrap();
+            write!(out, "{}", label_svg(&single, x + width / 2.0, cy, attrs, None))?;
             continue;
         }
-        let mut text = String::new();
+        // The old temporary markup is empty only when every span has neither a
+        // style wrapper nor an XML-visible character. Keep that emission rule.
+        let visible = spans.iter().any(|span| {
+            !span_style(span.style & !shared).is_empty()
+                || span.text.bytes().any(|b| !matches!(b, 0x00..=0x08 | 0x0b | 0x0c | 0x0e..=0x1f | 0x7f))
+        });
+        if !visible {
+            continue;
+        }
+        out.write_str("<text")?;
+        out.write_str(&open)?;
+        out.write_str(" x=\"")?;
+        write_num(out, x)?;
+        out.write_str("\" y=\"")?;
+        write_num(out, cy + label.size * 0.35)?;
+        out.write_str("\" text-anchor=\"start\" xml:space=\"preserve\">")?;
         for span in spans {
             let own = span_style(span.style & !shared);
-            if own.is_empty() {
-                text.push_str(&esc(&span.text));
-            } else {
-                write!(text, "<tspan{}>{}</tspan>", own, esc(&span.text)).unwrap();
+            if !own.is_empty() {
+                out.write_str("<tspan")?;
+                out.write_str(own)?;
+                out.write_char('>')?;
+            }
+            write_esc(out, &span.text)?;
+            if !own.is_empty() {
+                out.write_str("</tspan>")?;
             }
         }
-        if !text.is_empty() {
-            write!(body, 
-                "{} x=\"{}\" y=\"{}\" text-anchor=\"start\" xml:space=\"preserve\">{}</text>",
-                open,
-                num(x),
-                num(cy + label.size * 0.35),
-                text
-            ).unwrap();
-        }
+        out.write_str("</text>")?;
     }
-    body
+    Ok(())
 }

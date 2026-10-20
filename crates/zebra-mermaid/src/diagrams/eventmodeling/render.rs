@@ -2,7 +2,7 @@
 use super::{EntityKind, EventModelingModel};
 use crate::diagrams::common::{
     fit_width::turn_to_fit,
-    literal_label::{break_label, left_label_svg, literal_label},
+    literal_label::{break_label, left_label_markup as left_label_svg, literal_label},
 };
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::svg::{

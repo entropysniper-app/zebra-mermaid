@@ -4,7 +4,7 @@ use super::icons::{get_node_icon, glyph, icon_config, BUILTIN_PACK};
 use super::{NodeType, TreeViewModel};
 use crate::config::{Config, ConfigValue};
 use crate::diagrams::common::fit_width::{tighten, title_room};
-use crate::diagrams::common::literal_label::{left_label_svg, literal_label};
+use crate::diagrams::common::literal_label::{literal_label, push_left_label_svg};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, label_svg, num};
@@ -259,12 +259,13 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         }
         let weight = if directory { " font-weight=\"var(--_hw)\"" } else { "" };
         if let Some(label) = &row.label {
-            inner.push_str(&left_label_svg(
+            push_left_label_svg(
+                &mut inner,
                 label,
                 inset + row.label_x,
                 top + row.top + padding_y,
                 &format!(" class=\"pele-label\"{}", weight),
-            ));
+            );
         } else if !row.text.is_empty() {
             write!(inner, 
                 "<text class=\"pele-label\" x=\"{}\" y=\"{}\"{} xml:space=\"preserve\">{}</text>",
@@ -275,12 +276,13 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
             ).unwrap();
         }
         if let Some(description) = &row.description {
-            inner.push_str(&left_label_svg(
+            push_left_label_svg(
+                &mut inner,
                 description,
                 inset + row.label_x,
                 top + row.top + padding_y + row.label.as_ref().map_or(0.0, |l| l.height),
                 &format!(" class=\"pele-tree-description\" font-style=\"italic\" fill=\"{}\"", muted),
-            ));
+            );
         } else if let Some(description) = node.description.as_deref().filter(|d| !d.is_empty()) {
             write!(inner, 
                 "<text class=\"pele-tree-description\" x=\"{}\" y=\"{}\" font-style=\"italic\" fill=\"{}\" xml:space=\"preserve\">{}</text>",

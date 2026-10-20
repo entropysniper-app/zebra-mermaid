@@ -15,7 +15,7 @@ use super::{C4Model, ElementRef};
 use crate::config::Config;
 use crate::detect::DiagramType;
 use crate::diagrams::common::fit_width::{tighten, title_room};
-use crate::diagrams::common::literal_label::left_label_svg;
+use crate::diagrams::common::literal_label::{left_label_svg, push_left_label_svg};
 use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::options::RenderOptions;
@@ -386,19 +386,21 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &format!(" class=\"pele-cluster-label\" font-weight=\"var(--_hw)\"{}{}", heading_fill, st.text),
             );
             y += group.labels[0].height;
-            text.push_str(&left_label_svg(
+            push_left_label_svg(
+                &mut text,
                 &group.labels[1],
                 x,
                 y,
                 &format!(" class=\"pele-c4-type\" font-size=\"{}\" fill=\"{}\"{}", small_s, muted, st.text),
-            ));
+            );
             y += group.labels[1].height;
-            text.push_str(&left_label_svg(
+            push_left_label_svg(
+                &mut text,
                 &group.labels[2],
                 x,
                 y,
                 &format!(" class=\"pele-c4-descr\" font-size=\"{}\" fill=\"{}\"{}", small_s, muted, st.text),
-            ));
+            );
             let node = boundary.node_type.as_deref().is_some_and(|t| !t.is_empty());
             write!(clusters, 
                 "<g class=\"pele-cluster pele-c4-{}\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}{}/>",
