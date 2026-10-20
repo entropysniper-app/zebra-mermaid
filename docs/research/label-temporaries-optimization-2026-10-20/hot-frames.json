@@ -1,0 +1,123 @@
+{
+  "method": "Same external CPU captures as the per-phase CPU summaries. Counts are inclusive frame occurrences across stack branches, including recursive occurrences. They overlap and are not additive exclusive CPU percentages. Raw captures remain ignored; their SHA-256 values identify the source evidence.",
+  "phases": {
+    "before": [
+      {
+        "case": "corpus: info-docs",
+        "threadSamples": 3507,
+        "inclusiveFrameOccurrences": {
+          "generic Display::to_string": 766,
+          "write_label_view": 745,
+          "svg_document": 537,
+          "Grammar::reader": 384,
+          "tokenize_into": 82
+        },
+        "rawSha256": "c1bbda6ab825bb27edaa9023ba91e9871b8698656dc05344df3909af122c37b7"
+      },
+      {
+        "case": "docs: all flowchart examples",
+        "threadSamples": 3533,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 1073,
+          "layered::layered": 967,
+          "reduce_crossings": 6,
+          "svg_document": 167,
+          "write_label_view": 74,
+          "preprocess::preprocess": 23
+        },
+        "rawSha256": "b67afafce7691aa47d4a035813cc72dccd485ed9f8ce46c33cd96ba048231859"
+      },
+      {
+        "case": "corpus: c4-docs",
+        "threadSamples": 3587,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 153,
+          "write_label_view": 470,
+          "generic Display::to_string": 165,
+          "preprocess::preprocess": 28
+        },
+        "rawSha256": "775b5a8faeb9f1af2d80a6a908f333ad2a7afc128986cfb9431a94cd3570cb1b"
+      },
+      {
+        "case": "corpus: venn-docs",
+        "threadSamples": 3727,
+        "inclusiveFrameOccurrences": {
+          "write_label_view": 127,
+          "svg_document": 50,
+          "preprocess::preprocess": 27
+        },
+        "rawSha256": "aea2a65135000644c4d110d0cc3d090314f1bdf8721b6cf4274e9f2fe42d1192"
+      },
+      {
+        "case": "corpus: treeview-docs",
+        "threadSamples": 3579,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 212,
+          "write_label_view": 1,
+          "Grammar::reader": 492,
+          "tokenize_into": 370,
+          "preprocess::preprocess": 426
+        },
+        "rawSha256": "11c5e98119bc1846071a195788b7f9d5a4d89ddddd5e9bf76ddc1296117ee07a"
+      }
+    ],
+    "after": [
+      {
+        "case": "corpus: info-docs",
+        "threadSamples": 3515,
+        "inclusiveFrameOccurrences": {
+          "Grammar::reader": 550,
+          "tokenize_into": 119,
+          "svg_document": 655,
+          "write_label_view": 183
+        },
+        "rawSha256": "e5b42fbd9a6166ae757edee1bc6edf7ade85d0cef19cb5e0ba83cd21871cb959"
+      },
+      {
+        "case": "docs: all flowchart examples",
+        "threadSamples": 3532,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 1037,
+          "layered::layered": 922,
+          "reduce_crossings": 7,
+          "svg_document": 170,
+          "write_label_view": 51,
+          "generic Display::to_string": 1,
+          "preprocess::preprocess": 30
+        },
+        "rawSha256": "77b4ebc0a0d21a3e24237fb42a19c1bc07a192f227eb6a67887a87661de4bcd9"
+      },
+      {
+        "case": "corpus: c4-docs",
+        "threadSamples": 3597,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 179,
+          "write_label_view": 370,
+          "preprocess::preprocess": 28
+        },
+        "rawSha256": "4a745d16ca608e12c8e56390b2f3b477629ba37305bf6c09a1827caa34d93b63"
+      },
+      {
+        "case": "corpus: venn-docs",
+        "threadSamples": 3758,
+        "inclusiveFrameOccurrences": {
+          "write_label_view": 95,
+          "svg_document": 37,
+          "preprocess::preprocess": 21
+        },
+        "rawSha256": "14deaeeb2b762860dfbdd4d2d86a11cff390771dd8b940090c947d52e9be7c8c"
+      },
+      {
+        "case": "corpus: treeview-docs",
+        "threadSamples": 3574,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 190,
+          "Grammar::reader": 493,
+          "tokenize_into": 408,
+          "preprocess::preprocess": 387
+        },
+        "rawSha256": "b61f1a6b9263e7de89479c42bda184f5334fbeaab523966edfedb72a90a512b2"
+      }
+    ]
+  }
+}

@@ -15,7 +15,7 @@ Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from G
 
 ```sh
 cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
-  --rev e0a9e608a2c19b0066b6710b76e4f95dc81c1926 \
+  --rev 2a3b5e01b99b96581194f433d637c6c9a5e3e3c7 \
   --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
@@ -89,35 +89,35 @@ Current-version results on identical inputs, measured as **milliseconds per comp
 
 | Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 / 6 | 90.40000 | 0.31368 | 0.19788 | 93.69671 |
-| block | 6 / 6 | 82.00000 | 0.09453 | 0.07110 | 0.16108 |
-| c4 | 6 / 6 | 100.20000 | 0.46335 | 0.31600 | 1.13248 |
-| class | 5 / 6 | 125.10000 | 0.23300 | 0.15064 | 0.38698 |
-| er | 6 / 6 | 83.40000 | 0.24643 | 0.15743 | 6.47056 |
+| flowchart | 6 / 6 | 82.60000 | 0.30826 | 0.19102 | 88.12554 |
+| block | 6 / 6 | 77.70000 | 0.09329 | 0.06986 | 0.14074 |
+| c4 | 6 / 6 | 91.90000 | 0.45731 | 0.29594 | 1.10921 |
+| class | 5 / 6 | 113.80000 | 0.19756 | 0.12856 | 0.37378 |
+| er | 6 / 6 | 76.70000 | 0.20591 | 0.14171 | 6.11081 |
 | eventmodeling | 0 / 6 | — | — | — | — |
-| gantt | 6 / 6 | 16.40000 | 0.26032 | 0.14723 | 0.40528 |
-| git | 6 / 6 | 107.00000 | 0.42475 | 0.21608 | 0.62659 |
+| gantt | 6 / 6 | 15.40000 | 0.23663 | 0.13548 | 0.39020 |
+| git | 6 / 6 | 99.80000 | 0.40490 | 0.21316 | 0.60034 |
 | info | 0 / 2 | — | — | — | — |
-| journey | 1 / 1 | 3.00000 | 0.01599 | 0.00851 | 0.04095 |
-| kanban | 3 / 3 | 26.70000 | 0.05185 | 0.03761 | 0.12656 |
-| mindmap | 6 / 6 | 86.50000 | 0.09944 | 0.05227 | 0.35289 |
-| packet | 4 / 4 | 6.65000 | 0.06471 | 0.03052 | 2.36506 |
-| pie | 3 / 3 | 4.70000 | 0.03312 | 0.01876 | 0.07304 |
-| quadrant | 3 / 3 | 8.95000 | 0.05430 | 0.03420 | 0.08506 |
-| requirement | 6 / 6 | 85.20000 | 0.23241 | 0.14683 | 1.84171 |
-| sankey | 6 / 6 | 32.10000 | 0.36112 | 0.10551 | 0.43326 |
-| sequence | 4 / 6 | 24.60000 | 0.08942 | 0.05784 | 0.71722 |
-| state | 6 / 6 | 125.70000 | 0.32237 | 0.19279 | 5.45860 |
-| timeline | 6 / 6 | 30.30000 | 0.20446 | 0.10524 | 0.38077 |
-| xychart | 6 / 6 | 25.90000 | 0.13866 | 0.07540 | 0.21637 |
+| journey | 1 / 1 | 2.82500 | 0.01567 | 0.00811 | 0.03888 |
+| kanban | 3 / 3 | 25.70000 | 0.05170 | 0.03711 | 0.12253 |
+| mindmap | 6 / 6 | 82.80000 | 0.09195 | 0.04536 | 0.34568 |
+| packet | 4 / 4 | 6.35000 | 0.05975 | 0.03028 | 2.33623 |
+| pie | 3 / 3 | 4.37500 | 0.03264 | 0.01825 | 0.07264 |
+| quadrant | 3 / 3 | 8.80000 | 0.05390 | 0.03230 | 0.08466 |
+| requirement | 6 / 6 | 77.10000 | 0.22601 | 0.14128 | 1.78953 |
+| sankey | 6 / 6 | 30.10000 | 0.29791 | 0.10532 | 0.42008 |
+| sequence | 4 / 6 | 21.90000 | 0.08831 | 0.05351 | 0.69834 |
+| state | 6 / 6 | 113.60000 | 0.31444 | 0.19043 | 5.27771 |
+| timeline | 6 / 6 | 27.40000 | 0.19605 | 0.09051 | 0.37260 |
+| xychart | 6 / 6 | 23.40000 | 0.11760 | 0.07218 | 0.20762 |
 | agentflow | 0 / 6 | — | — | — | — |
-| architecture | 6 / 6 | 72.50000 | 0.22967 | 0.09720 | 0.26008 |
+| architecture | 6 / 6 | 64.30000 | 0.21298 | 0.08618 | 0.25511 |
 | cynefin | 0 / 3 | — | — | — | — |
 | ishikawa | 0 / 1 | — | — | — | — |
-| radar | 3 / 3 | 6.15000 | 0.08749 | 0.03203 | 0.09142 |
+| radar | 3 / 3 | 5.70000 | 0.07349 | 0.03044 | 0.08913 |
 | railroad | 0 / 6 | — | — | — | — |
 | swimlane | 0 / 6 | — | — | — | — |
-| treemap | 6 / 6 | 15.50000 | 0.16388 | 0.06758 | 0.25794 |
+| treemap | 6 / 6 | 13.60000 | 0.13993 | 0.06585 | 0.24963 |
 | treeview | 0 / 6 | — | — | — | — |
 | usecase | 0 / 6 | — | — | — | — |
 | venn | 0 / 6 | — | — | — | — |
@@ -127,18 +127,18 @@ The shared benchmark set contains **110/167 samples across 22 diagram types**. A
 <!-- four-engine-benchmark:end -->
 
 <!-- output-contract-benchmark:start -->
-Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.79× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
+Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.77× at API return** and **1.87× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
 <!-- output-contract-benchmark:end -->
 
 Compiled code size is also an optimization target, alongside the full 33-type 2× performance target. Current full-feature release sizes (unstripped, thin LTO, one codegen unit):
 
 | Artifact | File bytes | Instruction text bytes |
 | --- | ---: | ---: |
-| CLI | 5,210,752 | 3,853,944 |
-| FFI dynamic library | 4,798,544 | 3,561,420 |
-| FFI static archive | 41,708,256 | 4,273,968 |
+| CLI | 5,194,400 | 3,845,164 |
+| FFI dynamic library | 4,798,784 | 3,561,128 |
+| FFI static archive | 41,710,992 | 4,273,740 |
 
-The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These values establish the [release-size baseline](docs/CODE-SIZE-OPTIMIZATION.md), with fingerprints and section totals. Size, speed, allocations and RSS will be reported separately; all diagram types and correctness requirements remain enabled.
+The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These are the current [release-size results](docs/CODE-SIZE-OPTIMIZATION.md), with paired comparisons, fingerprints and section totals. Size, speed, allocations and RSS will be reported separately; all diagram types and correctness requirements remain enabled.
 
 ## Library API
 
@@ -146,7 +146,7 @@ Add the library to your application's `Cargo.toml`. Both installation examples p
 
 ```toml
 [dependencies]
-zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "e0a9e608a2c19b0066b6710b76e4f95dc81c1926" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "2a3b5e01b99b96581194f433d637c6c9a5e3e3c7" }
 ```
 
 ```rust
@@ -189,7 +189,7 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | Workspace tests | **3,236 passed**, 0 failed, 5 ignored |
 | Original-test acceptance | **2,791/6,826 passed** (40.89%); 7 preserved skips, 4,028 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/font-test-parity-2026-10-20/head-validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/label-temporaries-optimization-2026-10-20/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1

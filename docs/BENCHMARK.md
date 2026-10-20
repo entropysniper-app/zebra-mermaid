@@ -1,6 +1,6 @@
 # Performance comparison
 
-Measured: 2026-10-20T14:57:11.902490+00:00.
+Measured: 2026-10-20T18:05:44.038929+00:00.
 
 The current library is compared with three other renderers using the same **167 Playground samples across 33 diagram types**. All four engines attempt every original input without syntax rewriting. Timing includes only samples that pass type and SVG validation in all four engines.
 
@@ -45,35 +45,35 @@ Rust/Pele SVG bytes and dimensions match on **167/167 samples**. The other engin
 
 | Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 / 6 | 90.40000 | 0.31368 | 0.19788 | 93.69671 |
-| block | 6 / 6 | 82.00000 | 0.09453 | 0.07110 | 0.16108 |
-| c4 | 6 / 6 | 100.20000 | 0.46335 | 0.31600 | 1.13248 |
-| class | 5 / 6 | 125.10000 | 0.23300 | 0.15064 | 0.38698 |
-| er | 6 / 6 | 83.40000 | 0.24643 | 0.15743 | 6.47056 |
+| flowchart | 6 / 6 | 82.60000 | 0.30826 | 0.19102 | 88.12554 |
+| block | 6 / 6 | 77.70000 | 0.09329 | 0.06986 | 0.14074 |
+| c4 | 6 / 6 | 91.90000 | 0.45731 | 0.29594 | 1.10921 |
+| class | 5 / 6 | 113.80000 | 0.19756 | 0.12856 | 0.37378 |
+| er | 6 / 6 | 76.70000 | 0.20591 | 0.14171 | 6.11081 |
 | eventmodeling | 0 / 6 | — | — | — | — |
-| gantt | 6 / 6 | 16.40000 | 0.26032 | 0.14723 | 0.40528 |
-| git | 6 / 6 | 107.00000 | 0.42475 | 0.21608 | 0.62659 |
+| gantt | 6 / 6 | 15.40000 | 0.23663 | 0.13548 | 0.39020 |
+| git | 6 / 6 | 99.80000 | 0.40490 | 0.21316 | 0.60034 |
 | info | 0 / 2 | — | — | — | — |
-| journey | 1 / 1 | 3.00000 | 0.01599 | 0.00851 | 0.04095 |
-| kanban | 3 / 3 | 26.70000 | 0.05185 | 0.03761 | 0.12656 |
-| mindmap | 6 / 6 | 86.50000 | 0.09944 | 0.05227 | 0.35289 |
-| packet | 4 / 4 | 6.65000 | 0.06471 | 0.03052 | 2.36506 |
-| pie | 3 / 3 | 4.70000 | 0.03312 | 0.01876 | 0.07304 |
-| quadrant | 3 / 3 | 8.95000 | 0.05430 | 0.03420 | 0.08506 |
-| requirement | 6 / 6 | 85.20000 | 0.23241 | 0.14683 | 1.84171 |
-| sankey | 6 / 6 | 32.10000 | 0.36112 | 0.10551 | 0.43326 |
-| sequence | 4 / 6 | 24.60000 | 0.08942 | 0.05784 | 0.71722 |
-| state | 6 / 6 | 125.70000 | 0.32237 | 0.19279 | 5.45860 |
-| timeline | 6 / 6 | 30.30000 | 0.20446 | 0.10524 | 0.38077 |
-| xychart | 6 / 6 | 25.90000 | 0.13866 | 0.07540 | 0.21637 |
+| journey | 1 / 1 | 2.82500 | 0.01567 | 0.00811 | 0.03888 |
+| kanban | 3 / 3 | 25.70000 | 0.05170 | 0.03711 | 0.12253 |
+| mindmap | 6 / 6 | 82.80000 | 0.09195 | 0.04536 | 0.34568 |
+| packet | 4 / 4 | 6.35000 | 0.05975 | 0.03028 | 2.33623 |
+| pie | 3 / 3 | 4.37500 | 0.03264 | 0.01825 | 0.07264 |
+| quadrant | 3 / 3 | 8.80000 | 0.05390 | 0.03230 | 0.08466 |
+| requirement | 6 / 6 | 77.10000 | 0.22601 | 0.14128 | 1.78953 |
+| sankey | 6 / 6 | 30.10000 | 0.29791 | 0.10532 | 0.42008 |
+| sequence | 4 / 6 | 21.90000 | 0.08831 | 0.05351 | 0.69834 |
+| state | 6 / 6 | 113.60000 | 0.31444 | 0.19043 | 5.27771 |
+| timeline | 6 / 6 | 27.40000 | 0.19605 | 0.09051 | 0.37260 |
+| xychart | 6 / 6 | 23.40000 | 0.11760 | 0.07218 | 0.20762 |
 | agentflow | 0 / 6 | — | — | — | — |
-| architecture | 6 / 6 | 72.50000 | 0.22967 | 0.09720 | 0.26008 |
+| architecture | 6 / 6 | 64.30000 | 0.21298 | 0.08618 | 0.25511 |
 | cynefin | 0 / 3 | — | — | — | — |
 | ishikawa | 0 / 1 | — | — | — | — |
-| radar | 3 / 3 | 6.15000 | 0.08749 | 0.03203 | 0.09142 |
+| radar | 3 / 3 | 5.70000 | 0.07349 | 0.03044 | 0.08913 |
 | railroad | 0 / 6 | — | — | — | — |
 | swimlane | 0 / 6 | — | — | — | — |
-| treemap | 6 / 6 | 15.50000 | 0.16388 | 0.06758 | 0.25794 |
+| treemap | 6 / 6 | 13.60000 | 0.13993 | 0.06585 | 0.24963 |
 | treeview | 0 / 6 | — | — | — | — |
 | usecase | 0 / 6 | — | — | — | — |
 | venn | 0 / 6 | — | — | — | — |
@@ -129,6 +129,6 @@ BENCH_REPORT_SUFFIX=-pele-1-7-0 python3 tools/bench/publish-cross.py
 
 `PLAYWRIGHT_MODULE` and `PLAYWRIGHT_BROWSERS_PATH` can point to a separate browser installation. Publishing requires a fresh report suffix to preserve existing measurement evidence.
 
-[Summary and versions](research/four-engine-benchmark-2026-10-20-svg-adapters/comparison.json) · [Per-input outcomes](research/four-engine-benchmark-2026-10-20-svg-adapters/verification.json) · [Shared inputs](research/four-engine-benchmark-2026-10-20-svg-adapters/common.json) · [All inputs](research/four-engine-benchmark-2026-10-20-svg-adapters/cases.json) · [Source and binary fingerprints](research/four-engine-benchmark-2026-10-20-svg-adapters/metadata.json)
+[Summary and versions](research/four-engine-benchmark-2026-10-20-label-temporaries/comparison.json) · [Per-input outcomes](research/four-engine-benchmark-2026-10-20-label-temporaries/verification.json) · [Shared inputs](research/four-engine-benchmark-2026-10-20-label-temporaries/common.json) · [All inputs](research/four-engine-benchmark-2026-10-20-label-temporaries/cases.json) · [Source and binary fingerprints](research/four-engine-benchmark-2026-10-20-label-temporaries/metadata.json)
 
 The same directory contains twelve compressed raw timing reports, SVG output, and Rust/Pele equality records. Benchmark success is separate from [original-test acceptance](UPSTREAM-TEST-PARITY.md).

@@ -1,41 +1,39 @@
 # Compiled code size
 
-Compiled code size is an additional optimization objective. The existing target is **2× relative to the fixed reference at API return**, using all 167 original Samples and all 33 diagram types. Size has no numeric threshold assigned by the user. Each optimization round must report its size, speed, allocation and process-RSS tradeoffs while preserving the original correctness requirements and full workloads.
+Compiled code size is an additional optimization objective. The performance target remains **2× at API return** on all 167 original Samples and 33 types. Size has no user-assigned numeric threshold. Preserve full features, correctness and complete workloads, and report speed, allocator and process-RSS tradeoffs independently.
 
-This report establishes a release baseline; it does not claim a size reduction. Source revision: `4a03a25c2ef74b393b283751cb04086edd3c2a81`, with production code identical to the already validated `e0a9e608a2c19b0066b6710b76e4f95dc81c1926`. The in-progress scanner/layout candidate is excluded from this baseline.
+Current verified source: `2a3b5e01b99b96581194f433d637c6c9a5e3e3c7`. All 33 types remain enabled. Release/thin LTO/one codegen unit, locked dependencies, rustc 1.96.1; no stripping. Section reader: Apple LLVM 21.0.0 `llvm-size`. Source checkout paths are remapped consistently. This is a current-build measurement, not a cross-platform footprint claim.
 
-## Release artifacts
+## Current release artifacts
 
-The CLI and FFI were built together from an isolated snapshot of the fixed revision, with locked dependencies, all features, release optimization, thin LTO and one codegen unit. All 33 diagram types remain enabled. Compiler: rustc 1.96.1. Section reader: Apple LLVM 21.0.0 `llvm-size`. Checkout paths are remapped identically in both versions. Artifacts are not stripped.
-
-| Artifact | Entire file bytes | Instruction text bytes |
+| Artifact | Current file bytes | Current instruction text bytes |
 | --- | ---: | ---: |
-| CLI | 5,210,752 | 3,853,944 |
-| FFI dynamic library | 4,798,544 | 3,561,420 |
-| FFI static archive | 41,708,256 | 4,273,968 |
+| cli | 5,194,400 | 3,845,164 |
+| ffi-static | 41,710,992 | 4,273,740 |
+| ffi-dynamic | 4,798,784 | 3,561,128 |
 
-File size includes data, symbols, metadata, embedded bitcode and archive overhead where present. Instruction text is measured separately from `__text` sections; the tool also recognizes ELF `.text` and `.text.*` sections. Stubs, unwind information, constants and all other sections are retained separately in the evidence. The section reader rejects unreadable archive members rather than treating them as zero-sized code. Only the current artifact format has been exercised; this is not a cross-platform build claim.
+Against the matched frozen production baseline, CLI file bytes fell **16,352**, instruction text **8,780**. FFI dynamic/static instruction text fell **292 / 228 bytes**, while their full file sizes rose **240 / 2,736 bytes**. These values are reported separately; the result does not show every artifact's file getting smaller. Current full-type reference speedup is API **1.77×**, UTF-8 **1.87×**, and paired native render time fell **2.04%**. The 2× target is not met.
 
-The static archive contains **26,008,880 bytes of LLVM bitcode** in addition to machine instructions and other content. Its instruction total sums all archive members before the host linker selects and removes unused code. Neither the archive's file size nor its summed instruction size represents an application's final link increment. Rust `.rlib` metadata is not substituted for a linked release library.
+File bytes include data, symbols, metadata, embedded bitcode and archive overhead. Instruction text sums `__text` (or ELF `.text` / `.text.*`) separately from stubs, unwind tables and other sections. An unreadable archive member fails measurement instead of becoming zero-sized code. Static archive text includes every member before the host linker selects/removes unused code; neither its file nor text total is the host application's final link increment. Rust `.rlib` metadata is not substituted for a linked library.
 
-[Release measurements, source fingerprints, artifact SHA-256 values, build configuration and every section total](research/code-size-baseline-2026-10-20/summary.json) identify the baseline. No hardware, host name or local checkout path is recorded in the published evidence.
+[Current paired sections, hashes and build configuration](research/label-temporaries-optimization-2026-10-20/size-comparison.json) · [implementation, timing and memory tradeoffs](LABEL-TEMPORARIES-OPTIMIZATION.md). The original [release baseline](research/code-size-baseline-2026-10-20/summary.json) remains immutable.
 
-## Benchmark drivers
+## Development drivers
 
-Development drivers contain different harness and dependency code and are kept separate from shipping artifacts. These are the existing frozen baseline drivers, not rebuilds with the release-size path mapping:
+Drivers contain different harness/dependency code and are kept separate from shipping CLI/FFI artifacts. Their builds do not use the shipping-size source-path remapping.
 
-| Driver | Entire file bytes | Instruction text bytes |
+| Driver | Current file bytes | Current instruction text bytes |
 | --- | ---: | ---: |
-| Extended benchmark | 5,068,880 | 3,758,756 |
-| CPU profiler | 5,015,584 | 3,719,448 |
-| Counted allocator | 5,516,912 | 4,201,216 |
-| Cross-engine benchmark | 9,363,088 | 6,795,660 |
+| bench | 5,052,704 | 3,749,976 |
+| profile | 4,999,328 | 3,710,668 |
+| allocator | 5,517,024 | 4,201,640 |
+| cross-bench | 9,346,784 | 6,786,880 |
 
-[Driver measurements and fingerprints](research/code-size-baseline-2026-10-20/drivers.json) match the binaries frozen before this round. A change in a driver is not reported as a change in the CLI or FFI.
+[Both phases, every section and fingerprint](research/label-temporaries-optimization-2026-10-20/driver-sizes.json). Driver changes are not reported as CLI or FFI changes.
 
 ## Reproduction
 
-Keep all builds and section measurements outside latency timing, tests, CPU sampling, allocation probes and RSS measurements. From the repository root, create an isolated baseline source snapshot:
+Keep builds and section measurements outside latency timing, tests, CPU sampling, allocator probes and process-resource checks. Create isolated source snapshots for both revisions; preserve all build parameters, features and locked dependency versions. The initial baseline can be reproduced from the repository root:
 
 ```sh
 mkdir -p target/code-size/baseline-source
@@ -46,23 +44,17 @@ python3 tools/bench/build-size.py \
   --source target/code-size/baseline-source \
   --output target/code-size/before \
   --revision 4a03a25c2ef74b393b283751cb04086edd3c2a81
-python3 tools/bench/compare-size.py \
-  --before target/code-size/before \
-  --report target/code-size/baseline.json
-```
-
-For a candidate, build its source checkout with the same script and configuration, using a fresh output directory and the actual revision label. The script refuses to overwrite a frozen manifest, rejects environment profile/rustflag overrides, and fingerprints sources before and after compilation. Then compare:
-
-```sh
 python3 tools/bench/build-size.py \
   --source . --output target/code-size/after \
-  --revision working-tree
+  --revision 2a3b5e01b99b96581194f433d637c6c9a5e3e3c7
 python3 tools/bench/compare-size.py \
   --before target/code-size/before \
   --after target/code-size/after \
   --report target/code-size/comparison.json
 ```
 
-The comparison rejects mismatched toolchains, declared release profiles, build commands, normalized build environments or artifact sets. It never strips or modifies the frozen binaries. A same-baseline comparison was exercised for all three artifacts: file and text deltas were zero and artifact fingerprints matched. The CLI text total was also checked using `size -m`.
+Use the actual source revision label, or `working-tree` when dirty, and a fresh output directory. The builder fingerprints sources before/after compilation, normalizes source paths, rejects local profile/rustflag environment overrides and refuses to replace a frozen manifest. The section comparison rejects different toolchains, declared profiles, commands, normalized environments or artifact sets, and never changes/strips a binary. It describes only its own measurement, not whole-host idleness.
 
-Record stripping and debug/symbol changes separately from instruction reductions. Do not obtain smaller artifacts by disabling diagram types or features, weakening precision, simplifying output, caching results, reducing workloads or changing acceptance thresholds. Compiler/profile changes require a fresh paired speed and resource measurement as well as the size comparison.
+After test-only ports, rebuilding the exact targets produced identical bytes for all four drivers and all three shipping artifacts. The original source snapshots remain preserved, and [the explicit test-only supplement](research/label-temporaries-optimization-2026-10-20/release-revalidation.json) records the later validation sources separately.
+
+Before latency measurements, `python3 tools/bench/check-timing-window.py` can detect listed build/test drivers without stopping processes or storing paths/host details. Its snapshot is not proof of sustained idleness. Preserve every process result, including regressions and contention observations. Record stripping/debug/symbol changes separately from instruction reductions. Do not obtain smaller artifacts by disabling types/features, lowering precision, simplifying output, caching results, reducing inputs or weakening acceptance thresholds.

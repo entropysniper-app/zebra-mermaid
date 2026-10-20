@@ -1,5 +1,7 @@
 # Label string construction candidate
 
+This file preserves the historical preparation snapshot. The completed measurements and committed runtime are in [the final optimization report](LABEL-TEMPORARIES-OPTIMIZATION.md).
+
 This candidate has completed correctness checks, release-size measurement and allocator probes. **Latency timing and OS RSS comparison are still pending.** A read-only preflight found an unrelated build/test driver, so the timing pipeline stopped before producing any latency samples. The current committed performance result remains API **1.79×** and UTF-8 **1.89×**; the **2× API-return target is not yet proven**.
 
 Baseline: `4a03a25c2ef74b393b283751cb04086edd3c2a81`, with the same production code as `e0a9e608a2c19b0066b6710b76e4f95dc81c1926`. The uncommitted candidate is captured over `cab1800` in an [exact gzipped patch](research/label-temporaries-prepared-2026-10-20/candidate.patch.gz). Its reverse application was checked against the working candidate without modifying any file. [Source/input/program fingerprints and status](research/label-temporaries-prepared-2026-10-20/summary.json) identify this preparation snapshot; it is not a performance-completion report.
