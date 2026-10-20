@@ -4,7 +4,7 @@ This variant remains **experimental**. The full 167-Sample / 33-type measurement
 
 All three release instruction-text totals increased, and most process RSS medians rose. The scanner/counter runtime candidate is therefore not committed as a validated optimization. The next candidate evaluates remaining label-string temporaries against the unchanged committed renderer. Supplemental scanner contracts will remain useful independently of this representation.
 
-Baseline: `4a03a25c2ef74b393b283751cb04086edd3c2a81`, with identical production code at `e0a9e608a2c19b0066b6710b76e4f95dc81c1926`. The exact candidate over `f5d27e5` is saved as a [patch](research/scanner-indexed-experiment-2026-10-20/candidate.patch), SHA-256 `889a470a7b750730350b651515bd9e588304ea931d0a141b3ab5c6b0153f4b5f`. No production commit is assigned to it. Reference: Pele 1.7.0, `8603bf3313add9143cd417015d4a6bd6c522dada`; Node v26.3.0, rustc 1.96.1.
+Baseline: `4a03a25c2ef74b393b283751cb04086edd3c2a81`, with identical production code at `e0a9e608a2c19b0066b6710b76e4f95dc81c1926`. The exact candidate over `f5d27e5` is saved as a [gzipped patch](research/scanner-indexed-experiment-2026-10-20/candidate.patch.gz), uncompressed SHA-256 `889a470a7b750730350b651515bd9e588304ea931d0a141b3ab5c6b0153f4b5f`. No production commit is assigned to it. Reference: Pele 1.7.0, `8603bf3313add9143cd417015d4a6bd6c522dada`; Node v26.3.0, rustc 1.96.1.
 
 ## Implementation and measurement conditions
 
