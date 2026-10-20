@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（[剩余 SVG 适配器直接构造](LABEL-TEMPORARIES-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（[解析器所有权与模型发布](PARSER-OWNERSHIP-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -102,7 +102,17 @@
 
 ## 5. 已运行的验证（实际结果）
 
-最新标签直接构造轮次（基线 `4a03a25`，代码提交 `2a3b5e0`）：**全 167 Sample / 33 类原生耗时下降 2.04%，API 1.77×，2× 仍未达到**。
+最新解析器所有权轮次（基线 `7235d3f`，代码 `9de7ca5`）：**167 Sample / 33 类原生耗时 −0.55%，API 1.78×，2× 未达**。
+
+- Flowchart/Swimlane 私有解析器保留词法借用 token，消费时移动或按需取得所有权，后续片段直接追加；Agentflow 消费已有 token 字符串而非复制。Usecase 在原插入顺序验证完状态后，按稳定首次提及顺序一次移动到公开模型；原错误优先级、映射顺序、公开类型及拥有的数据保持不变。不缓存输入/token/模型/输出，原解析、布局、SVG、精度与限额不变。
+- 新增独立固定 Node 语义参照 **161 项（132 模型、29 预期拒绝）**，种子 `0x4a0e14`、128 个生成输入；它是补充回归，不新增原始测试映射。当前完整工作区 **3,237 通过、0 失败、5 ignored**，无默认 feature 4 项通过；761 完整响应、167 Sample SVG、39 扩展验证记录一致，原始独立时限仍 **2,791 通过、0 失败、7 跳过、4,028 未映射**、`complete: false`。
+- 主集合 after/before **0.99449**，18 类观测中位数下降、15 类回退，回退为 git +1.79%、requirement +1.72%、wardley +1.59%、c4 +1.54%、ishikawa +1.27%、cynefin +1.16%、journey +1.04%、info +0.73%、kanban +0.58%、venn +0.32%、block +0.25%、quadrant +0.13%、railroad +0.09%、gantt +0.05%、pie +0.04%。相关四类 Sample：Flowchart **−1.91%**、Agentflow **−2.76%**、Swimlane **−4.49%**、Usecase **−3.86%**。33 类文档 render **−0.18%（基本持平）**、parse **−1.74%**；全部 39 组和单进程数据保留，不以四类子集替代全类型目标，不作小幅差异显著性声明。
+- 当轮 API / UTF-8 **1.78× / 1.90×**；两端点独立。Node 每轮重测，跨轮加速比不相除推断原生收益。CLI 文件 / 代码段 **−33,568 / −44,556 bytes**；FFI 动态库文件 / 代码段 **−32,960 / −43,304**、静态库 **−165,120 / −43,304 bytes**。相同工具链、锁文件依赖与 release/full-feature 参数，未 strip，驱动单列。
+- Sample 分配与申请均 **4 降/29 平**，扩展 **10 降/29 平**，额外存活峰值全部不变；Usecase Sample 扩容 **913 → 917**、文档 **2,280 → 2,302**，Agentflow 参考组扩容 **9,234 → 9,228**。批后净保留全为 0，不作通用泄漏结论。
+- OS RSS（每版本每组 3 个交替新进程、5 批预热、至少 1 秒完整渲染）：Sample **12 降/2 平/19 增**，扩展 **21 降/0 平/18 增**。所有回退与 CPU 总量保留；申请字节不替代 RSS，不相加独立进程峰值。
+- [报告](PARSER-OWNERSHIP-OPTIMIZATION.md)、[证据](research/parser-ownership-optimization-2026-10-20/summary.json)、[验证](research/parser-ownership-optimization-2026-10-20/validation.json)及 README 终态性能、体积与消费者远程提交固定值已更新。下一轮继续以完整 33 类 API 2× 与代码体积为目标，原始测试全量验收仍未完成。
+
+标签直接构造历史轮次（基线 `4a03a25`，代码提交 `2a3b5e0`）：**全 167 Sample / 33 类原生耗时下降 2.04%，API 1.77×，2× 仍未达到**。
 
 - 31 个文件中 62 处已知适配器改为现有 Part 写入，非空标签提供小初始容量提示，Info 两标签共用正文。解析、测字、布局、浮点格式化、原限额及完整 SVG 保留；不缓存输入/模型/标签/输出。Info inclusive 通用 `to_string` 采样 **766 → 0**、标签写入 **745 → 183**；这些是重叠的含子调用次数，不是可相加的独占 CPU 百分比。
 - 主集合 after/before **0.97956**，21 类下降、12 类回退，完整回退均在报告；Info **−17.24%**、Mindmap **−10.74%**，State **+2.56%**、Radar **+2.32%**、Architecture **+2.31%**。33 类文档 render **−3.10%**、parse **−0.15%（解析未改）**；39 组全部保留，大 labelled mesh **+1.05%**、Venn 文档 **+1.23%**、Flowchart 文档 **+0.91%**，小幅差异不作显著性声明。

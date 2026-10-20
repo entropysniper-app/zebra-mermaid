@@ -1,0 +1,121 @@
+{
+  "method": "Same external CPU captures as the per-phase CPU summaries. Counts are inclusive frame occurrences across stack branches, including recursive occurrences. They overlap and are not additive exclusive CPU percentages. Raw captures remain ignored; their SHA-256 values identify the source evidence.",
+  "phases": {
+    "before": [
+      {
+        "case": "samples: agentflow",
+        "threadSamples": 3555,
+        "inclusiveFrameOccurrences": {
+          "preprocess::preprocess": 21,
+          "compound_layout": 522,
+          "layered::layered": 392,
+          "reduce_crossings": 1,
+          "svg_document": 93,
+          "write_label_view": 37
+        },
+        "rawSha256": "d2b30b818cc0da283d2a768c894c5c286db2973212c2e4311467e7b6a9d5afd2"
+      },
+      {
+        "case": "samples: block",
+        "threadSamples": 3564,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 228,
+          "write_label_view": 56
+        },
+        "rawSha256": "56d2c30181cda1c5279a3fb4a8728332c15be5ace67aed0276fa1da912c663d1"
+      },
+      {
+        "case": "samples: railroad",
+        "threadSamples": 3563,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 253,
+          "write_label_view": 21,
+          "Grammar::reader": 150,
+          "tokenize_into": 92
+        },
+        "rawSha256": "07fc7ff5e6384972154e99d59697ea3c0ebbd2bd2ef9b6184bd3eca901357387"
+      },
+      {
+        "case": "samples: swimlane",
+        "threadSamples": 3582,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 199,
+          "write_label_view": 52,
+          "preprocess::preprocess": 24
+        },
+        "rawSha256": "6047bf28f0dee8d1ddbc44153aea1d99c1fbef36d2598537ec9250009ad735bb"
+      },
+      {
+        "case": "samples: usecase",
+        "threadSamples": 3546,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 555,
+          "layered::layered": 467,
+          "reduce_crossings": 18,
+          "svg_document": 104,
+          "write_label_view": 69,
+          "preprocess::preprocess": 105
+        },
+        "rawSha256": "23e560c8f2f5842ba86f0578f99d18f4f92daad2fcdbf8aa91b818ab637f81e1"
+      }
+    ],
+    "after": [
+      {
+        "case": "samples: agentflow",
+        "threadSamples": 3555,
+        "inclusiveFrameOccurrences": {
+          "preprocess::preprocess": 31,
+          "compound_layout": 537,
+          "layered::layered": 434,
+          "reduce_crossings": 3,
+          "svg_document": 91,
+          "write_label_view": 24
+        },
+        "rawSha256": "bd66646530298d9568c82de2e9d56549063f4a5ca9e9392716bc6a07510b6500"
+      },
+      {
+        "case": "samples: block",
+        "threadSamples": 3558,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 225,
+          "write_label_view": 68
+        },
+        "rawSha256": "9a55344a411b0b60887ff2d17191089ca1246883f0d7dfa11ed88c64ae3609d1"
+      },
+      {
+        "case": "samples: railroad",
+        "threadSamples": 3524,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 292,
+          "write_label_view": 18,
+          "Grammar::reader": 144,
+          "tokenize_into": 89
+        },
+        "rawSha256": "bb1a17877fd7271fa608b092295256387d3cabfaf0fc51627b634061c72a8ccd"
+      },
+      {
+        "case": "samples: swimlane",
+        "threadSamples": 3545,
+        "inclusiveFrameOccurrences": {
+          "svg_document": 215,
+          "write_label_view": 37,
+          "preprocess::preprocess": 32
+        },
+        "rawSha256": "a63ad9e42c50fbff95402850e7b03c3d19a636028166b819571a71fa9065710c"
+      },
+      {
+        "case": "samples: usecase",
+        "threadSamples": 3471,
+        "inclusiveFrameOccurrences": {
+          "compound_layout": 590,
+          "layered::layered": 469,
+          "reduce_crossings": 18,
+          "svg_document": 98,
+          "write_label_view": 75,
+          "preprocess::preprocess": 90
+        },
+        "rawSha256": "10fe711dd527f87264870475e5467139c03c53f0e6512c54d2ab095ec0acbd84"
+      }
+    ]
+  }
+}
