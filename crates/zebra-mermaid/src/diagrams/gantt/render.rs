@@ -148,7 +148,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
         let width = (js::max(title.width, 1.0) + 2.0 * pad).ceil();
         let height = (js::max(title.height, 1.0) + 2.0 * pad).ceil();
         let content =
-            label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+            svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
         return Ok(Rendered { svg: svg_document("gantt", width, height, size, ctx, acc, &content), width, height, links: vec![] });
     }
     let mut section_labels = IndexMap::new();
@@ -475,7 +475,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
                 text_fill = svg_format!(" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"");
             }
         }
-        let mut body = shape + &label_svg(&bar.label, bar.label_x, cy, &svg_format!(" class=\"pele-label\"", text_fill), None).to_string();
+        let mut body = shape + &svg_format!(label_svg(&bar.label, bar.label_x, cy, &svg_format!(" class=\"pele-label\"", text_fill), None));
         if let Some(url) = model.links.get(&task.id) {
             body = linked(&body, url, &task.id, &mut links, options, "");
         }
@@ -535,7 +535,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
         if top_axis { svg_format!("M", num(left), ",", num(plot_top - grid_lead), "H", num(right)) } else { String::new() }
     );
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !bands.is_empty() {
         svg_write!(content, "<g class=\"pele-sections\">", bands, "</g>").unwrap();
     }

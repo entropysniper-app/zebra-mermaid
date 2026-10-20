@@ -239,14 +239,13 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             let across = matches!(root_dir, Dir::LR | Dir::RL);
             let cx = if across { left + c.pad_top / 2.0 } else { c.x };
             let cy = if across { c.y } else { top + c.pad_top / 2.0 };
-            let text = label_svg(
+            let text = svg_format!(label_svg(
                 &v.label,
                 cx,
                 cy,
                 &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text),
                 icons,
-            )
-            .to_string();
+            ));
             svg_write!(
                 clusters,
                 "<g class=\"pele-cluster pele-lane",
@@ -322,7 +321,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 "\"",
                 v.style.shape,
                 "/>",
-                if crossed { String::new() } else { label_svg(&v.label, tx, ty, &attrs, icons).to_string() },
+                if crossed { String::new() } else { svg_format!(label_svg(&v.label, tx, ty, &attrs, icons)) },
                 "</g>"
             )
             .unwrap();
@@ -414,7 +413,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
             nodes_out.push_str("</g>");
             continue;
         }
-        let mut text = label_svg(&v.label, 0.0, v.dy, &label_attrs, icons).to_string();
+        let mut text = svg_format!(label_svg(&v.label, 0.0, v.dy, &label_attrs, icons));
         if internal {
             let name = decode_entities(node.label.as_deref().unwrap());
             let allowed = link_url(&sanitize_url(&name), options).is_some();

@@ -754,14 +754,13 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             let lines = js::max(1.0, ((icon_size - 4.0) / line_height).floor());
             // `lines` is at least 1 and at most the icon size, so it is a small whole number.
             let fitted = fit(&text, icon_size - 8.0, lines as usize, &m);
-            inner = label_svg(
+            inner = svg_format!(label_svg(
                 &fitted,
                 0.0,
                 half,
                 &svg_format!(" class=\"pele-icon-text\" font-size=\"", js::to_string(text_size), "\""),
                 icons,
-            )
-            .to_string();
+            ));
         }
         svg_write!(
             nodes_out,
@@ -819,7 +818,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
         svg_write!(body, "<g class=\"pele-nodes\">", nodes_out, "</g>").unwrap();
     }
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !body.is_empty() {
         svg_write!(content, "<g transform=\"translate(", js::to_string(ox), ",", js::to_string(oy), ")\">", body, "</g>").unwrap();
     }

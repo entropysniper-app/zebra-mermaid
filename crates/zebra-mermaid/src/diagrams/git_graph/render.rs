@@ -650,7 +650,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
     let dy = pad + title_height - b.min_y;
 
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     svg_write!(content, "<g transform=\"translate(", num(dx), ",", num(dy), ")\">").unwrap();
     if !branches.is_empty() {
         svg_write!(content, "<g class=\"pele-branches\" fill=\"none\" font-size=\"", js::to_string(medium), "\">", branches, "</g>")

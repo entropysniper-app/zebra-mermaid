@@ -1,3 +1,4 @@
+use crate::svg::concat::svg_format;
 use crate::svg::{
     builder::num,
     edges::{marker, marker_trim},
@@ -45,7 +46,7 @@ pub fn draw(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str) -> String
             )
         }
         "lollipop" => format!("<circle class=\"pele-marker\" cx=\"{}\" cy=\"{}\" r=\"5\"/>", num(x - dx * 5.0), num(y - dy * 5.0)),
-        "dependency" => marker("arrow_point", x, y, dx, dy, color).to_string(),
+        "dependency" => svg_format!(marker("arrow_point", x, y, dx, dy, color)),
         _ => String::new(),
     }
 }

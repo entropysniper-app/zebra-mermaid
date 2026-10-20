@@ -139,7 +139,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     let mut ext = Extent { min_x: 0.0, min_y: 0.0, max_x: plot_w, max_y: plot_h };
     let centered = |ext: &mut Extent, label: &Label, cx: f64, cy: f64, attrs: &str| -> String {
         ext.grow(cx - label.width / 2.0, cy - label.height / 2.0, cx + label.width / 2.0, cy + label.height / 2.0);
-        label_svg(label, cx, cy, attrs, icons).to_string()
+        svg_format!(label_svg(label, cx, cy, attrs, icons))
     };
     let starting = |ext: &mut Extent, label: &Label, x: f64, y: f64, attrs: &str| -> String {
         ext.grow(x, y - label.size, x + label.width, y - label.size + label.height + 4.0);
@@ -849,9 +849,13 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     let ty = pad + title_height - ext.min_y;
     let total_width = (right - left + 2.0 * pad).ceil();
     let total_height = (ext.max_y - ext.min_y + title_height + 2.0 * pad).ceil();
-    let mut content =
-        label_svg(&title, tx + plot_w / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        tx + plot_w / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     svg_write!(content, "<g transform=\"translate(", num(tx), ",", num(ty), ")\">").unwrap();
     svg_write!(content, "<g class=\"pele-wardley-frame\" fill=\"none\">", frame, "</g>").unwrap();
     content.push_str(&stage_labels);

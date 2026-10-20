@@ -98,7 +98,7 @@ fn aligned(label: &Label, x: f64, y: f64, anchor: Anchor) -> String {
         Anchor::End => -label.width / 2.0,
         Anchor::Middle => 0.0,
     };
-    label_svg(label, x + shift, y, "", None).to_string()
+    svg_format!(label_svg(label, x + shift, y, "", None))
 }
 
 /// Lays out plain text of a chart, as Pele's `text` helper does.
@@ -664,7 +664,7 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     let small_s = js::to_string(small);
     let tiny_s = js::to_string(tiny);
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !grid.is_empty() {
         svg_write!(content, "<path class=\"pele-grid\" d=\"", grid, "\" stroke=\"", ctx.paint(Role::InnerStroke, "var(--_a)"), "\"/>")
             .unwrap();

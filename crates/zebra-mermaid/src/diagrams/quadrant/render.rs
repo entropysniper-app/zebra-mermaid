@@ -271,9 +271,13 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     }
 
     // Mermaid puts each new point under the ones before it.
-    let mut content =
-        label_svg(&title, width / 2.0, title_pad / 2.0 + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        width / 2.0,
+        title_pad / 2.0 + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     svg_write!(
         content,
         "<g class=\"pele-quadrants\" fill=\"",

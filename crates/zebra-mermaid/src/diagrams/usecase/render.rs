@@ -153,7 +153,7 @@ fn trim(kind: &str) -> f64 {
 }
 fn mark(kind: &str, x: f64, y: f64, dx: f64, dy: f64, color: &str, bg: &str) -> String {
     if kind != "extension" {
-        return marker(kind, x, y, dx, dy, color).to_string();
+        return svg_format!(marker(kind, x, y, dx, dy, color));
     }
     let bx = x - dx * 12.0;
     let by = y - dy * 12.0;
@@ -240,7 +240,7 @@ fn title_x(c: &CNode, width: f64, crossings: &Crossings) -> f64 {
 }
 fn left_label(label: &Label, x: f64, cy: f64, attrs: &str, icons: Option<&Icons>) -> String {
     if label.lines().len() < 2 {
-        return label_svg(label, x + label.width / 2.0, cy, attrs, icons).to_string();
+        return svg_format!(label_svg(label, x + label.width / 2.0, cy, attrs, icons));
     }
     let mut out = String::new();
     for i in 0..label.lines().len() {
@@ -846,7 +846,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
         }
     }
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }

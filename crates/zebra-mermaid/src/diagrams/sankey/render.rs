@@ -259,7 +259,7 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
     let height = (max_y - min_y + title_height + 2.0 * pad).ceil();
 
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     svg_write!(content, "<g transform=\"translate(", num(ox), ",", num(oy), ")\">").unwrap();
     svg_write!(content, "<g class=\"pele-sankey-links\" fill-opacity=\"0.4\">", links_out, "</g>").unwrap();
     svg_write!(content, "<g class=\"pele-sankey-nodes\">", nodes_out, "</g>").unwrap();

@@ -513,14 +513,13 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         let text = &v.style.text;
         let shape =
             svg_format!("x=\"", num(x0), "\" y=\"", num(y0), "\" width=\"", num(v.w), "\" height=\"", num(v.h), "\" rx=\"", RADIUS, "\"");
-        let mut name = label_svg(
+        let mut name = svg_format!(label_svg(
             &v.label,
             0.0,
             if v.rows.is_empty() { 0.0 } else { y0 + v.head_h / 2.0 },
             &joined(" class=\"pele-label\"", text),
             icons,
-        )
-        .to_string();
+        ));
         let display = decode_entities(if node.alias.is_empty() { &node.label } else { &node.alias });
         if classes.split_whitespace().any(|c| c == "internal-link") && !name.is_empty() && ctx.options.links != Some(false) {
             let safe = link_url(&sanitize_url(&display), ctx.options).is_some();
@@ -768,7 +767,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         }
     }
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }

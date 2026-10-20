@@ -201,9 +201,13 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons())
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        ctx.icons()
+    ));
     if !sections.is_empty() {
         svg_write!(content, "<g class=\"pele-sections\" font-size=\"", js::to_string(small), "\">", sections, "</g>").unwrap();
     }

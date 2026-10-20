@@ -319,9 +319,13 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
         .unwrap();
     }
 
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", ctx.icons())
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        ctx.icons()
+    ));
     if !guides.is_empty() {
         // The guides connect each folder to its entries.
         svg_write!(

@@ -266,7 +266,7 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
     let draw_block = |b: &Block| -> String {
         let mut y = b.cy - b.h / 2.0;
         let mut out =
-            label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None).to_string();
+            svg_format!(label_svg(&b.title, b.cx, y + b.title.height / 2.0, " class=\"pele-label\" font-weight=\"var(--_hw)\"", None));
         y += b.title.height;
         for s in &b.subtitles {
             svg_write!(
@@ -429,7 +429,7 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
         let el = or_one(math::hypot(ex - qx, ey - qy));
         let ux = (ex - qx) / el;
         let uy = (ey - qy) / el;
-        let head = marker("arrow_point", ex, ey, ux, uy, arrow).to_string();
+        let head = svg_format!(marker("arrow_point", ex, ey, ux, uy, arrow));
         ex -= ux * marker_trim("arrow_point");
         ey -= uy * marker_trim("arrow_point");
 
@@ -440,8 +440,13 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
             let away = (nx.abs() * label.width) / 2.0 + (ny.abs() * label.height) / 2.0 + 6.0;
             let half = label.width / 2.0 + 4.0;
             let tx = js::min(js::max(lx + nx * away, x0 + half), js::max(right - half, x0 + half));
-            text = label_svg(&label, tx, ly + ny * away, &svg_format!(" class=\"pele-edge-label\" font-size=\"", small_s, "\""), icons)
-                .to_string();
+            text = svg_format!(label_svg(
+                &label,
+                tx,
+                ly + ny * away,
+                &svg_format!(" class=\"pele-edge-label\" font-size=\"", small_s, "\""),
+                icons
+            ));
         }
         svg_write!(
             edges,
@@ -473,8 +478,13 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
-    let mut content =
-        label_svg(&title, x0 + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        x0 + width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     svg_write!(content, "<g class=\"pele-cynefin-regions\">", fills, "</g>").unwrap();
     content.push_str(&boundaries);
     content.push_str(&ellipse);

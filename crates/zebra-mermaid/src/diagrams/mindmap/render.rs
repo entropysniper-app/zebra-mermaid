@@ -39,7 +39,7 @@ const ROW_GAP: f64 = 10.0;
 /// A label with each line starting at `left`, for an outline, where centered lines would look ragged.
 fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> String {
     if label.lines().len() < 2 {
-        return label_svg(label, left + label.width / 2.0, cy, " class=\"pele-label\"", icons).to_string();
+        return svg_format!(label_svg(label, left + label.width / 2.0, cy, " class=\"pele-label\"", icons));
     }
     let mut out = String::new();
     let count = label.lines().len() as f64;
@@ -522,7 +522,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
             if down && shape.is_empty() {
                 left_label(label, shift - label.width / 2.0, dy[i], icons)
             } else {
-                label_svg(label, shift, dy[i], " class=\"pele-label\"", icons).to_string()
+                svg_format!(label_svg(label, shift, dy[i], " class=\"pele-label\"", icons))
             },
             "</g>"
         );
@@ -538,9 +538,13 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
     let width = js::max(max_x - min_x, title.width);
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (max_y - min_y + title_height + 2.0 * pad).ceil();
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     svg_write!(
         content,
         "<g transform=\"translate(",

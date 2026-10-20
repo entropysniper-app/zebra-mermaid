@@ -258,9 +258,13 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
     let origin = format!("translate({},{})", num(pad + (body_width - (x1 - x0)) / 2.0 - x0), num(pad + title_height - y0));
 
     let small_s = js::to_string(small);
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", icons)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        icons
+    ));
     svg_write!(content, "<g transform=\"", origin, "\">").unwrap();
     if !grid.is_empty() {
         // The rings are a grid behind the data.

@@ -320,7 +320,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
     let ox = pad + (inner - (max_x - min_x)) / 2.0 - min_x;
     let oy = pad + title_height - min_y;
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !body.is_empty() {
         svg_write!(content, "<g transform=\"translate(", num(ox), ",", num(oy), ")\">", body, "</g>").unwrap();
     }
@@ -450,9 +450,13 @@ fn vertical_causes(model: &IshikawaModel, ctx: &RenderCtx) -> Rendered {
     }
     let total_width = (width + 2.0 * pad).ceil();
     let height = (js::max(pad + title.height, y - 12.0) + pad).ceil();
-    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-        .to_string()
-        + &edges
+    let content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    )) + &edges
         + &nodes;
     Rendered {
         svg: svg_document("ishikawa", total_width, height, size, ctx, Accessible::default(), &content),

@@ -302,9 +302,13 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (height + title_height + 2.0 * pad).ceil();
     let small_s = js::to_string(small);
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     svg_write!(
         content,
         "<g class=\"pele-slices\" transform=\"translate(",

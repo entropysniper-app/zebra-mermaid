@@ -607,7 +607,7 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let pad = ctx.padding();
     let arc = m.arc;
 
-    let a = num(arc).to_string();
+    let a = svg_format!(num(arc));
     let turn = |sweep: u8, dx: &str, dy: &str| format!("a{a},{a} 0 0 {sweep} {dx}{a},{dy}{a}");
 
     let title =
@@ -720,9 +720,13 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (bottom + pad).ceil();
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     if !rules.is_empty() {
         svg_write!(
             content,

@@ -365,15 +365,14 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             "\"/>"
         )
         .unwrap();
-        let body = label_svg(&label, cx, top + label.height / 2.0, &format!("{}{}", rel_text_fill, st.text), None).to_string()
-            + &label_svg(
+        let body = svg_format!(label_svg(&label, cx, top + label.height / 2.0, &format!("{}{}", rel_text_fill, st.text), None))
+            + &svg_format!(label_svg(
                 &techn,
                 cx,
                 top + label.height + techn.height / 2.0,
                 &svg_format!(" class=\"pele-c4-techn\" fill=\"", ctx.paint(Role::MutedText, "var(--_m)"), "\"", st.text),
                 None,
-            )
-            .to_string();
+            ));
         labels_out.push_str(&link(body, rel.link.as_deref(), &id, &mut links, options));
         labels_out.push_str("</g>");
     }
@@ -469,14 +468,13 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             // Zebra writes all of a shape's text in the text color.
             let muted = svg_format!(" fill=\"", ctx.paint(Role::Text, "var(--_m)"), "\"", st.text);
             let mut y = dy - node.text_h / 2.0;
-            let mut text = label_svg(
+            let mut text = svg_format!(label_svg(
                 &labels[0],
                 dx,
                 y + labels[0].height / 2.0,
                 &svg_format!(" class=\"pele-c4-type\" font-size=\"", type_size, "\"", muted),
                 None,
-            )
-            .to_string();
+            ));
             y += labels[0].height;
             write!(
                 text,
@@ -547,7 +545,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     let oy = pad + title_height - min_y;
 
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     svg_write!(content, "<g transform=\"translate(", num(ox), ",", num(oy), ")\">").unwrap();
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();

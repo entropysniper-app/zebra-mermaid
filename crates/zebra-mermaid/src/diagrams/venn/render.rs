@@ -280,7 +280,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         // An overlap is only drawn when a style gives it a look of its own; otherwise the circles show it.
         if region.sets.len() > 1 && !region.style.shape.is_empty() {
             let outline: Vec<&Circle> = region.inside.iter().map(|&i| &placed[i]).collect();
-            let d = region_path(&outline, |v| num(v).to_string());
+            let d = region_path(&outline, |v| svg_format!(num(v)));
             if !d.is_empty() {
                 svg_write!(
                     overlaps,
@@ -331,7 +331,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
     }
 
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     svg_write!(content, "<g class=\"pele-venn-sets\">", sets, "</g>").unwrap();
     if !overlaps.is_empty() {
         svg_write!(content, "<g class=\"pele-venn-overlaps\">", overlaps, "</g>").unwrap();

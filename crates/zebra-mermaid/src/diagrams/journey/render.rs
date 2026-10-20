@@ -457,8 +457,13 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
     let content = if title.lines().is_empty() {
         body
     } else {
-        label_svg(&title, pad + width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
-            + &body
+        svg_format!(label_svg(
+            &title,
+            pad + width / 2.0,
+            pad + title.height / 2.0,
+            " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+            None
+        )) + &body
     };
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered {
@@ -632,8 +637,13 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
     let content = if title.lines().is_empty() {
         body
     } else {
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string()
-            + &body
+        svg_format!(label_svg(
+            &title,
+            total_width / 2.0,
+            pad + title.height / 2.0,
+            " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+            None
+        )) + &body
     };
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered { svg: svg_document("journey", total_width, height, size, ctx, acc, &content), width: total_width, height, links: Vec::new() }

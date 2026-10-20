@@ -2,6 +2,7 @@
 
 use crate::diagrams::RenderCtx;
 use crate::svg::builder::{num, render_label_svg as label_svg};
+use crate::svg::concat::svg_format;
 use crate::svg::theme::RADIUS;
 use crate::text::{Icons, RenderLabel as Label};
 use crate::theme::Role;
@@ -142,7 +143,7 @@ pub(super) fn draw_actor(kind: &str, cx: f64, top: f64, size: ActorSize, label: 
     let p = Paint::new(ctx);
     let text = " class=\"pele-label\"";
     if is_figure(kind) {
-        return figure(kind, cx, top, &p) + &label_svg(label, cx, top + GLYPH + GLYPH_GAP + label.height / 2.0, text, icons).to_string();
+        return figure(kind, cx, top, &p) + &svg_format!(label_svg(label, cx, top + GLYPH + GLYPH_GAP + label.height / 2.0, text, icons));
     }
     let left = cx - w / 2.0;
     let shape = &p.shape;
@@ -165,7 +166,7 @@ pub(super) fn draw_actor(kind: &str, cx: f64, top: f64, size: ActorSize, label: 
             num(bh),
             RADIUS
         );
-        return back + &front + &label_svg(label, left + bw / 2.0, top + STACK + bh / 2.0, text, icons).to_string();
+        return back + &front + &svg_format!(label_svg(label, left + bw / 2.0, top + STACK + bh / 2.0, text, icons));
     }
     if kind == "queue" {
         let l = num(left + CAP);
@@ -176,8 +177,8 @@ pub(super) fn draw_actor(kind: &str, cx: f64, top: f64, size: ActorSize, label: 
         return format!(
             "<path d=\"M{l},{t}H{r}A{CAP},{ry} 0 0 1 {r},{b}H{l}A{CAP},{ry} 0 0 1 {l},{t}Z\"{shape}/><path d=\"M{r},{t}A{CAP},{ry} 0 0 0 {r},{b}\"{}/>",
             p.line
-        ) + &label_svg(label, cx - CAP / 2.0, top + h / 2.0, text, icons).to_string();
+        ) + &svg_format!(label_svg(label, cx - CAP / 2.0, top + h / 2.0, text, icons));
     }
     format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{shape}/>", num(left), num(top), num(w), num(h), RADIUS)
-        + &label_svg(label, cx, top + h / 2.0, text, icons).to_string()
+        + &svg_format!(label_svg(label, cx, top + h / 2.0, text, icons))
 }

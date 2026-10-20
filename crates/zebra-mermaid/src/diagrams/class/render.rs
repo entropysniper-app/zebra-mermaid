@@ -573,7 +573,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 " stroke=\"",
                 ctx.paint(Role::GroupStroke, "var(--_b)"),
                 "\"/>",
-                if struck { String::new() } else { label_svg(&v.label, tx + ox, ty, &attrs, None).to_string() },
+                if struck { String::new() } else { svg_format!(label_svg(&v.label, tx + ox, ty, &attrs, None)) },
                 "</g>"
             )
             .unwrap();

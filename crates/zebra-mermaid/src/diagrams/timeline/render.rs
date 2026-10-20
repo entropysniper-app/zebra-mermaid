@@ -175,11 +175,11 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     let header = |group: &Group, label: &Label, x: f64, y: f64, w: f64, h: f64| -> String {
         let fill = ctx.series(group.section);
         rect(x, y, w, h, &svg_format!(" fill=\"", fill, "\""))
-            + &label_svg(label, x + w / 2.0, y + h / 2.0, &svg_format!(" font-weight=\"var(--_hw)\"", on_color(&fill)), None).to_string()
+            + &svg_format!(label_svg(label, x + w / 2.0, y + h / 2.0, &svg_format!(" font-weight=\"var(--_hw)\"", on_color(&fill)), None))
     };
     let period = |labels: &[Label], i: usize, color: &str, x: f64, y: f64, h: f64| -> String {
         rect(x, y, col_w, h, &svg_format!(" fill=\"", color, "\""))
-            + &label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None).to_string()
+            + &svg_format!(label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None))
     };
     let event = |label: &Label, color: &str, x: f64, y: f64, h: f64| -> String {
         svg_format!(
@@ -374,9 +374,13 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = js::max(height, pad * 2.0).ceil();
-    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-        .to_string()
-        + &body;
+    let content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    )) + &body;
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Rendered {
         svg: svg_document("timeline", total_width, total_height, size, ctx, acc, &content),

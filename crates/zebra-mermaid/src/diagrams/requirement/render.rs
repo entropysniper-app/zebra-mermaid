@@ -452,7 +452,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
         svg_write!(labels_svg, edge_label_svg(id, label, lx, ly, "", None, ctx.paint(Role::Background, "var(--_bg)"))).unwrap();
     }
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !edge_svg.is_empty() {
         svg_write!(
             content,

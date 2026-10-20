@@ -443,7 +443,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                 ctx.theming,
             );
         }
-        let mut text = label_svg(&v.label, 0.0, v.dy, &svg_format!(" class=\"pele-label\"", v.style.text), icons).to_string();
+        let mut text = svg_format!(label_svg(&v.label, 0.0, v.dy, &svg_format!(" class=\"pele-label\"", v.style.text), icons));
         if classes.split(' ').any(|s| s == "internal-link")
             && n.label.as_ref().is_some_and(|s| !s.is_empty())
             && ctx.options.links != Some(false)
@@ -523,7 +523,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         put(e, label, &held_paths[i], held_labels[i].0, held_labels[i].1, ctx, &mut edges_out, &mut labels_out);
     }
     let mut content =
-        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }

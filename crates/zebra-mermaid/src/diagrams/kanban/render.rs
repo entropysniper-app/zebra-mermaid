@@ -411,9 +411,13 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
 
     let total_width = (width + 2.0 * pad).ceil();
     let total_height = (board_height + title_height + 2.0 * pad).ceil();
-    let mut content =
-        label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-            .to_string();
+    let mut content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    ));
     content.push_str(&out);
 
     Ok(Rendered {

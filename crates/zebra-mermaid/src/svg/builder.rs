@@ -362,7 +362,21 @@ pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
     out.write_str(&extra)
 }
 
+// A small initial buffer avoids repeated growth for the usual text element. It is a
+// capacity hint only: complex markup still grows normally, and icons are resolved while
+// writing, after all arguments have been evaluated.
+fn label_svg_hint(label: &LabelView<'_>, attrs: &str) -> usize {
+    if label.lines.is_empty() {
+        0
+    } else {
+        attrs.len().saturating_add(96)
+    }
+}
+
 impl super::concat::Part for LabelSvg<'_> {
+    fn size_hint(&self) -> usize {
+        label_svg_hint(&self.label.view(), self.attrs)
+    }
     #[inline]
     fn append(&self, out: &mut String) {
         push_label_svg(out, self.label, self.cx, self.cy, self.attrs, self.icons);
@@ -381,6 +395,9 @@ impl fmt::Display for RenderLabelSvg<'_> {
     }
 }
 impl super::concat::Part for RenderLabelSvg<'_> {
+    fn size_hint(&self) -> usize {
+        label_svg_hint(&self.label.view(), self.attrs)
+    }
     #[inline]
     fn append(&self, out: &mut String) {
         let _ = write_label_view(out, &self.label.view(), self.cx, self.cy, self.attrs, self.icons);
@@ -404,6 +421,9 @@ pub(crate) struct ViewLabelSvg<'a, 'v> {
     icons: Option<&'v Icons>,
 }
 impl super::concat::Part for ViewLabelSvg<'_, '_> {
+    fn size_hint(&self) -> usize {
+        label_svg_hint(self.label, self.attrs)
+    }
     #[inline]
     fn append(&self, out: &mut String) {
         let _ = write_label_view(out, self.label, self.cx, self.cy, self.attrs, self.icons);

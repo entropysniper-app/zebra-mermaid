@@ -205,21 +205,19 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
                 )
             }
         };
-        let text = label_svg(
+        let text = svg_format!(label_svg(
             &item.name,
             item.x + item.w / 2.0,
             item.y + 10.0 + item.name.height / 2.0,
             &svg_format!(" class=\"pele-label\" font-size=\"", js::to_string(name_size), "\" font-weight=\"var(--_hw)\""),
             None,
-        )
-        .to_string()
-            + &lines(
-                &item.data,
-                item.x + 12.0,
-                item.y + 10.0 + item.name.height + 6.0 + mono_step / 2.0 + mono * 0.35,
-                mono_step,
-                &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::to_string(mono), "\""),
-            );
+        )) + &lines(
+            &item.data,
+            item.x + 12.0,
+            item.y + 10.0 + item.name.height + 6.0 + mono_step / 2.0 + mono * 0.35,
+            mono_step,
+            &svg_format!(" class=\"pele-em-data\" font-family=\"", FONT_MONO, "\" font-size=\"", js::to_string(mono), "\""),
+        );
         svg_write!(
             nodes,
             "<g class=\"pele-node pele-em-",
@@ -379,12 +377,12 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     }
     let width = (js::max(js::max(if bands.is_empty() { 0.0 } else { lane_width }, cards_right), title.width) + 2.0 * pad).ceil();
     let height = (bottom + pad).ceil();
-    let content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-        .to_string()
-        + &lanes
-        + &edges
-        + &nodes
-        + &cards;
+    let content =
+        svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None))
+            + &lanes
+            + &edges
+            + &nodes
+            + &cards;
     Ok(output(model, ctx, width, height, &content))
 }
 struct VerticalPlaced {
@@ -632,9 +630,13 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
     }
     let total_width = (width + 2.0 * pad).ceil();
     let height = (bottom + pad).ceil();
-    let content = label_svg(&title, total_width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None)
-        .to_string()
-        + &edges
+    let content = svg_format!(label_svg(
+        &title,
+        total_width / 2.0,
+        pad + title.height / 2.0,
+        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        None
+    )) + &edges
         + &nodes
         + &cards;
     Ok(output(model, ctx, total_width, height, &content))
