@@ -9,7 +9,7 @@
 //! text starts on a character boundary, so searching by the first character finds the same
 //! first match.
 
-/// Text this long or longer is searched with the standard searcher.
+/// Text this long or longer uses memchr substring search.
 const LONG: usize = 96;
 
 /// The byte offset of the first occurrence of `needle` in `hay`.

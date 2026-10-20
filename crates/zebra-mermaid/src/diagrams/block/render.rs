@@ -447,15 +447,14 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 }
             }
         }
-        let default_class = ["default".to_string()];
-        let names = match model.classes_of(block) {
-            Some(list) if !list.is_empty() => list,
-            _ => &default_class[..],
-        };
-        for name in names {
-            if let Some(def) = model.classes.get(name) {
-                add(&mut declarations, &def.styles);
+        if let Some(names) = model.classes_of(block).filter(|names| !names.is_empty()) {
+            for name in names {
+                if let Some(def) = model.classes.get(name) {
+                    add(&mut declarations, &def.styles);
+                }
             }
+        } else if let Some(def) = model.classes.get("default") {
+            add(&mut declarations, &def.styles);
         }
         if let Some(styles) = &block.styles {
             add(&mut declarations, styles);
@@ -761,7 +760,8 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         }
     }
 
-    let mut content = label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
+    let mut content =
+        label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None).to_string();
     if !clusters.is_empty() {
         write!(content, "<g class=\"pele-clusters\">{}</g>", clusters).unwrap();
     }

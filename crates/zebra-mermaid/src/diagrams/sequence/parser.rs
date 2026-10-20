@@ -7,7 +7,7 @@
 //! into one flat list, which needs no recursion for nested blocks.
 
 use super::db::{Declare, Menu, SeqDb, SeqText, Stmt};
-use super::lexer::{tokenize, Tokens};
+use super::lexer::{tokenize_spans, Tokens};
 use super::line_type as lt;
 use super::placement;
 use super::tokens::*;
@@ -15,6 +15,7 @@ use super::NoteActor;
 use crate::detect::DiagramType;
 use crate::error::{syntax_error, Error};
 use crate::util::js;
+use std::{borrow::Cow, ops::Range};
 
 const SIGNAL_TOKENS: &str =
     "'SOLID_OPEN_ARROW', 'DOTTED_OPEN_ARROW', 'SOLID_ARROW', 'DOTTED_ARROW', 'SOLID_CROSS', 'DOTTED_CROSS', 'SOLID_POINT', 'DOTTED_POINT'";
@@ -77,7 +78,7 @@ struct Parser<'a> {
     /// The byte offset of each code unit, and of the end.
     bytes: Vec<usize>,
     types: Vec<u8>,
-    texts: Vec<String>,
+    texts: Vec<Range<usize>>,
     starts: Vec<usize>,
     i: usize,
 }
@@ -93,7 +94,7 @@ impl<'a> Parser<'a> {
             }
         }
         bytes.push(src.len());
-        let Tokens { types, texts, starts } = tokenize(&units);
+        let Tokens { types, texts, starts } = tokenize_spans(&units);
         Parser { src, units, bytes, types, texts, starts, i: 0 }
     }
 
@@ -110,20 +111,27 @@ impl<'a> Parser<'a> {
         syntax_error(DiagramType::Sequence, self.src, at, &format!("Expecting {}, got '{}'", expected, TOKEN_NAMES[t as usize]), false)
     }
 
-    fn take(&mut self) -> String {
-        let text = std::mem::take(&mut self.texts[self.i]);
+    fn take(&mut self) -> Cow<'a, str> {
+        let span = std::mem::take(&mut self.texts[self.i]);
         self.i += 1;
-        text
+        // Both halves of a surrogate pair map to its first byte. Borrow only complete
+        // characters; preserve the original lossy conversion for a split pair.
+        let boundary = |i: usize| i == 0 || i == self.units.len() || self.bytes[i] != self.bytes[i - 1];
+        if boundary(span.start) && boundary(span.end) {
+            Cow::Borrowed(&self.src[self.bytes[span.start]..self.bytes[span.end]])
+        } else {
+            Cow::Owned(String::from_utf16_lossy(&self.units[span]))
+        }
     }
 
-    fn expect(&mut self, t: u8) -> Result<String, Error> {
+    fn expect(&mut self, t: u8) -> Result<Cow<'a, str>, Error> {
         if self.kind() != t {
             return Err(self.fail(&format!("'{}'", TOKEN_NAMES[t as usize])));
         }
         Ok(self.take())
     }
 
-    fn actor(&mut self) -> Result<String, Error> {
+    fn actor(&mut self) -> Result<Cow<'a, str>, Error> {
         let t = self.kind();
         if t != ACTOR && t != LINK {
             return Err(self.fail("'ACTOR'"));
@@ -140,7 +148,7 @@ impl<'a> Parser<'a> {
         Ok(db.parse_message(rest))
     }
 
-    fn participant(&mut self, db: &SeqDb, create: bool) -> Result<Stmt, Error> {
+    fn participant(&mut self, db: &SeqDb, create: bool) -> Result<Stmt<'a>, Error> {
         let t = self.kind();
         self.i += 1;
         if t == DESTROY {
@@ -177,11 +185,11 @@ impl<'a> Parser<'a> {
         Ok(Stmt::Participant { kind: if create { Declare::Create } else { Declare::Add }, actor, draw, description, config })
     }
 
-    fn mention(actor: &str) -> Stmt {
-        Stmt::Participant { kind: Declare::Add, actor: actor.to_string(), draw: None, description: None, config: None }
+    fn mention(actor: &Cow<'a, str>) -> Stmt<'a> {
+        Stmt::Participant { kind: Declare::Add, actor: actor.clone(), draw: None, description: None, config: None }
     }
 
-    fn signal(&mut self, db: &SeqDb, from: String, out: &mut Vec<Stmt>) -> Result<(), Error> {
+    fn signal(&mut self, db: &SeqDb, from: Cow<'a, str>, out: &mut Vec<Stmt<'a>>) -> Result<(), Error> {
         let mut central_from = false;
         if self.kind() == CENTRAL {
             central_from = true;
@@ -202,7 +210,7 @@ impl<'a> Parser<'a> {
         out.push(Self::mention(&to));
         let mut activate = false;
         let mut central = None;
-        let mut after: Vec<Stmt> = Vec::new();
+        let mut after: Vec<Stmt<'a>> = Vec::new();
         if central_from {
             let dual = mark == CENTRAL;
             activate = dual;
@@ -226,7 +234,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn menu(&mut self, db: &SeqDb, kind: Menu, out: &mut Vec<Stmt>) -> Result<(), Error> {
+    fn menu(&mut self, db: &SeqDb, kind: Menu, out: &mut Vec<Stmt<'a>>) -> Result<(), Error> {
         self.i += 1;
         let actor = self.actor()?;
         let text = self.text2(db)?;
@@ -235,7 +243,7 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn note(&mut self, db: &SeqDb, out: &mut Vec<Stmt>) -> Result<(), Error> {
+    fn note(&mut self, db: &SeqDb, out: &mut Vec<Stmt<'a>>) -> Result<(), Error> {
         self.i += 1;
         let t = self.kind();
         if t == OVER {
@@ -254,7 +262,7 @@ impl<'a> Parser<'a> {
             if let Some(s) = second {
                 out.push(Self::mention(&s));
             }
-            out.push(Stmt::Note { actor: NoteActor::Two(ids), placement: placement::OVER, text });
+            out.push(Stmt::Note { actor: NoteActor::Two(ids.map(Cow::into_owned)), placement: placement::OVER, text });
             return Ok(());
         }
         if t != LEFT_OF && t != RIGHT_OF {
@@ -265,11 +273,11 @@ impl<'a> Parser<'a> {
         let place = if t == LEFT_OF { placement::LEFT_OF } else { placement::RIGHT_OF };
         let text = self.text2(db)?;
         out.push(Self::mention(&who));
-        out.push(Stmt::Note { actor: NoteActor::One(who), placement: place, text });
+        out.push(Stmt::Note { actor: NoteActor::One(who.into_owned()), placement: place, text });
         Ok(())
     }
 
-    fn autonumber(&mut self) -> Result<Stmt, Error> {
+    fn autonumber(&mut self) -> Result<Stmt<'a>, Error> {
         self.i += 1;
         let mut start = None;
         let mut step = None;
@@ -297,7 +305,7 @@ impl<'a> Parser<'a> {
 
 pub(super) fn parse_sequence(src: &str, db: &mut SeqDb) -> Result<(), Error> {
     let mut p = Parser::new(src);
-    let mut out: Vec<Stmt> = Vec::new();
+    let mut out: Vec<Stmt<'_>> = Vec::new();
 
     while p.kind() == NEWLINE {
         p.i += 1;
@@ -453,6 +461,31 @@ pub(super) fn parse_sequence(src: &str, db: &mut SeqDb) -> Result<(), Error> {
                 return db.apply(out);
             }
             _ => return Err(p.fail("'NEWLINE', 'ACTOR', 'participant', 'note', 'end'")),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn borrowed_token_text_matches_utf16_decoding_at_every_boundary() {
+        let source = "sequenceDiagram\nparticipant 😀 as 中文🦀\n😀->>Bob: e\u{301}\u{feff}";
+        let mut parser = Parser::new(source);
+        for start in 0..=parser.units.len() {
+            for end in start..=parser.units.len() {
+                let expected = String::from_utf16_lossy(&parser.units[start..end]);
+                parser.texts.clear();
+                parser.texts.push(start..end);
+                parser.i = 0;
+                let actual = parser.take();
+                assert_eq!(actual, expected, "UTF-16 span {start}..{end}");
+                let boundary = |i: usize| i == 0 || i == parser.units.len() || parser.bytes[i] != parser.bytes[i - 1];
+                if boundary(start) && boundary(end) {
+                    assert!(matches!(actual, Cow::Borrowed(_)));
+                }
+            }
         }
     }
 }

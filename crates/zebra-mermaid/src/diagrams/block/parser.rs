@@ -241,19 +241,19 @@ impl Db {
                 let id = self.generate_id();
                 self.blocks[bi].id = Some(id);
             }
-            let id = self.blocks[bi].id.clone().unwrap_or_default();
             if self.blocks[bi].label.as_deref().is_none_or(str::is_empty) {
-                let label = if self.blocks[bi].kind == "composite" { String::new() } else { id.clone() };
+                let label =
+                    if self.blocks[bi].kind == "composite" { String::new() } else { self.blocks[bi].id.clone().unwrap_or_default() };
                 self.blocks[bi].label = Some(label);
             }
-            let known = self.by_id.get(&id).copied();
-            let fresh = known.is_none() || self.pending.remove(&id);
+            let known = self.by_id.get(self.blocks[bi].id.as_deref().unwrap_or("")).copied();
+            let fresh = known.is_none() || self.pending.remove(self.blocks[bi].id.as_deref().unwrap_or(""));
             if !fresh {
                 if let Some(k) = known {
                     if self.blocks[bi].kind != "na" {
                         self.blocks[k].kind = self.blocks[bi].kind.clone();
                     }
-                    if self.blocks[bi].label.as_deref() != Some(id.as_str()) {
+                    if self.blocks[bi].label.as_deref() != self.blocks[bi].id.as_deref() {
                         self.blocks[k].label = self.blocks[bi].label.clone();
                     }
                 }
@@ -266,13 +266,13 @@ impl Db {
                     self.blocks[bi].color_index = Some(self.colors);
                     self.colors += 1;
                 }
-                self.by_id.insert(id.clone(), bi);
+                self.by_id.insert(self.blocks[bi].id.clone().unwrap_or_default(), bi);
             }
 
             let inner = std::mem::take(&mut self.blocks[bi].statements);
             self.blocks[bi].children = Vec::new();
-            let mut pushed: Vec<usize> = Vec::new();
             if self.blocks[bi].kind == "space" {
+                let id = self.blocks[bi].id.clone().unwrap_or_default();
                 let width = self.blocks[bi].width.unwrap_or(1.0);
                 if !(width <= MAX_SPACES - self.spaces) {
                     return Err(Error::limit(format!("A block diagram can hold at most {} space blocks.", js::to_string(MAX_SPACES)))
@@ -281,17 +281,19 @@ impl Db {
                 self.spaces += js::max(width, 0.0);
                 let mut j = 0.0;
                 while j < width {
-                    let copy = Block { id: Some(format!("{}-{}", id, js::to_string(j))), children: Vec::new(), ..self.blocks[bi].clone() };
+                    let copy_id = format!("{}-{}", id, js::to_string(j));
+                    let copy = Block { id: Some(copy_id.clone()), children: Vec::new(), ..self.blocks[bi].clone() };
                     let k = self.add(copy);
-                    self.by_id.insert(format!("{}-{}", id, js::to_string(j)), k);
-                    pushed.push(k);
+                    self.by_id.insert(copy_id, k);
+                    if let Some(f) = stack.last_mut() {
+                        f.children.push(k);
+                    }
                     j += 1.0;
                 }
             } else if fresh {
-                pushed.push(bi);
-            }
-            if let Some(f) = stack.last_mut() {
-                f.children.extend(pushed);
+                if let Some(f) = stack.last_mut() {
+                    f.children.push(bi);
+                }
             }
             if !inner.is_empty() {
                 stack.push(Frame { list: inner, at: 0, parent: bi, children: Vec::new() });

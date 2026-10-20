@@ -7,11 +7,11 @@
 //! token's text is a whole string again.
 
 use super::tokens::*;
-use crate::util::js;
+use std::ops::Range;
 
-pub(super) struct Tokens {
+pub(super) struct Tokens<T = String> {
     pub types: Vec<u8>,
-    pub texts: Vec<String>,
+    pub texts: Vec<T>,
     /// Where each token starts, in UTF-16 code units.
     pub starts: Vec<usize>,
 }
@@ -100,11 +100,11 @@ fn is_word(c: i32) -> bool {
     (48..=57).contains(&c) || (65..=90).contains(&c) || (97..=122).contains(&c) || c == 95
 }
 
-struct Lexer<'a> {
+struct Lexer<'a, T> {
     src: &'a [u16],
     n: usize,
     types: Vec<u8>,
-    texts: Vec<String>,
+    texts: Vec<T>,
     starts: Vec<usize>,
     stack: Vec<u8>,
     state: u8,
@@ -112,7 +112,7 @@ struct Lexer<'a> {
     next_nl: i64,
 }
 
-impl<'a> Lexer<'a> {
+impl<T: TokenText> Lexer<'_, T> {
     /// `src.charCodeAt(q)`, with -1 for NaN past the end. No comparison below tells the two
     /// apart: -1 is no character, and `(-1 | 32)` is no lowercase letter, as `(NaN | 32)` is not.
     #[inline]
@@ -124,21 +124,26 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn slice(&self, s: usize, e: usize) -> String {
-        String::from_utf16_lossy(&self.src[s.min(self.n)..e.min(self.n).max(s.min(self.n))])
-    }
-
     fn emit(&mut self, kind: u8, s: usize, e: usize) {
-        let text = self.slice(s, e);
+        let start = s.min(self.n);
+        let end = e.min(self.n).max(start);
         self.types.push(kind);
-        self.texts.push(text);
+        self.texts.push(T::from_units(self.src, start..end));
         self.starts.push(s);
         self.p = e;
     }
 
-    fn emit_text(&mut self, kind: u8, s: usize, e: usize, text: String) {
+    fn emit_trimmed(&mut self, kind: u8, s: usize, e: usize) {
+        let mut start = s.min(self.n);
+        let mut end = e.min(self.n).max(start);
+        while start < end && is_space(self.src[start] as i32) {
+            start += 1;
+        }
+        while end > start && is_space(self.src[end - 1] as i32) {
+            end -= 1;
+        }
         self.types.push(kind);
-        self.texts.push(text);
+        self.texts.push(T::from_units(self.src, start..end));
         self.starts.push(s);
         self.p = e;
     }
@@ -300,8 +305,7 @@ impl<'a> Lexer<'a> {
             }
             q = r;
         }
-        let text = js::trim(&self.slice(p, q)).to_string();
-        self.emit_text(ACTOR, p, q, text);
+        self.emit_trimmed(ACTOR, p, q);
     }
 
     fn number(&mut self) -> bool {
@@ -591,8 +595,7 @@ impl<'a> Lexer<'a> {
                 }
             }
             if cut > p {
-                let text = js::trim(&self.slice(p, cut)).to_string();
-                self.emit_text(ACTOR, p, cut, text);
+                self.emit_trimmed(ACTOR, p, cut);
                 self.pop();
                 return true;
             }
@@ -605,8 +608,7 @@ impl<'a> Lexer<'a> {
         }
         if c != 10 {
             let e = self.eol(p);
-            let text = js::trim(&self.slice(p, e)).to_string();
-            self.emit_text(INVALID, p, e, text);
+            self.emit_trimmed(INVALID, p, e);
             self.pop();
             return true;
         }
@@ -690,14 +692,40 @@ impl<'a> Lexer<'a> {
     }
 }
 
+trait TokenText {
+    fn from_units(source: &[u16], span: Range<usize>) -> Self;
+}
+
+impl TokenText for Range<usize> {
+    fn from_units(_: &[u16], span: Range<usize>) -> Self {
+        span
+    }
+}
+
+#[cfg(test)]
+impl TokenText for String {
+    fn from_units(source: &[u16], span: Range<usize>) -> Self {
+        String::from_utf16_lossy(&source[span])
+    }
+}
+
+#[cfg(test)]
 pub(super) fn tokenize(src: &[u16]) -> Tokens {
+    tokenize_with(src)
+}
+
+pub(super) fn tokenize_spans(src: &[u16]) -> Tokens<Range<usize>> {
+    tokenize_with(src)
+}
+
+fn tokenize_with<T: TokenText>(src: &[u16]) -> Tokens<T> {
     let n = src.len();
     let mut lx =
         Lexer { src, n, types: Vec::new(), texts: Vec::new(), starts: Vec::new(), stack: Vec::new(), state: S_INITIAL, p: 0, next_nl: -1 };
     while lx.p < n {
         if !lx.step() {
             lx.types.push(ERROR);
-            lx.texts.push(String::new());
+            lx.texts.push(T::from_units(src, n..n));
             lx.starts.push(lx.p);
             return Tokens { types: lx.types, texts: lx.texts, starts: lx.starts };
         }
@@ -712,7 +740,7 @@ pub(super) fn tokenize(src: &[u16]) -> Tokens {
         _ => {}
     }
     lx.types.push(END);
-    lx.texts.push(String::new());
+    lx.texts.push(T::from_units(src, n..n));
     lx.starts.push(n);
     Tokens { types: lx.types, texts: lx.texts, starts: lx.starts }
 }

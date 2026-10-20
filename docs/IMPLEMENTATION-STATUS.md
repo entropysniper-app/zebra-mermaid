@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType` 与 6 项 CJK 换行映射。逐项独立进程超时验收为 2,785 通过、0 失败、7 保留上游跳过、4,034 未映射，正式通过率 40.80%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（SVG 扫描、缓冲区和 token 借用优化；[实现与测量记录](RENDER-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（第二轮样式、Block 层级和 Sequence token/actor 借用优化；[实现与测量记录](RENDER-OPTIMIZATION-2.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -98,7 +98,17 @@
 
 ## 5. 已运行的验证（实际结果）
 
-当前渲染优化轮次：
+当前第二轮渲染优化（基线 `488bdee`）：
+
+- 上一轮优化已提交并推送到 `main`：`488bdee08ea9d6c19fe034c6c1596ee9c90cd349`。
+- `cargo test --workspace --all-features --locked -- --test-threads=1`：**3,193 通过、0 失败、5 ignored**；无默认 feature 的 4 项回归通过。新增独立上游 2,902 组样式对照和 Sequence UTF-16 全边界回归，均为补充项目测试，不增加原测试映射数量。
+- 39/39 组行为验证相同；33 类文档 render 等权 after/before 为 **0.99070**，parse 为 **0.99053**。Sequence 渲染耗时 -10.72%、解析 -27.96%；Block 渲染 -6.20%、解析 -5.68%。整体约 1% 的差异不作统计显著性声明，所有略慢的组仍保留在报告。
+- 同一样本批次的分配次数：Block **1,563 → 1,240**，Sequence **1,114 → 810**；额外存活峰值基本不变，不宣称 RSS 按相同比例下降。六组样本与 39 组扩展批次的批后净保留均为 0，仅代表本次探针结果。
+- 当前四引擎终态表、双输出终点表已复测；全部 167 个 Sample、33 类的 API 返回 Rust/Pele 等权加速 **1.50×**，UTF-8 就绪 **1.60×**。167/167 SVG 与 761/761 完整响应对照通过。
+- 原测试输入、断言、种子、阈值、映射与既有 fixture 不变。原始超时门禁：**2,785 验收通过、0 失败、7 保留上游跳过、4,034 未映射、0 待验证**；`complete: false`、退出 1。完整[验证记录](research/render-optimization-round2-2026-10-20/validation.json)另存。
+- Clippy 可完成，仓库既有警告仍未全量清理；最终构建和测量后未修改生产源码。
+
+第一轮渲染优化历史记录（基线 `0bbe183`）：
 
 - `cargo test --workspace --all-features --locked -- --test-threads=1`：**3,191 通过、0 失败、5 ignored**。新增两项项目回归覆盖独立上游的 512 组 SVG 根节点输入和长 Unicode 字符串搜索；不计入原始测试映射。
 - 原有测试源文件、映射、断言、随机种子和阈值不变；761/761 完整响应与 167/167 Sample SVG 相等。
@@ -161,7 +171,7 @@ CPU/内存 profiling 已覆盖 39 组工作负载，并对 3 组采集函数调�
 
 ## 8. 下一步
 
-1. 继续按 6,810 项全量测试清单逐项移植断言与修复实现；图类型本身已全部接通。
+1. 继续按 6,826 项全量测试清单逐项移植断言与修复实现；图类型本身已全部接通。
 2. 收敛 Clippy 风格告警，完成跨平台构建、性能优化与发布验证。当前有部分类型慢于 Pele，不宣称全面更快。
 3. 原生 Zebra App/xcframework 接入尚未执行；当前工作集中在本 Rust 库、CLI 与兼容适配层。
 

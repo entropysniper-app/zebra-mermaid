@@ -1,6 +1,6 @@
 //! Theme tokens, fonts and author styles. Ported from Pele `src/svg/theme.ts`.
 
-use indexmap::IndexMap;
+use std::borrow::Cow;
 
 use super::builder::esc;
 use crate::util::chars::is_space;
@@ -111,7 +111,7 @@ pub fn resolved_font_style(size: f64, family: Option<&str>) -> String {
     )
 }
 
-const SHAPE_PROPS: &[&str] = &[
+const SHAPE_PROPS: &[&str; 12] = &[
     "fill",
     "fill-opacity",
     "stroke",
@@ -126,30 +126,36 @@ const SHAPE_PROPS: &[&str] = &[
     "ry",
 ];
 
-const TEXT_PROPS: &[&str] =
+const TEXT_PROPS: &[&str; 9] =
     &["color", "font-size", "font-family", "font-weight", "font-style", "text-decoration", "letter-spacing", "word-spacing", "opacity"];
 
 /// `/url\s*\(|expression\s*\(|javascript:|[<>{};\\]|@import|image-set|\/\*/i`
 pub fn is_unsafe_style(value: &str) -> bool {
-    let lower = value.to_ascii_lowercase();
-    if lower.bytes().any(|b| matches!(b, b'<' | b'>' | b'{' | b'}' | b';' | b'\\')) {
+    if value.bytes().any(|b| matches!(b, b'<' | b'>' | b'{' | b'}' | b';' | b'\\')) {
         return true;
     }
-    if lower.contains("javascript:") || lower.contains("@import") || lower.contains("image-set") || lower.contains("/*") {
+    if ["javascript:", "@import", "image-set", "/*"].iter().any(|needle| find_ascii_ci(value, needle).is_some()) {
         return true;
     }
     for word in ["url", "expression"] {
         let mut from = 0;
-        while let Some(k) = lower[from..].find(word) {
+        while let Some(k) = find_ascii_ci(&value[from..], word) {
             let after = from + k + word.len();
-            let rest = lower[after..].trim_start_matches(is_space);
-            if rest.starts_with('(') {
+            if value[after..].trim_start_matches(is_space).starts_with('(') {
                 return true;
             }
-            from = from + k + 1;
+            from += k + 1;
         }
     }
     false
+}
+
+// Matching an ASCII byte always yields a UTF-8 boundary.
+fn find_ascii_ci(value: &str, needle: &str) -> Option<usize> {
+    let bytes = value.as_bytes();
+    let first = needle.as_bytes()[0];
+    memchr::memchr2_iter(first, first.to_ascii_uppercase(), bytes)
+        .find(|&at| bytes.get(at..at + needle.len()).is_some_and(|part| part.eq_ignore_ascii_case(needle.as_bytes())))
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -163,19 +169,64 @@ pub struct ResolvedStyle {
     pub font_size: Option<f64>,
 }
 
-fn strip_important(value: &str) -> String {
-    // `.replace(/!important/gi, '')`
-    let lower = value.to_ascii_lowercase();
+fn strip_important(value: &str) -> Cow<'_, str> {
+    let Some(first) = find_ascii_ci(value, "!important") else { return Cow::Borrowed(js::trim(value)) };
     let mut out = String::with_capacity(value.len());
-    let mut last = 0;
-    let mut from = 0;
-    while let Some(k) = lower[from..].find("!important") {
+    out.push_str(&value[..first]);
+    let mut from = first + "!important".len();
+    while let Some(k) = find_ascii_ci(&value[from..], "!important") {
         let at = from + k;
-        out.push_str(&value[last..at]);
-        last = at + "!important".len();
-        from = last;
+        out.push_str(&value[from..at]);
+        from = at + "!important".len();
     }
-    out.push_str(&value[last..]);
+    out.push_str(&value[from..]);
+    out.truncate(js::trim_end(&out).len());
+    let start = out.len() - js::trim_start(&out).len();
+    if start > 0 {
+        out.drain(..start);
+    }
+    Cow::Owned(out)
+}
+
+// Allowlists bound storage and insertion order. Replacement keeps the first position,
+// matching the upstream Map, without allocating keys or hash-table storage.
+struct StyleSlots<'a, const N: usize> {
+    keys: &'static [&'static str; N],
+    values: [Option<Cow<'a, str>>; N],
+    order: [usize; N],
+    len: usize,
+}
+
+impl<'a, const N: usize> StyleSlots<'a, N> {
+    fn new(keys: &'static [&'static str; N]) -> Self {
+        Self { keys, values: std::array::from_fn(|_| None), order: [0; N], len: 0 }
+    }
+    fn insert(&mut self, index: usize, value: Cow<'a, str>) {
+        if self.values[index].is_none() {
+            self.order[self.len] = index;
+            self.len += 1;
+        }
+        self.values[index] = Some(value);
+    }
+    fn get(&self, key: &str) -> Option<&str> {
+        self.keys.iter().position(|&k| k == key).and_then(|i| self.values[i].as_deref())
+    }
+    fn iter(&self) -> impl Iterator<Item = (&'static str, &str)> {
+        self.order[..self.len].iter().map(|&i| (self.keys[i], self.values[i].as_deref().unwrap()))
+    }
+}
+
+fn append_style(out: &mut String, property: &str, value: &str) {
+    if out.is_empty() {
+        out.push_str(" style=\"");
+    }
+    write!(out, "{property}:{};", esc(value)).unwrap();
+}
+
+fn finish_style(mut out: String) -> String {
+    if !out.is_empty() {
+        out.push('"');
+    }
     out
 }
 
@@ -190,52 +241,59 @@ pub fn resolve_style<S: AsRef<str>>(declarations: &[S]) -> ResolvedStyle {
     if declarations.is_empty() {
         return ResolvedStyle::default();
     }
-    let mut shape: IndexMap<String, String> = IndexMap::new();
-    let mut text: IndexMap<String, String> = IndexMap::new();
+    let mut shape = StyleSlots::new(SHAPE_PROPS);
+    let mut text = StyleSlots::new(TEXT_PROPS);
     for decl in declarations {
         let decl = decl.as_ref();
         let Some(at) = decl.find(':') else { continue };
         if at == 0 {
             continue;
         }
-        let prop = js::trim(&decl[..at]).to_lowercase();
-        let value = strip_important(&decl[at + 1..]);
-        let value = js::trim(&value);
-        if value.is_empty() || is_unsafe_style(value) {
+        let property = js::trim(&decl[..at]);
+        let prop = if property.is_ascii() && !property.bytes().any(|b| b.is_ascii_uppercase()) {
+            Cow::Borrowed(property)
+        } else {
+            Cow::Owned(property.to_lowercase())
+        };
+        let shape_index = SHAPE_PROPS.iter().position(|&key| key == prop);
+        let text_index = TEXT_PROPS.iter().position(|&key| key == prop);
+        if shape_index.is_none() && text_index.is_none() {
             continue;
         }
-        if SHAPE_PROPS.contains(&prop.as_str()) {
-            shape.insert(prop.clone(), value.to_string());
+        let value = strip_important(&decl[at + 1..]);
+        if value.is_empty() || is_unsafe_style(&value) {
+            continue;
         }
-        if TEXT_PROPS.contains(&prop.as_str()) {
-            let key = if prop == "color" { "fill".to_string() } else { prop.clone() };
-            text.insert(key, value.to_string());
+        match (shape_index, text_index) {
+            (Some(a), Some(b)) => {
+                shape.insert(a, value.clone());
+                text.insert(b, value);
+            }
+            (Some(a), None) => shape.insert(a, value),
+            (None, Some(b)) => text.insert(b, value),
+            (None, None) => unreachable!(),
         }
-    }
-    if shape.is_empty() && text.is_empty() {
-        return ResolvedStyle::default();
     }
     let mut shape_css = String::new();
     let mut line_css = String::new();
-    for (prop, value) in &shape {
-        write!(shape_css, "{}:{};", prop, value).unwrap();
+    for (prop, value) in shape.iter() {
+        append_style(&mut shape_css, prop, value);
         if prop != "fill" && prop != "fill-opacity" {
-            write!(line_css, "{}:{};", prop, value).unwrap();
+            append_style(&mut line_css, prop, value);
         }
     }
     let mut text_css = String::new();
-    for (prop, value) in &text {
-        write!(text_css, "{}:{};", prop, value).unwrap();
+    for (prop, value) in text.iter() {
+        append_style(&mut text_css, if prop == "color" { "fill" } else { prop }, value);
     }
     let weight = text.get("font-weight");
     let size = text.get("font-size");
-    let px = size.filter(|s| is_plain_size(s)).map(|s| js::parse_float(s));
-    let wrap = |css: &str| if css.is_empty() { String::new() } else { format!(" style=\"{}\"", esc(css)) };
+    let px = size.filter(|s| is_plain_size(s)).map(js::parse_float);
     ResolvedStyle {
-        shape: wrap(&shape_css),
-        line: wrap(&line_css),
-        text: wrap(&text_css),
-        stroke: shape.get("stroke").cloned(),
+        shape: finish_style(shape_css),
+        line: finish_style(line_css),
+        text: finish_style(text_css),
+        stroke: shape.get("stroke").map(str::to_owned),
         bold: weight.is_some_and(|w| w == "bold" || w == "bolder" || js::number(w) >= 600.0),
         italic: text.get("font-style").is_some_and(|s| s == "italic"),
         font_size: px.filter(|&p| p > 0.0 && p <= 200.0),

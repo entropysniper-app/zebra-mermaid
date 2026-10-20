@@ -1,6 +1,7 @@
 //! The sequence model builder. Ported from Pele `src/diagrams/sequence/db.ts`.
 
 use indexmap::IndexMap;
+use std::borrow::Cow;
 
 use super::colors::is_css_color;
 use super::line_type as lt;
@@ -47,13 +48,14 @@ pub(super) enum Menu {
 /// One statement of the list the parser hands to `apply`, in the order Mermaid's grammar
 /// builds it. Pele nests the statements of blocks in arrays and walks them depth first; this
 /// list holds them in that same order already.
+/// Actor references can borrow the parse source until `apply` stores owned model data.
 #[derive(Debug, Clone, PartialEq)]
-pub(super) enum Stmt {
+pub(super) enum Stmt<'a> {
     /// `addParticipant`, `createParticipant`, `destroyParticipant`. `draw` is None for a
     /// participant only mentioned in a message.
     Participant {
         kind: Declare,
-        actor: String,
+        actor: Cow<'a, str>,
         draw: Option<&'static str>,
         description: Option<SeqText>,
         config: Option<String>,
@@ -61,11 +63,11 @@ pub(super) enum Stmt {
     /// `activeStart`, `activeEnd`, `centralConnection`, `centralConnectionReverse`.
     Signal {
         signal_type: i32,
-        actor: String,
+        actor: Cow<'a, str>,
     },
     Message {
-        from: String,
-        to: String,
+        from: Cow<'a, str>,
+        to: Cow<'a, str>,
         signal_type: i32,
         msg: SeqText,
         activate: bool,
@@ -78,7 +80,7 @@ pub(super) enum Stmt {
     },
     Menu {
         kind: Menu,
-        actor: String,
+        actor: Cow<'a, str>,
         text: SeqText,
     },
     SequenceIndex {
@@ -657,14 +659,14 @@ impl SeqDb {
 
     /// Applies the statements in order (`apply`). Pele walks nested lists with an explicit
     /// stack; the list here is flat already.
-    pub fn apply(&mut self, statements: Vec<Stmt>) -> Result<(), Error> {
+    pub fn apply(&mut self, statements: Vec<Stmt<'_>>) -> Result<(), Error> {
         for statement in statements {
             self.apply_one(statement)?;
         }
         Ok(())
     }
 
-    fn apply_one(&mut self, param: Stmt) -> Result<(), Error> {
+    fn apply_one(&mut self, param: Stmt<'_>) -> Result<(), Error> {
         match param {
             Stmt::SequenceIndex { start, step, visible } => {
                 self.push_message(None, None, SeqContent::Numbering { start, step, visible }, false, lt::AUTONUMBER);
@@ -673,21 +675,21 @@ impl SeqDb {
                 self.add_actor(&actor, &actor, description, draw, config.as_deref())?;
             }
             Stmt::Participant { kind: Declare::Create, actor, draw, description, config } => {
-                if self.model.actors.contains_key(&actor) {
+                if self.model.actors.contains_key(actor.as_ref()) {
                     return Err(fail(
                         "It is not possible to have actors with the same id, even if one is destroyed before the next is created. Use 'AS' aliases to simulate the behavior"
                             .to_string(),
                     ));
                 }
-                self.last_created = Some(actor.clone());
+                self.last_created = Some(actor.to_string());
                 self.add_actor(&actor, &actor, description, draw, config.as_deref())?;
                 let at = self.model.messages.len();
-                self.model.created_actors.insert(actor, at);
+                self.model.created_actors.insert(actor.into_owned(), at);
             }
             Stmt::Participant { kind: Declare::Destroy, actor, .. } => {
-                self.last_destroyed = Some(actor.clone());
+                self.last_destroyed = Some(actor.to_string());
                 let at = self.model.messages.len();
-                self.model.destroyed_actors.insert(actor, at);
+                self.model.destroyed_actors.insert(actor.into_owned(), at);
             }
             Stmt::Signal { signal_type, actor } => {
                 self.add_signal(Some(&actor), None, None, signal_type, false, None)?;
