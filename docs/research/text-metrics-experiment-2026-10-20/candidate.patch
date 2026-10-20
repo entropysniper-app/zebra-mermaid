@@ -1,0 +1,336 @@
+diff --git a/crates/zebra-mermaid/src/diagrams/mod.rs b/crates/zebra-mermaid/src/diagrams/mod.rs
+index d019878..28ee158 100644
+--- a/crates/zebra-mermaid/src/diagrams/mod.rs
++++ b/crates/zebra-mermaid/src/diagrams/mod.rs
+@@ -102,6 +102,7 @@ pub struct RenderCtx<'a> {
+     pub responsive: bool,
+     measurer: &'a dyn TextMeasurer,
+     icons: &'a Icons,
++    builtin_metrics: bool,
+     /// The color choices of this render.
+     pub theming: &'a Theming,
+ }
+@@ -114,7 +115,11 @@ impl<'a> RenderCtx<'a> {
+         icons: &'a Icons,
+         theming: &'a Theming,
+     ) -> Self {
+-        RenderCtx { options, responsive, measurer, icons, theming }
++        RenderCtx { options, responsive, measurer, icons, theming, builtin_metrics: false }
++    }
++
++    pub(crate) fn use_builtin_metrics(&mut self) {
++        self.builtin_metrics = true;
+     }
+ 
+     /// The color of a part playing `role`, where Pele writes `css`. See [`Theming::paint`].
+@@ -135,7 +140,11 @@ impl<'a> RenderCtx<'a> {
+ 
+     /// The measurer and icons for label layout.
+     pub fn measure(&self) -> Measure<'a> {
+-        Measure::new(self.measurer, self.icons)
++        if self.builtin_metrics {
++            Measure::metrics(self.icons)
++        } else {
++            Measure::new(self.measurer, self.icons)
++        }
+     }
+ 
+     /// The host's icon resolver, when it gave one, as Pele passes `options.icons`.
+diff --git a/crates/zebra-mermaid/src/engine.rs b/crates/zebra-mermaid/src/engine.rs
+index bb473b7..80ae241 100644
+--- a/crates/zebra-mermaid/src/engine.rs
++++ b/crates/zebra-mermaid/src/engine.rs
+@@ -146,7 +146,10 @@ pub fn render_parsed(parsed: &ParsedDiagram, options: &RenderOptions) -> Result<
+         Some(m) => m.as_ref(),
+         None => &default_measurer,
+     };
+-    let ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
++    let mut ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
++    if options.measurer.is_none() {
++        ctx.use_builtin_metrics();
++    }
+     let mut rendered = diagrams::render(&parsed.model, &parsed.config, &ctx).map_err(|e| e.tag(found))?;
+     let output_limit = options.output_limit.unwrap_or(DEFAULT_OUTPUT_LIMIT);
+     if rendered.svg.len() > output_limit && js::len16(&rendered.svg) > output_limit {
+diff --git a/crates/zebra-mermaid/src/text/label.rs b/crates/zebra-mermaid/src/text/label.rs
+index 02876be..c0f77bf 100644
+--- a/crates/zebra-mermaid/src/text/label.rs
++++ b/crates/zebra-mermaid/src/text/label.rs
+@@ -412,57 +412,67 @@ fn piece_at(text: &str, p: usize) -> Option<usize> {
+ fn wrap(line: Vec<Span>, m: &Measure, size: f64, max: f64, out: &mut Vec<Vec<Span>>, widths: &mut Vec<f64>) {
+     let mut current: Vec<Span> = Vec::new();
+     let mut width = 0.0;
+-    let commit = |current: &mut Vec<Span>, width: &mut f64, out: &mut Vec<Vec<Span>>, widths: &mut Vec<f64>| {
+-        if let Some(last) = current.last_mut() {
+-            if last.icon.is_none() {
+-                let trimmed = js::trim_end(&last.text);
+-                if trimmed.len() != last.text.len() {
+-                    let w = m.width(trimmed, size, last.style);
+-                    *width += w - last.width;
+-                    last.text.truncate(trimmed.len());
+-                    last.width = w;
++    let mut last_units = None;
++    let commit =
++        |current: &mut Vec<Span>, width: &mut f64, last_units: &mut Option<f64>, out: &mut Vec<Vec<Span>>, widths: &mut Vec<f64>| {
++            if let Some(last) = current.last_mut() {
++                if last.icon.is_none() {
++                    let trimmed = js::trim_end(&last.text);
++                    if trimmed.len() != last.text.len() {
++                        let w = m.width(trimmed, size, last.style);
++                        *width += w - last.width;
++                        last.text.truncate(trimmed.len());
++                        last.width = w;
++                    }
+                 }
+             }
+-        }
+-        out.push(std::mem::take(current));
+-        widths.push(*width);
+-        *width = 0.0;
+-    };
++            out.push(std::mem::take(current));
++            widths.push(*width);
++            *width = 0.0;
++            *last_units = None;
++        };
+     for span in line {
+         if span.icon.is_some() {
+             let w = size * 1.25;
+             if width > 0.0 && width + w > max {
+-                commit(&mut current, &mut width, out, widths);
++                commit(&mut current, &mut width, &mut last_units, out, widths);
+             }
+             current.push(Span { width: w, ..span });
+             width += w;
++            last_units = None;
+             continue;
+         }
+         for piece in piece_iter(&span.text) {
+             let mut part = piece;
+             if width > 0.0 && width + m.width(js::trim_end(part), size, span.style) > max {
+-                commit(&mut current, &mut width, out, widths);
++                commit(&mut current, &mut width, &mut last_units, out, widths);
+                 part = js::trim_start(part);
+             }
+             match current.last_mut() {
+                 Some(last) if last.style == span.style && last.icon.is_none() => {
++                    let units = last_units
++                        .and_then(|previous| m.units(part, span.style).map(|next| previous + next))
++                        .filter(|&units| units <= 9_007_199_254_740_991.0);
+                     last.text.push_str(part);
+-                    last.width = m.width(&last.text, size, last.style);
++                    last.width = units.map_or_else(|| m.width(&last.text, size, last.style), |units| (units * size) / 1000.0);
++                    last_units = units;
+                     width = 0.0;
+                     for s in &current {
+                         width += s.width;
+                     }
+                 }
+                 _ => {
+-                    let w = m.width(part, size, span.style);
++                    let units = m.units(part, span.style).filter(|&units| units <= 9_007_199_254_740_991.0);
++                    let w = units.map_or_else(|| m.width(part, size, span.style), |units| (units * size) / 1000.0);
+                     current.push(Span { text: part.to_string(), style: span.style, icon: None, width: w });
+                     width += w;
++                    last_units = units;
+                 }
+             }
+         }
+     }
+     if !current.is_empty() || out.is_empty() {
+-        commit(&mut current, &mut width, out, widths);
++        commit(&mut current, &mut width, &mut last_units, out, widths);
+     }
+ }
+ 
+@@ -542,6 +552,53 @@ mod tests {
+         layout_label(Some(raw), markdown, &m, 16.0, max, 0)
+     }
+ 
++    #[test]
++    fn incremental_default_widths_match_full_prefix_measurements() {
++        let icons = Icons::none();
++        let reference = Measure::new(&MetricsMeasurer, &icons);
++        let incremental = Measure::metrics(&icons);
++        for count in [2, 16, 128] {
++            for word in ["AV iii ", "（中文）😀e\u{301} ", "<b>AV</b> **text** ", "a\t b\u{3000}"] {
++                let text = word.repeat(count);
++                for size in [0.1, 11.0, 16.0, 23.5] {
++                    for max in [40.0, 123.0, 4000.0] {
++                        for base in [0, style::BOLD, style::ITALIC, style::MONO, style::BOLD | style::MONO] {
++                            for markdown in [false, true] {
++                                let expected = layout_label(Some(&text), markdown, &reference, size, max, base);
++                                let actual = layout_label(Some(&text), markdown, &incremental, size, max, base);
++                                assert_eq!(actual, expected, "{word:?} x {count}, size {size}, max {max}, style {base}, md {markdown}");
++                                assert_eq!(actual.width.to_bits(), expected.width.to_bits());
++                                for (a, b) in actual.widths.iter().zip(expected.widths) {
++                                    assert_eq!(a.to_bits(), b.to_bits());
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn public_context_preserves_custom_nonadditive_measurements_and_call_order() {
++        use std::cell::RefCell;
++        let calls = RefCell::new(Vec::new());
++        let custom = |text: &str, size: f64, style: u8| {
++            calls.borrow_mut().push((text.to_owned(), size.to_bits(), style));
++            text.encode_utf16().count() as f64 * size - if text.contains("AV") { size * 0.75 } else { 0.0 }
++        };
++        let icons = Icons::none();
++        let raw = "AV AV <b>AV AV</b><br>AV 中文😀 AV";
++        let expected = layout_label(Some(raw), true, &Measure::new(&custom, &icons), 11.0, 40.0, 0);
++        let expected_calls = std::mem::take(&mut *calls.borrow_mut());
++        let options = crate::RenderOptions::default();
++        let theme = crate::theme::Theming::pele();
++        let ctx = crate::diagrams::RenderCtx::new(&options, true, &custom, &icons, &theme);
++        let actual = layout_label(Some(raw), true, &ctx.measure(), 11.0, 40.0, 0);
++        assert_eq!(actual, expected);
++        assert_eq!(*calls.borrow(), expected_calls);
++    }
++
+     fn texts(l: &Label) -> Vec<Vec<(String, u8)>> {
+         l.lines.iter().map(|line| line.iter().map(|s| (s.text.clone(), s.style)).collect()).collect()
+     }
+diff --git a/crates/zebra-mermaid/src/text/measurer.rs b/crates/zebra-mermaid/src/text/measurer.rs
+index a070ca7..d7d35d0 100644
+--- a/crates/zebra-mermaid/src/text/measurer.rs
++++ b/crates/zebra-mermaid/src/text/measurer.rs
+@@ -4,6 +4,7 @@
+ //! canvas is available (Node, workers). It is an estimate: there is no shaping, kerning or
+ //! font fallback. A host that has real fonts implements [`TextMeasurer`] itself.
+ 
++use std::ops::AddAssign;
+ use std::sync::OnceLock;
+ 
+ use super::metrics::{BOLD, REGULAR};
+@@ -76,39 +77,60 @@ pub struct MetricsMeasurer;
+ 
+ impl TextMeasurer for MetricsMeasurer {
+     fn width(&self, text: &str, size: f64, style: u8) -> f64 {
++        (Self::units(text, style) * size) / 1000.0
++    }
++}
++
++impl MetricsMeasurer {
++    pub(crate) fn units(text: &str, style: u8) -> f64 {
+         let mono = style & style::MONO != 0;
++        let ascii = text.is_ascii();
++        // UTF-16 length never exceeds UTF-8 byte length. Every advance fits in u16,
++        // so this bound keeps the integer sum exact when converted to binary64.
++        let exact = text.len() as u64 <= 9_007_199_254_740_991_u64 / u16::MAX as u64;
++        if exact && mono && ascii {
++            return (text.bytes().filter(|&b| b >= 32).count() as u64 * 600) as f64;
++        }
+         let table = if style & style::BOLD != 0 { bold() } else { regular() };
+-        let mut units: f64 = 0.0;
+-        if text.is_ascii() {
+-            for &b in text.as_bytes() {
+-                if b < 32 {
+-                    continue;
+-                }
+-                if b < 127 {
+-                    units += if mono { 600.0 } else { table[(b - 32) as usize] as f64 };
+-                } else {
+-                    // DEL is neither printable nor wide.
+-                    units += if mono { 600.0 } else { 580.0 };
+-                }
+-            }
++        if exact {
++            sum_units::<u64>(text, ascii, mono, table) as f64
+         } else {
+-            for c in text.encode_utf16() {
+-                if c < 32 {
+-                    continue;
+-                }
+-                if c < 127 {
+-                    units += if mono { 600.0 } else { table[(c - 32) as usize] as f64 };
+-                } else if is_zero_width(c) {
+-                    continue;
+-                } else if is_wide(c) {
+-                    units += if mono { 1200.0 } else { 1000.0 };
+-                } else {
+-                    units += if mono { 600.0 } else { 580.0 };
+-                }
++            sum_units::<f64>(text, ascii, mono, table)
++        }
++    }
++}
++
++fn sum_units<T: Default + AddAssign + From<u16>>(text: &str, ascii: bool, mono: bool, table: &[u16; 95]) -> T {
++    let mut units = T::default();
++    if ascii {
++        for &b in text.as_bytes() {
++            if b < 32 {
++                continue;
++            }
++            if b < 127 {
++                units += T::from(if mono { 600 } else { table[(b - 32) as usize] });
++            } else {
++                // DEL is neither printable nor wide.
++                units += T::from(if mono { 600 } else { 580 });
++            }
++        }
++    } else {
++        for c in text.encode_utf16() {
++            if c < 32 {
++                continue;
++            }
++            if c < 127 {
++                units += T::from(if mono { 600 } else { table[(c - 32) as usize] });
++            } else if is_zero_width(c) {
++                continue;
++            } else if is_wide(c) {
++                units += T::from(if mono { 1200 } else { 1000 });
++            } else {
++                units += T::from(if mono { 600 } else { 580 });
+             }
+         }
+-        (units * size) / 1000.0
+     }
++    units
+ }
+ 
+ #[cfg(test)]
+diff --git a/crates/zebra-mermaid/src/text/mod.rs b/crates/zebra-mermaid/src/text/mod.rs
+index 307cbcf..382ea3a 100644
+--- a/crates/zebra-mermaid/src/text/mod.rs
++++ b/crates/zebra-mermaid/src/text/mod.rs
+@@ -18,16 +18,30 @@ pub use measurer::{style, MetricsMeasurer, TextMeasurer};
+ pub struct Measure<'a> {
+     measurer: &'a dyn TextMeasurer,
+     icons: &'a Icons,
++    builtin_metrics: bool,
+ }
+ 
+ impl<'a> Measure<'a> {
+     pub fn new(measurer: &'a dyn TextMeasurer, icons: &'a Icons) -> Self {
+-        Measure { measurer, icons }
++        Measure { measurer, icons, builtin_metrics: false }
++    }
++
++    pub(crate) fn metrics(icons: &'a Icons) -> Self {
++        Self { measurer: &MetricsMeasurer, icons, builtin_metrics: true }
++    }
++
++    #[inline]
++    pub(crate) fn units(&self, text: &str, style: u8) -> Option<f64> {
++        self.builtin_metrics.then(|| MetricsMeasurer::units(text, style))
+     }
+ 
+     #[inline]
+     pub fn width(&self, text: &str, size: f64, style: u8) -> f64 {
+-        self.measurer.width(text, size, style)
++        if self.builtin_metrics {
++            (MetricsMeasurer::units(text, style) * size) / 1000.0
++        } else {
++            self.measurer.width(text, size, style)
++        }
+     }
+ 
+     /// The host's markup for an icon, or an empty string when it has none.
