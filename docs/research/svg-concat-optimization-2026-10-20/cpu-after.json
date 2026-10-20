@@ -1,0 +1,636 @@
+{
+  "method": "External sample: 5 seconds at 1 ms interval; 7 second render loop. Inclusive frame counts include descendants and recursive occurrences and must not be added as exclusive CPU percentages. Raw captures stay under ignored target/.",
+  "cases": [
+    {
+      "case": "corpus: c4-docs",
+      "threadSamples": 3587,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3574
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::render::draw",
+          "count": 2960
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 2789
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::render",
+          "count": 2787
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 729
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 724
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 622
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::parser::parse_c4",
+          "count": 609
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::wrap",
+          "count": 441
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_label_svg",
+          "count": 421
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_num",
+          "count": 181
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::piece_at",
+          "count": 156
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 156
+        },
+        {
+          "symbol": "zebra_mermaid::util::strs::find",
+          "count": 81
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::route::elbow::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 67
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::render::user_style",
+          "count": 67
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::literal_label::push_left_label_svg",
+          "count": 66
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::db::C4Db::add_rel",
+          "count": 66
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_esc",
+          "count": 63
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 60
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::route::clear_of",
+          "count": 58
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::db::C4Db::shape",
+          "count": 53
+        },
+        {
+          "symbol": "zebra_mermaid::svg::concat::format",
+          "count": 48
+        },
+        {
+          "symbol": "zebra_mermaid::svg::theme::resolve_style",
+          "count": 48
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::db::C4Db::name",
+          "count": 41
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::route::hit",
+          "count": 37
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::db::C4Db::update_rel_style",
+          "count": 34
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::text_style",
+          "count": 33
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::route::hit_rect",
+          "count": 27
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::c4::db::C4Db::add_container",
+          "count": 27
+        }
+      ],
+      "rawSha256": "c0b2260e92583b7eee4cb0a06fbba53a2abf3c65686323915530913417d5fc2c"
+    },
+    {
+      "case": "corpus: agentflow-docs",
+      "threadSamples": 3544,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3521
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 1999
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 1937
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::draw",
+          "count": 1395
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 1373
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::statement",
+          "count": 768
+        },
+        {
+          "symbol": "zebra_mermaid::layout::compound::compound_layout",
+          "count": 530
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::run",
+          "count": 499
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::layered",
+          "count": 437
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::vertex",
+          "count": 407
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::attach",
+          "count": 323
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::emit_mode",
+          "count": 307
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::graph::build",
+          "count": 260
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::node",
+          "count": 240
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::parser::Parser::styled_vertex",
+          "count": 200
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::render",
+          "count": 169
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::render::put",
+          "count": 151
+        },
+        {
+          "symbol": "zebra_mermaid::config::yaml::flow",
+          "count": 125
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_subgraph",
+          "count": 118
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::push_mapping",
+          "count": 99
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::AgentflowModel::add_link",
+          "count": 92
+        },
+        {
+          "symbol": "zebra_mermaid::config::yaml::parse_yaml",
+          "count": 88
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_num",
+          "count": 88
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_label_svg",
+          "count": 86
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::lexer::Lexer::node_string",
+          "count": 79
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 73
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 60
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::route_path",
+          "count": 58
+        },
+        {
+          "symbol": "zebra_mermaid::layout::layered::rank",
+          "count": 52
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::agentflow::db::strip_prototype",
+          "count": 48
+        }
+      ],
+      "rawSha256": "ad376395b37f82660adb054acbe3ecc969f44a0e968f10f35f10ff099514808e"
+    },
+    {
+      "case": "corpus: info-docs",
+      "threadSamples": 3516,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3316
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::render",
+          "count": 1962
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 1849
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 1441
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 802
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::info::parse_info",
+          "count": 795
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::tokenize",
+          "count": 695
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_label_svg",
+          "count": 669
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 451
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 303
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::tokenize::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 143
+        },
+        {
+          "symbol": "zebra_mermaid::detect::detect_diagram",
+          "count": 122
+        },
+        {
+          "symbol": "zebra_mermaid::detect::detect",
+          "count": 99
+        },
+        {
+          "symbol": "zebra_mermaid::preprocess::encode_entities",
+          "count": 88
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc",
+          "count": 39
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_num",
+          "count": 37
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::keyword_end",
+          "count": 35
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_esc",
+          "count": 33
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::match_acc_descr",
+          "count": 24
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::newline_at",
+          "count": 17
+        },
+        {
+          "symbol": "zebra_mermaid::util::js::to_string",
+          "count": 12
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::match_newline",
+          "count": 11
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::info::INFO_TOKENS::_$u7b$$u7b$closure$u7d$$u7d$::matcher",
+          "count": 11
+        },
+        {
+          "symbol": "zebra_mermaid::theme::resolved::Theming::new",
+          "count": 6
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::Reader::expect",
+          "count": 6
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::Reader::text_at",
+          "count": 3
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::match_acc_title",
+          "count": 2
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::tokens::match_title",
+          "count": 2
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::info::build_info",
+          "count": 2
+        }
+      ],
+      "rawSha256": "1be3ae86625c7bc598937eb0150b41863b3b099d67b5c26f606128472e1bb859"
+    },
+    {
+      "case": "corpus: block-docs",
+      "threadSamples": 3552,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3532
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::render::draw",
+          "count": 2251
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 2155
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::render",
+          "count": 2150
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 1249
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 1030
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::parser::parse_block",
+          "count": 1022
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 364
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::parser::Db::set_hierarchy",
+          "count": 359
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::render::draw::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 303
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::parser::Parser::node_statement",
+          "count": 258
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::lexer::Lexer::emit",
+          "count": 134
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_num",
+          "count": 126
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 106
+        },
+        {
+          "symbol": "zebra_mermaid::util::strs::find",
+          "count": 101
+        },
+        {
+          "symbol": "zebra_mermaid::svg::theme::resolve_style",
+          "count": 97
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_label_svg",
+          "count": 96
+        },
+        {
+          "symbol": "zebra_mermaid::preprocess::encode_entities",
+          "count": 85
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::rect",
+          "count": 68
+        },
+        {
+          "symbol": "zebra_mermaid::svg::theme::append_style",
+          "count": 56
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::block::parser::Parser::node",
+          "count": 51
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::draw_shape",
+          "count": 50
+        },
+        {
+          "symbol": "zebra_mermaid::svg::shapes::push_rect_open",
+          "count": 48
+        },
+        {
+          "symbol": "zebra_mermaid::preprocess::drop_color_semicolons",
+          "count": 43
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::common::scan::skip_space",
+          "count": 33
+        },
+        {
+          "symbol": "zebra_mermaid::detect::detect_diagram",
+          "count": 28
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_esc",
+          "count": 25
+        },
+        {
+          "symbol": "zebra_mermaid::detect::detect",
+          "count": 25
+        },
+        {
+          "symbol": "zebra_mermaid::text::entities::decode_entities_cow",
+          "count": 19
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc",
+          "count": 15
+        }
+      ],
+      "rawSha256": "e1f3b84431bb84f095c3d6fd123457388c38674f9ba4c0ddae80fed0c18bf06b"
+    },
+    {
+      "case": "corpus: sequence-docs",
+      "threadSamples": 3554,
+      "inclusiveFrames": [
+        {
+          "symbol": "zebra_mermaid::engine::render",
+          "count": 3549
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::render::draw",
+          "count": 2739
+        },
+        {
+          "symbol": "zebra_mermaid::engine::render_parsed",
+          "count": 2659
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::render",
+          "count": 2655
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::render::draw::_$u7b$$u7b$closure$u7d$$u7d$",
+          "count": 1156
+        },
+        {
+          "symbol": "zebra_mermaid::engine::parse",
+          "count": 828
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::parse",
+          "count": 734
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::parser::parse_sequence",
+          "count": 728
+        },
+        {
+          "symbol": "zebra_mermaid::svg::root::svg_document",
+          "count": 394
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_label_svg",
+          "count": 369
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::parser::Parser::new",
+          "count": 299
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::db::SeqDb::apply",
+          "count": 293
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::db::SeqDb::add_actor",
+          "count": 182
+        },
+        {
+          "symbol": "zebra_mermaid::text::label::layout_label",
+          "count": 153
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_num",
+          "count": 127
+        },
+        {
+          "symbol": "zebra_mermaid::util::strs::find",
+          "count": 104
+        },
+        {
+          "symbol": "zebra_mermaid::svg::edges::push_marker",
+          "count": 79
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::parser::Parser::signal",
+          "count": 54
+        },
+        {
+          "symbol": "zebra_mermaid::config::yaml::flow",
+          "count": 48
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::lexer::Lexer$LT$T$GT$::keyword",
+          "count": 44
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::db::SeqDb::add_signal",
+          "count": 43
+        },
+        {
+          "symbol": "zebra_mermaid::config::yaml::parse_yaml",
+          "count": 38
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::write_esc",
+          "count": 34
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::lexer::Lexer$LT$T$GT$::emit_trimmed",
+          "count": 34
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::parser::Parser::text2",
+          "count": 26
+        },
+        {
+          "symbol": "zebra_mermaid::text::entities::decode_entities_cow",
+          "count": 25
+        },
+        {
+          "symbol": "zebra_mermaid::diagrams::sequence::db::extract_wrap",
+          "count": 25
+        },
+        {
+          "symbol": "zebra_mermaid::detect::detect_diagram",
+          "count": 24
+        },
+        {
+          "symbol": "zebra_mermaid::detect::detect",
+          "count": 21
+        },
+        {
+          "symbol": "zebra_mermaid::svg::builder::esc_text",
+          "count": 18
+        }
+      ],
+      "rawSha256": "5119e41ce1598060d607b7d20e8b10506f112acd43d423893595c2f3f246c852"
+    }
+  ]
+}
