@@ -7,6 +7,96 @@
 //! the ECMAScript specification, not Rust's defaults.
 
 use super::chars::is_space;
+use std::fmt::{self, Write};
+
+/// Scratch storage for Rust's decimal formatter. Normal f64 output and up to 100
+/// significant digits fit on the stack; larger caller-supplied precisions can spill.
+struct DecimalBuffer<const N: usize> {
+    bytes: [u8; N],
+    len: usize,
+    heap: Option<String>,
+}
+
+impl<const N: usize> DecimalBuffer<N> {
+    fn new() -> Self {
+        Self { bytes: [0; N], len: 0, heap: None }
+    }
+
+    fn as_str(&self) -> &str {
+        self.heap.as_deref().unwrap_or_else(|| std::str::from_utf8(&self.bytes[..self.len]).expect("decimal ASCII"))
+    }
+
+    fn truncate(&mut self, len: usize) {
+        if let Some(heap) = &mut self.heap {
+            heap.truncate(len);
+        } else {
+            self.len = self.len.min(len);
+        }
+    }
+
+    /// Keeps the mantissa's digits in the same buffer and returns its exponent.
+    fn scientific_digits(&mut self) -> i32 {
+        let at = self.as_str().find('e').expect("exponent");
+        let exponent = self.as_str()[at + 1..].parse().expect("exponent digits");
+        if let Some(heap) = self.heap.take() {
+            let mut bytes = heap.into_bytes();
+            bytes.truncate(at);
+            bytes.retain(u8::is_ascii_digit);
+            self.heap = Some(String::from_utf8(bytes).expect("decimal ASCII"));
+        } else {
+            let mut len = 0;
+            for i in 0..at {
+                if self.bytes[i].is_ascii_digit() {
+                    self.bytes[len] = self.bytes[i];
+                    len += 1;
+                }
+            }
+            self.len = len;
+        }
+        exponent
+    }
+
+    /// Adds one to a run of significant digits, keeping its length. A carry past
+    /// the first digit changes 999 to 100 and is returned to adjust the exponent.
+    fn increment(&mut self) -> bool {
+        fn increment(bytes: &mut [u8]) -> bool {
+            for digit in bytes.iter_mut().rev() {
+                if *digit != b'9' {
+                    *digit += 1;
+                    return false;
+                }
+                *digit = b'0';
+            }
+            bytes[0] = b'1';
+            true
+        }
+        if let Some(heap) = self.heap.take() {
+            let mut bytes = heap.into_bytes();
+            let carry = increment(&mut bytes);
+            self.heap = Some(String::from_utf8(bytes).expect("decimal ASCII"));
+            carry
+        } else {
+            increment(&mut self.bytes[..self.len])
+        }
+    }
+}
+
+impl<const N: usize> fmt::Write for DecimalBuffer<N> {
+    fn write_str(&mut self, text: &str) -> fmt::Result {
+        if let Some(heap) = &mut self.heap {
+            heap.push_str(text);
+        } else if text.len() <= N - self.len {
+            self.bytes[self.len..self.len + text.len()].copy_from_slice(text.as_bytes());
+            self.len += text.len();
+        } else {
+            let mut heap = String::with_capacity(self.len + text.len());
+            heap.push_str(self.as_str());
+            heap.push_str(text);
+            self.heap = Some(heap);
+        }
+        Ok(())
+    }
+}
 
 /// `Math.round`: rounds half-way values up, towards positive infinity.
 #[inline]
@@ -69,14 +159,24 @@ pub fn min(a: f64, b: f64) -> f64 {
 
 /// The shortest decimal digits that read back as `x` (positive and finite), with the exponent
 /// `n` such that `x = 0.d1d2d3... × 10^n`.
-fn shortest_digits(x: f64) -> (String, i32) {
-    let s = format!("{:e}", x);
-    let (mantissa, exp) = s.split_once('e').expect("exponent");
-    let exp: i32 = exp.parse().expect("exponent digits");
-    let digits: String = mantissa.chars().filter(|c| c.is_ascii_digit()).collect();
-    let digits = digits.trim_end_matches('0');
-    let digits = if digits.is_empty() { "0" } else { digits };
-    (digits.to_string(), exp + 1)
+fn shortest_digits(x: f64) -> (DecimalBuffer<32>, i32) {
+    let mut buffer = zmij::Buffer::new();
+    let printed = buffer.format_finite(x);
+    let (mantissa, exponent) =
+        printed.split_once('e').map_or((printed, 0), |(digits, exponent)| (digits, exponent.parse::<i32>().expect("exponent digits")));
+    let point = mantissa.find('.').unwrap_or(mantissa.len());
+    let mut digits = DecimalBuffer::new();
+    let mut leading = 0;
+    for byte in mantissa.bytes().filter(u8::is_ascii_digit) {
+        if digits.len == 0 && byte == b'0' {
+            leading += 1;
+        } else {
+            digits.bytes[digits.len] = byte;
+            digits.len += 1;
+        }
+    }
+    digits.truncate(digits.as_str().trim_end_matches('0').len());
+    (digits, point as i32 - leading + exponent)
 }
 
 /// `String(x)` / `Number.prototype.toString()` in base 10.
@@ -96,14 +196,25 @@ pub fn to_string(x: f64) -> String {
     if x.abs() <= 9_007_199_254_740_991.0 && x.fract() == 0.0 {
         return (x as i64).to_string();
     }
-    if x < 0.0 {
-        return format!("-{}", to_string(-x));
-    }
-    let (digits, n) = shortest_digits(x);
+    let negative = x < 0.0;
+    let (digits, n) = shortest_digits(x.abs());
+    let digits = digits.as_str();
     let k = digits.len() as i32;
-    let mut out = String::new();
+    let capacity = if k <= n && n <= 21 {
+        n as usize
+    } else if 0 < n && n <= 21 {
+        digits.len() + 1
+    } else if -6 < n && n <= 0 {
+        2 + (-n) as usize + digits.len()
+    } else {
+        digits.len() + 7
+    };
+    let mut out = String::with_capacity(capacity + usize::from(negative));
+    if negative {
+        out.push('-');
+    }
     if k <= n && n <= 21 {
-        out.push_str(&digits);
+        out.push_str(digits);
         for _ in 0..(n - k) {
             out.push('0');
         }
@@ -116,7 +227,7 @@ pub fn to_string(x: f64) -> String {
         for _ in 0..(-n) {
             out.push('0');
         }
-        out.push_str(&digits);
+        out.push_str(digits);
     } else {
         let e = n - 1;
         out.push_str(&digits[..1]);
@@ -124,9 +235,7 @@ pub fn to_string(x: f64) -> String {
             out.push('.');
             out.push_str(&digits[1..]);
         }
-        out.push('e');
-        out.push(if e < 0 { '-' } else { '+' });
-        out.push_str(&e.abs().to_string());
+        write!(out, "e{e:+}").unwrap();
     }
     out
 }
@@ -140,25 +249,40 @@ pub fn int_to_string(x: f64) -> String {
     }
 }
 
-/// Whether `x * 10^digits` lies exactly half-way between two integers.
-fn is_tie(x: f64, digits: u32) -> bool {
+/// Whether `x * 10^places` is exactly halfway between integers, and whether its
+/// lower integer is even. All calculations are exact on the binary significand.
+fn decimal_tie(x: f64, places: i32) -> Option<bool> {
     if x == 0.0 || !x.is_finite() {
-        return false;
+        return None;
     }
-    // x = m * 2^e with m odd; x * 10^f = m * 5^f * 2^(e + f), and m * 5^f is odd, so the
-    // fraction is exactly one half when e + f = -1.
+    // For nonnegative places, 5^places is 1 modulo 4. For negative places,
+    // the odd significand must contain the corresponding factor of 5 first.
     let bits = x.abs().to_bits();
     let exp_bits = ((bits >> 52) & 0x7ff) as i64;
     let frac = bits & ((1u64 << 52) - 1);
     let (mut m, mut e) = if exp_bits == 0 { (frac, -1074i64) } else { (frac | (1u64 << 52), exp_bits - 1075) };
     if m == 0 {
-        return false;
+        return None;
     }
     let tz = m.trailing_zeros();
     m >>= tz;
     e += tz as i64;
-    let _ = m;
-    e + digits as i64 == -1
+    if e + places as i64 != -1 {
+        return None;
+    }
+    if places < 0 {
+        let count = places.unsigned_abs();
+        // An odd binary64 significand is below 2^53, and 5^23 exceeds that.
+        if count > 22 {
+            return None;
+        }
+        let factor = 5_u64.pow(count);
+        if !m.is_multiple_of(factor) {
+            return None;
+        }
+        m /= factor;
+    }
+    Some(m & 3 == 1)
 }
 
 /// `Number.prototype.toFixed(digits)`. A value exactly half-way rounds away from zero, as the
@@ -173,12 +297,9 @@ pub fn to_fixed(x: f64, digits: u32) -> String {
     let negative = x < 0.0;
     let a = x.abs();
     let mut s = format!("{:.*}", digits as usize, a);
-    if is_tie(a, digits) {
+    if decimal_tie(a, digits as i32) == Some(true) {
         // Rust rounds an exact tie to even; ECMAScript takes the larger candidate.
-        let rounded_down: f64 = s.parse().unwrap_or(a);
-        if rounded_down < a {
-            s = increment_decimal(&s);
-        }
+        s = increment_decimal(&s);
     }
     // `(-0.001).toFixed(2)` is "-0.00": the sign comes from x < 0 alone.
     if negative {
@@ -229,26 +350,26 @@ pub fn to_precision(x: f64, precision: u32) -> String {
     let a = x.abs();
     // Digits rounded to `precision` significant places, with ties away from zero as the
     // specification picks the larger n.
-    let s = format!("{:.*e}", (precision - 1) as usize, a);
-    let (mantissa, exp) = s.split_once('e').expect("exponent");
-    let mut e: i32 = exp.parse().expect("exponent digits");
-    let mut digits: String = mantissa.chars().filter(|c| c.is_ascii_digit()).collect();
+    let mut digits: DecimalBuffer<128> = DecimalBuffer::new();
+    write!(digits, "{:.*e}", (precision - 1) as usize, a).unwrap();
+    let mut e = digits.scientific_digits();
     // Ties: check whether a lies exactly half-way at this precision.
     let shift = precision as i32 - 1 - e;
-    if shift >= 0 && is_tie(a, shift as u32) {
-        let candidate: f64 = format!("{}e{}", insert_point(&digits), e).parse().unwrap_or(a);
-        if candidate < a {
-            let bumped = increment_decimal(&digits);
-            if bumped.len() > digits.len() {
-                digits = bumped[..precision as usize].to_string();
-                e += 1;
-            } else {
-                digits = bumped;
-            }
-        }
+    if decimal_tie(a, shift) == Some(true) && digits.increment() {
+        e += 1;
     }
+    let digits = digits.as_str();
     let p = precision as i32;
-    let mut out = String::new();
+    let capacity = if e < -6 || e >= p {
+        digits.len() + 7
+    } else if e == p - 1 {
+        digits.len()
+    } else if e >= 0 {
+        digits.len() + 1
+    } else {
+        2 + (-(e + 1)) as usize + digits.len()
+    };
+    let mut out = String::with_capacity(capacity + usize::from(negative));
     if negative {
         out.push('-');
     }
@@ -258,13 +379,11 @@ pub fn to_precision(x: f64, precision: u32) -> String {
             out.push('.');
             out.push_str(&digits[1..]);
         }
-        out.push('e');
-        out.push(if e < 0 { '-' } else { '+' });
-        out.push_str(&e.abs().to_string());
+        write!(out, "e{e:+}").unwrap();
         return out;
     }
     if e == p - 1 {
-        out.push_str(&digits);
+        out.push_str(digits);
         return out;
     }
     if e >= 0 {
@@ -276,17 +395,9 @@ pub fn to_precision(x: f64, precision: u32) -> String {
         for _ in 0..(-(e + 1)) {
             out.push('0');
         }
-        out.push_str(&digits);
+        out.push_str(digits);
     }
     out
-}
-
-fn insert_point(digits: &str) -> String {
-    if digits.len() <= 1 {
-        digits.to_string()
-    } else {
-        format!("{}.{}", &digits[..1], &digits[1..])
-    }
 }
 
 /// Trims what `String.prototype.trim` trims: `\s` white space and line terminators.

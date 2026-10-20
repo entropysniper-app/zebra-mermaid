@@ -8,7 +8,7 @@
 - 完整验收入口：`node tools/test-parity/check.mjs --require-complete`。当前部分测试执行：`node tools/test-parity/check.mjs --run`。后者成功只代表已映射子集，不是全套完成。
 - 图表覆盖率、输出对照通过数量、1:1 测试通过率分别报告。原先 UTF-16 孤立代理项等 fixture 排除或已知差异不构成新验收标准的例外。
 - Zebra 主题复用当前宿主设置，不要求用户另行维护 JSON 主题文件。现有 JSON 仅作为既有 Swift → Rust ABI 的传输格式；网页支持 Pele CSS，原生路径输出具体颜色。
-- Claude 会话已按用户要求停止，不自动恢复。持续性能优化使用 AGY 的 Gemini 3.8 Flash (High)，模型 ID 为 `gemini-3.8-flash-high`，推理强度为 `high`；不擅自替换模型。
+- Claude 和 AGY 会话已按用户要求停止，不自动恢复。持续性能优化由 Codex 直接执行。
 - `docs/IMPLEMENTATION-STATUS.md` 记录实际结果。不得把生成的空测试、上游测试通过、未启用 feature 的拒绝行为算成 Rust 已实现通过。
 - 提交内容使用仓库相对路径，不记录开发者主目录、主机名、硬件配置、系统版本或个人时区。报告保留复现所需的运行时版本、采样方法和验证数据；机器专属配置、日志与研究输出遵循 `.gitignore`。
 - 执行指令集中在根目录 `AGENTS.md`，不另行创建或提交交接提示文档。
