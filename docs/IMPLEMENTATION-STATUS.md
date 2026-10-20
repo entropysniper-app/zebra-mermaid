@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -101,6 +101,15 @@
 状态：1–12 的基础实现已完成。33 类的 702 条成功文档/参考输入已通过双调色板测试，确认 SVG 属性使用具体值、颜色变化不改变尺寸；新增三类另通过 4 项主题、画布及原生 SVG 策略测试。原生 App 内视觉与缓存验证尚未执行。C ABI v2 crate 与 C 头文件已建立，3 项 ABI 测试通过；库内适配覆盖参数校验、错误码与 target_width 不参与布局。完整 Zebra 集成（xcframework 替换、App 内主题切换与缓存测试）不在本项目单元测试范围内，不得冒充。
 
 ## 5. 已运行的验证（实际结果）
+
+共享预处理视图实验（基线 `b963d10`，未保留为生产运行时）：**候选主集合耗时 +0.37%，分配下降但未达主性能目标，生产仍为 `528010f`**。
+
+- 八类 / 40 输入 CPU 捕获后，实验以 Cow 保留连续复制区间、私有预处理共享底层视图并延迟选定文本/映射，公开预处理和 Builder 仍返回拥有所有权的内容。276 组独立 Node 参照（275 结果 / 1 预期失败、种子 `0x20a11e`、256 生成）、4,096 组逐字节映射 / 每组 16 操作（`0x20b11d`）、四组手写原始字节/EOF/CRLF 检查通过；冻结旧生产库也通过全部 276 公开参照。
+- 候选工作区 **3,246 通过、0 失败、5 ignored**，761 完整响应、167 SVG、39 扩展验证一致。全 33 类配对 after/before **1.00368**（+0.37%），13 类中位数下降 / 20 类回退。候选 API **1.84×**、UTF-8 **1.97×**；33 类文档 render **−0.27%**、parse **−1.02%**，全部原始进程与不利结果保留，不作小幅差异显著性声明。
+- 样本和全部 39 扩展负载分配次数/申请字节均下降，样本 21 类、扩展 24 组扩容下降，其余持平；额外存活峰值全不变。CLI 文件/代码段 **+17,472 / +2,396 bytes**，FFI 动态库 **+624 / +164**、静态库 **+21,768 / +2,108 bytes**，相同工具链/锁定依赖/完整功能配置，未 strip。真实 RSS：Sample **5 降/2 平/26 增**，扩展 **5 降/2 平/32 增**。
+- 分配下降没有形成完整渲染收益，且代码段增长，因此该表示方案未采用。精确补丁包含运行时代码、新 Node 生成器和预期数据；原有输入/期望/断言/种子/循环/阈值/映射未改。候选三项补充测试不计生产或原测试通过。
+- 恢复后的生产源码与冻结基线完全一致，并重跑工作区 **3,243 通过、0 失败、5 ignored**、无默认 feature 四项、Clippy 和原独立时限门禁。原验收仍 **2,791 通过、0 失败、7 跳过、4,028 未映射、0 待验证**，完整验收未完成。当前有效终态仍 API **1.85×** / UTF-8 **1.97×**；README、消费者固定提交、终态性能/体积表保持。
+- [实验报告](PREPROCESS-VIEW-EXPERIMENT.md)、[全部证据](research/preprocess-view-experiment-2026-10-20/summary.json)、[候选验证](research/preprocess-view-experiment-2026-10-20/validation.json)、[恢复验证](research/preprocess-view-experiment-2026-10-20/production-revalidation.json)、[完整补丁](research/preprocess-view-experiment-2026-10-20/candidate.patch.gz)。继续从已验证的生产代码推进完整 2× 与体积目标，不以更少分配替代速度验收。
 
 SVG 字节暂存实验（基线 `57384aa`，运行时补丁未保留）：**候选主集合耗时 −0.59%，代码段增长、分配不变，生产继续使用 `528010f`**。
 

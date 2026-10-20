@@ -1,0 +1,23 @@
+{
+  "baselineRevision": "b963d10ccbae6495f42b432c22284b57a7ccee70",
+  "baselineProduction": "528010f970b8b9b54d94d88275c43e96f4b32015",
+  "runtimeFiles": [
+    "crates/zebra-mermaid/src/preprocess/mod.rs",
+    "crates/zebra-mermaid/src/preprocess/source_map.rs",
+    "crates/zebra-mermaid/src/engine.rs"
+  ],
+  "mechanisms": [
+    "Source-map Builder keeps contiguous copied source ranges borrowed; rewrites/disjoint copies materialize with the original capacity and exact marks. Public finish still owns output.",
+    "Private parser preparation retains one underlying text plus optional changed view/range; selected parser text/map moves only after normal type detection. No cloned map for an unused view.",
+    "Unchanged directive/frontmatter/comment phases can preserve source slices. Public preprocessing still returns both owned views and corresponding maps."
+  ],
+  "preserved": [
+    "All original source transforms, metadata/config merge and error precedence",
+    "Every source-map mark and original byte/EOF mapping, both kept/cleaned comment paths",
+    "All original tests/expectations/loops/seeds/thresholds and full 167/33/39 workloads",
+    "Public preprocessing, model and FFI ownership/API types, features, precision",
+    "No new dependency, unsafe code, preparse or returned input/model/output cache"
+  ],
+  "newSupplementaryTests": 3,
+  "newOriginalPorts": 0
+}

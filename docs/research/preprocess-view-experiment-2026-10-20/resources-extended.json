@@ -1,0 +1,3408 @@
+{
+  "method": "Three fresh processes per version and case, alternating order; five warm-up batches and >=1 second complete-render loop. OS peak RSS and process CPU include startup, input-file loading and warm-up. CPU seconds are process totals, not the latency benchmark. No overlap with timing, tests, CPU sampling or allocation probes.",
+  "inputSha256": "3394dca947019058a8c45335c6f09ce2a0e3f938b2e8ef3af2ef03ea89ddcf90",
+  "binaryHashes": {
+    "before": "c09806552c7b447b5c1add41db826fa09d82b893acd841f01324ead541a8bf62",
+    "after": "10d0e35df81a92a75e03f86c0a8aa07fdc1a7af48cd3a5ebb244bf02c90fb0e0"
+  },
+  "sourceHashes": {
+    "tools/bench/compare-resources.py": "8d7ed9207ad038d9703ab513eb0fbe88d27c9e11bca8efb428c1ca513adb146f",
+    "tools/bench/profile-resources.py": "6c539175ab224babeb18908e7721466c4b473048dbbf8704f8efe877aadfe808"
+  },
+  "interpretation": "Peak RSS is an OS process measurement, separate from requested allocator bytes and peak additional live allocations. Each case runs in a new process; RSS medians are not summed across cases. All runs and regressions are retained; small RSS differences can reflect page and allocator variability.",
+  "rows": [
+    {
+      "case": "docs: all flowchart examples",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "docs: all flowchart examples",
+            "batches": 931,
+            "elapsedMs": 1000.615458,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.00334,
+            "cpuSystemSeconds": 0.003872,
+            "peakRssBytes": 5373952
+          },
+          "after": {
+            "engine": "rust",
+            "case": "docs: all flowchart examples",
+            "batches": 942,
+            "elapsedMs": 1000.042125,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.003144,
+            "cpuSystemSeconds": 0.0037189999999999996,
+            "peakRssBytes": 5472256
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "docs: all flowchart examples",
+            "batches": 950,
+            "elapsedMs": 1000.2182909999999,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.00432,
+            "cpuSystemSeconds": 0.0030559999999999997,
+            "peakRssBytes": 5472256
+          },
+          "before": {
+            "engine": "rust",
+            "case": "docs: all flowchart examples",
+            "batches": 934,
+            "elapsedMs": 1000.5908340000001,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.005284,
+            "cpuSystemSeconds": 0.002315,
+            "peakRssBytes": 5357568
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "docs: all flowchart examples",
+            "batches": 934,
+            "elapsedMs": 1000.9825000000001,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.005416,
+            "cpuSystemSeconds": 0.002855,
+            "peakRssBytes": 5357568
+          },
+          "after": {
+            "engine": "rust",
+            "case": "docs: all flowchart examples",
+            "batches": 944,
+            "elapsedMs": 1000.6731669999999,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.004407,
+            "cpuSystemSeconds": 0.002816,
+            "peakRssBytes": 5488640
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5357568,
+        "after": 5472256
+      }
+    },
+    {
+      "case": "tree: 50 nodes",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "tree: 50 nodes",
+            "batches": 6593,
+            "elapsedMs": 1000.008333,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24478,
+            "cpuUserSeconds": 0.9977199999999999,
+            "cpuSystemSeconds": 0.0037909999999999997,
+            "peakRssBytes": 5275648
+          },
+          "after": {
+            "engine": "rust",
+            "case": "tree: 50 nodes",
+            "batches": 6614,
+            "elapsedMs": 1000.1141250000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24478,
+            "cpuUserSeconds": 1.000075,
+            "cpuSystemSeconds": 0.002489,
+            "peakRssBytes": 5373952
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "tree: 50 nodes",
+            "batches": 6600,
+            "elapsedMs": 1000.025291,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24478,
+            "cpuUserSeconds": 0.99954,
+            "cpuSystemSeconds": 0.002531,
+            "peakRssBytes": 5406720
+          },
+          "before": {
+            "engine": "rust",
+            "case": "tree: 50 nodes",
+            "batches": 6598,
+            "elapsedMs": 1000.140709,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24478,
+            "cpuUserSeconds": 0.999158,
+            "cpuSystemSeconds": 0.003011,
+            "peakRssBytes": 5373952
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "tree: 50 nodes",
+            "batches": 6145,
+            "elapsedMs": 1000.0618750000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24478,
+            "cpuUserSeconds": 0.9737089999999999,
+            "cpuSystemSeconds": 0.009433,
+            "peakRssBytes": 5373952
+          },
+          "after": {
+            "engine": "rust",
+            "case": "tree: 50 nodes",
+            "batches": 6600,
+            "elapsedMs": 1000.127959,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24478,
+            "cpuUserSeconds": 0.997771,
+            "cpuSystemSeconds": 0.00432,
+            "peakRssBytes": 5373952
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5373952,
+        "after": 5373952
+      }
+    },
+    {
+      "case": "mesh: 50 nodes, 20 extra labelled edges",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "mesh: 50 nodes, 20 extra labelled edges",
+            "batches": 3385,
+            "elapsedMs": 1000.1152920000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 35035,
+            "cpuUserSeconds": 1.000899,
+            "cpuSystemSeconds": 0.0026869999999999997,
+            "peakRssBytes": 5488640
+          },
+          "after": {
+            "engine": "rust",
+            "case": "mesh: 50 nodes, 20 extra labelled edges",
+            "batches": 3360,
+            "elapsedMs": 1000.172167,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 35035,
+            "cpuUserSeconds": 1.000528,
+            "cpuSystemSeconds": 0.002515,
+            "peakRssBytes": 5554176
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "mesh: 50 nodes, 20 extra labelled edges",
+            "batches": 3391,
+            "elapsedMs": 1000.080834,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 35035,
+            "cpuUserSeconds": 1.000103,
+            "cpuSystemSeconds": 0.0026709999999999998,
+            "peakRssBytes": 5685248
+          },
+          "before": {
+            "engine": "rust",
+            "case": "mesh: 50 nodes, 20 extra labelled edges",
+            "batches": 3385,
+            "elapsedMs": 1000.223917,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 35035,
+            "cpuUserSeconds": 0.9990899999999999,
+            "cpuSystemSeconds": 0.003045,
+            "peakRssBytes": 5750784
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "mesh: 50 nodes, 20 extra labelled edges",
+            "batches": 3421,
+            "elapsedMs": 1000.1997920000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 35035,
+            "cpuUserSeconds": 1.000311,
+            "cpuSystemSeconds": 0.003211,
+            "peakRssBytes": 5455872
+          },
+          "after": {
+            "engine": "rust",
+            "case": "mesh: 50 nodes, 20 extra labelled edges",
+            "batches": 3428,
+            "elapsedMs": 1000.27625,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 35035,
+            "cpuUserSeconds": 1.001109,
+            "cpuSystemSeconds": 0.0024419999999999997,
+            "peakRssBytes": 5537792
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5488640,
+        "after": 5554176
+      }
+    },
+    {
+      "case": "tree: 500 nodes",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "tree: 500 nodes",
+            "batches": 650,
+            "elapsedMs": 1000.9043330000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 246419,
+            "cpuUserSeconds": 1.007119,
+            "cpuSystemSeconds": 0.002827,
+            "peakRssBytes": 8732672
+          },
+          "after": {
+            "engine": "rust",
+            "case": "tree: 500 nodes",
+            "batches": 642,
+            "elapsedMs": 1000.680584,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 246419,
+            "cpuUserSeconds": 1.004559,
+            "cpuSystemSeconds": 0.004253,
+            "peakRssBytes": 10584064
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "tree: 500 nodes",
+            "batches": 641,
+            "elapsedMs": 1000.8483749999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 246419,
+            "cpuUserSeconds": 1.005713,
+            "cpuSystemSeconds": 0.004829,
+            "peakRssBytes": 10616832
+          },
+          "before": {
+            "engine": "rust",
+            "case": "tree: 500 nodes",
+            "batches": 654,
+            "elapsedMs": 1000.212042,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 246419,
+            "cpuUserSeconds": 1.006349,
+            "cpuSystemSeconds": 0.003355,
+            "peakRssBytes": 8110080
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "tree: 500 nodes",
+            "batches": 657,
+            "elapsedMs": 1001.3777500000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 246419,
+            "cpuUserSeconds": 1.007773,
+            "cpuSystemSeconds": 0.002925,
+            "peakRssBytes": 8060928
+          },
+          "after": {
+            "engine": "rust",
+            "case": "tree: 500 nodes",
+            "batches": 646,
+            "elapsedMs": 1001.282708,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 246419,
+            "cpuUserSeconds": 1.006674,
+            "cpuSystemSeconds": 0.003296,
+            "peakRssBytes": 8749056
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 8110080,
+        "after": 10584064
+      }
+    },
+    {
+      "case": "mesh: 500 nodes, 200 extra labelled edges",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "mesh: 500 nodes, 200 extra labelled edges",
+            "batches": 218,
+            "elapsedMs": 1000.3316669999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 360491,
+            "cpuUserSeconds": 1.017405,
+            "cpuSystemSeconds": 0.007346999999999999,
+            "peakRssBytes": 10895360
+          },
+          "after": {
+            "engine": "rust",
+            "case": "mesh: 500 nodes, 200 extra labelled edges",
+            "batches": 218,
+            "elapsedMs": 1000.2333750000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 360491,
+            "cpuUserSeconds": 1.016001,
+            "cpuSystemSeconds": 0.007695,
+            "peakRssBytes": 11780096
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "mesh: 500 nodes, 200 extra labelled edges",
+            "batches": 224,
+            "elapsedMs": 1001.1898749999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 360491,
+            "cpuUserSeconds": 1.018659,
+            "cpuSystemSeconds": 0.007653999999999999,
+            "peakRssBytes": 10829824
+          },
+          "before": {
+            "engine": "rust",
+            "case": "mesh: 500 nodes, 200 extra labelled edges",
+            "batches": 224,
+            "elapsedMs": 1001.0541669999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 360491,
+            "cpuUserSeconds": 1.018632,
+            "cpuSystemSeconds": 0.007244,
+            "peakRssBytes": 10649600
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "mesh: 500 nodes, 200 extra labelled edges",
+            "batches": 220,
+            "elapsedMs": 1001.6381670000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 360491,
+            "cpuUserSeconds": 1.018718,
+            "cpuSystemSeconds": 0.0077069999999999994,
+            "peakRssBytes": 11239424
+          },
+          "after": {
+            "engine": "rust",
+            "case": "mesh: 500 nodes, 200 extra labelled edges",
+            "batches": 216,
+            "elapsedMs": 1001.062166,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 360491,
+            "cpuUserSeconds": 1.016178,
+            "cpuSystemSeconds": 0.008343,
+            "peakRssBytes": 15220736
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 10895360,
+        "after": 11780096
+      }
+    },
+    {
+      "case": "corpus: agentflow-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: agentflow-docs",
+            "batches": 2628,
+            "elapsedMs": 1000.0436669999999,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 40075,
+            "cpuUserSeconds": 0.999131,
+            "cpuSystemSeconds": 0.003754,
+            "peakRssBytes": 5324800
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: agentflow-docs",
+            "batches": 2660,
+            "elapsedMs": 1000.2446250000002,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 40075,
+            "cpuUserSeconds": 1.001591,
+            "cpuSystemSeconds": 0.0025989999999999997,
+            "peakRssBytes": 5505024
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: agentflow-docs",
+            "batches": 2632,
+            "elapsedMs": 1000.0909170000001,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 40075,
+            "cpuUserSeconds": 1.001005,
+            "cpuSystemSeconds": 0.002729,
+            "peakRssBytes": 5472256
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: agentflow-docs",
+            "batches": 2616,
+            "elapsedMs": 1000.214541,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 40075,
+            "cpuUserSeconds": 1.000503,
+            "cpuSystemSeconds": 0.002842,
+            "peakRssBytes": 5341184
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: agentflow-docs",
+            "batches": 2557,
+            "elapsedMs": 1000.0428750000001,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 40075,
+            "cpuUserSeconds": 0.997471,
+            "cpuSystemSeconds": 0.0038369999999999997,
+            "peakRssBytes": 5341184
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: agentflow-docs",
+            "batches": 2427,
+            "elapsedMs": 1000.377667,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 40075,
+            "cpuUserSeconds": 0.98676,
+            "cpuSystemSeconds": 0.005729,
+            "peakRssBytes": 5505024
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5341184,
+        "after": 5505024
+      }
+    },
+    {
+      "case": "corpus: agentflow-reference",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: agentflow-reference",
+            "batches": 371,
+            "elapsedMs": 1001.797833,
+            "renderedPerBatch": 180,
+            "rejectedPerBatch": 59,
+            "svgBytesPerBatch": 323929,
+            "cpuUserSeconds": 1.011859,
+            "cpuSystemSeconds": 0.0038469999999999997,
+            "peakRssBytes": 5570560
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: agentflow-reference",
+            "batches": 367,
+            "elapsedMs": 1001.710375,
+            "renderedPerBatch": 180,
+            "rejectedPerBatch": 59,
+            "svgBytesPerBatch": 323929,
+            "cpuUserSeconds": 1.01542,
+            "cpuSystemSeconds": 0.002473,
+            "peakRssBytes": 5619712
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: agentflow-reference",
+            "batches": 364,
+            "elapsedMs": 1002.09475,
+            "renderedPerBatch": 180,
+            "rejectedPerBatch": 59,
+            "svgBytesPerBatch": 323929,
+            "cpuUserSeconds": 1.014917,
+            "cpuSystemSeconds": 0.002839,
+            "peakRssBytes": 5668864
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: agentflow-reference",
+            "batches": 359,
+            "elapsedMs": 1001.317083,
+            "renderedPerBatch": 180,
+            "rejectedPerBatch": 59,
+            "svgBytesPerBatch": 323929,
+            "cpuUserSeconds": 1.008044,
+            "cpuSystemSeconds": 0.0031899999999999997,
+            "peakRssBytes": 5570560
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: agentflow-reference",
+            "batches": 370,
+            "elapsedMs": 1001.7366249999999,
+            "renderedPerBatch": 180,
+            "rejectedPerBatch": 59,
+            "svgBytesPerBatch": 323929,
+            "cpuUserSeconds": 1.014394,
+            "cpuSystemSeconds": 0.003039,
+            "peakRssBytes": 5505024
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: agentflow-reference",
+            "batches": 376,
+            "elapsedMs": 1000.512708,
+            "renderedPerBatch": 180,
+            "rejectedPerBatch": 59,
+            "svgBytesPerBatch": 323929,
+            "cpuUserSeconds": 1.013686,
+            "cpuSystemSeconds": 0.002575,
+            "peakRssBytes": 5668864
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5570560,
+        "after": 5668864
+      }
+    },
+    {
+      "case": "corpus: architecture-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: architecture-docs",
+            "batches": 11788,
+            "elapsedMs": 1000.0324169999999,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29174,
+            "cpuUserSeconds": 0.99962,
+            "cpuSystemSeconds": 0.002388,
+            "peakRssBytes": 4849664
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: architecture-docs",
+            "batches": 11526,
+            "elapsedMs": 1000.039292,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29174,
+            "cpuUserSeconds": 0.998817,
+            "cpuSystemSeconds": 0.003062,
+            "peakRssBytes": 4964352
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: architecture-docs",
+            "batches": 11488,
+            "elapsedMs": 1000.030167,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29174,
+            "cpuUserSeconds": 0.9988349999999999,
+            "cpuSystemSeconds": 0.0025039999999999997,
+            "peakRssBytes": 4898816
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: architecture-docs",
+            "batches": 11556,
+            "elapsedMs": 1000.057875,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29174,
+            "cpuUserSeconds": 0.9987769999999999,
+            "cpuSystemSeconds": 0.002737,
+            "peakRssBytes": 4915200
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: architecture-docs",
+            "batches": 11614,
+            "elapsedMs": 1000.083625,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29174,
+            "cpuUserSeconds": 0.9999049999999999,
+            "cpuSystemSeconds": 0.002154,
+            "peakRssBytes": 4849664
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: architecture-docs",
+            "batches": 11654,
+            "elapsedMs": 1000.0161670000001,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29174,
+            "cpuUserSeconds": 0.99939,
+            "cpuSystemSeconds": 0.0024909999999999997,
+            "peakRssBytes": 4931584
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4849664,
+        "after": 4931584
+      }
+    },
+    {
+      "case": "corpus: block-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: block-docs",
+            "batches": 5902,
+            "elapsedMs": 1000.0673330000001,
+            "renderedPerBatch": 30,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 52759,
+            "cpuUserSeconds": 0.9990629999999999,
+            "cpuSystemSeconds": 0.003093,
+            "peakRssBytes": 4849664
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: block-docs",
+            "batches": 5726,
+            "elapsedMs": 1000.048042,
+            "renderedPerBatch": 30,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 52759,
+            "cpuUserSeconds": 0.996918,
+            "cpuSystemSeconds": 0.0030039999999999997,
+            "peakRssBytes": 4915200
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: block-docs",
+            "batches": 5922,
+            "elapsedMs": 1000.126375,
+            "renderedPerBatch": 30,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 52759,
+            "cpuUserSeconds": 0.9996459999999999,
+            "cpuSystemSeconds": 0.002731,
+            "peakRssBytes": 4898816
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: block-docs",
+            "batches": 5974,
+            "elapsedMs": 1000.126875,
+            "renderedPerBatch": 30,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 52759,
+            "cpuUserSeconds": 0.998975,
+            "cpuSystemSeconds": 0.0031079999999999997,
+            "peakRssBytes": 4833280
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: block-docs",
+            "batches": 5936,
+            "elapsedMs": 1000.1636249999999,
+            "renderedPerBatch": 30,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 52759,
+            "cpuUserSeconds": 0.9996529999999999,
+            "cpuSystemSeconds": 0.002884,
+            "peakRssBytes": 4849664
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: block-docs",
+            "batches": 5854,
+            "elapsedMs": 1000.174584,
+            "renderedPerBatch": 30,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 52759,
+            "cpuUserSeconds": 0.9988539999999999,
+            "cpuSystemSeconds": 0.003023,
+            "peakRssBytes": 4898816
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4849664,
+        "after": 4898816
+      }
+    },
+    {
+      "case": "corpus: c4-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: c4-docs",
+            "batches": 3371,
+            "elapsedMs": 1000.2573749999999,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76028,
+            "cpuUserSeconds": 1.000004,
+            "cpuSystemSeconds": 0.002993,
+            "peakRssBytes": 5128192
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: c4-docs",
+            "batches": 3375,
+            "elapsedMs": 1000.2412919999999,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76028,
+            "cpuUserSeconds": 1.000214,
+            "cpuSystemSeconds": 0.002951,
+            "peakRssBytes": 5046272
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: c4-docs",
+            "batches": 3408,
+            "elapsedMs": 1000.1434170000001,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76028,
+            "cpuUserSeconds": 1.00183,
+            "cpuSystemSeconds": 0.001813,
+            "peakRssBytes": 5144576
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: c4-docs",
+            "batches": 3421,
+            "elapsedMs": 1000.0815000000001,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76028,
+            "cpuUserSeconds": 1.001388,
+            "cpuSystemSeconds": 0.002072,
+            "peakRssBytes": 5095424
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: c4-docs",
+            "batches": 3379,
+            "elapsedMs": 1000.1909579999999,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76028,
+            "cpuUserSeconds": 1.000508,
+            "cpuSystemSeconds": 0.0027849999999999997,
+            "peakRssBytes": 5095424
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: c4-docs",
+            "batches": 3318,
+            "elapsedMs": 1000.177792,
+            "renderedPerBatch": 6,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76028,
+            "cpuUserSeconds": 0.99935,
+            "cpuSystemSeconds": 0.0026089999999999998,
+            "peakRssBytes": 4931584
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5095424,
+        "after": 5046272
+      }
+    },
+    {
+      "case": "corpus: class-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: class-docs",
+            "batches": 2073,
+            "elapsedMs": 1000.02525,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 111619,
+            "cpuUserSeconds": 1.002046,
+            "cpuSystemSeconds": 0.001867,
+            "peakRssBytes": 5292032
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: class-docs",
+            "batches": 2101,
+            "elapsedMs": 1000.1899579999999,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 111619,
+            "cpuUserSeconds": 1.002531,
+            "cpuSystemSeconds": 0.001898,
+            "peakRssBytes": 5521408
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: class-docs",
+            "batches": 2053,
+            "elapsedMs": 1000.3060409999999,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 111619,
+            "cpuUserSeconds": 1.002549,
+            "cpuSystemSeconds": 0.001893,
+            "peakRssBytes": 5521408
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: class-docs",
+            "batches": 2061,
+            "elapsedMs": 1000.262333,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 111619,
+            "cpuUserSeconds": 1.001355,
+            "cpuSystemSeconds": 0.002632,
+            "peakRssBytes": 5275648
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: class-docs",
+            "batches": 2080,
+            "elapsedMs": 1000.114583,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 111619,
+            "cpuUserSeconds": 1.001507,
+            "cpuSystemSeconds": 0.0023109999999999997,
+            "peakRssBytes": 5373952
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: class-docs",
+            "batches": 2088,
+            "elapsedMs": 1000.2871250000001,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 111619,
+            "cpuUserSeconds": 1.003118,
+            "cpuSystemSeconds": 0.001813,
+            "peakRssBytes": 5537792
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5292032,
+        "after": 5521408
+      }
+    },
+    {
+      "case": "corpus: cynefin-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: cynefin-docs",
+            "batches": 19176,
+            "elapsedMs": 1000.017583,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23305,
+            "cpuUserSeconds": 0.999999,
+            "cpuSystemSeconds": 0.0016029999999999998,
+            "peakRssBytes": 4571136
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: cynefin-docs",
+            "batches": 18923,
+            "elapsedMs": 1000.009792,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23305,
+            "cpuUserSeconds": 0.998004,
+            "cpuSystemSeconds": 0.003104,
+            "peakRssBytes": 4636672
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: cynefin-docs",
+            "batches": 18464,
+            "elapsedMs": 1000.0040830000002,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23305,
+            "cpuUserSeconds": 0.9777359999999999,
+            "cpuSystemSeconds": 0.009042999999999999,
+            "peakRssBytes": 4702208
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: cynefin-docs",
+            "batches": 18868,
+            "elapsedMs": 1000.0542079999999,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23305,
+            "cpuUserSeconds": 0.996158,
+            "cpuSystemSeconds": 0.003336,
+            "peakRssBytes": 4587520
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: cynefin-docs",
+            "batches": 19129,
+            "elapsedMs": 1000.019084,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23305,
+            "cpuUserSeconds": 0.999409,
+            "cpuSystemSeconds": 0.002386,
+            "peakRssBytes": 4571136
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: cynefin-docs",
+            "batches": 19151,
+            "elapsedMs": 1000.046875,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23305,
+            "cpuUserSeconds": 0.99903,
+            "cpuSystemSeconds": 0.0026249999999999997,
+            "peakRssBytes": 4685824
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4571136,
+        "after": 4685824
+      }
+    },
+    {
+      "case": "corpus: er-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: er-docs",
+            "batches": 2325,
+            "elapsedMs": 1000.1336249999999,
+            "renderedPerBatch": 25,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 95180,
+            "cpuUserSeconds": 1.000623,
+            "cpuSystemSeconds": 0.002974,
+            "peakRssBytes": 5062656
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: er-docs",
+            "batches": 2252,
+            "elapsedMs": 1000.3091669999999,
+            "renderedPerBatch": 25,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 95180,
+            "cpuUserSeconds": 0.994718,
+            "cpuSystemSeconds": 0.0048319999999999995,
+            "peakRssBytes": 5308416
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: er-docs",
+            "batches": 2323,
+            "elapsedMs": 1000.268833,
+            "renderedPerBatch": 25,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 95180,
+            "cpuUserSeconds": 0.9997769999999999,
+            "cpuSystemSeconds": 0.003449,
+            "peakRssBytes": 5341184
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: er-docs",
+            "batches": 2369,
+            "elapsedMs": 1000.2007090000001,
+            "renderedPerBatch": 25,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 95180,
+            "cpuUserSeconds": 1.001701,
+            "cpuSystemSeconds": 0.0022979999999999997,
+            "peakRssBytes": 5095424
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: er-docs",
+            "batches": 2358,
+            "elapsedMs": 1000.159792,
+            "renderedPerBatch": 25,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 95180,
+            "cpuUserSeconds": 1.000338,
+            "cpuSystemSeconds": 0.003446,
+            "peakRssBytes": 5062656
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: er-docs",
+            "batches": 2347,
+            "elapsedMs": 1000.3270420000001,
+            "renderedPerBatch": 25,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 95180,
+            "cpuUserSeconds": 1.000861,
+            "cpuSystemSeconds": 0.002597,
+            "peakRssBytes": 5341184
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5062656,
+        "after": 5341184
+      }
+    },
+    {
+      "case": "corpus: eventmodeling-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: eventmodeling-docs",
+            "batches": 8847,
+            "elapsedMs": 1000.0182500000001,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 53921,
+            "cpuUserSeconds": 0.9985499999999999,
+            "cpuSystemSeconds": 0.003126,
+            "peakRssBytes": 4784128
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: eventmodeling-docs",
+            "batches": 8574,
+            "elapsedMs": 1000.0715,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 53921,
+            "cpuUserSeconds": 0.9972639999999999,
+            "cpuSystemSeconds": 0.0030459999999999997,
+            "peakRssBytes": 4816896
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: eventmodeling-docs",
+            "batches": 8952,
+            "elapsedMs": 1000.0599590000002,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 53921,
+            "cpuUserSeconds": 0.9996219999999999,
+            "cpuSystemSeconds": 0.0027069999999999998,
+            "peakRssBytes": 4866048
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: eventmodeling-docs",
+            "batches": 8791,
+            "elapsedMs": 1000.024,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 53921,
+            "cpuUserSeconds": 0.999914,
+            "cpuSystemSeconds": 0.0022949999999999997,
+            "peakRssBytes": 4718592
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: eventmodeling-docs",
+            "batches": 8640,
+            "elapsedMs": 1000.064333,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 53921,
+            "cpuUserSeconds": 0.9987349999999999,
+            "cpuSystemSeconds": 0.002852,
+            "peakRssBytes": 4734976
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: eventmodeling-docs",
+            "batches": 8742,
+            "elapsedMs": 1000.065958,
+            "renderedPerBatch": 12,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 53921,
+            "cpuUserSeconds": 0.998227,
+            "cpuSystemSeconds": 0.0031609999999999997,
+            "peakRssBytes": 4816896
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4734976,
+        "after": 4816896
+      }
+    },
+    {
+      "case": "corpus: flowchart-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: flowchart-docs",
+            "batches": 938,
+            "elapsedMs": 1000.840583,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.004435,
+            "cpuSystemSeconds": 0.00312,
+            "peakRssBytes": 5390336
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: flowchart-docs",
+            "batches": 962,
+            "elapsedMs": 1000.807583,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.006315,
+            "cpuSystemSeconds": 0.0018759999999999998,
+            "peakRssBytes": 5505024
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: flowchart-docs",
+            "batches": 958,
+            "elapsedMs": 1001.003208,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.005712,
+            "cpuSystemSeconds": 0.002447,
+            "peakRssBytes": 5472256
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: flowchart-docs",
+            "batches": 939,
+            "elapsedMs": 1000.0467500000001,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.004268,
+            "cpuSystemSeconds": 0.0022819999999999997,
+            "peakRssBytes": 5423104
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: flowchart-docs",
+            "batches": 937,
+            "elapsedMs": 1000.9732499999999,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.002154,
+            "cpuSystemSeconds": 0.003364,
+            "peakRssBytes": 5373952
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: flowchart-docs",
+            "batches": 924,
+            "elapsedMs": 1000.6892089999999,
+            "renderedPerBatch": 114,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 179952,
+            "cpuUserSeconds": 1.001385,
+            "cpuSystemSeconds": 0.00492,
+            "peakRssBytes": 5505024
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5390336,
+        "after": 5505024
+      }
+    },
+    {
+      "case": "corpus: gantt-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: gantt-docs",
+            "batches": 5221,
+            "elapsedMs": 1000.0869590000001,
+            "renderedPerBatch": 11,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 36892,
+            "cpuUserSeconds": 0.999879,
+            "cpuSystemSeconds": 0.002611,
+            "peakRssBytes": 4866048
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: gantt-docs",
+            "batches": 5246,
+            "elapsedMs": 1000.0487909999999,
+            "renderedPerBatch": 11,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 36892,
+            "cpuUserSeconds": 1.000051,
+            "cpuSystemSeconds": 0.00266,
+            "peakRssBytes": 5029888
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: gantt-docs",
+            "batches": 5094,
+            "elapsedMs": 1000.0469999999999,
+            "renderedPerBatch": 11,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 36892,
+            "cpuUserSeconds": 0.9989039999999999,
+            "cpuSystemSeconds": 0.003114,
+            "peakRssBytes": 4964352
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: gantt-docs",
+            "batches": 5161,
+            "elapsedMs": 1000.075667,
+            "renderedPerBatch": 11,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 36892,
+            "cpuUserSeconds": 0.998861,
+            "cpuSystemSeconds": 0.0031049999999999997,
+            "peakRssBytes": 4898816
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: gantt-docs",
+            "batches": 5118,
+            "elapsedMs": 1000.036583,
+            "renderedPerBatch": 11,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 36892,
+            "cpuUserSeconds": 0.9989429999999999,
+            "cpuSystemSeconds": 0.0029219999999999997,
+            "peakRssBytes": 4882432
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: gantt-docs",
+            "batches": 5203,
+            "elapsedMs": 1000.076875,
+            "renderedPerBatch": 11,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 36892,
+            "cpuUserSeconds": 1.00037,
+            "cpuSystemSeconds": 0.002275,
+            "peakRssBytes": 4931584
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4882432,
+        "after": 4964352
+      }
+    },
+    {
+      "case": "corpus: git-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: git-docs",
+            "batches": 1491,
+            "elapsedMs": 1000.146875,
+            "renderedPerBatch": 35,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 217626,
+            "cpuUserSeconds": 1.003244,
+            "cpuSystemSeconds": 0.002075,
+            "peakRssBytes": 5013504
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: git-docs",
+            "batches": 1444,
+            "elapsedMs": 1000.556792,
+            "renderedPerBatch": 35,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 217626,
+            "cpuUserSeconds": 0.999474,
+            "cpuSystemSeconds": 0.0036569999999999997,
+            "peakRssBytes": 5029888
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: git-docs",
+            "batches": 1418,
+            "elapsedMs": 1000.259583,
+            "renderedPerBatch": 35,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 217626,
+            "cpuUserSeconds": 0.997891,
+            "cpuSystemSeconds": 0.0041719999999999995,
+            "peakRssBytes": 5079040
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: git-docs",
+            "batches": 1472,
+            "elapsedMs": 1000.4725000000001,
+            "renderedPerBatch": 35,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 217626,
+            "cpuUserSeconds": 1.00222,
+            "cpuSystemSeconds": 0.0031579999999999998,
+            "peakRssBytes": 4931584
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: git-docs",
+            "batches": 1474,
+            "elapsedMs": 1000.237541,
+            "renderedPerBatch": 35,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 217626,
+            "cpuUserSeconds": 1.002534,
+            "cpuSystemSeconds": 0.0027429999999999998,
+            "peakRssBytes": 5062656
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: git-docs",
+            "batches": 1479,
+            "elapsedMs": 1000.4103749999999,
+            "renderedPerBatch": 35,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 217626,
+            "cpuUserSeconds": 1.001717,
+            "cpuSystemSeconds": 0.003577,
+            "peakRssBytes": 5062656
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5013504,
+        "after": 5062656
+      }
+    },
+    {
+      "case": "corpus: info-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: info-docs",
+            "batches": 845517,
+            "elapsedMs": 1000.004166,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 1540,
+            "cpuUserSeconds": 0.9972479999999999,
+            "cpuSystemSeconds": 0.003025,
+            "peakRssBytes": 3784704
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: info-docs",
+            "batches": 848086,
+            "elapsedMs": 1000.004125,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 1540,
+            "cpuUserSeconds": 0.996039,
+            "cpuSystemSeconds": 0.0034639999999999996,
+            "peakRssBytes": 3735552
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: info-docs",
+            "batches": 851878,
+            "elapsedMs": 1000.0067079999999,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 1540,
+            "cpuUserSeconds": 0.9971279999999999,
+            "cpuSystemSeconds": 0.003397,
+            "peakRssBytes": 3735552
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: info-docs",
+            "batches": 855520,
+            "elapsedMs": 1000.006792,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 1540,
+            "cpuUserSeconds": 0.996671,
+            "cpuSystemSeconds": 0.0038599999999999997,
+            "peakRssBytes": 3768320
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: info-docs",
+            "batches": 855469,
+            "elapsedMs": 1000.0052919999999,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 1540,
+            "cpuUserSeconds": 0.9991749999999999,
+            "cpuSystemSeconds": 0.002953,
+            "peakRssBytes": 3768320
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: info-docs",
+            "batches": 851675,
+            "elapsedMs": 1000.002208,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 1540,
+            "cpuUserSeconds": 0.9978699999999999,
+            "cpuSystemSeconds": 0.002776,
+            "peakRssBytes": 3735552
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 3768320,
+        "after": 3735552
+      }
+    },
+    {
+      "case": "corpus: ishikawa-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: ishikawa-docs",
+            "batches": 102147,
+            "elapsedMs": 1000.008209,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 4627,
+            "cpuUserSeconds": 0.994251,
+            "cpuSystemSeconds": 0.0031669999999999997,
+            "peakRssBytes": 4210688
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: ishikawa-docs",
+            "batches": 105775,
+            "elapsedMs": 1000.003916,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 4627,
+            "cpuUserSeconds": 0.9984879999999999,
+            "cpuSystemSeconds": 0.002835,
+            "peakRssBytes": 4161536
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: ishikawa-docs",
+            "batches": 105558,
+            "elapsedMs": 1000.0056669999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 4627,
+            "cpuUserSeconds": 0.998246,
+            "cpuSystemSeconds": 0.002889,
+            "peakRssBytes": 4177920
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: ishikawa-docs",
+            "batches": 106748,
+            "elapsedMs": 1000.004667,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 4627,
+            "cpuUserSeconds": 0.9983059999999999,
+            "cpuSystemSeconds": 0.002976,
+            "peakRssBytes": 4096000
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: ishikawa-docs",
+            "batches": 104708,
+            "elapsedMs": 1000.0125419999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 4627,
+            "cpuUserSeconds": 0.996949,
+            "cpuSystemSeconds": 0.003345,
+            "peakRssBytes": 4194304
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: ishikawa-docs",
+            "batches": 106578,
+            "elapsedMs": 1000.00975,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 4627,
+            "cpuUserSeconds": 0.9979979999999999,
+            "cpuSystemSeconds": 0.002845,
+            "peakRssBytes": 4145152
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4194304,
+        "after": 4161536
+      }
+    },
+    {
+      "case": "corpus: journey-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: journey-docs",
+            "batches": 127503,
+            "elapsedMs": 1000.012667,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 6001,
+            "cpuUserSeconds": 0.9979669999999999,
+            "cpuSystemSeconds": 0.003002,
+            "peakRssBytes": 4243456
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: journey-docs",
+            "batches": 128668,
+            "elapsedMs": 1000.0039169999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 6001,
+            "cpuUserSeconds": 0.999014,
+            "cpuSystemSeconds": 0.0024389999999999998,
+            "peakRssBytes": 4243456
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: journey-docs",
+            "batches": 128982,
+            "elapsedMs": 1000.0131670000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 6001,
+            "cpuUserSeconds": 0.999307,
+            "cpuSystemSeconds": 0.00202,
+            "peakRssBytes": 4243456
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: journey-docs",
+            "batches": 126661,
+            "elapsedMs": 1000.0084170000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 6001,
+            "cpuUserSeconds": 0.9977999999999999,
+            "cpuSystemSeconds": 0.002815,
+            "peakRssBytes": 4243456
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: journey-docs",
+            "batches": 125936,
+            "elapsedMs": 1000.0038339999999,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 6001,
+            "cpuUserSeconds": 0.9978239999999999,
+            "cpuSystemSeconds": 0.002323,
+            "peakRssBytes": 4210688
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: journey-docs",
+            "batches": 125486,
+            "elapsedMs": 1000.0065410000001,
+            "renderedPerBatch": 1,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 6001,
+            "cpuUserSeconds": 0.9983839999999999,
+            "cpuSystemSeconds": 0.002719,
+            "peakRssBytes": 4227072
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4243456,
+        "after": 4243456
+      }
+    },
+    {
+      "case": "corpus: kanban-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: kanban-docs",
+            "batches": 27883,
+            "elapsedMs": 1000.019333,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10491,
+            "cpuUserSeconds": 0.9990399999999999,
+            "cpuSystemSeconds": 0.002534,
+            "peakRssBytes": 4489216
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: kanban-docs",
+            "batches": 27528,
+            "elapsedMs": 1000.0045420000001,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10491,
+            "cpuUserSeconds": 0.998058,
+            "cpuSystemSeconds": 0.003022,
+            "peakRssBytes": 4587520
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: kanban-docs",
+            "batches": 27169,
+            "elapsedMs": 1000.035584,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10491,
+            "cpuUserSeconds": 0.99613,
+            "cpuSystemSeconds": 0.003812,
+            "peakRssBytes": 4587520
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: kanban-docs",
+            "batches": 27149,
+            "elapsedMs": 1000.004792,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10491,
+            "cpuUserSeconds": 0.997289,
+            "cpuSystemSeconds": 0.003119,
+            "peakRssBytes": 4456448
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: kanban-docs",
+            "batches": 27756,
+            "elapsedMs": 1000.0303749999999,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10491,
+            "cpuUserSeconds": 0.99815,
+            "cpuSystemSeconds": 0.0035789999999999997,
+            "peakRssBytes": 4472832
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: kanban-docs",
+            "batches": 27077,
+            "elapsedMs": 1000.032,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10491,
+            "cpuUserSeconds": 0.991593,
+            "cpuSystemSeconds": 0.006357,
+            "peakRssBytes": 4587520
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4472832,
+        "after": 4587520
+      }
+    },
+    {
+      "case": "corpus: mindmap-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: mindmap-docs",
+            "batches": 20770,
+            "elapsedMs": 1000.0275,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24123,
+            "cpuUserSeconds": 0.970414,
+            "cpuSystemSeconds": 0.010723,
+            "peakRssBytes": 4538368
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: mindmap-docs",
+            "batches": 21645,
+            "elapsedMs": 1000.0161249999999,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24123,
+            "cpuUserSeconds": 0.9968189999999999,
+            "cpuSystemSeconds": 0.003508,
+            "peakRssBytes": 4636672
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: mindmap-docs",
+            "batches": 21620,
+            "elapsedMs": 1000.0095419999999,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24123,
+            "cpuUserSeconds": 0.998783,
+            "cpuSystemSeconds": 0.002368,
+            "peakRssBytes": 4718592
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: mindmap-docs",
+            "batches": 21606,
+            "elapsedMs": 1000.0024999999999,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24123,
+            "cpuUserSeconds": 0.9976849999999999,
+            "cpuSystemSeconds": 0.0038429999999999996,
+            "peakRssBytes": 4554752
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: mindmap-docs",
+            "batches": 21753,
+            "elapsedMs": 1000.040125,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24123,
+            "cpuUserSeconds": 0.9989549999999999,
+            "cpuSystemSeconds": 0.0027029999999999997,
+            "peakRssBytes": 4554752
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: mindmap-docs",
+            "batches": 22019,
+            "elapsedMs": 1000.001125,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 24123,
+            "cpuUserSeconds": 0.998176,
+            "cpuSystemSeconds": 0.0031669999999999997,
+            "peakRssBytes": 4718592
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4554752,
+        "after": 4718592
+      }
+    },
+    {
+      "case": "corpus: packet-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: packet-docs",
+            "batches": 36094,
+            "elapsedMs": 1000.008708,
+            "renderedPerBatch": 4,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 11617,
+            "cpuUserSeconds": 0.997362,
+            "cpuSystemSeconds": 0.003431,
+            "peakRssBytes": 4423680
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: packet-docs",
+            "batches": 36308,
+            "elapsedMs": 1000.001208,
+            "renderedPerBatch": 4,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 11617,
+            "cpuUserSeconds": 0.998366,
+            "cpuSystemSeconds": 0.002851,
+            "peakRssBytes": 4423680
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: packet-docs",
+            "batches": 34855,
+            "elapsedMs": 1000.023708,
+            "renderedPerBatch": 4,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 11617,
+            "cpuUserSeconds": 0.9799549999999999,
+            "cpuSystemSeconds": 0.004802,
+            "peakRssBytes": 4407296
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: packet-docs",
+            "batches": 36404,
+            "elapsedMs": 1000.011625,
+            "renderedPerBatch": 4,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 11617,
+            "cpuUserSeconds": 0.99735,
+            "cpuSystemSeconds": 0.003447,
+            "peakRssBytes": 4390912
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: packet-docs",
+            "batches": 36491,
+            "elapsedMs": 1000.024292,
+            "renderedPerBatch": 4,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 11617,
+            "cpuUserSeconds": 0.9973289999999999,
+            "cpuSystemSeconds": 0.004079999999999999,
+            "peakRssBytes": 4325376
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: packet-docs",
+            "batches": 36622,
+            "elapsedMs": 1000.018208,
+            "renderedPerBatch": 4,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 11617,
+            "cpuUserSeconds": 0.998358,
+            "cpuSystemSeconds": 0.002679,
+            "peakRssBytes": 4440064
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4390912,
+        "after": 4423680
+      }
+    },
+    {
+      "case": "corpus: pie-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: pie-docs",
+            "batches": 71842,
+            "elapsedMs": 1000.0138329999999,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 5177,
+            "cpuUserSeconds": 0.9988809999999999,
+            "cpuSystemSeconds": 0.002332,
+            "peakRssBytes": 4358144
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: pie-docs",
+            "batches": 73755,
+            "elapsedMs": 1000.0140420000001,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 5177,
+            "cpuUserSeconds": 0.9984719999999999,
+            "cpuSystemSeconds": 0.002681,
+            "peakRssBytes": 4325376
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: pie-docs",
+            "batches": 74845,
+            "elapsedMs": 1000.0049580000001,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 5177,
+            "cpuUserSeconds": 0.998674,
+            "cpuSystemSeconds": 0.002793,
+            "peakRssBytes": 4292608
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: pie-docs",
+            "batches": 72905,
+            "elapsedMs": 1000.012833,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 5177,
+            "cpuUserSeconds": 0.997814,
+            "cpuSystemSeconds": 0.003134,
+            "peakRssBytes": 4374528
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: pie-docs",
+            "batches": 73323,
+            "elapsedMs": 1000.0150000000001,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 5177,
+            "cpuUserSeconds": 0.9973609999999999,
+            "cpuSystemSeconds": 0.003303,
+            "peakRssBytes": 4325376
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: pie-docs",
+            "batches": 74088,
+            "elapsedMs": 1000.0024169999999,
+            "renderedPerBatch": 2,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 5177,
+            "cpuUserSeconds": 0.998285,
+            "cpuSystemSeconds": 0.002786,
+            "peakRssBytes": 4308992
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4358144,
+        "after": 4308992
+      }
+    },
+    {
+      "case": "corpus: quadrant-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: quadrant-docs",
+            "batches": 31179,
+            "elapsedMs": 1000.023667,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 9050,
+            "cpuUserSeconds": 0.998394,
+            "cpuSystemSeconds": 0.002881,
+            "peakRssBytes": 4440064
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: quadrant-docs",
+            "batches": 29870,
+            "elapsedMs": 1000.024542,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 9050,
+            "cpuUserSeconds": 0.977286,
+            "cpuSystemSeconds": 0.0048449999999999995,
+            "peakRssBytes": 4489216
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: quadrant-docs",
+            "batches": 30855,
+            "elapsedMs": 1000.0143749999999,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 9050,
+            "cpuUserSeconds": 0.997373,
+            "cpuSystemSeconds": 0.003898,
+            "peakRssBytes": 4489216
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: quadrant-docs",
+            "batches": 31484,
+            "elapsedMs": 1000.0255840000001,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 9050,
+            "cpuUserSeconds": 0.9991019999999999,
+            "cpuSystemSeconds": 0.00228,
+            "peakRssBytes": 4472832
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: quadrant-docs",
+            "batches": 31008,
+            "elapsedMs": 1000.0158750000002,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 9050,
+            "cpuUserSeconds": 0.996767,
+            "cpuSystemSeconds": 0.002182,
+            "peakRssBytes": 4489216
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: quadrant-docs",
+            "batches": 31433,
+            "elapsedMs": 1000.0279169999999,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 9050,
+            "cpuUserSeconds": 0.998927,
+            "cpuSystemSeconds": 0.002428,
+            "peakRssBytes": 4521984
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4472832,
+        "after": 4489216
+      }
+    },
+    {
+      "case": "corpus: radar-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: radar-docs",
+            "batches": 32648,
+            "elapsedMs": 1000.0127080000001,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10034,
+            "cpuUserSeconds": 0.9983759999999999,
+            "cpuSystemSeconds": 0.0031349999999999998,
+            "peakRssBytes": 4538368
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: radar-docs",
+            "batches": 32916,
+            "elapsedMs": 1000.0219159999999,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10034,
+            "cpuUserSeconds": 0.9974599999999999,
+            "cpuSystemSeconds": 0.003596,
+            "peakRssBytes": 4554752
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: radar-docs",
+            "batches": 32924,
+            "elapsedMs": 1000.017583,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10034,
+            "cpuUserSeconds": 0.992792,
+            "cpuSystemSeconds": 0.0034909999999999997,
+            "peakRssBytes": 4554752
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: radar-docs",
+            "batches": 32512,
+            "elapsedMs": 1000.028833,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10034,
+            "cpuUserSeconds": 0.9990199999999999,
+            "cpuSystemSeconds": 0.002708,
+            "peakRssBytes": 4489216
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: radar-docs",
+            "batches": 33093,
+            "elapsedMs": 1000.027041,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10034,
+            "cpuUserSeconds": 0.998633,
+            "cpuSystemSeconds": 0.00278,
+            "peakRssBytes": 4423680
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: radar-docs",
+            "batches": 33185,
+            "elapsedMs": 1000.012583,
+            "renderedPerBatch": 3,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 10034,
+            "cpuUserSeconds": 0.99823,
+            "cpuSystemSeconds": 0.0032849999999999997,
+            "peakRssBytes": 4538368
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4489216,
+        "after": 4554752
+      }
+    },
+    {
+      "case": "corpus: railroad-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: railroad-docs",
+            "batches": 4257,
+            "elapsedMs": 1000.0625000000001,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76591,
+            "cpuUserSeconds": 0.9985489999999999,
+            "cpuSystemSeconds": 0.0035719999999999997,
+            "peakRssBytes": 4669440
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: railroad-docs",
+            "batches": 4291,
+            "elapsedMs": 1000.191458,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76591,
+            "cpuUserSeconds": 1.00015,
+            "cpuSystemSeconds": 0.0027879999999999997,
+            "peakRssBytes": 4734976
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: railroad-docs",
+            "batches": 4174,
+            "elapsedMs": 1000.103,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76591,
+            "cpuUserSeconds": 0.997085,
+            "cpuSystemSeconds": 0.0019619999999999998,
+            "peakRssBytes": 4784128
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: railroad-docs",
+            "batches": 4291,
+            "elapsedMs": 1000.212166,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76591,
+            "cpuUserSeconds": 1.00005,
+            "cpuSystemSeconds": 0.002492,
+            "peakRssBytes": 4669440
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: railroad-docs",
+            "batches": 4363,
+            "elapsedMs": 1000.122417,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76591,
+            "cpuUserSeconds": 0.999755,
+            "cpuSystemSeconds": 0.0029779999999999997,
+            "peakRssBytes": 4669440
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: railroad-docs",
+            "batches": 4265,
+            "elapsedMs": 1000.03525,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 76591,
+            "cpuUserSeconds": 0.998319,
+            "cpuSystemSeconds": 0.003908,
+            "peakRssBytes": 4734976
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4669440,
+        "after": 4734976
+      }
+    },
+    {
+      "case": "corpus: requirement-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: requirement-docs",
+            "batches": 5820,
+            "elapsedMs": 1000.0452909999999,
+            "renderedPerBatch": 9,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 49872,
+            "cpuUserSeconds": 0.999173,
+            "cpuSystemSeconds": 0.003091,
+            "peakRssBytes": 5062656
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: requirement-docs",
+            "batches": 5767,
+            "elapsedMs": 1000.1081249999999,
+            "renderedPerBatch": 9,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 49872,
+            "cpuUserSeconds": 0.9986529999999999,
+            "cpuSystemSeconds": 0.003669,
+            "peakRssBytes": 5292032
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: requirement-docs",
+            "batches": 5812,
+            "elapsedMs": 1000.0280829999999,
+            "renderedPerBatch": 9,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 49872,
+            "cpuUserSeconds": 0.995003,
+            "cpuSystemSeconds": 0.008043999999999999,
+            "peakRssBytes": 5259264
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: requirement-docs",
+            "batches": 5859,
+            "elapsedMs": 1000.044542,
+            "renderedPerBatch": 9,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 49872,
+            "cpuUserSeconds": 0.999509,
+            "cpuSystemSeconds": 0.002832,
+            "peakRssBytes": 5062656
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: requirement-docs",
+            "batches": 5762,
+            "elapsedMs": 1000.025542,
+            "renderedPerBatch": 9,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 49872,
+            "cpuUserSeconds": 0.99429,
+            "cpuSystemSeconds": 0.005013999999999999,
+            "peakRssBytes": 5095424
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: requirement-docs",
+            "batches": 5809,
+            "elapsedMs": 1000.135917,
+            "renderedPerBatch": 9,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 49872,
+            "cpuUserSeconds": 0.99869,
+            "cpuSystemSeconds": 0.003341,
+            "peakRssBytes": 5259264
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5062656,
+        "after": 5259264
+      }
+    },
+    {
+      "case": "corpus: sankey-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: sankey-docs",
+            "batches": 8428,
+            "elapsedMs": 1000.1171659999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 51266,
+            "cpuUserSeconds": 0.999064,
+            "cpuSystemSeconds": 0.002657,
+            "peakRssBytes": 4915200
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: sankey-docs",
+            "batches": 8638,
+            "elapsedMs": 1000.089333,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 51266,
+            "cpuUserSeconds": 0.9994679999999999,
+            "cpuSystemSeconds": 0.003267,
+            "peakRssBytes": 4882432
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: sankey-docs",
+            "batches": 8637,
+            "elapsedMs": 1000.0547909999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 51266,
+            "cpuUserSeconds": 0.997359,
+            "cpuSystemSeconds": 0.004325,
+            "peakRssBytes": 4882432
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: sankey-docs",
+            "batches": 8478,
+            "elapsedMs": 1000.01975,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 51266,
+            "cpuUserSeconds": 0.9972369999999999,
+            "cpuSystemSeconds": 0.004032,
+            "peakRssBytes": 4898816
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: sankey-docs",
+            "batches": 8562,
+            "elapsedMs": 1000.0058329999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 51266,
+            "cpuUserSeconds": 0.998224,
+            "cpuSystemSeconds": 0.003594,
+            "peakRssBytes": 4898816
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: sankey-docs",
+            "batches": 8597,
+            "elapsedMs": 1000.025208,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 51266,
+            "cpuUserSeconds": 0.9975879999999999,
+            "cpuSystemSeconds": 0.004045,
+            "peakRssBytes": 4931584
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4898816,
+        "after": 4882432
+      }
+    },
+    {
+      "case": "corpus: sequence-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: sequence-docs",
+            "batches": 2804,
+            "elapsedMs": 1000.242375,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 141180,
+            "cpuUserSeconds": 0.9989819999999999,
+            "cpuSystemSeconds": 0.005215,
+            "peakRssBytes": 4980736
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: sequence-docs",
+            "batches": 2717,
+            "elapsedMs": 1000.2642500000001,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 141180,
+            "cpuUserSeconds": 0.995732,
+            "cpuSystemSeconds": 0.005170999999999999,
+            "peakRssBytes": 5193728
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: sequence-docs",
+            "batches": 2720,
+            "elapsedMs": 1000.316667,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 141180,
+            "cpuUserSeconds": 0.9991789999999999,
+            "cpuSystemSeconds": 0.0035199999999999997,
+            "peakRssBytes": 5242880
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: sequence-docs",
+            "batches": 2802,
+            "elapsedMs": 1000.251792,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 141180,
+            "cpuUserSeconds": 1.000661,
+            "cpuSystemSeconds": 0.0029119999999999997,
+            "peakRssBytes": 4997120
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: sequence-docs",
+            "batches": 2455,
+            "elapsedMs": 1000.1370000000001,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 141180,
+            "cpuUserSeconds": 0.971229,
+            "cpuSystemSeconds": 0.008065,
+            "peakRssBytes": 5242880
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: sequence-docs",
+            "batches": 2368,
+            "elapsedMs": 1000.339583,
+            "renderedPerBatch": 38,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 141180,
+            "cpuUserSeconds": 0.9832449999999999,
+            "cpuSystemSeconds": 0.009002999999999999,
+            "peakRssBytes": 5226496
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4997120,
+        "after": 5226496
+      }
+    },
+    {
+      "case": "corpus: state-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: state-docs",
+            "batches": 2005,
+            "elapsedMs": 1000.012916,
+            "renderedPerBatch": 22,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 70785,
+            "cpuUserSeconds": 0.998006,
+            "cpuSystemSeconds": 0.005810999999999999,
+            "peakRssBytes": 5275648
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: state-docs",
+            "batches": 2064,
+            "elapsedMs": 1000.0962920000001,
+            "renderedPerBatch": 22,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 70785,
+            "cpuUserSeconds": 1.000565,
+            "cpuSystemSeconds": 0.003117,
+            "peakRssBytes": 5373952
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: state-docs",
+            "batches": 1985,
+            "elapsedMs": 1000.2139999999999,
+            "renderedPerBatch": 22,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 70785,
+            "cpuUserSeconds": 0.995544,
+            "cpuSystemSeconds": 0.006529999999999999,
+            "peakRssBytes": 5455872
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: state-docs",
+            "batches": 2051,
+            "elapsedMs": 1000.1959579999999,
+            "renderedPerBatch": 22,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 70785,
+            "cpuUserSeconds": 0.998188,
+            "cpuSystemSeconds": 0.0058,
+            "peakRssBytes": 5210112
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: state-docs",
+            "batches": 2060,
+            "elapsedMs": 1000.3389579999999,
+            "renderedPerBatch": 22,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 70785,
+            "cpuUserSeconds": 0.993566,
+            "cpuSystemSeconds": 0.010326,
+            "peakRssBytes": 5177344
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: state-docs",
+            "batches": 1868,
+            "elapsedMs": 1000.0813340000001,
+            "renderedPerBatch": 22,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 70785,
+            "cpuUserSeconds": 0.98764,
+            "cpuSystemSeconds": 0.006058,
+            "peakRssBytes": 5373952
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5210112,
+        "after": 5373952
+      }
+    },
+    {
+      "case": "corpus: swimlane-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: swimlane-docs",
+            "batches": 2661,
+            "elapsedMs": 1000.083292,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 54024,
+            "cpuUserSeconds": 0.9970859999999999,
+            "cpuSystemSeconds": 0.004385,
+            "peakRssBytes": 5193728
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: swimlane-docs",
+            "batches": 2395,
+            "elapsedMs": 1001.8373750000001,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 54024,
+            "cpuUserSeconds": 0.909152,
+            "cpuSystemSeconds": 0.00377,
+            "peakRssBytes": 5292032
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: swimlane-docs",
+            "batches": 2748,
+            "elapsedMs": 1000.3440830000001,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 54024,
+            "cpuUserSeconds": 1.0047,
+            "cpuSystemSeconds": 0.003142,
+            "peakRssBytes": 5324800
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: swimlane-docs",
+            "batches": 2779,
+            "elapsedMs": 1000.354416,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 54024,
+            "cpuUserSeconds": 1.001358,
+            "cpuSystemSeconds": 0.002071,
+            "peakRssBytes": 5160960
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: swimlane-docs",
+            "batches": 2764,
+            "elapsedMs": 1000.08775,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 54024,
+            "cpuUserSeconds": 0.999544,
+            "cpuSystemSeconds": 0.003792,
+            "peakRssBytes": 5177344
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: swimlane-docs",
+            "batches": 2749,
+            "elapsedMs": 1000.044416,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 54024,
+            "cpuUserSeconds": 1.000103,
+            "cpuSystemSeconds": 0.0033859999999999997,
+            "peakRssBytes": 5292032
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5177344,
+        "after": 5292032
+      }
+    },
+    {
+      "case": "corpus: timeline-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: timeline-docs",
+            "batches": 6437,
+            "elapsedMs": 1000.0848339999999,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 75090,
+            "cpuUserSeconds": 0.999076,
+            "cpuSystemSeconds": 0.002669,
+            "peakRssBytes": 4620288
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: timeline-docs",
+            "batches": 6507,
+            "elapsedMs": 1000.048209,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 75090,
+            "cpuUserSeconds": 0.9995569999999999,
+            "cpuSystemSeconds": 0.002509,
+            "peakRssBytes": 4751360
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: timeline-docs",
+            "batches": 6560,
+            "elapsedMs": 1000.142834,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 75090,
+            "cpuUserSeconds": 0.997929,
+            "cpuSystemSeconds": 0.003637,
+            "peakRssBytes": 4800512
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: timeline-docs",
+            "batches": 6501,
+            "elapsedMs": 1000.0029589999999,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 75090,
+            "cpuUserSeconds": 0.998641,
+            "cpuSystemSeconds": 0.003228,
+            "peakRssBytes": 4685824
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: timeline-docs",
+            "batches": 6431,
+            "elapsedMs": 1000.08875,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 75090,
+            "cpuUserSeconds": 0.9991059999999999,
+            "cpuSystemSeconds": 0.002944,
+            "peakRssBytes": 4653056
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: timeline-docs",
+            "batches": 6460,
+            "elapsedMs": 1000.0238340000001,
+            "renderedPerBatch": 14,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 75090,
+            "cpuUserSeconds": 0.99867,
+            "cpuSystemSeconds": 0.002714,
+            "peakRssBytes": 4767744
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4653056,
+        "after": 4767744
+      }
+    },
+    {
+      "case": "corpus: treemap-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: treemap-docs",
+            "batches": 12210,
+            "elapsedMs": 1000.022875,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23781,
+            "cpuUserSeconds": 0.9995999999999999,
+            "cpuSystemSeconds": 0.00212,
+            "peakRssBytes": 4587520
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: treemap-docs",
+            "batches": 12271,
+            "elapsedMs": 1000.0622910000001,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23781,
+            "cpuUserSeconds": 0.998957,
+            "cpuSystemSeconds": 0.002547,
+            "peakRssBytes": 4571136
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: treemap-docs",
+            "batches": 12078,
+            "elapsedMs": 1000.0687909999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23781,
+            "cpuUserSeconds": 0.997956,
+            "cpuSystemSeconds": 0.00346,
+            "peakRssBytes": 4669440
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: treemap-docs",
+            "batches": 11999,
+            "elapsedMs": 1000.027,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23781,
+            "cpuUserSeconds": 0.995983,
+            "cpuSystemSeconds": 0.005196,
+            "peakRssBytes": 4636672
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: treemap-docs",
+            "batches": 12007,
+            "elapsedMs": 1000.057041,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23781,
+            "cpuUserSeconds": 0.9947349999999999,
+            "cpuSystemSeconds": 0.006706999999999999,
+            "peakRssBytes": 4587520
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: treemap-docs",
+            "batches": 12238,
+            "elapsedMs": 1000.0137920000001,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 23781,
+            "cpuUserSeconds": 0.9988079999999999,
+            "cpuSystemSeconds": 0.002817,
+            "peakRssBytes": 4603904
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4587520,
+        "after": 4603904
+      }
+    },
+    {
+      "case": "corpus: treeview-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: treeview-docs",
+            "batches": 13742,
+            "elapsedMs": 1000.0012920000001,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 27291,
+            "cpuUserSeconds": 0.997922,
+            "cpuSystemSeconds": 0.0034419999999999997,
+            "peakRssBytes": 4571136
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: treeview-docs",
+            "batches": 13385,
+            "elapsedMs": 1000.048375,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 27291,
+            "cpuUserSeconds": 0.997037,
+            "cpuSystemSeconds": 0.003728,
+            "peakRssBytes": 4734976
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: treeview-docs",
+            "batches": 13412,
+            "elapsedMs": 1000.025208,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 27291,
+            "cpuUserSeconds": 0.9964879999999999,
+            "cpuSystemSeconds": 0.0036599999999999996,
+            "peakRssBytes": 4702208
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: treeview-docs",
+            "batches": 13134,
+            "elapsedMs": 1000.004833,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 27291,
+            "cpuUserSeconds": 0.995493,
+            "cpuSystemSeconds": 0.002937,
+            "peakRssBytes": 4554752
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: treeview-docs",
+            "batches": 13220,
+            "elapsedMs": 1000.015708,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 27291,
+            "cpuUserSeconds": 0.9991059999999999,
+            "cpuSystemSeconds": 0.0023309999999999997,
+            "peakRssBytes": 4587520
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: treeview-docs",
+            "batches": 13882,
+            "elapsedMs": 1000.0632089999999,
+            "renderedPerBatch": 13,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 27291,
+            "cpuUserSeconds": 0.998467,
+            "cpuSystemSeconds": 0.003224,
+            "peakRssBytes": 4685824
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4571136,
+        "after": 4702208
+      }
+    },
+    {
+      "case": "corpus: usecase-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: usecase-docs",
+            "batches": 1751,
+            "elapsedMs": 1000.5543329999999,
+            "renderedPerBatch": 24,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 78351,
+            "cpuUserSeconds": 1.001772,
+            "cpuSystemSeconds": 0.003132,
+            "peakRssBytes": 5275648
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: usecase-docs",
+            "batches": 1746,
+            "elapsedMs": 1000.138792,
+            "renderedPerBatch": 24,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 78351,
+            "cpuUserSeconds": 1.002511,
+            "cpuSystemSeconds": 0.002758,
+            "peakRssBytes": 5406720
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: usecase-docs",
+            "batches": 1731,
+            "elapsedMs": 1000.2846670000001,
+            "renderedPerBatch": 24,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 78351,
+            "cpuUserSeconds": 1.002429,
+            "cpuSystemSeconds": 0.002742,
+            "peakRssBytes": 5439488
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: usecase-docs",
+            "batches": 1726,
+            "elapsedMs": 1000.364834,
+            "renderedPerBatch": 24,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 78351,
+            "cpuUserSeconds": 1.001485,
+            "cpuSystemSeconds": 0.003352,
+            "peakRssBytes": 5242880
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: usecase-docs",
+            "batches": 1761,
+            "elapsedMs": 1000.5202500000001,
+            "renderedPerBatch": 24,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 78351,
+            "cpuUserSeconds": 1.001461,
+            "cpuSystemSeconds": 0.003574,
+            "peakRssBytes": 5259264
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: usecase-docs",
+            "batches": 1760,
+            "elapsedMs": 1000.140375,
+            "renderedPerBatch": 24,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 78351,
+            "cpuUserSeconds": 1.001583,
+            "cpuSystemSeconds": 0.003166,
+            "peakRssBytes": 5406720
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 5259264,
+        "after": 5406720
+      }
+    },
+    {
+      "case": "corpus: venn-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: venn-docs",
+            "batches": 4974,
+            "elapsedMs": 1000.1262500000001,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 15153,
+            "cpuUserSeconds": 0.999479,
+            "cpuSystemSeconds": 0.0031639999999999997,
+            "peakRssBytes": 4521984
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: venn-docs",
+            "batches": 4964,
+            "elapsedMs": 1000.023167,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 15153,
+            "cpuUserSeconds": 0.9990279999999999,
+            "cpuSystemSeconds": 0.0024449999999999997,
+            "peakRssBytes": 4554752
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: venn-docs",
+            "batches": 5039,
+            "elapsedMs": 1000.076916,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 15153,
+            "cpuUserSeconds": 0.9996839999999999,
+            "cpuSystemSeconds": 0.002636,
+            "peakRssBytes": 4620288
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: venn-docs",
+            "batches": 5081,
+            "elapsedMs": 1000.118209,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 15153,
+            "cpuUserSeconds": 0.999988,
+            "cpuSystemSeconds": 0.002744,
+            "peakRssBytes": 4554752
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: venn-docs",
+            "batches": 5034,
+            "elapsedMs": 1000.0535420000001,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 15153,
+            "cpuUserSeconds": 0.999394,
+            "cpuSystemSeconds": 0.002773,
+            "peakRssBytes": 4571136
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: venn-docs",
+            "batches": 4802,
+            "elapsedMs": 1000.025583,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 15153,
+            "cpuUserSeconds": 0.993118,
+            "cpuSystemSeconds": 0.003851,
+            "peakRssBytes": 4603904
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4554752,
+        "after": 4603904
+      }
+    },
+    {
+      "case": "corpus: wardley-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: wardley-docs",
+            "batches": 5880,
+            "elapsedMs": 1000.0669579999999,
+            "renderedPerBatch": 19,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 69011,
+            "cpuUserSeconds": 0.998903,
+            "cpuSystemSeconds": 0.003927,
+            "peakRssBytes": 4915200
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: wardley-docs",
+            "batches": 5910,
+            "elapsedMs": 1000.08425,
+            "renderedPerBatch": 19,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 69011,
+            "cpuUserSeconds": 0.998494,
+            "cpuSystemSeconds": 0.003558,
+            "peakRssBytes": 5046272
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: wardley-docs",
+            "batches": 5909,
+            "elapsedMs": 1000.1376250000001,
+            "renderedPerBatch": 19,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 69011,
+            "cpuUserSeconds": 0.999007,
+            "cpuSystemSeconds": 0.0032389999999999997,
+            "peakRssBytes": 5029888
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: wardley-docs",
+            "batches": 5884,
+            "elapsedMs": 1000.012334,
+            "renderedPerBatch": 19,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 69011,
+            "cpuUserSeconds": 0.9970439999999999,
+            "cpuSystemSeconds": 0.0030459999999999997,
+            "peakRssBytes": 4964352
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: wardley-docs",
+            "batches": 5968,
+            "elapsedMs": 1000.137375,
+            "renderedPerBatch": 19,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 69011,
+            "cpuUserSeconds": 1.000527,
+            "cpuSystemSeconds": 0.002332,
+            "peakRssBytes": 4997120
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: wardley-docs",
+            "batches": 5824,
+            "elapsedMs": 1000.098542,
+            "renderedPerBatch": 19,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 69011,
+            "cpuUserSeconds": 0.999242,
+            "cpuSystemSeconds": 0.0025069999999999997,
+            "peakRssBytes": 5013504
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4964352,
+        "after": 5029888
+      }
+    },
+    {
+      "case": "corpus: xychart-docs",
+      "runs": [
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: xychart-docs",
+            "batches": 11391,
+            "elapsedMs": 1000.0546669999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29748,
+            "cpuUserSeconds": 0.9983759999999999,
+            "cpuSystemSeconds": 0.0031539999999999997,
+            "peakRssBytes": 4489216
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: xychart-docs",
+            "batches": 11877,
+            "elapsedMs": 1000.053083,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29748,
+            "cpuUserSeconds": 0.9994029999999999,
+            "cpuSystemSeconds": 0.002324,
+            "peakRssBytes": 4636672
+          }
+        },
+        {
+          "after": {
+            "engine": "rust",
+            "case": "corpus: xychart-docs",
+            "batches": 11809,
+            "elapsedMs": 1000.0448749999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29748,
+            "cpuUserSeconds": 0.9995499999999999,
+            "cpuSystemSeconds": 0.002094,
+            "peakRssBytes": 4587520
+          },
+          "before": {
+            "engine": "rust",
+            "case": "corpus: xychart-docs",
+            "batches": 11730,
+            "elapsedMs": 1000.0309169999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29748,
+            "cpuUserSeconds": 0.999203,
+            "cpuSystemSeconds": 0.0024779999999999997,
+            "peakRssBytes": 4603904
+          }
+        },
+        {
+          "before": {
+            "engine": "rust",
+            "case": "corpus: xychart-docs",
+            "batches": 11647,
+            "elapsedMs": 1000.0570829999999,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29748,
+            "cpuUserSeconds": 0.9984139999999999,
+            "cpuSystemSeconds": 0.002708,
+            "peakRssBytes": 4571136
+          },
+          "after": {
+            "engine": "rust",
+            "case": "corpus: xychart-docs",
+            "batches": 11865,
+            "elapsedMs": 1000.0045,
+            "renderedPerBatch": 8,
+            "rejectedPerBatch": 0,
+            "svgBytesPerBatch": 29748,
+            "cpuUserSeconds": 0.9983989999999999,
+            "cpuSystemSeconds": 0.003257,
+            "peakRssBytes": 4603904
+          }
+        }
+      ],
+      "peakRssBytes": {
+        "before": 4571136,
+        "after": 4603904
+      }
+    }
+  ]
+}

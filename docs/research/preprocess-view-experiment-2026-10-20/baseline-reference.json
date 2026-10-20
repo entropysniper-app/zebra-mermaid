@@ -1,0 +1,34 @@
+{
+  "cases": 276,
+  "failures": 1,
+  "scope": "Frozen committed public preprocessing API against only independently generated Node views/config/metadata/errors. No latency statistics.",
+  "successes": 275,
+  "sourceSha256": "100a009c7bc376d884d5018a4cc8c2e29038cdd80929ffb8ac15dd996bccb68f",
+  "binarySha256": "ee90a6605bbb5866364b8cfd55fe3da0e21426c3862eb68545c51a44cb52aaff",
+  "fixtureSha256": "1fbce106a2ac647d59f8e2d86fc10c5cf7e779b5fc158d55f8923c96828166c3",
+  "buildCommand": [
+    "rustc",
+    "--edition=2021",
+    "--crate-name",
+    "baseline_reference",
+    "-C",
+    "opt-level=3",
+    "-C",
+    "lto=thin",
+    "-C",
+    "codegen-units=1",
+    "-L",
+    "dependency=target/cross-bench-build/release/deps",
+    "--extern",
+    "zebra_mermaid=target/preprocess-views-20/before/libzebra_mermaid.rlib",
+    "--extern",
+    "serde_json=target/preprocess-views-20/before/libserde_json.rlib",
+    "target/preprocess-views-20/baseline_reference.rs",
+    "-o",
+    "target/preprocess-views-20/baseline-reference"
+  ],
+  "dependencyHashes": {
+    "libzebra_mermaid.rlib": "c6be2a04fce92f03ccabe3a6b4fd29f41d3dc687e8137703b518e4b692fce88b",
+    "libserde_json.rlib": "d52cb8c72eee4bd385be29baf1e3d21e06ef25f059f36626e1345b350c98004d"
+  }
+}
