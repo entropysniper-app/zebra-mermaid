@@ -38820,6 +38820,120 @@
         ]
       },
       "assertionReview": "Original CJK release optimization tests, one Rust function per callback. Exact Japanese/Korean/English strings, Arial MetricsMeasurer at 16px, width limits, punctuation character classes, max=40..240 step=8 loop, whitespace regex using JS is_space, and all equality/containment/width assertions preserved. SVG viewBox width parsed as f64 corresponds to the original regex Number capture. No renderer-generated expectations."
+    },
+    {
+      "upstreamId": "2d6ba76f12ec1f5923153ab7",
+      "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+      "target": {
+        "kind": "rust",
+        "file": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+        "test": "fonts_render::draws_in_generic_fonts_unless_told_what_was_measured",
+        "features": [
+          "flowchart",
+          "class",
+          "kanban",
+          "treeView",
+          "sequence",
+          "timeline",
+          "pie"
+        ]
+      },
+      "assertionReview": "Direct native render port with explicit MetricsMeasurer. Every source, font option, assertion, negative assertion, and original loop is retained. Literal regexes use exact substrings; ASCII digit/dot runs, tag-prefix spans, four optional-weight-name expansions and the negative heading-weight lookahead use byte recognizers with the same regex languages. This maps one independent function to one original test; the seventh assertInert case remains unmapped until its entire helper is ported."
+    },
+    {
+      "upstreamId": "9f2b07117940a1790fc1e545",
+      "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+      "target": {
+        "kind": "rust",
+        "file": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+        "test": "fonts_render::draws_in_the_fonts_it_measured_with_where_the_page_names_no_others",
+        "features": [
+          "flowchart",
+          "class",
+          "kanban",
+          "treeView",
+          "sequence",
+          "timeline",
+          "pie"
+        ]
+      },
+      "assertionReview": "Direct native render port with explicit MetricsMeasurer. Every source, font option, assertion, negative assertion, and original loop is retained. Literal regexes use exact substrings; ASCII digit/dot runs, tag-prefix spans, four optional-weight-name expansions and the negative heading-weight lookahead use byte recognizers with the same regex languages. This maps one independent function to one original test; the seventh assertInert case remains unmapped until its entire helper is ported."
+    },
+    {
+      "upstreamId": "be4e51f73c9403c29bc40a21",
+      "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+      "target": {
+        "kind": "rust",
+        "file": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+        "test": "fonts_render::pins_what_text_would_inherit_from_the_page_and_was_not_measured",
+        "features": [
+          "flowchart",
+          "class",
+          "kanban",
+          "treeView",
+          "sequence",
+          "timeline",
+          "pie"
+        ]
+      },
+      "assertionReview": "Direct native render port with explicit MetricsMeasurer. Every source, font option, assertion, negative assertion, and original loop is retained. Literal regexes use exact substrings; ASCII digit/dot runs, tag-prefix spans, four optional-weight-name expansions and the negative heading-weight lookahead use byte recognizers with the same regex languages. This maps one independent function to one original test; the seventh assertInert case remains unmapped until its entire helper is ported."
+    },
+    {
+      "upstreamId": "35a22e45273069a94fac09a3",
+      "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+      "target": {
+        "kind": "rust",
+        "file": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+        "test": "fonts_render::takes_the_weight_of_bold_text_from_variables_each_defined_only_where_it_is_used",
+        "features": [
+          "flowchart",
+          "class",
+          "kanban",
+          "treeView",
+          "sequence",
+          "timeline",
+          "pie"
+        ]
+      },
+      "assertionReview": "Direct native render port with explicit MetricsMeasurer. Every source, font option, assertion, negative assertion, and original loop is retained. Literal regexes use exact substrings; ASCII digit/dot runs, tag-prefix spans, four optional-weight-name expansions and the negative heading-weight lookahead use byte recognizers with the same regex languages. This maps one independent function to one original test; the seventh assertInert case remains unmapped until its entire helper is ported."
+    },
+    {
+      "upstreamId": "55416145849defb190322127",
+      "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+      "target": {
+        "kind": "rust",
+        "file": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+        "test": "fonts_render::draws_the_names_of_classes_columns_and_other_headings_in_the_heading_weight",
+        "features": [
+          "flowchart",
+          "class",
+          "kanban",
+          "treeView",
+          "sequence",
+          "timeline",
+          "pie"
+        ]
+      },
+      "assertionReview": "Direct native render port with explicit MetricsMeasurer. Every source, font option, assertion, negative assertion, and original loop is retained. Literal regexes use exact substrings; ASCII digit/dot runs, tag-prefix spans, four optional-weight-name expansions and the negative heading-weight lookahead use byte recognizers with the same regex languages. This maps one independent function to one original test; the seventh assertInert case remains unmapped until its entire helper is ported."
+    },
+    {
+      "upstreamId": "6aceb91d08637c878c6f0257",
+      "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+      "target": {
+        "kind": "rust",
+        "file": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+        "test": "fonts_render::writes_the_corner_radius_in_a_style_which_every_browser_reads_a_variable_from",
+        "features": [
+          "flowchart",
+          "class",
+          "kanban",
+          "treeView",
+          "sequence",
+          "timeline",
+          "pie"
+        ]
+      },
+      "assertionReview": "Direct native render port with explicit MetricsMeasurer. Every source, font option, assertion, negative assertion, and original loop is retained. Literal regexes use exact substrings; ASCII digit/dot runs, tag-prefix spans, four optional-weight-name expansions and the negative heading-weight lookahead use byte recognizers with the same regex languages. This maps one independent function to one original test; the seventh assertInert case remains unmapped until its entire helper is ported."
     }
   ]
 }

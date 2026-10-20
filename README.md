@@ -186,10 +186,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,226 passed**, 0 failed, 5 ignored |
-| Original-test acceptance | **2,785/6,826 passed** (40.80%); 7 preserved skips, 4,034 unmapped |
+| Workspace tests | **3,236 passed**, 0 failed, 5 ignored |
+| Original-test acceptance | **2,791/6,826 passed** (40.89%); 7 preserved skips, 4,028 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/svg-adapter-optimization-2026-10-20/validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/font-test-parity-2026-10-20/head-validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1

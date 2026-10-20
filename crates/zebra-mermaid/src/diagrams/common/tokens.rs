@@ -724,6 +724,10 @@ macro_rules! keyword_token {
 }
 
 #[cfg(test)]
+#[path = "scanner_reference.rs"]
+mod state_contract;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

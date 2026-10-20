@@ -80,6 +80,7 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/layout/compound.test.ts` | 22 | 22 | 0 |
 | `tests/layout/lanes.test.ts` | 24 | 24 | 0 |
 | `tests/render/edges.test.ts` | 6 | 6 | 0 |
+| `tests/render/fonts.test.ts`（原文件 7 项） | 6 | 6 | 0 |
 | `tests/render/info.test.ts` | 5 | 5 | 0 |
 | `tests/render/mermaid-type.test.ts` | 16 | 16 | 0 |
 | `tests/render/cjk-wrap.test.ts` | 6 | 6 | 0 |
@@ -89,11 +90,11 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/util/preprocess.test.ts` | 9 | 9 | 0 |
 | `tests/util/url.test.ts` | 30 | 30 | 0 |
 | `tests/util/yaml.test.ts` | 29 | 29 | 0 |
-| **合计** | **2,792** | **2,785** | **7** |
+| **合计** | **2,798** | **2,791** | **7** |
 
-未映射项按范围分为 **Rust 核心 3,977 项、宿主/打包 53 项、网站 10 项**，三个范围均保留在目标内。
+未映射项按范围分为 **Rust 核心 3,965 项、宿主/打包 53 项、网站 10 项**，三个范围均保留在目标内。
 
-还有 **4,034 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,826 项计算，当前可计入验收的 1:1 通过率约 **40.80%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；39/39 是此前基准快照，本批未重新计时。
+还有 **4,028 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,826 项计算，当前可计入验收的 1:1 通过率约 **40.89%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；39/39 是此前基准快照，本批未重新计时。
 
 ER 文件共有 634 项。其中 632 项通过机械转换保留解析调用、字段访问、全部断言与异常检查；生成过程中模型观察值保持符号形式，未拿原版或 Rust 输出生成期望值。转换流分别在原版 Pele 和真实 Rust 原始解析器上运行通过。原先跳过的 Unicode 名称测试已启用并实际执行通过，但仍按原 skip 标记计入跳过，不计入正式验收通过数；class 前导换行测试同理。其余两项虽然在上游显示 passed，但函数体只有 `/* TODO */`，没有输入、断言或受测调用，当前保持未移植，不生成空测试凑数。
 
@@ -172,3 +173,14 @@ Class 解析器现为 382/384 项逐项通过：379 项生成断言流，加上 
 最终 `node tools/test-parity/check.mjs --require-complete` 结果：**2,785 验收通过、0 失败、7 保留上游跳过、4,034 未映射、0 待验证**，每项采用原 Vitest 超时、独立进程执行，`complete: false`，退出 1。实际 Rust 执行是 2,787 passed、5 ignored；其中 Class 前导换行与 ER Unicode 两个测试在上游仍标记 skip，因此分别保留 `executionState: passed` 和验收 `state: skipped`，不计入 2,785。旧报告的执行通过数不追溯改写，当前统计遵守原 skip/todo 不计通过的约束。
 
 图表覆盖 **33/33**，本轮新参照完整响应 **761/761**，原始测试正式验收通过率 **40.80%**，三种指标互不替代。宿主入口与 mount 新增断言仍保持未移植，源文件和哈希已同步。完整变更与复现见 [PELE-1.7.0.md](PELE-1.7.0.md)。
+
+
+## 字体与根样式原始测试
+
+`tests/render/fonts.test.ts` 的前六项现已分别对应六个独立 Rust 测试，新增正式通过六项。保留全部 **37 个原断言条件、19 次原 render 调用**、四项继承属性循环、五种标题/栏目图表输入、全部字体参数及预期字符串。正则通过精确子串或等价字节识别器表达；`[\d.]+` 保留 ASCII 数字/点的非空范围，`--_t?h?w:` 保留四种展开，标题标签与圆角标签的边界以及否定前瞻均保留。Rust 显式传入 `MetricsMeasurer`，不添加测试依赖，也不调用 JS 作为受测渲染器。
+
+第七项依赖完整 `assertInert` / XML helper，仍明确未映射；没有删掉它的安全断言、用较弱检查替代或新增跳过。另保留四项项目自身的 scanner 状态/边界回归，它们不增加原始测试验收数。
+
+已在两种实际状态验证：当前标签运行时候选，以及仅包含测试变更的隔离提交快照（已排除尚未完成性能测量的标签运行时改动）。两者完整工作区均为 **3,236 通过、0 失败、5 ignored**；按每项原始时限独立执行的严格门禁均为 **2,791 通过、0 失败、7 上游跳过、4,028 未映射、0 待验证**，退出 1、`complete: false`。隔离快照首次构建缺少一份原有调色板文档 fixture，已从同一基线提交按原字节补齐后完整重跑；没有改变期望值或验收条件。
+
+[逐项断言审计](research/font-test-parity-2026-10-20/assertion-audit.json) · [隔离提交验证](research/font-test-parity-2026-10-20/head-validation.json) · [当前候选验证](research/font-test-parity-2026-10-20/candidate-validation.json)。完整原时限结果保存在同目录的 gzip JSON 中。

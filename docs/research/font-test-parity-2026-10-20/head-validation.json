@@ -1,0 +1,37 @@
+{
+  "workspace": {
+    "passed": 3236,
+    "failed": 0,
+    "ignored": 5
+  },
+  "originalTestAcceptance": {
+    "total": 6826,
+    "mapped": 2798,
+    "unmapped": 4028,
+    "passed": 2791,
+    "failed": 0,
+    "skipped": 7,
+    "unverified": 0
+  },
+  "strictComplete": false,
+  "strictGateExitCode": 1,
+  "scope": "Isolated committed runtime plus staged test-only additions. The uncommitted label runtime candidate is excluded.",
+  "baseAndPatch": {
+    "baseRevision": "f9bf9d5afa509b0fc6962f75a90e04e538d647b2",
+    "patchSha256": "7149f2b40b6b6c7e16d67b4cc065e6846d0d25deb38f380beee40f99673b7d50",
+    "files": [
+      "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+      "crates/zebra-mermaid/tests/upstream_parity.rs",
+      "tests/upstream/ports.json",
+      "crates/zebra-mermaid/src/diagrams/common/tokens.rs",
+      "crates/zebra-mermaid/src/diagrams/common/scanner_reference.rs"
+    ],
+    "scope": "Test-only prospective commit over the committed renderer; uncommitted runtime label changes are excluded."
+  },
+  "snapshotRepair": {
+    "initialOutcome": "Compilation stopped before tests because an existing tracked palette fixture was omitted from the isolated source snapshot.",
+    "repair": "Copied the unchanged fixture from the same base Git revision; no test source, expected value, threshold or skip changed.",
+    "fixture": "docs/research/zebra-theme-palette.example.json",
+    "sha256": "eca5601976aa8bbe463e7117a4af8fe36c4cf0832c37e2f9e913372325d8476c"
+  }
+}

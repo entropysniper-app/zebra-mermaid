@@ -1,0 +1,69 @@
+{
+  "source": "tests/render/fonts.test.ts",
+  "sourceSha256": "4d8f1449d5f3921b5b22daa7d777acd6f43888ba4734cec01377ed611c04fca6",
+  "nativeTarget": "crates/zebra-mermaid/tests/upstream/fonts_render.rs",
+  "cases": [
+    {
+      "upstreamId": "2d6ba76f12ec1f5923153ab7",
+      "title": "fonts > draws in generic fonts unless told what was measured",
+      "originalTimeoutMs": 60000,
+      "targetTest": "fonts_render::draws_in_generic_fonts_unless_told_what_was_measured",
+      "logicalAssertions": 3,
+      "renderCalls": 3
+    },
+    {
+      "upstreamId": "9f2b07117940a1790fc1e545",
+      "title": "fonts > draws in the fonts it measured with, where the page names no others",
+      "originalTimeoutMs": 60000,
+      "targetTest": "fonts_render::draws_in_the_fonts_it_measured_with_where_the_page_names_no_others",
+      "logicalAssertions": 4,
+      "renderCalls": 3
+    },
+    {
+      "upstreamId": "be4e51f73c9403c29bc40a21",
+      "title": "fonts > pins what text would inherit from the page and was not measured",
+      "originalTimeoutMs": 60000,
+      "targetTest": "fonts_render::pins_what_text_would_inherit_from_the_page_and_was_not_measured",
+      "logicalAssertions": 4,
+      "renderCalls": 4
+    },
+    {
+      "upstreamId": "35a22e45273069a94fac09a3",
+      "title": "fonts > takes the weight of bold text from variables, each defined only where it is used",
+      "originalTimeoutMs": 60000,
+      "targetTest": "fonts_render::takes_the_weight_of_bold_text_from_variables_each_defined_only_where_it_is_used",
+      "logicalAssertions": 6,
+      "renderCalls": 2
+    },
+    {
+      "upstreamId": "55416145849defb190322127",
+      "title": "fonts > draws the names of classes, columns, and other headings in the heading weight",
+      "originalTimeoutMs": 60000,
+      "targetTest": "fonts_render::draws_the_names_of_classes_columns_and_other_headings_in_the_heading_weight",
+      "logicalAssertions": 15,
+      "renderCalls": 5
+    },
+    {
+      "upstreamId": "6aceb91d08637c878c6f0257",
+      "title": "fonts > writes the corner radius in a style, which every browser reads a variable from",
+      "originalTimeoutMs": 60000,
+      "targetTest": "fonts_render::writes_the_corner_radius_in_a_style_which_every_browser_reads_a_variable_from",
+      "logicalAssertions": 5,
+      "renderCalls": 2
+    }
+  ],
+  "logicalAssertions": 37,
+  "nativeRenderCalls": 19,
+  "loopInputsRetained": {
+    "pinnedProperties": 4,
+    "headingSources": 5
+  },
+  "scope": "Counts describe the unchanged original assertion conditions and original render calls; root-tag guards express the original regex-exec failure condition. No expected value is generated from Rust output.",
+  "remainingUnmapped": [
+    {
+      "upstreamId": "e4c2abed0c3ed30dbe02e96c",
+      "title": "fonts > does not write a font list that is more than names",
+      "reason": "Requires a complete port of the shared XML/inert helper; no assertions have been omitted or replaced with a weaker safety check."
+    }
+  ]
+}

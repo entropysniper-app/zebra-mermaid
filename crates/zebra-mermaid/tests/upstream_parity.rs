@@ -12,6 +12,10 @@ mod info_render;
 #[path = "upstream/info_stress.rs"]
 mod info_stress;
 
+#[cfg(all(feature = "flowchart", feature = "class", feature = "kanban", feature = "treeView", feature = "sequence", feature = "timeline", feature = "pie"))]
+#[path = "upstream/fonts_render.rs"]
+mod fonts_render;
+
 #[cfg(all(feature = "flowchart", feature = "class", feature = "state", feature = "railroad", feature = "sequence", feature = "pie"))]
 #[path = "upstream/mermaid_type.rs"]
 mod mermaid_type;
