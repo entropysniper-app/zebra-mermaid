@@ -1,0 +1,25 @@
+{
+  "baselineRevision": "97d5dabd58f1e21b73f67b3cdce4c0b363698c4b",
+  "runtimeFiles": [
+    "crates/zebra-mermaid/src/svg/theme.rs",
+    "crates/zebra-mermaid/src/svg/builder.rs"
+  ],
+  "invariants": [
+    "Same font-list language, original Unicode properties and quote/whitespace rules; no input/result cache or normalization.",
+    "Same coordinate rounding/digits/fallback; checked UTF-8 conversion covers the zero-filled fixed 32-byte buffer before selecting the unchanged suffix. No unsafe code.",
+    "Public APIs, precision, diagram features, full workload, original tests and thresholds unchanged."
+  ],
+  "supplementaryReference": {
+    "fixture": "tests/fixtures/unit/font-list-reference.json.gz",
+    "sha256": "9e13869b832aa1c5c2d02a8781908b5e6d8dc96b970fa2a429d42cab7f91ecab",
+    "generator": "tools/compat/gen-font-list-reference.mjs",
+    "cases": 5000,
+    "accepted": 2761,
+    "rejected": 2239,
+    "seed": "0x16f017",
+    "generatedCases": 4096,
+    "baselinePassed": true,
+    "notAnUpstreamTestPort": true
+  },
+  "standaloneProbe": "utf8-probe.json; selecting an implementation, not primary-target evidence"
+}

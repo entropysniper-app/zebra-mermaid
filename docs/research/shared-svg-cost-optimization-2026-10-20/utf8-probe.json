@@ -1,0 +1,43 @@
+{
+  "scope": "Standalone coordinate UTF-8 conversion experiment only; not a full-render result or primary target evidence. Same num_digits function as the committed baseline; 4096 seeded finite values, both variants unchanged decimal bytes; five warm-ups, >=10ms calibration, >=9 samples and >=300ms per mode/process, three alternating independent processes.",
+  "sourceSha256": "b5368538811d0e881994148fc3e298d1bbbbe0af7ce5c0f3b4ce869f4cc80868",
+  "binarySha256": "af46cd172cc288b84901d1ee6bcee6f7ac03d6a25cdeabb9a77aee5d58da1e5d",
+  "runs": [
+    [
+      {
+        "mode": "tail",
+        "samples": 27,
+        "nsPerNumber": 10.848204612731934
+      },
+      {
+        "mode": "full",
+        "samples": 30,
+        "nsPerNumber": 9.450236320495605
+      }
+    ],
+    [
+      {
+        "mode": "full",
+        "samples": 30,
+        "nsPerNumber": 9.571393013000488
+      },
+      {
+        "mode": "tail",
+        "samples": 27,
+        "nsPerNumber": 10.78017520904541
+      }
+    ],
+    [
+      {
+        "mode": "tail",
+        "samples": 27,
+        "nsPerNumber": 10.870854377746582
+      },
+      {
+        "mode": "full",
+        "samples": 29,
+        "nsPerNumber": 9.984493255615234
+      }
+    ]
+  ]
+}

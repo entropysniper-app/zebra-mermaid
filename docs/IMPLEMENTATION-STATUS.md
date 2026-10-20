@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（[借用插入键及取舍](BORROWED-ENTRY-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（[共同 SVG 校验开销](SHARED-SVG-COST-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -102,7 +102,16 @@
 
 ## 5. 已运行的验证（实际结果）
 
-最新借用插入键轮次（基线 `9497f7e`，代码 `c1ca29b`）：**体积/分配下降，Sample 原生耗时 +0.58%，不宣告速度提升，2× 未达**。
+最新共同 SVG 校验轮次（基线 `97d5dab`，代码 `80b3c88`）：**全 33 类配对原生耗时 -0.76%，当前 API 1.81×，2× 未达**。
+
+- 新采样覆盖完整 33 类 / 167 原始 Sample 的 Arial16/CSS 条件。字体列表由 Vec<char> 改为流式读取，ASCII 使用等价分类、非 ASCII 沿用原 Unicode 属性表；坐标保留原舍入、数字与回退，仅将安全 UTF-8 校验移到固定零填充缓冲区，再输出相同后缀。无新依赖、unsafe、缓存、功能或精度削减。
+- 新增一项独立 Node 参照，5,000 个字体列表、每项三断言；2,761 接受 / 2,239 拒绝，种子 `0x16f017`，4,096 生成输入。预期在运行时修改前仅由固定 Pele 生成，基线和候选均通过，不计原测试映射。工作区 **3,240 通过、0 失败、5 ignored**，无默认 feature 4 项通过，Clippy 警告不变；761 完整响应、167 Sample SVG、39 扩展记录一致。
+- Sample 逐类型等权 after/before **0.99239**，22 类观测中位数下降 / 11 类回退。33 类文档 render **+0.60%**、parse **-0.16%**；完整 39 组、所有回退和每个独立进程均保留，不以局部坐标实验替代完整渲染，不作小幅差异显著性声明。
+- 当前 API / UTF-8 **1.81× / 1.92×**。相同全功能发布配置、未 strip：CLI 文件/代码段 -16/+988 bytes；FFI static archive 文件/代码段 +4,432/+968 bytes；FFI dynamic library 文件/代码段 -32/+968 bytes。代码段增加如实计入体积取舍；驱动单列。
+- 额外按主目标 Arial16/CSS 原样本测分配，三类计数均保留：分配降/平/增 **33/0/0**，扩容 **33/0/0**，累计申请 **33/0/0**，额外存活峰值 **32/1/0**；原默认 CSS 的 Sample/39 扩展探针仍全量保留。另测默认 CSS 真实 OS RSS：Sample **15 降/4 平/14 增**，扩展 **10 降/2 平/27 增**。申请字节不替代 RSS。
+- 原测试独立时限门禁 **2,791 通过、0 失败、7 跳过、4,028 未映射、0 待验证**，完整验收未完成。原期望/断言/种子/循环/阈值/映射不变。[报告](SHARED-SVG-COST-OPTIMIZATION.md)、[完整证据](research/shared-svg-cost-optimization-2026-10-20/summary.json)、[验证](research/shared-svg-cost-optimization-2026-10-20/validation.json)及 README 终态、远程消费者固定提交已更新，性能与体积目标继续。
+
+借用插入键历史轮次（基线 `9497f7e`，代码 `c1ca29b`）：**体积/分配下降，Sample 原生耗时 +0.58%，不宣告速度提升，2× 未达**。
 
 - 12 个文件 24 处 owned-key entry 改为私有借用查找；使用原 map 的随机哈希器和相同 String/str 哈希，仅缺失时分配键和调用原工厂。公开类型、键比较、插入顺序、ID 规范化及随机种子策略不变，无新依赖/unsafe/缓存。
 - 新增两项补充回归：种子 `0x51e17`，普通和强制碰撞哈希器各 512 次混合 owned/borrowed entry、删除重插、顺序、工厂懒调用与 panic 后状态。工作区 **3,239 通过、0 失败、5 ignored**，无默认 feature 4 项通过，Clippy 警告不变；761 完整响应、167 Sample SVG、39 扩展验证记录一致。原始独立时限 **2,791 通过、0 失败、7 跳过、4,028 未映射**，未增加原测试映射，完整验收未完成。

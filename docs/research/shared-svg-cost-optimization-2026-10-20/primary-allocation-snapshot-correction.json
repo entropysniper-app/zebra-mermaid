@@ -1,0 +1,26 @@
+{
+  "issue": "The initial supplemental instrumentation read net live bytes while building its own output JSON, after that JSON had already allocated memory. This is an instrumentation defect, not a renderer leak. All counters must be snapshotted into local integers before report construction. No latency run had started and no successful allocation report was replaced.",
+  "initialSourceSha256": "e3dad37b5fc727c6de6864c94602d15b7a918b8fae8f125388322c1d03c99290",
+  "initialRows": {
+    "before": {
+      "allocations": 5048,
+      "case": "samples: flowchart",
+      "inputsPerBatch": 6,
+      "peakAdditionalLiveBytes": 44052,
+      "reallocations": 616,
+      "requestedBytes": 450498,
+      "retainedBytesAfterBatch": 768,
+      "svgBytesPerBatch": 23453
+    },
+    "after": {
+      "allocations": 5042,
+      "case": "samples: flowchart",
+      "inputsPerBatch": 6,
+      "peakAdditionalLiveBytes": 44020,
+      "reallocations": 610,
+      "requestedBytes": 450210,
+      "retainedBytesAfterBatch": 768,
+      "svgBytesPerBatch": 23453
+    }
+  }
+}
