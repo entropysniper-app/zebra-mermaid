@@ -12,6 +12,10 @@ use crate::util::chars::{char_at, char_before, is_space, is_word};
 use crate::util::{js, strs};
 use std::borrow::Cow;
 
+#[cfg(test)]
+#[path = "label_scanning_reference.rs"]
+mod scanning_reference;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Span {
     pub text: String,
@@ -104,29 +108,35 @@ fn find_icon(text: &str, from: usize) -> Option<(usize, usize)> {
 }
 
 /// Splits on `/<br\s*\/?>|\\n|\n/gi`.
-fn split_breaks(source: &str) -> Vec<&str> {
+fn split_breaks(source: &str) -> impl Iterator<Item = &str> {
     let b = source.as_bytes();
-    let mut parts = Vec::new();
     let mut last = 0;
     let mut i = 0;
-    while i < b.len() {
-        let end = match b[i] {
-            b'\n' => Some(i + 1),
-            b'\\' if i + 1 < b.len() && (b[i + 1] == b'n' || b[i + 1] == b'N') => Some(i + 2),
-            b'<' => br_end(source, i),
-            _ => None,
-        };
-        match end {
-            Some(e) => {
-                parts.push(&source[last..i]);
-                last = e;
-                i = e;
-            }
-            None => i += 1,
+    let mut finished = false;
+    std::iter::from_fn(move || {
+        if finished {
+            return None;
         }
-    }
-    parts.push(&source[last..]);
-    parts
+        while i < b.len() {
+            let end = match b[i] {
+                b'\n' => Some(i + 1),
+                b'\\' if i + 1 < b.len() && (b[i + 1] == b'n' || b[i + 1] == b'N') => Some(i + 2),
+                b'<' => br_end(source, i),
+                _ => None,
+            };
+            match end {
+                Some(e) => {
+                    let part = &source[last..i];
+                    last = e;
+                    i = e;
+                    return Some(part);
+                }
+                None => i += 1,
+            }
+        }
+        finished = true;
+        Some(&source[last..])
+    })
 }
 
 /// The end of `<br\s*\/?>` (letters in either case) at `i`, if there is one.
@@ -259,64 +269,79 @@ fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Meas
     let mut st = base;
     let mut marked: u8 = 0;
     let mut text = String::new();
+    let mut start = 0;
     let b = source.as_bytes();
     let n = b.len();
     let mut i = 0;
+    // Continuous text is borrowed. Only a tag removed without a style boundary needs
+    // disjoint pieces joined before icon/entity recognition, preserving the original flushes.
+    let flush = |line: &mut Vec<Span>, text: &mut String, start: usize, end: usize, style: u8| {
+        if text.is_empty() {
+            push_icons(line, &source[start..end], style, m);
+        } else {
+            text.push_str(&source[start..end]);
+            push_icons(line, text, style, m);
+            text.clear();
+        }
+    };
     while i < n {
-        let ch = char_at(source, i).expect("boundary");
-        if ch == '<' {
+        let next = if markdown { memchr::memchr3(b'<', b'*', b'_', &b[i..]) } else { memchr::memchr(b'<', &b[i..]) };
+        let Some(next) = next else { break };
+        i += next;
+        let ch = b[i];
+        if ch == b'<' {
             if let Some((end, name)) = match_tag(source, i) {
-                let tag = name.to_ascii_lowercase();
                 let closing = b.get(i + 1) == Some(&b'/');
-                let bit = if tag == "b" || tag == "strong" {
+                let bit = if name.eq_ignore_ascii_case("b") || name.eq_ignore_ascii_case("strong") {
                     style::BOLD
-                } else if tag == "i" || tag == "em" {
+                } else if name.eq_ignore_ascii_case("i") || name.eq_ignore_ascii_case("em") {
                     style::ITALIC
                 } else {
                     0
                 };
                 if bit != 0 {
-                    push_icons(line, &text, st, m);
-                    text.clear();
+                    flush(line, &mut text, start, i, st);
                     st = if closing { (st & !bit) | (base & bit) } else { st | bit };
+                } else {
+                    text.push_str(&source[start..i]);
                 }
+                start = end;
                 i = end;
                 continue;
             }
-        } else if markdown && (ch == '*' || ch == '_') {
-            let double = b.get(i + 1) == Some(&(ch as u8));
+        } else if markdown && (ch == b'*' || ch == b'_') {
+            let double = b.get(i + 1) == Some(&ch);
             let bit = if double { style::BOLD } else { style::ITALIC };
             let len = if double { 2 } else { 1 };
             let open = marked & bit == 0;
             let prev = if i > 0 { char_before(source, i).unwrap_or(' ') } else { ' ' };
             let next = if i + len < n { char_at(source, i + len).unwrap_or(' ') } else { ' ' };
             let marker = if double {
-                if ch == '*' {
+                if ch == b'*' {
                     "**"
                 } else {
                     "__"
                 }
-            } else if ch == '*' {
+            } else if ch == b'*' {
                 "*"
             } else {
                 "_"
             };
             let can_open = open && !is_space(next) && source[i + len..].contains(marker);
             let can_close = !open && !is_space(prev);
-            let wordy = ch == '_' && is_word(prev) && is_word(next);
+            let wordy = ch == b'_' && is_word(prev) && is_word(next);
             if (can_open || can_close) && !wordy {
-                push_icons(line, &text, st, m);
-                text.clear();
+                flush(line, &mut text, start, i, st);
                 marked = if can_open { marked | bit } else { marked & !bit };
                 st = if can_open { st | bit } else { (st & !bit) | (base & bit) };
                 i += len;
+                start = i;
                 continue;
             }
         }
-        text.push(ch);
-        i += ch.len_utf8();
+        i += 1;
     }
-    push_icons(line, &text, st, m);
+    flush(line, &mut text, start, n, st);
 }
 
 fn measure_spans(line: &mut [Span], m: &Measure, size: f64) -> f64 {
