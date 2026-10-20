@@ -9,5 +9,6 @@ pub mod generics;
 pub mod icon;
 pub mod literal_label;
 pub mod outline;
+pub(crate) mod parse_tokens;
 pub mod scan;
 pub mod tokens;

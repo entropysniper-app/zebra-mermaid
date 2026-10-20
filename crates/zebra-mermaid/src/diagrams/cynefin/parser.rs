@@ -1,11 +1,12 @@
 //! Cynefin parser. Ported from Pele `src/diagrams/cynefin/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, string_value, title_value, tokenize, Reader, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF,
-    NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, string_value, title_value, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE,
+    SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::keyword_token;
@@ -72,8 +73,8 @@ pub struct CynefinAst {
 }
 
 pub fn parse_cynefin(src: &str) -> Result<CynefinAst, Error> {
-    let types: &[TokenType] = &CYNEFIN_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Cynefin)?, types, DiagramType::Cynefin);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&CYNEFIN_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Cynefin)?;
     let mut ast = CynefinAst::default();
 
     fn skip_lines(r: &mut Reader) {
@@ -136,6 +137,14 @@ pub fn parse_cynefin(src: &str) -> Result<CynefinAst, Error> {
         }
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("cynefin", &super::CYNEFIN_TOKENS, crate::DiagramType::Cynefin);
+    }
 }
 
 #[cfg(test)]

@@ -1,11 +1,12 @@
 //! Pie parser. Ported from Pele `src/diagrams/pie/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, string_value, title_value, tokenize, Pattern, Reader, Scanner, TokenType, ACC_DESCR, ACC_TITLE,
-    DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, string_value, title_value, Pattern, Scanner, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF,
+    NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::keyword_token;
@@ -108,8 +109,8 @@ pub struct PieAst {
 }
 
 pub fn parse_pie(src: &str) -> Result<PieAst, Error> {
-    let types: &[TokenType] = &PIE_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Pie)?, types, DiagramType::Pie);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&PIE_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Pie)?;
     let mut ast = PieAst::default();
 
     fn end_of_line(r: &mut Reader) -> Result<(), Error> {
@@ -156,6 +157,14 @@ pub fn parse_pie(src: &str) -> Result<PieAst, Error> {
         }
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("pie", &super::PIE_TOKENS, crate::DiagramType::Pie);
+    }
 }
 
 #[cfg(test)]

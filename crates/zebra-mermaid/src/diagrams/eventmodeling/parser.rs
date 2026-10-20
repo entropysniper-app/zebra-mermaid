@@ -1,11 +1,12 @@
 //! Event modeling parser. Ported from Pele `src/diagrams/eventmodeling/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::accdescr::acc_descr;
 use crate::diagrams::common::tokens::{
-    blanks, keyword_at, newline_at, tokenize, Reader, TokenType, ACC_TITLE, DIRECTIVE, EOF, SINGLE_LINE_COMMENT, TITLE, YAML,
+    blanks, keyword_at, newline_at, TokenType, ACC_TITLE, DIRECTIVE, EOF, SINGLE_LINE_COMMENT, TITLE, YAML,
 };
 use crate::error::Error;
 use crate::util::chars::{char_at, is_line_end, is_space};
@@ -298,8 +299,8 @@ pub struct EventModelAst {
 }
 
 pub fn parse_event_model(src: &str) -> Result<EventModelAst, Error> {
-    let types: &[TokenType] = &EVENTMODELING_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Eventmodeling)?, types, DiagramType::Eventmodeling);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&EVENTMODELING_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Eventmodeling)?;
     let mut ast = EventModelAst::default();
 
     fn one<'a>(r: &mut Reader<'a, '_>, test: fn(usize) -> bool, expected: &str) -> Result<&'a str, Error> {
@@ -351,7 +352,7 @@ pub fn parse_event_model(src: &str) -> Result<EventModelAst, Error> {
             let name = qualified_name(&mut r)?;
             ast.model_entities.push(name);
         } else if is_time_frame(kind) || is_reset_frame(kind) {
-            let offset = r.tokens.starts[r.i];
+            let offset = r.start();
             r.i += 1;
             let name = r.expect(FRAME_ID)?.to_string();
             let model_entity_type = one(&mut r, is_entity_type, "an entity type")?.to_string();
@@ -407,6 +408,18 @@ pub fn parse_event_model(src: &str) -> Result<EventModelAst, Error> {
         }
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table(
+            "eventmodeling",
+            &super::EVENTMODELING_TOKENS,
+            crate::DiagramType::Eventmodeling,
+        );
+    }
 }
 
 #[cfg(test)]

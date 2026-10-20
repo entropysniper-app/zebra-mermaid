@@ -1,12 +1,13 @@
 //! The gitGraph parser, ported from Pele `src/diagrams/git/parser.ts` (Mermaid's Langium
 //! grammar, read with the shared tokenizer).
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, blanks, spaces, string_value, title_value, tokenize, Reader, TokenType, ACC_DESCR, ACC_TITLE,
-    DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, blanks, spaces, string_value, title_value, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE,
+    SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::keyword_token;
@@ -208,8 +209,8 @@ fn commit_type(r: &mut Reader) -> Result<CommitTypeName, Error> {
 }
 
 pub fn parse_git(src: &str) -> Result<GitGraphAst, Error> {
-    let types: &[TokenType] = &GIT_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::GitGraph)?, types, DiagramType::GitGraph);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&GIT_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::GitGraph)?;
     let mut ast = GitGraphAst::default();
 
     while r.kind() == T_NEWLINE {
@@ -324,6 +325,14 @@ pub fn parse_git(src: &str) -> Result<GitGraphAst, Error> {
         }
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("gitGraph", &super::GIT_TOKENS, crate::DiagramType::GitGraph);
+    }
 }
 
 #[cfg(test)]

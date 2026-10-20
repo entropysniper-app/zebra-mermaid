@@ -1,10 +1,11 @@
 //! Treemap parser. Ported from Pele `src/diagrams/treemap/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, newline_at, spaces, title_value, tokenize, Reader, TokenType, ACC_DESCR, ACC_TITLE, EOF, TITLE,
+    acc_descr_value, acc_title_value, newline_at, spaces, title_value, TokenType, ACC_DESCR, ACC_TITLE, EOF, TITLE,
 };
 use crate::error::Error;
 use crate::util::js;
@@ -197,8 +198,8 @@ pub struct TreemapAst {
 }
 
 pub fn parse_treemap(src: &str) -> Result<TreemapAst, Error> {
-    let types: &[TokenType] = &TREEMAP_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Treemap)?, types, DiagramType::Treemap);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&TREEMAP_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Treemap)?;
     let mut ast = TreemapAst::default();
 
     fn class_selector(r: &mut Reader) -> Result<Option<String>, Error> {
@@ -260,6 +261,14 @@ pub fn parse_treemap(src: &str) -> Result<TreemapAst, Error> {
         ast.rows.push(RowAst::Row { indent, item });
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("treemap", &super::TREEMAP_TOKENS, crate::DiagramType::Treemap);
+    }
 }
 
 #[cfg(test)]

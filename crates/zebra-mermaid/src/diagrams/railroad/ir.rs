@@ -6,8 +6,10 @@ use super::common::{
     ACC_DESCR, ACC_TITLE, TITLE,
 };
 use super::{Meta, NodeId, RailroadNode, RailroadRule};
-use crate::diagrams::common::tokens::{keyword_at, Reader, TokenType};
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
+use crate::diagrams::common::tokens::{keyword_at, TokenType};
 use crate::error::Error;
+use std::sync::LazyLock;
 
 // Token kinds: indices into `IR_TOKENS`.
 const NONTERMINAL: usize = 1;
@@ -157,7 +159,8 @@ fn expression(r: &mut Reader, ast: &mut Vec<Ir>) -> Result<usize, Error> {
 
 pub(super) fn parse(src: &str, nodes: &mut Vec<RailroadNode>) -> Result<(Meta, Vec<RailroadRule>), Error> {
     let mut ast: Vec<Ir> = Vec::new();
-    let (meta, rules) = parse_grammar(src, &IR_TOKENS, T_TITLE, unescape, |r| {
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&IR_TOKENS));
+    let (meta, rules) = parse_grammar(src, &GRAMMAR, T_TITLE, unescape, |r| {
         let name = r.expect(ID)?.to_string();
         r.expect(EQUALS)?;
         let definition = expression(r, &mut ast)?;
@@ -185,5 +188,12 @@ fn node(ast: &[Ir], n: usize, kids: Vec<NodeId>, model: &mut Nodes) -> NodeId {
         Ir::Optional(_) => model.optional(kids[0]),
         Ir::OneOrMore(_) => model.repetition(kids[0], 1.0, f64::INFINITY),
         Ir::ZeroOrMore(_) => model.repetition(kids[0], 0.0, f64::INFINITY),
+    }
+}
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("railroad-ir", &super::IR_TOKENS, crate::DiagramType::Railroad);
     }
 }

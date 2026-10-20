@@ -5,9 +5,8 @@
 
 use super::{Meta, NodeId, RailroadNode, RailroadRule};
 use crate::detect::DiagramType;
-use crate::diagrams::common::tokens::{
-    self, acc_descr_value, acc_title_value, title_value, tokenize, Pattern, Reader, Scanner, TokenType, EOF,
-};
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
+use crate::diagrams::common::tokens::{self, acc_descr_value, acc_title_value, title_value, Pattern, Scanner, TokenType, EOF};
 use crate::error::Error;
 use crate::util::chars::is_space;
 
@@ -184,12 +183,12 @@ pub(super) fn slice_inner(text: &str) -> &str {
 /// a row from `meta`.
 pub(super) fn parse_grammar<'a, R>(
     src: &'a str,
-    types: &[TokenType],
+    grammar: &Grammar,
     meta: usize,
     unquote: fn(&str) -> String,
     mut rule: impl FnMut(&mut Reader<'a, '_>) -> Result<R, Error>,
 ) -> Result<(Meta, Vec<R>), Error> {
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Railroad)?, types, DiagramType::Railroad);
+    let mut r = grammar.reader(src, DiagramType::Railroad)?;
     let mut ast = Meta::default();
     let mut rules = Vec::new();
     r.expect(0)?;

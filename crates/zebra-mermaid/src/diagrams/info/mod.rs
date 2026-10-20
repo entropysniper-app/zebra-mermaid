@@ -1,13 +1,14 @@
 //! The info diagram. Ported from Pele `src/diagrams/info/`.
 
+use crate::diagrams::common::parse_tokens::Grammar;
 use crate::svg::concat::svg_format;
 use std::sync::LazyLock;
 
 use crate::config::Config;
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, title_value, tokenize, Reader, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE,
-    SINGLE_LINE_COMMENT, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, title_value, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, TITLE,
+    WHITESPACE, YAML,
 };
 use crate::diagrams::{ParseInput, RenderCtx, Rendered};
 use crate::error::Error;
@@ -57,8 +58,8 @@ pub struct InfoAst {
 }
 
 pub fn parse_info(src: &str) -> Result<InfoAst, Error> {
-    let types: &[TokenType] = &INFO_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Info)?, types, DiagramType::Info);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&INFO_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Info)?;
     let mut ast = InfoAst::default();
     while r.kind() == T_NEWLINE {
         r.i += 1;
@@ -136,4 +137,11 @@ pub(crate) fn render(model: &InfoModel, _config: &Config, ctx: &RenderCtx) -> Re
         .to_string();
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     Ok(Rendered { svg: svg_document("info", width, height, size, ctx, acc, &content), width, height, links: Vec::new() })
+}
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("info", &super::INFO_TOKENS, crate::DiagramType::Info);
+    }
 }

@@ -3,8 +3,10 @@
 
 use super::common::{hidden_tokens, identifier, literal, parse_grammar, quoted, to_rules, unescape, Nodes, ACC_DESCR, ACC_TITLE, TITLE};
 use super::{Meta, NodeId, RailroadNode, RailroadRule};
-use crate::diagrams::common::tokens::{keyword_at, line_rest, Reader, TokenType};
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
+use crate::diagrams::common::tokens::{keyword_at, line_rest, TokenType};
 use crate::error::Error;
+use std::sync::LazyLock;
 
 // Token kinds: indices into `PEG_TOKENS`.
 const ARROW: usize = 1;
@@ -156,7 +158,8 @@ fn definition(r: &mut Reader, ast: &mut Vec<Peg>) -> Result<usize, Error> {
 
 pub(super) fn parse(src: &str, nodes: &mut Vec<RailroadNode>) -> Result<(Meta, Vec<RailroadRule>), Error> {
     let mut ast: Vec<Peg> = Vec::new();
-    let (meta, rules) = parse_grammar(src, &PEG_TOKENS, T_TITLE, unescape, |r| {
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&PEG_TOKENS));
+    let (meta, rules) = parse_grammar(src, &GRAMMAR, T_TITLE, unescape, |r| {
         let name = r.expect(ID)?.to_string();
         r.expect(ARROW)?;
         let definition = definition(r, &mut ast)?;
@@ -206,5 +209,12 @@ fn node(ast: &[Peg], n: usize, kids: Vec<NodeId>, model: &mut Nodes) -> NodeId {
         Peg::Identifier(name) => model.nonterminal(name.clone()),
         Peg::Any(dot) => model.special(dot.clone()),
         Peg::Group(_) => kids[0],
+    }
+}
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("railroad-peg", &super::PEG_TOKENS, crate::DiagramType::Railroad);
     }
 }

@@ -1,12 +1,11 @@
 //! TreeView parser. Ported from Pele `src/diagrams/treeview/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::Grammar;
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::accdescr::acc_descr;
-use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, newline_at, title_value, tokenize, Reader, TokenType, ACC_TITLE, EOF, TITLE,
-};
+use crate::diagrams::common::tokens::{acc_descr_value, acc_title_value, newline_at, title_value, TokenType, ACC_TITLE, EOF, TITLE};
 use crate::error::Error;
 use crate::keyword_token;
 use crate::util::chars::{char_at, is_word};
@@ -228,8 +227,8 @@ fn convert_annotation(kind: usize, input: &str) -> String {
 }
 
 pub fn parse_tree_view(src: &str) -> Result<TreeViewAst, Error> {
-    let types: &[TokenType] = &TREEVIEW_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::TreeView)?, types, DiagramType::TreeView);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&TREEVIEW_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::TreeView)?;
     let mut ast = TreeViewAst::default();
     r.expect(KEYWORD)?;
     loop {
@@ -265,6 +264,14 @@ pub fn parse_tree_view(src: &str) -> Result<TreeViewAst, Error> {
         ast.nodes.push(node);
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("treeView", &super::TREEVIEW_TOKENS, crate::DiagramType::TreeView);
+    }
 }
 
 #[cfg(test)]

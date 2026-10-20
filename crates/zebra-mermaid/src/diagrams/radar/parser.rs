@@ -1,11 +1,12 @@
 //! Radar parser. Ported from Pele `src/diagrams/radar/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, blanks, match_acc_descr, spaces, string_value, title_value, tokenize, Pattern, Reader, Scanner,
-    TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, blanks, match_acc_descr, spaces, string_value, title_value, Pattern, Scanner, TokenType, ACC_DESCR,
+    ACC_TITLE, DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::keyword_token;
@@ -235,8 +236,8 @@ pub struct RadarAst {
 }
 
 pub fn parse_radar(src: &str) -> Result<RadarAst, Error> {
-    let types: &[TokenType] = &RADAR_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Radar)?, types, DiagramType::Radar);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&RADAR_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Radar)?;
     let mut ast = RadarAst::default();
 
     fn newlines(r: &mut Reader) {
@@ -371,6 +372,14 @@ pub fn parse_radar(src: &str) -> Result<RadarAst, Error> {
         }
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("radar", &super::RADAR_TOKENS, crate::DiagramType::Radar);
+    }
 }
 
 #[cfg(test)]

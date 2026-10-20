@@ -3,9 +3,11 @@
 
 use super::common::{hidden_tokens, literal, parse_grammar, slice_inner, to_rules, Nodes, ACC_DESCR, ACC_TITLE, DIGITS, LETTERS, TITLE};
 use super::{Meta, NodeId, RailroadNode, RailroadRule};
-use crate::diagrams::common::tokens::{keyword_at, line_rest, Reader, TokenType};
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
+use crate::diagrams::common::tokens::{keyword_at, line_rest, TokenType};
 use crate::error::Error;
 use crate::util::js;
+use std::sync::LazyLock;
 
 // Token kinds: indices into `ABNF_TOKENS`.
 const EQUALS: usize = 1;
@@ -244,7 +246,8 @@ fn unquote(text: &str) -> String {
 
 pub(super) fn parse(src: &str, nodes: &mut Vec<RailroadNode>) -> Result<(Meta, Vec<RailroadRule>), Error> {
     let mut ast: Vec<Abnf> = Vec::new();
-    let (meta, rules) = parse_grammar(src, &ABNF_TOKENS, T_TITLE, unquote, |r| {
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&ABNF_TOKENS));
+    let (meta, rules) = parse_grammar(src, &GRAMMAR, T_TITLE, unquote, |r| {
         let name = r.expect(NAME)?.to_string();
         r.expect(EQUALS)?;
         let definition = alternation(r, &mut ast)?;
@@ -290,6 +293,14 @@ fn node(ast: &[Abnf], n: usize, kids: Vec<NodeId>, model: &mut Nodes) -> NodeId 
         Abnf::RuleName(name) => model.nonterminal(name.clone()),
         Abnf::Group(_) => kids[0],
         Abnf::OptionalGroup(_) => model.optional(kids[0]),
+    }
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("railroad-abnf", &super::ABNF_TOKENS, crate::DiagramType::Railroad);
     }
 }
 

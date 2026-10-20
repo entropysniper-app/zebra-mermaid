@@ -1,11 +1,12 @@
 //! Architecture parser. Ported from Pele `src/diagrams/architecture/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, match_string, string_value, title_value, tokenize, Reader, TokenType, ACC_DESCR, ACC_TITLE,
-    DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, match_string, string_value, title_value, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE,
+    SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::util::chars::is_word_byte;
@@ -245,8 +246,8 @@ fn label_value(text: &str) -> String {
 }
 
 pub fn parse_architecture(src: &str) -> Result<ArchitectureAst, Error> {
-    let types: &[TokenType] = &ARCHITECTURE_TOKENS;
-    let mut r = Reader::new(tokenize(src, types, DiagramType::Architecture)?, types, DiagramType::Architecture);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&ARCHITECTURE_TOKENS));
+    let mut r = GRAMMAR.reader(src, DiagramType::Architecture)?;
     let mut ast = ArchitectureAst::default();
 
     fn end_of_line(r: &mut Reader) -> Result<(), Error> {
@@ -354,6 +355,18 @@ pub fn parse_architecture(src: &str) -> Result<ArchitectureAst, Error> {
         end_of_line(&mut r)?;
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table(
+            "architecture",
+            &super::ARCHITECTURE_TOKENS,
+            crate::DiagramType::Architecture,
+        );
+    }
 }
 
 #[cfg(test)]

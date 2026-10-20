@@ -95,10 +95,35 @@ fn can_start(t: &TokenType, c: u8) -> bool {
 /// every type, for characters outside ASCII. Pele keeps this per table in a WeakMap; here it is
 /// kept by the table's address and checked against a fingerprint of its entries, so a table
 /// built at run time that reuses a dropped table's address is not mistaken for it.
-struct Starting {
+pub(super) struct Starting {
     fingerprint: u64,
     ascii: Vec<Vec<usize>>,
     every: Vec<usize>,
+}
+
+impl Starting {
+    pub(super) fn new(types: &[TokenType]) -> Self {
+        Self {
+            fingerprint: 0,
+            ascii: (0u8..128).map(|c| (0..types.len()).filter(|&k| can_start(&types[k], c)).collect()).collect(),
+            every: (0..types.len()).collect(),
+        }
+    }
+}
+
+pub(super) trait TokenSink<'a>: Sized {
+    fn new(src: &'a str, types: usize) -> Self;
+    fn push(&mut self, kind: usize, start: usize, end: usize);
+}
+impl<'a> TokenSink<'a> for Tokens<'a> {
+    fn new(src: &'a str, _: usize) -> Self {
+        Self { kinds: Vec::new(), starts: Vec::new(), ends: Vec::new(), src }
+    }
+    fn push(&mut self, kind: usize, start: usize, end: usize) {
+        self.kinds.push(kind);
+        self.starts.push(start);
+        self.ends.push(end);
+    }
 }
 
 fn fingerprint(types: &[TokenType]) -> u64 {
@@ -129,11 +154,7 @@ fn starting_for(types: &[TokenType]) -> Arc<Starting> {
     if let Some(found) = cache.lock().ok().and_then(|c| c.get(&key).filter(|s| s.fingerprint == print).cloned()) {
         return found;
     }
-    let built = Arc::new(Starting {
-        fingerprint: print,
-        ascii: (0u8..128).map(|c| (0..types.len()).filter(|&k| can_start(&types[k], c)).collect()).collect(),
-        every: (0..types.len()).collect(),
-    });
+    let built = Arc::new(Starting { fingerprint: print, ..Starting::new(types) });
     if let Ok(mut c) = cache.lock() {
         if c.len() < 512 {
             c.insert(key, built.clone());
@@ -145,12 +166,18 @@ fn starting_for(types: &[TokenType]) -> Arc<Starting> {
 /// Splits `src` into tokens. Hidden tokens are matched and dropped. The list ends with an
 /// `EOF` token at the end of the text.
 pub fn tokenize<'a>(src: &'a str, types: &[TokenType], diagram: DiagramType) -> Result<Tokens<'a>, Error> {
-    let mut kinds = Vec::new();
-    let mut starts = Vec::new();
-    let mut ends = Vec::new();
+    tokenize_into(src, types, &starting_for(types), diagram)
+}
+
+pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
+    src: &'a str,
+    types: &[TokenType],
+    table: &Starting,
+    diagram: DiagramType,
+) -> Result<T, Error> {
+    let mut out = T::new(src, types.len());
     let mut dead = vec![false; types.len()];
     let mut scanners: Vec<Option<Scanner>> = (0..types.len()).map(|_| None).collect();
-    let table = starting_for(types);
     let starting = &table.ascii;
     let every = &table.every;
     let b = src.as_bytes();
@@ -199,19 +226,15 @@ pub fn tokenize<'a>(src: &'a str, types: &[TokenType], diagram: DiagramType) -> 
                 }
             }
             if !types[kind].hidden {
-                kinds.push(kind);
-                starts.push(p);
-                ends.push(end);
+                out.push(kind, p, end);
             }
             p = end;
             continue 'scan;
         }
         return Err(syntax_error(diagram, src, p, "", true));
     }
-    kinds.push(EOF);
-    starts.push(n);
-    ends.push(n);
-    Ok(Tokens { kinds, starts, ends, src })
+    out.push(EOF, n, n);
+    Ok(out)
 }
 
 // ----- Shared pieces of patterns -----

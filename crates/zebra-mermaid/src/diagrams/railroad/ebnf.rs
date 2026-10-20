@@ -6,9 +6,11 @@ use super::common::{
     to_rules, unescape, Nodes, ACC_DESCR, ACC_TITLE, TITLE,
 };
 use super::{Meta, NodeId, RailroadNode, RailroadRule};
-use crate::diagrams::common::tokens::{keyword_at, Pattern, Reader, TokenType};
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
+use crate::diagrams::common::tokens::{keyword_at, Pattern, TokenType};
 use crate::error::Error;
 use crate::util::js;
+use std::sync::LazyLock;
 
 // Token kinds: indices into `EBNF_TOKENS`.
 const DEFINES: usize = 1;
@@ -269,7 +271,8 @@ fn definition(r: &mut Reader, ast: &mut Vec<Ebnf>) -> Result<usize, Error> {
 
 pub(super) fn parse(src: &str, nodes: &mut Vec<RailroadNode>) -> Result<(Meta, Vec<RailroadRule>), Error> {
     let mut ast: Vec<Ebnf> = Vec::new();
-    let (meta, rules) = parse_grammar(src, &EBNF_TOKENS, T_TITLE, unescape, |r| {
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&EBNF_TOKENS));
+    let (meta, rules) = parse_grammar(src, &GRAMMAR, T_TITLE, unescape, |r| {
         let name = r.expect(ID)?.to_string();
         if !r.accept(EQUALS) {
             r.expect(DEFINES)?;
@@ -328,6 +331,14 @@ fn node(ast: &[Ebnf], n: usize, kids: Vec<NodeId>, model: &mut Nodes) -> NodeId 
         Ebnf::Bracket(Bracket::Group, _) => kids[0],
         Ebnf::Bracket(Bracket::Optional, _) => model.optional(kids[0]),
         Ebnf::Bracket(Bracket::Repetition, _) => model.repetition(kids[0], 0.0, f64::INFINITY),
+    }
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("railroad-ebnf", &super::EBNF_TOKENS, crate::DiagramType::Railroad);
     }
 }
 

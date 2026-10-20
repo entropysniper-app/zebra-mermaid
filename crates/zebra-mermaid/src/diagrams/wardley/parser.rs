@@ -1,12 +1,13 @@
 //! Wardley map parser. Ported from Pele `src/diagrams/wardley/parser.ts`.
 
+use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::accdescr::acc_descr;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, match_whitespace, string_value, title_value, tokenize, Pattern, Reader, Scanner, TokenType,
-    ACC_TITLE, DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    acc_descr_value, acc_title_value, match_whitespace, string_value, title_value, Pattern, Scanner, TokenType, ACC_TITLE, DIRECTIVE, EOF,
+    NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::util::chars::is_word_byte;
@@ -476,8 +477,8 @@ impl<'a, 't> Parser<'a, 't> {
 }
 
 pub fn parse_wardley(src: &str) -> Result<WardleyAst, Error> {
-    let types: &[TokenType] = &WARDLEY_TOKENS;
-    let r = Reader::new(tokenize(src, types, DiagramType::Wardley)?, types, DiagramType::Wardley);
+    static GRAMMAR: LazyLock<Grammar> = LazyLock::new(|| Grammar::new(&WARDLEY_TOKENS));
+    let r = GRAMMAR.reader(src, DiagramType::Wardley)?;
     let mut p = Parser { r };
     let mut ast = WardleyAst::default();
 
@@ -642,6 +643,14 @@ pub fn parse_wardley(src: &str) -> Result<WardleyAst, Error> {
         }
     }
     Ok(ast)
+}
+
+#[cfg(test)]
+mod compact_token_reference {
+    #[test]
+    fn pinned_node_token_streams_and_errors() {
+        crate::diagrams::common::parse_tokens::tests::check_table("wardley", &super::WARDLEY_TOKENS, crate::DiagramType::Wardley);
+    }
 }
 
 #[cfg(test)]
