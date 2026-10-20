@@ -101,7 +101,8 @@ def main():
     result.update({
         "tool": {"name": "llvm-size", "version": version},
         "method": {
-            "buildsAndInstrumentationDuringTiming": False,
+            "measurementOnly": True,
+            "latencyTimingInThisScript": False,
             "stripped": False,
             "textSections": ["__text", ".text", ".text.*"],
             "archiveCode": "Sum of text sections of all members, before host dead stripping; not the final host link increment.",
