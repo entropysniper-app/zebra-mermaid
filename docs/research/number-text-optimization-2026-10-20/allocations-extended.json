@@ -1,0 +1,1059 @@
+{
+  "method": "Separate counted allocator: five warm-up batches, one counted batch, default CSS output and fixed UTC clock; inputs/options excluded. Requested bytes include full realloc requests, not RSS. No overlap with timed benchmarks.",
+  "inputSha256": "3394dca947019058a8c45335c6f09ce2a0e3f938b2e8ef3af2ef03ea89ddcf90",
+  "rows": [
+    {
+      "case": "docs: all flowchart examples",
+      "before": {
+        "engine": "rust",
+        "case": "docs: all flowchart examples",
+        "allocations": 30196,
+        "reallocations": 2971,
+        "requestedBytes": 2542986,
+        "peakAdditionalLiveBytes": 46036,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 114,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "docs: all flowchart examples",
+        "allocations": 29840,
+        "reallocations": 2971,
+        "requestedBytes": 2536188,
+        "peakAdditionalLiveBytes": 45979,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 114,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "tree: 50 nodes",
+      "before": {
+        "engine": "rust",
+        "case": "tree: 50 nodes",
+        "allocations": 3604,
+        "reallocations": 417,
+        "requestedBytes": 568380,
+        "peakAdditionalLiveBytes": 236030,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "tree: 50 nodes",
+        "allocations": 3601,
+        "reallocations": 417,
+        "requestedBytes": 568323,
+        "peakAdditionalLiveBytes": 235973,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "mesh: 50 nodes, 20 extra labelled edges",
+      "before": {
+        "engine": "rust",
+        "case": "mesh: 50 nodes, 20 extra labelled edges",
+        "allocations": 4573,
+        "reallocations": 870,
+        "requestedBytes": 880158,
+        "peakAdditionalLiveBytes": 331714,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "mesh: 50 nodes, 20 extra labelled edges",
+        "allocations": 4569,
+        "reallocations": 870,
+        "requestedBytes": 880082,
+        "peakAdditionalLiveBytes": 331657,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "tree: 500 nodes",
+      "before": {
+        "engine": "rust",
+        "case": "tree: 500 nodes",
+        "allocations": 34260,
+        "reallocations": 3186,
+        "requestedBytes": 5921551,
+        "peakAdditionalLiveBytes": 2483667,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "tree: 500 nodes",
+        "allocations": 34257,
+        "reallocations": 3186,
+        "requestedBytes": 5921494,
+        "peakAdditionalLiveBytes": 2483610,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "mesh: 500 nodes, 200 extra labelled edges",
+      "before": {
+        "engine": "rust",
+        "case": "mesh: 500 nodes, 200 extra labelled edges",
+        "allocations": 47995,
+        "reallocations": 9813,
+        "requestedBytes": 13215160,
+        "peakAdditionalLiveBytes": 4050709,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "mesh: 500 nodes, 200 extra labelled edges",
+        "allocations": 47991,
+        "reallocations": 9813,
+        "requestedBytes": 13215084,
+        "peakAdditionalLiveBytes": 4050709,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: agentflow-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: agentflow-docs",
+        "allocations": 10452,
+        "reallocations": 1196,
+        "requestedBytes": 1151013,
+        "peakAdditionalLiveBytes": 66595,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 12,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: agentflow-docs",
+        "allocations": 10415,
+        "reallocations": 1196,
+        "requestedBytes": 1150310,
+        "peakAdditionalLiveBytes": 66538,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 12,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: agentflow-reference",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: agentflow-reference",
+        "allocations": 74205,
+        "reallocations": 9204,
+        "requestedBytes": 7589051,
+        "peakAdditionalLiveBytes": 80823,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 180,
+        "rejectedPerBatch": 59,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: agentflow-reference",
+        "allocations": 73662,
+        "reallocations": 9204,
+        "requestedBytes": 7578718,
+        "peakAdditionalLiveBytes": 80766,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 180,
+        "rejectedPerBatch": 59,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: architecture-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: architecture-docs",
+        "allocations": 1381,
+        "reallocations": 325,
+        "requestedBytes": 391055,
+        "peakAdditionalLiveBytes": 65564,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 6,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: architecture-docs",
+        "allocations": 1349,
+        "reallocations": 325,
+        "requestedBytes": 390447,
+        "peakAdditionalLiveBytes": 65507,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 6,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: block-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: block-docs",
+        "allocations": 2732,
+        "reallocations": 914,
+        "requestedBytes": 822010,
+        "peakAdditionalLiveBytes": 41457,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 30,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: block-docs",
+        "allocations": 2641,
+        "reallocations": 914,
+        "requestedBytes": 820173,
+        "peakAdditionalLiveBytes": 41400,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 30,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: c4-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: c4-docs",
+        "allocations": 4331,
+        "reallocations": 1344,
+        "requestedBytes": 1141515,
+        "peakAdditionalLiveBytes": 112161,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 6,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: c4-docs",
+        "allocations": 4301,
+        "reallocations": 1344,
+        "requestedBytes": 1140945,
+        "peakAdditionalLiveBytes": 112066,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 6,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: class-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: class-docs",
+        "allocations": 10875,
+        "reallocations": 1576,
+        "requestedBytes": 1585881,
+        "peakAdditionalLiveBytes": 69451,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 38,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: class-docs",
+        "allocations": 10696,
+        "reallocations": 1576,
+        "requestedBytes": 1582480,
+        "peakAdditionalLiveBytes": 69394,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 38,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: cynefin-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: cynefin-docs",
+        "allocations": 443,
+        "reallocations": 333,
+        "requestedBytes": 223777,
+        "peakAdditionalLiveBytes": 41331,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: cynefin-docs",
+        "allocations": 428,
+        "reallocations": 333,
+        "requestedBytes": 223492,
+        "peakAdditionalLiveBytes": 41236,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: er-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: er-docs",
+        "allocations": 10158,
+        "reallocations": 1335,
+        "requestedBytes": 1346281,
+        "peakAdditionalLiveBytes": 51700,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 25,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: er-docs",
+        "allocations": 9999,
+        "reallocations": 1335,
+        "requestedBytes": 1343260,
+        "peakAdditionalLiveBytes": 51643,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 25,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: eventmodeling-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: eventmodeling-docs",
+        "allocations": 1532,
+        "reallocations": 383,
+        "requestedBytes": 451050,
+        "peakAdditionalLiveBytes": 28179,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 12,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: eventmodeling-docs",
+        "allocations": 1357,
+        "reallocations": 383,
+        "requestedBytes": 447725,
+        "peakAdditionalLiveBytes": 28122,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 12,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: flowchart-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: flowchart-docs",
+        "allocations": 30196,
+        "reallocations": 2971,
+        "requestedBytes": 2542986,
+        "peakAdditionalLiveBytes": 46036,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 114,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: flowchart-docs",
+        "allocations": 29840,
+        "reallocations": 2971,
+        "requestedBytes": 2536188,
+        "peakAdditionalLiveBytes": 45979,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 114,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: gantt-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: gantt-docs",
+        "allocations": 3215,
+        "reallocations": 614,
+        "requestedBytes": 390640,
+        "peakAdditionalLiveBytes": 45875,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 11,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: gantt-docs",
+        "allocations": 3154,
+        "reallocations": 614,
+        "requestedBytes": 383887,
+        "peakAdditionalLiveBytes": 45818,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 11,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: git-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: git-docs",
+        "allocations": 11211,
+        "reallocations": 3252,
+        "requestedBytes": 2456347,
+        "peakAdditionalLiveBytes": 63530,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 35,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: git-docs",
+        "allocations": 10696,
+        "reallocations": 3252,
+        "requestedBytes": 2446562,
+        "peakAdditionalLiveBytes": 63473,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 35,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: info-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: info-docs",
+        "allocations": 30,
+        "reallocations": 1,
+        "requestedBytes": 3827,
+        "peakAdditionalLiveBytes": 1215,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 2,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: info-docs",
+        "allocations": 24,
+        "reallocations": 1,
+        "requestedBytes": 3713,
+        "peakAdditionalLiveBytes": 1158,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 2,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: ishikawa-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: ishikawa-docs",
+        "allocations": 92,
+        "reallocations": 58,
+        "requestedBytes": 56344,
+        "peakAdditionalLiveBytes": 21646,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: ishikawa-docs",
+        "allocations": 85,
+        "reallocations": 58,
+        "requestedBytes": 56211,
+        "peakAdditionalLiveBytes": 21589,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: journey-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: journey-docs",
+        "allocations": 74,
+        "reallocations": 45,
+        "requestedBytes": 44458,
+        "peakAdditionalLiveBytes": 23376,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: journey-docs",
+        "allocations": 69,
+        "reallocations": 45,
+        "requestedBytes": 44363,
+        "peakAdditionalLiveBytes": 23300,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 1,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: kanban-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: kanban-docs",
+        "allocations": 493,
+        "reallocations": 253,
+        "requestedBytes": 135858,
+        "peakAdditionalLiveBytes": 43078,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: kanban-docs",
+        "allocations": 424,
+        "reallocations": 253,
+        "requestedBytes": 134547,
+        "peakAdditionalLiveBytes": 43021,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: mindmap-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: mindmap-docs",
+        "allocations": 833,
+        "reallocations": 221,
+        "requestedBytes": 197016,
+        "peakAdditionalLiveBytes": 35685,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 13,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: mindmap-docs",
+        "allocations": 794,
+        "reallocations": 221,
+        "requestedBytes": 196275,
+        "peakAdditionalLiveBytes": 35628,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 13,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: packet-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: packet-docs",
+        "allocations": 439,
+        "reallocations": 92,
+        "requestedBytes": 93741,
+        "peakAdditionalLiveBytes": 24559,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 4,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: packet-docs",
+        "allocations": 299,
+        "reallocations": 92,
+        "requestedBytes": 91225,
+        "peakAdditionalLiveBytes": 24502,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 4,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: pie-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: pie-docs",
+        "allocations": 190,
+        "reallocations": 70,
+        "requestedBytes": 36229,
+        "peakAdditionalLiveBytes": 11495,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 2,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: pie-docs",
+        "allocations": 178,
+        "reallocations": 70,
+        "requestedBytes": 36043,
+        "peakAdditionalLiveBytes": 11419,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 2,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: quadrant-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: quadrant-docs",
+        "allocations": 347,
+        "reallocations": 235,
+        "requestedBytes": 97184,
+        "peakAdditionalLiveBytes": 15960,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: quadrant-docs",
+        "allocations": 333,
+        "reallocations": 235,
+        "requestedBytes": 96918,
+        "peakAdditionalLiveBytes": 15903,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: radar-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: radar-docs",
+        "allocations": 341,
+        "reallocations": 146,
+        "requestedBytes": 82259,
+        "peakAdditionalLiveBytes": 13103,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: radar-docs",
+        "allocations": 329,
+        "reallocations": 146,
+        "requestedBytes": 82031,
+        "peakAdditionalLiveBytes": 13027,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 3,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: railroad-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: railroad-docs",
+        "allocations": 3482,
+        "reallocations": 1637,
+        "requestedBytes": 909028,
+        "peakAdditionalLiveBytes": 39068,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 14,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: railroad-docs",
+        "allocations": 3440,
+        "reallocations": 1637,
+        "requestedBytes": 908230,
+        "peakAdditionalLiveBytes": 39011,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 14,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: requirement-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: requirement-docs",
+        "allocations": 3951,
+        "reallocations": 788,
+        "requestedBytes": 734514,
+        "peakAdditionalLiveBytes": 109157,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 9,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: requirement-docs",
+        "allocations": 3841,
+        "reallocations": 788,
+        "requestedBytes": 732424,
+        "peakAdditionalLiveBytes": 109100,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 9,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: sankey-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: sankey-docs",
+        "allocations": 1183,
+        "reallocations": 277,
+        "requestedBytes": 388467,
+        "peakAdditionalLiveBytes": 119850,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: sankey-docs",
+        "allocations": 1050,
+        "reallocations": 277,
+        "requestedBytes": 387295,
+        "peakAdditionalLiveBytes": 119774,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: sequence-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: sequence-docs",
+        "allocations": 4472,
+        "reallocations": 1727,
+        "requestedBytes": 1495749,
+        "peakAdditionalLiveBytes": 36487,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 38,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: sequence-docs",
+        "allocations": 4173,
+        "reallocations": 1727,
+        "requestedBytes": 1490068,
+        "peakAdditionalLiveBytes": 36392,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 38,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: state-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: state-docs",
+        "allocations": 12328,
+        "reallocations": 1359,
+        "requestedBytes": 1569305,
+        "peakAdditionalLiveBytes": 59213,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 22,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: state-docs",
+        "allocations": 12255,
+        "reallocations": 1359,
+        "requestedBytes": 1567918,
+        "peakAdditionalLiveBytes": 59156,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 22,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: swimlane-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: swimlane-docs",
+        "allocations": 8134,
+        "reallocations": 1275,
+        "requestedBytes": 952709,
+        "peakAdditionalLiveBytes": 45808,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 13,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: swimlane-docs",
+        "allocations": 8089,
+        "reallocations": 1275,
+        "requestedBytes": 951854,
+        "peakAdditionalLiveBytes": 45751,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 13,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: timeline-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: timeline-docs",
+        "allocations": 2473,
+        "reallocations": 479,
+        "requestedBytes": 791598,
+        "peakAdditionalLiveBytes": 34159,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 14,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: timeline-docs",
+        "allocations": 2334,
+        "reallocations": 479,
+        "requestedBytes": 788957,
+        "peakAdditionalLiveBytes": 34102,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 14,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: treemap-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: treemap-docs",
+        "allocations": 1068,
+        "reallocations": 313,
+        "requestedBytes": 221009,
+        "peakAdditionalLiveBytes": 15339,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: treemap-docs",
+        "allocations": 1018,
+        "reallocations": 313,
+        "requestedBytes": 219278,
+        "peakAdditionalLiveBytes": 15282,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: treeview-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: treeview-docs",
+        "allocations": 907,
+        "reallocations": 488,
+        "requestedBytes": 261995,
+        "peakAdditionalLiveBytes": 17148,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 13,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: treeview-docs",
+        "allocations": 868,
+        "reallocations": 488,
+        "requestedBytes": 261254,
+        "peakAdditionalLiveBytes": 17091,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 13,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: usecase-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: usecase-docs",
+        "allocations": 14723,
+        "reallocations": 2284,
+        "requestedBytes": 1855875,
+        "peakAdditionalLiveBytes": 78809,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 24,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: usecase-docs",
+        "allocations": 14550,
+        "reallocations": 2284,
+        "requestedBytes": 1852552,
+        "peakAdditionalLiveBytes": 78734,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 24,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: venn-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: venn-docs",
+        "allocations": 1635,
+        "reallocations": 234,
+        "requestedBytes": 166097,
+        "peakAdditionalLiveBytes": 17556,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: venn-docs",
+        "allocations": 1591,
+        "reallocations": 234,
+        "requestedBytes": 165261,
+        "peakAdditionalLiveBytes": 17499,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: wardley-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: wardley-docs",
+        "allocations": 2465,
+        "reallocations": 1057,
+        "requestedBytes": 574478,
+        "peakAdditionalLiveBytes": 33438,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 19,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: wardley-docs",
+        "allocations": 2264,
+        "reallocations": 1057,
+        "requestedBytes": 570551,
+        "peakAdditionalLiveBytes": 33343,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 19,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    },
+    {
+      "case": "corpus: xychart-docs",
+      "before": {
+        "engine": "rust",
+        "case": "corpus: xychart-docs",
+        "allocations": 1296,
+        "reallocations": 515,
+        "requestedBytes": 290019,
+        "peakAdditionalLiveBytes": 23507,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      },
+      "after": {
+        "engine": "rust",
+        "case": "corpus: xychart-docs",
+        "allocations": 1059,
+        "reallocations": 515,
+        "requestedBytes": 285565,
+        "peakAdditionalLiveBytes": 23412,
+        "retainedBytesAfterBatch": 0,
+        "renderedPerBatch": 8,
+        "rejectedPerBatch": 0,
+        "scope": "one batch after five warm-ups; inputs and options excluded; results dropped each iteration; requested allocator bytes, not RSS; realloc counts full new request"
+      }
+    }
+  ]
+}

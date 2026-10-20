@@ -1,0 +1,26 @@
+{
+  "baselineRevision": "28dbcd3a1a4fc6db1c94fb4d9b13969a97f43a5e",
+  "baselineProduction": "77810fb4aafbe4a4a6e1f8fba7b6230a9e57726b",
+  "runtimeScope": "Shared full JavaScript number spelling and internal render conversions",
+  "mechanisms": [
+    "One private per-call 32-byte NumberText, with safe checked UTF-8 conversion and no heap storage. Shortest digit generation and all notation/rounding rules preserved. Integer and exponent digits emitted directly.",
+    "Public js::to_string remains f64 -> owned String, sharing the same formatter. Owned-return render helpers retain owned strings.",
+    "Internal SVG/text Part conversions use stack text; root width/height views are validated once and reused within that one output. Coordinate fast-path rounding unchanged; large/nonfinite fallback uses the same complete spelling."
+  ],
+  "conversionSites": 120,
+  "conversionFiles": 31,
+  "preserved": [
+    "All 167 original Samples / 33 types and 39 extended workloads",
+    "Original tests, expected values, seeds, loops, performance limits and mappings",
+    "Public owned model/API/FFI types, features and precision",
+    "No new dependency, unsafe code, preparse or input/model/output cache"
+  ],
+  "supplementaryReference": {
+    "newTests": 1,
+    "cases": 6905,
+    "expectedFrom": "Existing independent Node decimal fixture, unchanged",
+    "seed": "0x6d0d3e",
+    "randomCases": 4096
+  },
+  "newOriginalPorts": 0
+}
