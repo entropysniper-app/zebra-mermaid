@@ -11,8 +11,8 @@ use crate::util::js;
 pub(crate) use render::render;
 
 use lexer::{
-    tokenize, ACC_DESCR, ACC_DESCR_MULTILINE_VALUE, ACC_TITLE, END, EOF, EVENT, NEWLINE, PERIOD, SECTION, TIMELINE, TIMELINE_LR,
-    TIMELINE_TD, TITLE, TOKEN_NAMES,
+    tokenize_borrowed as tokenize, ACC_DESCR, ACC_DESCR_MULTILINE_VALUE, ACC_TITLE, END, EOF, EVENT, NEWLINE, PERIOD, SECTION, TIMELINE,
+    TIMELINE_LR, TIMELINE_TD, TITLE, TOKEN_NAMES,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -91,7 +91,7 @@ pub fn parse_timeline(src: &str, title: Option<&str>) -> Result<TimelineModel, E
         let got = if types[i] == END { "1" } else { TOKEN_NAMES[types[i]] };
         syntax_error(DiagramType::Timeline, src, starts[i], &format!("Expecting {expected}, got '{got}'"), false)
     };
-    let text = |i: usize| texts.get(i).map_or("", String::as_str);
+    let text = |i: usize| texts.get(i).copied().unwrap_or("");
 
     let mut db = TimelineDb {
         model: TimelineModel {

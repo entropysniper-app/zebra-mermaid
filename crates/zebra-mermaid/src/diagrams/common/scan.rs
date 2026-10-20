@@ -5,9 +5,9 @@
 use crate::util::chars::{char_at, is_space};
 
 #[derive(Debug, Clone, Default)]
-pub struct Tokens {
+pub struct Tokens<T = String> {
     pub types: Vec<usize>,
-    pub texts: Vec<String>,
+    pub texts: Vec<T>,
     pub starts: Vec<usize>,
 }
 
@@ -81,7 +81,7 @@ fn skip_space(src: &str, from: usize) -> usize {
 /// Lexes an accTitle or accDescr statement at `p` and returns where it ends, or `p` if there
 /// is none. The token types acc_title, acc_title_value, acc_descr, acc_descr_value and
 /// acc_descr_multiline_value must be numbered consecutively from `first`.
-pub fn accessibility(src: &str, p: usize, out: &mut Tokens, first: usize) -> usize {
+pub fn accessibility<'s, T: From<&'s str>>(src: &'s str, p: usize, out: &mut Tokens<T>, first: usize) -> usize {
     let descr = keyword_at(src, p, "accdescr");
     if !descr && !keyword_at(src, p, "acctitle") {
         return p;
@@ -91,7 +91,7 @@ pub fn accessibility(src: &str, p: usize, out: &mut Tokens, first: usize) -> usi
     let c = byte(src, q);
     let mut emit = |t: usize, s: usize, e: usize| {
         out.types.push(t);
-        out.texts.push(src[s..e].to_string());
+        out.texts.push(src[s..e].into());
         out.starts.push(s);
     };
     if c == Some(b':') {

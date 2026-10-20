@@ -1,6 +1,6 @@
 //! The journey parser, ported from Pele `src/diagrams/journey/parser.ts`.
 
-use super::lexer::{self, tokenize};
+use super::lexer::{self, tokenize_borrowed as tokenize};
 use super::JourneyDb;
 use crate::detect::DiagramType;
 use crate::error::{syntax_error, Error};
@@ -37,11 +37,11 @@ pub fn parse_journey(src: &str, db: &mut JourneyDb) -> Result<(), Error> {
             lexer::TITLE => db.set_diagram_title(after_keyword(text, 5)),
             lexer::ACC_TITLE => {
                 i += 1;
-                db.set_acc_title(js::trim(&texts[i]));
+                db.set_acc_title(js::trim(texts[i]));
             }
             lexer::ACC_DESCR => {
                 i += 1;
-                db.set_acc_description(js::trim(&texts[i]));
+                db.set_acc_description(js::trim(texts[i]));
             }
             lexer::ACC_DESCR_MULTILINE_VALUE => db.set_acc_description(js::trim(text)),
             lexer::SECTION => db.add_section(after_keyword(text, 7)),
@@ -50,7 +50,7 @@ pub fn parse_journey(src: &str, db: &mut JourneyDb) -> Result<(), Error> {
                 if types[i] != lexer::TASK_DATA {
                     return Err(fail(i, "'taskData'"));
                 }
-                db.add_task(text, &texts[i]);
+                db.add_task(text, texts[i]);
             }
             lexer::EOF => return Ok(()),
             _ => return Err(fail(i, STATEMENT)),

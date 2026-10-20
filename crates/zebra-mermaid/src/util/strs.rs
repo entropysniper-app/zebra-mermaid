@@ -3,7 +3,7 @@
 //! `str::find(&str)` builds a two-way searcher on every call, which costs more than the search
 //! itself when the text is a label or an attribute of a few bytes. For such text these scan
 //! for the needle's first character with the standard library's byte search and compare the
-//! rest in place. Longer text goes to `str::find`, whose searcher skips ahead instead of
+//! rest in place. Longer text uses the byte-search implementation in memchr, which skips ahead instead of
 //! stopping at every occurrence of a common first character. Both return exactly what
 //! `str::find` and `str::contains` return: every match of a valid UTF-8 needle in valid UTF-8
 //! text starts on a character boundary, so searching by the first character finds the same
@@ -22,7 +22,7 @@ pub fn find(hay: &str, needle: &str) -> Option<usize> {
         return None;
     }
     if h.len() >= LONG {
-        return hay.find(needle);
+        return memchr::memmem::find(h, n);
     }
     let head = first.len_utf8();
     let rest = &n[head..];
@@ -70,6 +70,18 @@ mod tests {
         for (hay, needle) in cases {
             assert_eq!(find(hay, needle), hay.find(needle), "{hay:?} {needle:?}");
             assert_eq!(contains(hay, needle), hay.contains(needle), "{hay:?} {needle:?}");
+        }
+    }
+
+    #[test]
+    fn long_unicode_and_partial_prefixes_match_standard_search() {
+        for count in [0, 1, 31, 95, 96, 97, 256, 1024] {
+            for prefix in ["a", "中", "😀", "var(--_", "<rect"] {
+                let hay = format!("{}{}", prefix.repeat(count), "中文😀var(--_hw)<rect rx=\"v\"/>");
+                for needle in ["", "a", "中", "😀", "文😀", "var(--_h", "var(--_hw)", "var(--_w)", "<rect", "rectx", "rx=\"v\""] {
+                    assert_eq!(find(&hay, needle), hay.find(needle), "count={count}, prefix={prefix}, needle={needle}");
+                }
+            }
         }
     }
 }

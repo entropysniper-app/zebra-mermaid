@@ -87,35 +87,35 @@ Current-version results on identical inputs, measured as **milliseconds per comp
 
 | Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 / 6 | 95.70000 | 0.35141 | 0.22053 | 91.06104 |
-| block | 6 / 6 | 86.50000 | 0.09975 | 0.09586 | 0.14617 |
-| c4 | 6 / 6 | 104.70000 | 0.52571 | 0.42962 | 1.15369 |
-| class | 5 / 6 | 129.10000 | 0.21994 | 0.15954 | 0.37825 |
-| er | 6 / 6 | 99.90000 | 0.23380 | 0.19927 | 6.29177 |
+| flowchart | 6 / 6 | 85.60000 | 0.30685 | 0.19851 | 87.33483 |
+| block | 6 / 6 | 78.20000 | 0.09106 | 0.08577 | 0.14018 |
+| c4 | 6 / 6 | 90.50000 | 0.45771 | 0.35812 | 1.10053 |
+| class | 5 / 6 | 114.00000 | 0.19640 | 0.14050 | 0.35928 |
+| er | 6 / 6 | 76.90000 | 0.20552 | 0.16183 | 6.02277 |
 | eventmodeling | 0 / 6 | — | — | — | — |
-| gantt | 6 / 6 | 19.40000 | 0.25800 | 0.18368 | 0.40227 |
-| git | 6 / 6 | 111.20000 | 0.43231 | 0.27474 | 0.62429 |
+| gantt | 6 / 6 | 15.60000 | 0.24373 | 0.15484 | 0.38957 |
+| git | 6 / 6 | 100.30000 | 0.40745 | 0.24109 | 0.60319 |
 | info | 0 / 2 | — | — | — | — |
-| journey | 1 / 1 | 3.25000 | 0.01674 | 0.01630 | 0.04039 |
-| kanban | 3 / 3 | 29.10000 | 0.05480 | 0.04979 | 0.12692 |
-| mindmap | 6 / 6 | 92.10000 | 0.09888 | 0.07206 | 0.36307 |
-| packet | 4 / 4 | 6.75000 | 0.06358 | 0.04540 | 2.47096 |
-| pie | 3 / 3 | 5.00000 | 0.03473 | 0.02457 | 0.07443 |
-| quadrant | 3 / 3 | 9.50000 | 0.05714 | 0.04568 | 0.08765 |
-| requirement | 6 / 6 | 89.00000 | 0.25080 | 0.19933 | 2.02135 |
-| sankey | 6 / 6 | 32.20000 | 0.31801 | 0.13827 | 0.44186 |
-| sequence | 4 / 6 | 24.90000 | 0.09400 | 0.08792 | 0.73172 |
-| state | 6 / 6 | 126.60000 | 0.38108 | 0.23202 | 5.53775 |
-| timeline | 6 / 6 | 31.90000 | 0.20760 | 0.15826 | 0.38138 |
-| xychart | 6 / 6 | 28.10000 | 0.12172 | 0.09681 | 0.21666 |
+| journey | 1 / 1 | 2.80000 | 0.01555 | 0.01026 | 0.03899 |
+| kanban | 3 / 3 | 26.00000 | 0.05176 | 0.04209 | 0.12219 |
+| mindmap | 6 / 6 | 84.10000 | 0.09195 | 0.06302 | 0.34726 |
+| packet | 4 / 4 | 6.35000 | 0.05897 | 0.03493 | 2.33824 |
+| pie | 3 / 3 | 4.35000 | 0.03247 | 0.02235 | 0.07190 |
+| quadrant | 3 / 3 | 8.80000 | 0.05225 | 0.03931 | 0.08368 |
+| requirement | 6 / 6 | 77.30000 | 0.22397 | 0.17386 | 1.79056 |
+| sankey | 6 / 6 | 29.40000 | 0.29215 | 0.12861 | 0.41865 |
+| sequence | 4 / 6 | 22.10000 | 0.08851 | 0.07198 | 0.69688 |
+| state | 6 / 6 | 113.20000 | 0.32142 | 0.21329 | 5.16406 |
+| timeline | 6 / 6 | 28.80000 | 0.19517 | 0.12271 | 0.36831 |
+| xychart | 6 / 6 | 23.50000 | 0.11419 | 0.09022 | 0.20770 |
 | agentflow | 0 / 6 | — | — | — | — |
-| architecture | 6 / 6 | 75.20000 | 0.21982 | 0.11773 | 0.26304 |
+| architecture | 6 / 6 | 63.20000 | 0.21002 | 0.09779 | 0.25343 |
 | cynefin | 0 / 3 | — | — | — | — |
 | ishikawa | 0 / 1 | — | — | — | — |
-| radar | 3 / 3 | 6.45000 | 0.07484 | 0.03807 | 0.09210 |
+| radar | 3 / 3 | 5.65000 | 0.07139 | 0.03502 | 0.08893 |
 | railroad | 0 / 6 | — | — | — | — |
 | swimlane | 0 / 6 | — | — | — | — |
-| treemap | 6 / 6 | 16.30000 | 0.14591 | 0.09515 | 0.26019 |
+| treemap | 6 / 6 | 13.60000 | 0.14043 | 0.07941 | 0.24728 |
 | treeview | 0 / 6 | — | — | — | — |
 | usecase | 0 / 6 | — | — | — | — |
 | venn | 0 / 6 | — | — | — | — |
@@ -123,6 +123,10 @@ Current-version results on identical inputs, measured as **milliseconds per comp
 
 The shared benchmark set contains **110/167 samples across 22 diagram types**. A dash means no input passed type and SVG checks in all four engines. Layout and font measurement differ between engines. See the [benchmark report](docs/BENCHMARK.md) for versions, coverage, methodology, and raw results.
 <!-- four-engine-benchmark:end -->
+
+<!-- output-contract-benchmark:start -->
+Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.48× at API return** and **1.57× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
+<!-- output-contract-benchmark:end -->
 
 ## Library API
 
@@ -170,10 +174,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,189 passed**, 0 failed, 5 ignored |
+| Workspace tests | **3,191 passed**, 0 failed, 5 ignored |
 | Original-test acceptance | **2,785/6,826 passed** (40.80%); 7 preserved skips, 4,034 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.7.0-validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/render-optimization-2026-10-20/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1

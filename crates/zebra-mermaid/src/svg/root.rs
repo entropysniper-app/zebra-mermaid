@@ -1,13 +1,30 @@
 //! The root `<svg>` element. Ported from Pele `src/svg/root.ts`.
 
 use super::builder::{esc, esc_text};
-use super::theme::{families, font_style, resolved_font_style, RADIUS};
+use super::theme::{families, RADIUS};
 use crate::diagrams::RenderCtx;
 use crate::theme::{CanvasBackground, ColorMode, Role};
 use crate::util::{js, strs};
+use memchr::memmem::Finder;
 use std::fmt::Write;
+use std::sync::OnceLock;
 
 const ROUNDED: &str = " rx=\"var(--pele-radius,4px)\"";
+
+struct Searches {
+    rect: Finder<'static>,
+    rounded: Finder<'static>,
+    variables: [Finder<'static>; 4],
+}
+
+fn searches() -> &'static Searches {
+    static SEARCHES: OnceLock<Searches> = OnceLock::new();
+    SEARCHES.get_or_init(|| Searches {
+        rect: Finder::new("<rect"),
+        rounded: Finder::new(ROUNDED),
+        variables: ["var(--_r)", "var(--_tw)", "var(--_hw)", "var(--_w)"].map(Finder::new),
+    })
+}
 
 /// Each `<rect ...>` tag of `content` (`/<rect\b[^>]*>/g`): the text before it since the last
 /// one, and the tag. `f` returns false to stop. Returns the end of the last tag visited.
@@ -16,7 +33,7 @@ fn for_each_rect(content: &str, mut f: impl FnMut(&str, &str) -> bool) -> usize 
     let mut last = 0;
     // One searcher finds every `<rect`; a match inside a tag already taken is skipped, as
     // Pele's global expression resumes after the tag it matched.
-    for (start, _) in content.match_indices("<rect") {
+    for start in searches().rect.find_iter(b) {
         if start < last {
             continue;
         }
@@ -43,7 +60,7 @@ fn for_each_rect(content: &str, mut f: impl FnMut(&str, &str) -> bool) -> usize 
 fn push_rounded(out: &mut String, content: &str) {
     let last = for_each_rect(content, |between, tag| {
         out.push_str(between);
-        match strs::find(tag, ROUNDED) {
+        match searches().rounded.find(tag.as_bytes()) {
             None => out.push_str(tag),
             Some(at) => {
                 // Work in the final output buffer instead of allocating one temporary
@@ -69,7 +86,7 @@ fn push_rounded(out: &mut String, content: &str) {
 fn has_rounded_rect(content: &str) -> bool {
     let mut found = false;
     for_each_rect(content, |_, tag| {
-        found = strs::contains(tag, ROUNDED);
+        found = searches().rounded.find(tag.as_bytes()).is_some();
         !found
     });
     found
@@ -81,7 +98,7 @@ const WEIGHT_HEADING: &str = ";--_hw:var(--pele-heading-weight,bold)";
 const WEIGHT_BOLD: &str = ";--_w:var(--pele-bold-weight,bold)";
 
 /// Which of the private variables `--_r`, `--_tw`, `--_hw` and `--_w` the content uses, found
-/// in one pass over its `var(--_` references.
+/// using prepared searches that stop at the first use of each declaration.
 #[derive(Default, Clone, Copy)]
 struct Uses {
     radius: bool,
@@ -91,20 +108,10 @@ struct Uses {
 }
 
 fn uses(content: &str) -> Uses {
-    let mut found = Uses::default();
-    for (at, _) in content.match_indices("var(--_") {
-        let rest = &content[at + "var(--_".len()..];
-        if rest.starts_with("r)") {
-            found.radius = true;
-        } else if rest.starts_with("tw)") {
-            found.title = true;
-        } else if rest.starts_with("hw)") {
-            found.heading = true;
-        } else if rest.starts_with("w)") {
-            found.bold = true;
-        }
-    }
-    found
+    // Search only for the four declarations we need, stopping at each first match.
+    // Walking every var(--_) occurrence also visits all repeated fill/stroke colors.
+    let [radius, title, heading, bold] = searches().variables.each_ref().map(|finder| finder.find(content.as_bytes()).is_some());
+    Uses { radius, title, heading, bold }
 }
 
 /// The accessible name and description of a diagram.
@@ -148,24 +155,32 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
         ColorMode::Css => {
             // The rewriting of rounded rectangles adds `var(--_r)` references; the root has to
             // declare the variable before the content, so the content is looked over first.
-            let rounding = content.contains(ROUNDED);
+            let rounding = searches().rounded.find(content.as_bytes()).is_some();
             let found = uses(content);
             let radius = found.radius || (rounding && has_rounded_rect(content));
-            let mut weights = if radius { format!(";--_r:{}", RADIUS) } else { String::new() };
+            write!(out,
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-{kind}\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" style=\"{fit}{}",
+                theming.css_root_style()
+            ).unwrap();
+            if radius {
+                write!(out, ";--_r:{RADIUS}").unwrap();
+            }
             if found.title {
-                weights.push_str(WEIGHT_TITLE);
+                out.push_str(WEIGHT_TITLE);
             }
             if found.heading {
-                weights.push_str(WEIGHT_HEADING);
+                out.push_str(WEIGHT_HEADING);
             }
             if found.bold {
-                weights.push_str(WEIGHT_BOLD);
+                out.push_str(WEIGHT_BOLD);
             }
-            let fonts = font_style(font_size, options.font_family.as_deref(), options.font_family_mono.as_deref());
+            // Escape only the user-supplied font lists, rather than allocating and scanning
+            // the complete declaration string. All remaining bytes are fixed or numeric.
             write!(out,
-                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-{kind}\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" style=\"{fit}{}{weights}{}\" fill=\"var(--_fg)\" role=\"graphics-document document\" aria-roledescription=\"{kind}\"{aria}>",
-                theming.css_root_style(),
-                esc(&fonts)
+                ";--_fm:var(--pele-font-mono,{});font:{}px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,{})\" fill=\"var(--_fg)\" role=\"graphics-document document\" aria-roledescription=\"{kind}\"{aria}>",
+                esc(families(options.font_family_mono.as_deref(), "monospace")),
+                js::to_string(font_size),
+                esc(families(options.font_family.as_deref(), "sans-serif")),
             ).unwrap();
             out.push_str(&head);
             if theming.canvas == CanvasBackground::Opaque {
@@ -179,11 +194,11 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
         }
         ColorMode::Resolved => {
             let text = theming.resolved.color(Role::Text);
-            let fonts = resolved_font_style(font_size, options.font_family.as_deref());
             let mono = families(options.font_family_mono.as_deref(), "monospace");
             write!(out,
-                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-{kind}\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" style=\"{fit}color:{text}{}\" fill=\"{text}\" role=\"graphics-document document\" aria-roledescription=\"{kind}\"{aria}>",
-                esc(&fonts)
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-{kind}\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" style=\"{fit}color:{text};font:{}px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:{}\" fill=\"{text}\" role=\"graphics-document document\" aria-roledescription=\"{kind}\"{aria}>",
+                js::to_string(font_size),
+                esc(families(options.font_family.as_deref(), "sans-serif"))
             ).unwrap();
             out.push_str(&head);
             if theming.canvas == CanvasBackground::Opaque {

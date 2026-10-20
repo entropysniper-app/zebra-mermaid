@@ -54,14 +54,23 @@ fn space_at(src: &str, p: usize) -> Option<usize> {
     char_at(src, p).filter(|&c| is_space(c)).map(char::len_utf8)
 }
 
-fn emit(out: &mut Tokens, src: &str, p: &mut usize, kind: usize, e: usize) {
+fn emit<'s, T: From<&'s str>>(out: &mut Tokens<T>, src: &'s str, p: &mut usize, kind: usize, e: usize) {
     out.types.push(kind);
-    out.texts.push(src[*p..e].to_string());
+    out.texts.push(src[*p..e].into());
     out.starts.push(*p);
     *p = e;
 }
 
+#[cfg(test)]
 pub fn tokenize(src: &str) -> Tokens {
+    tokenize_into(src)
+}
+
+pub(super) fn tokenize_borrowed(src: &str) -> Tokens<&str> {
+    tokenize_into(src)
+}
+
+fn tokenize_into<'s, T: From<&'s str> + Default>(src: &'s str) -> Tokens<T> {
     let n = src.len();
     let b = src.as_bytes();
     let mut out = Tokens::default();

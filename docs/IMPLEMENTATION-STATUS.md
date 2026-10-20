@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType` 与 6 项 CJK 换行映射。逐项独立进程超时验收为 2,785 通过、0 失败、7 保留上游跳过、4,034 未映射，正式通过率 40.80%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（Pele 1.7.0 版本对齐、英文 README、当前版本渲染与四引擎对比；[变更与验证记录](PELE-1.7.0.md)）。首页展示当前结果；旧性能快照 `v0.1.0-benchmark.20261020` 保留为独立证据。
+- 最后更新：2026-10-20（SVG 扫描、缓冲区和 token 借用优化；[实现与测量记录](RENDER-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -97,6 +97,17 @@
 状态：1–12 的基础实现已完成。33 类的 702 条成功文档/参考输入已通过双调色板测试，确认 SVG 属性使用具体值、颜色变化不改变尺寸；新增三类另通过 4 项主题、画布及原生 SVG 策略测试。原生 App 内视觉与缓存验证尚未执行。C ABI v2 crate 与 C 头文件已建立，3 项 ABI 测试通过；库内适配覆盖参数校验、错误码与 target_width 不参与布局。完整 Zebra 集成（xcframework 替换、App 内主题切换与缓存测试）不在本项目单元测试范围内，不得冒充。
 
 ## 5. 已运行的验证（实际结果）
+
+当前渲染优化轮次：
+
+- `cargo test --workspace --all-features --locked -- --test-threads=1`：**3,191 通过、0 失败、5 ignored**。新增两项项目回归覆盖独立上游的 512 组 SVG 根节点输入和长 Unicode 字符串搜索；不计入原始测试映射。
+- 原有测试源文件、映射、断言、随机种子和阈值不变；761/761 完整响应与 167/167 Sample SVG 相等。
+- 相对 `0bbe183` 的三轮交替 39 组扩展基准：39/39 行为一致；33 类文档 render 等权 after/before 为 **0.87447**，parse 为 **0.93572**。Journey render -36.73%、Timeline -21.48%、Sequence -16.94%、Block -13.72%；小幅变化不作统计显著性声明。
+- 同一 Journey 样例：分配 188 → 114，扩容 68 → 48，累计申请 55,658 → 46,216 bytes；六组独立分配探针批后净保留均为 0。不是完整泄漏验证。
+- 当前四引擎终态表已复测；新增全部 167 个 Sample、33 类的双输出终点报告：API 返回 Rust/Pele 等权加速 **1.48×**，UTF-8 就绪 **1.57×**。该集合与四引擎共同成功的 110 个 Sample/22 类不同，不拼接比值。
+- 原始超时门禁实际结果：**2,785 验收通过、0 失败、7 保留上游跳过、4,034 未映射、0 待验证**，`complete: false`、退出 1。真正无默认图表构建的三项项目回归通过。完整[验证记录](research/render-optimization-2026-10-20/validation.json)另存。
+- 新增直接依赖 memchr 2.8.3，版本锁定、许可记录完整；运行时仍为纯 Rust。Clippy 可完成，仓库已有警告仍未全量清理。
+
 
 Pele 1.7.0 本轮：
 

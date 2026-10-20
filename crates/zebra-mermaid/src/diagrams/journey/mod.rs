@@ -43,12 +43,16 @@ fn cmp_utf16(a: &str, b: &str) -> Ordering {
 
 /// Everyone named on a task, once each, in code unit order.
 pub fn journey_actors(tasks: &[JourneyTask]) -> Vec<String> {
-    let mut names: Vec<String> = Vec::new();
+    actor_names(tasks).into_iter().map(str::to_owned).collect()
+}
+
+pub(crate) fn actor_names(tasks: &[JourneyTask]) -> Vec<&str> {
+    let mut names = Vec::new();
     let mut seen = std::collections::HashSet::new();
     for task in tasks {
         for name in &task.people {
             if seen.insert(name.as_str()) {
-                names.push(name.clone());
+                names.push(name.as_str());
             }
         }
     }
@@ -83,11 +87,12 @@ impl JourneyDb {
 
     /// `data` is the rest of the line from its first colon: `:score` or `:score:actor, actor`.
     pub fn add_task(&mut self, task: &str, data: &str) {
-        let pieces: Vec<&str> = data[1..].split(':').collect();
-        let people = if pieces.len() == 1 { Vec::new() } else { pieces[1].split(',').map(|name| js::trim(name).to_string()).collect() };
+        let mut pieces = data[1..].split(':');
+        let score = pieces.next().unwrap();
+        let people = pieces.next().map_or_else(Vec::new, |people| people.split(',').map(|name| js::trim(name).to_string()).collect());
         self.model.tasks.push(JourneyTask {
             task: task.to_string(),
-            score: js::number(pieces[0]),
+            score: js::number(score),
             people,
             section: self.current_section.clone(),
         });
