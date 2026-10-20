@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType` 与 6 项 CJK 换行映射。逐项独立进程超时验收为 2,785 通过、0 失败、7 保留上游跳过、4,034 未映射，正式通过率 40.80%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（SVG 适配器借用与直接追加；[实现与测量记录](SVG-ADAPTER-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-20（新增[编译产物体积目标与发布基线](CODE-SIZE-OPTIMIZATION.md)；最新已发布性能仍为 [SVG 适配器轮次](SVG-ADAPTER-OPTIMIZATION.md)）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -18,6 +18,8 @@
 3. 两种颜色输出：`css`（Pele 原样 `--pele-*` 变量，供差分与网页嵌入）和 `resolved`（具体颜色，CLI 默认与 Zebra 原生接入模式）。
 4. 支持 Zebra 现有主题接入方式：camelCase `MermaidPalette`（17 个颜色 + 6 系列色）、light/dark、fontSize、opaque/transparent 画布；语义角色贯穿各图表。
 5. MVP（flowchart/sequence/pie/info）只是中间里程碑，不得报告为完整重写。
+6. 全部 167 个原始样本、33 类图表的完整解析、布局与 SVG 生成，在 API 返回口径下相对固定 Pele 1.7.0 的逐类型等权几何平均达到 **10×**；UTF-8 就绪口径、逐类型分布、39 组扩展负载及全部回退分别报告，当前尚未达标。
+7. **新增编译产物体积优化目标**：在相同工具链、锁定依赖、release 配置与完整 33 类功能下，独立跟踪发布 CLI、FFI 动态库和静态库的文件字节数与实际代码段字节数；库归档、基准驱动及符号/调试信息裁剪单列。保留体积与速度、分配、RSS 的取舍，不以关闭图类型、功能或改变工作量达标。用户未指定体积数值门槛；首轮发布产物基线已建立，现有驱动文件大小不冒充发布产物代码体积。
 
 ## 2. 阶段状态
 
@@ -97,6 +99,8 @@
 状态：1–12 的基础实现已完成。33 类的 702 条成功文档/参考输入已通过双调色板测试，确认 SVG 属性使用具体值、颜色变化不改变尺寸；新增三类另通过 4 项主题、画布及原生 SVG 策略测试。原生 App 内视觉与缓存验证尚未执行。C ABI v2 crate 与 C 头文件已建立，3 项 ABI 测试通过；库内适配覆盖参数校验、错误码与 target_width 不参与布局。完整 Zebra 集成（xcframework 替换、App 内主题切换与缓存测试）不在本项目单元测试范围内，不得冒充。
 
 ## 5. 已运行的验证（实际结果）
+
+新增体积目标（基线 `4a03a25`，生产代码与 `e0a9e60` 相同）：已从固定提交的独立源码快照构建完整 33 类 CLI/FFI，使用锁定依赖、release/thin LTO/codegen-units=1 和一致的源码路径映射；未 strip。文件 / 指令 text 分别为 **CLI 5,210,752 / 3,853,944 bytes**、**FFI 动态库 4,798,544 / 3,561,420 bytes**、**FFI 静态库 41,708,256 / 4,273,968 bytes**。静态库另含 26,008,880 bytes 的 LLVM bitcode，归档大小不等同于最终宿主链接增量。本次是新增目标与基线，未声称已缩小代码；下一优化轮次将独立报告体积、速度与内存取舍。[方法与复现](CODE-SIZE-OPTIMIZATION.md)、[源码/产物指纹与逐段大小](research/code-size-baseline-2026-10-20/summary.json)、[单列的驱动体积](research/code-size-baseline-2026-10-20/drivers.json)。
 
 最新 SVG 适配器轮次（基线 `2b1fda6`，代码提交 `e0a9e60`）：**主集合耗时下降 3.25%，存在较大扩展回退，10× 未达到**。
 

@@ -130,6 +130,16 @@ The shared benchmark set contains **110/167 samples across 22 diagram types**. A
 Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.79× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
 <!-- output-contract-benchmark:end -->
 
+Compiled code size is also an optimization target, alongside the full 33-type 10× performance target. Current full-feature release sizes (unstripped, thin LTO, one codegen unit):
+
+| Artifact | File bytes | Instruction text bytes |
+| --- | ---: | ---: |
+| CLI | 5,210,752 | 3,853,944 |
+| FFI dynamic library | 4,798,544 | 3,561,420 |
+| FFI static archive | 41,708,256 | 4,273,968 |
+
+The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These values establish the [release-size baseline](docs/CODE-SIZE-OPTIMIZATION.md), with fingerprints and section totals. Size, speed, allocations and RSS will be reported separately; all diagram types and correctness requirements remain enabled.
+
 ## Library API
 
 Add the library to your application's `Cargo.toml`. Both installation examples pin the same revision for reproducible builds:
