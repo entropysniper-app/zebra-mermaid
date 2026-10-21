@@ -16,6 +16,8 @@ Against the matched baseline: CLI file **+832**, instruction text **-1,512 bytes
 
 Full-type native render time changes **-1.09%**; documentation render **-0.66%**. All increases are retained as speed/size tradeoffs. Current API **1.85×**, UTF-8 **1.97×**; the 2× API-return target remains unmet.
 
+A subsequent [cold-error hint experiment](COLD-ERROR-EXPERIMENT.md) was rejected: native time changed −0.43% while CLI / FFI static / FFI dynamic instruction text grew by 6,612 / 4,920 / 4,356 bytes. All allocator metrics stayed equal. The candidate and every regression are preserved separately; the current release sizes above remain the verified production artifacts.
+
 File bytes include data, symbols, metadata, embedded bitcode and archive overhead. Instruction text sums `__text` (or ELF `.text` / `.text.*`) separately from stubs, unwind tables and other sections. An unreadable archive member fails measurement instead of becoming zero-sized code. Static archive text includes every member before the host linker selects/removes unused code; neither its file nor text total is the host application's final link increment. Rust `.rlib` metadata is not substituted for a linked library.
 
 [Current paired sections, hashes and build configuration](research/number-text-optimization-2026-10-20/size-comparison.json) · [implementation, timing and memory tradeoffs](NUMBER-TEXT-OPTIMIZATION.md). The original [first release baseline](research/code-size-baseline-2026-10-20/summary.json) remains immutable.

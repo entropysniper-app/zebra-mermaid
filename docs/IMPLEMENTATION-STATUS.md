@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-20（[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-21（[错误路径编译提示实验](COLD-ERROR-EXPERIMENT.md)、[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -101,6 +101,14 @@
 状态：1–12 的基础实现已完成。33 类的 702 条成功文档/参考输入已通过双调色板测试，确认 SVG 属性使用具体值、颜色变化不改变尺寸；新增三类另通过 4 项主题、画布及原生 SVG 策略测试。原生 App 内视觉与缓存验证尚未执行。C ABI v2 crate 与 C 头文件已建立，3 项 ABI 测试通过；库内适配覆盖参数校验、错误码与 target_width 不参与布局。完整 Zebra 集成（xcframework 替换、App 内主题切换与缓存测试）不在本项目单元测试范围内，不得冒充。
 
 ## 5. 已运行的验证（实际结果）
+
+错误路径编译提示实验（基线 `32d5532`，未保留为生产运行时）：**候选完整主集合耗时 -0.43%，三个发布产物代码段均增大，生产仍为 `528010f`**。
+
+- 八类 / 36 个原始输入 CPU 捕获后，仅对 16 个源文件的 23 个错误构造、定位和 parser fail 入口添加 `#[cold]` / `#[inline(never)]`。仅移除新增属性行后与基线源码逐字节一致；无新增测试、期望值或原测试映射。首次构建的七处属性后空行已在任何计时前修正，随后完整重测，原构建指纹和等待计时窗口的观察保留。
+- 全工作区 **3,243 通过、0 失败、5 ignored**，761 完整响应、167 原始 SVG、39 扩展验证一致；主集合配对 after/before **0.99570**，19 类下降 / 14 类回退。候选 API **1.86×**、UTF-8 **1.98×**，仍未达到 2× API 目标；文档 render **-0.79%**、parse **-2.05%**，Agentflow 拒绝耗时另报。小幅差异不作显著性声明，全部原始进程和回退保留。
+- 全 33 类主口径与默认样本、39 组扩展的分配次数、扩容、累计申请字节和额外存活峰值均不变。 cli 文件/代码段 **+16,832 / +6,612 bytes**； ffi-static 文件/代码段 **+6,880 / +4,920 bytes**； ffi-dynamic 文件/代码段 **+192 / +4,356 bytes**。相同工具链、锁定依赖、完整功能和 release 设置，未 strip。真实 RSS：samples **13 降/3 平/17 增**；extended **21 降/5 平/13 增**。
+- 这一小幅观察收益不足以支持同时增大三个发布产物的方案，故精确补丁与全套候选数据归档后恢复原运行时；恢复后重新验证工作区 3,243 / 0 / 5、无默认功能四项通过和原超时门禁。原测试仍为 **2,791 通过、0 失败、7 保留 skip、4,028 未映射、0 未验证**，严格入口退出码为 1、完整验收未完成。README、消费者提交锁定和终态性能/体积表维持已验证生产结果。
+- [实验方案与所有取舍](COLD-ERROR-EXPERIMENT.md)、[精确源码补丁与全部原始证据](research/cold-error-experiment-2026-10-21/summary.json)、[恢复生产验证](research/cold-error-experiment-2026-10-21/production-revalidation.json)。2× 性能和编译代码体积目标继续推进。
 
 共享预处理视图实验（基线 `b963d10`，未保留为生产运行时）：**候选主集合耗时 +0.37%，分配下降但未达主性能目标，生产仍为 `528010f`**。
 
