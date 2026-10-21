@@ -1,0 +1,29 @@
+{
+  "baselineRevision": "68a20d8e68f51881f0e697f7fe08bb1219d1d12e",
+  "baselineProductionRevision": "528010f970b8b9b54d94d88275c43e96f4b32015",
+  "runtimeChanges": [
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/tokens.rs",
+      "beforeSha256": "43265e66bab856da9f89d54f58bdb68e82b86bdfd309f0768667d3a0b25dff3d",
+      "afterSha256": "3fed52783064de9063f924f784c8b30ac12750fefb941c2e3bd9e0de360ef033"
+    }
+  ],
+  "supplementaryTests": {
+    "path": "crates/zebra-mermaid/tests/token_workspace.rs",
+    "sha256": "e87ad1d307de6254b06c9b56d6d9d9a93b267633d19eb5d1f29265b05ac0ea46",
+    "tests": 2,
+    "baselineVerifiedBeforeRuntimeEdit": true,
+    "tokenizeCalls": 38,
+    "expectedRejections": 12,
+    "originalPorts": 0
+  },
+  "implementation": [
+    "Keep the original full-range Vec representation; missing flag slots read as false and materialize only when an opener disables a pattern.",
+    "Scanner slots are materialized on their original first attempt; kind indices and once-per-kind/per-scan factories unchanged."
+  ],
+  "unchanged": [
+    "Original matching functions/order, hidden tokens, LONGER_ALT, EOF, spans/errors and result storage.",
+    "All 167 original Samples / 33 types and all 39 extended workloads.",
+    "No bit-set/overflow owner, cache, preparse, dependency, feature, precision or build-profile change."
+  ]
+}

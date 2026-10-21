@@ -1,10 +1,10 @@
 # zebra-mermaid 实施状态
 
-本文件记录 Rust 重写的实际进度，供中断后恢复执行。只记录已执行并有证据的结果；计划项明确标为“待做”。
+本文件记录 Rust 重写的实际进度。持续优化已停止；只记录已执行并有证据的结果，未完成事项保留，后续执行须由用户明确要求。
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-21（[分词器位集合实验](LEXICAL-STATE-EXPERIMENT.md)、[错误路径编译提示实验](COLD-ERROR-EXPERIMENT.md)、[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-21（[当前分词临时状态](LAZY-TOKEN-STATE-OPTIMIZATION.md)、[分词器位集合实验](LEXICAL-STATE-EXPERIMENT.md)、[错误路径编译提示实验](COLD-ERROR-EXPERIMENT.md)、[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[栈数值文本历史轮次](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -13,7 +13,7 @@
 
 ## 1. 目标
 
-性能门槛已按用户最新目标调整为 **2×**；下文历史轮次保留当时 10× 目标的测量记录，不能将历史目标当作现行门槛。编译产物体积优化继续独立跟踪。
+性能门槛为 **2×**，本快照仍未达到；下文历史轮次保留当时 10× 目标的测量记录，不能将历史目标当作现行门槛。**持续性能与编译体积优化已按用户 2026-10-21 要求停止，不自动启动后续轮次。** 测量协议与未完成验收事项保留供用户明确恢复后使用。
 
 1. 纯 Rust 库 + CLI，运行时不调用 Node/JS/外部布局程序；Node 只作开发期 oracle。
 2. 按 P0–P6 覆盖上游全部 33 类图表；移植 Pele 的手写解析器、YAML 子集、文本估算与 layered/compound/lanes 布局，保持语义与几何。
@@ -102,6 +102,16 @@
 
 ## 5. 已运行的验证（实际结果）
 
+最新分词临时状态轮次（基线 `68a20d8`，代码 `b85c7c1`）：**全 33 类配对原生耗时 -0.49%，API 1.89×，2× 未达**。
+
+- 八类 / 36 个原始输入重新 CPU 捕获；仅共享 tokenizer 的每次扫描临时状态改变：禁用标记和 scanner 槽位均保留原完整索引 Vec 表示，未分配的禁用标记按 false 读取，首次真正需要时才建立数组，不使用位集合或额外溢出所有者。原匹配器、优先级、LONGER_ALT、隐藏 token、EOF、源位置、错误和单次扫描生命周期均保留，没有缓存、预解析、精度、功能、依赖或构建参数调整。
+- 工作区 **3,245 通过、0 失败、5 ignored**，无默认 feature 四项通过，Clippy 警告不变；761 完整响应、167 原始 SVG、39 扩展验证一致。两项补充测试的 38 次手写调用 / 12 个预期拒绝先在未优化生产实现通过，覆盖 64/128/256 边界直到 kind 1,023、禁用的直接与 longer 分支、scanner 懒构造和扫描内/跨扫描生命周期；既有 2,008 组独立 Node token 预期、15 表、种子/变异次数未改。原独立超时门禁 **2,791 通过、0 失败、7 跳过、4,028 未映射、0 待验证**，完整验收未完成；本轮无新增原测试映射。
+- 主集合 after/before **0.99508**，18 类中位数下降 / 15 类回退；33 类文档 render **-0.38%**、parse **-2.04%**。全部 39 组、三轮进程、拒绝和回退保留，不以局部剖析替代主指标，不作微小差异显著性声明。
+- 当前 API / UTF-8 **1.89× / 1.98×**，API 范围 **agentflow 1.29×…sankey 3.00×**，21 类低于 2×、12 类至少 2×；Node 每轮独立重测。相同全功能发布配置，未 strip：CLI 文件/代码段 +0/+508 bytes；FFI static archive 文件/代码段 +2,448/+304 bytes；FFI dynamic library 文件/代码段 +304/+284 bytes，库/驱动分别报告，静态归档不等于宿主链接增量。
+- 主口径与默认样本均为 **12 类分配次数/累计申请字节下降、21 类持平、0 类增加**；扩展为 **12 降/27 平/0 增**。全部集合的扩容次数和额外存活峰值持平；计数批次无净留存字节。时间、编译体积、申请和实际 RSS 的具体取舍均按本轮数据保留；持续目标在本快照后已停止。
+- 所有样本与扩展的时间、计数分配、扩容、申请、额外存活峰值及真实 RSS 独立报告；不以申请字节替代 RSS。RSS：Sample **14 降/3 平/16 增**，扩展 **15 降/4 平/20 增**。
+- [报告](LAZY-TOKEN-STATE-OPTIMIZATION.md)、[完整证据](research/lazy-token-state-optimization-2026-10-21/summary.json)、[验证](research/lazy-token-state-optimization-2026-10-21/validation.json)及 README 终态、消费者远程固定提交已更新，本轮收尾后已按用户要求停止持续优化，不自动恢复。
+
 分词器位集合临时状态实验（基线 `542f6cd`，未保留为生产运行时）：**候选完整主集合耗时 -0.35%，12 类分配下降，样本 RSS 多数升高；生产仍为 `528010f`**。
 
 - 八类 / 36 个原始输入 CPU 捕获后，实验只改变共享 tokenizer 的每次扫描临时状态：前 64 个禁用标记用局部 u64，更宽动态表回退按需分配；scanner 槽位数组延迟到首次尝试时建立。匹配函数、优先级、LONGER_ALT、EOF、错误与所有数据存储语义未变，无缓存、依赖、精度、功能或构建参数调整。源码与输入/二进制指纹先冻结并验证。
@@ -137,7 +147,7 @@ SVG 字节暂存实验（基线 `57384aa`，运行时补丁未保留）：**候�
 - 恢复后的生产源码与冻结基线指纹完全一致，并重新执行工作区 **3,243 通过、0 失败、5 ignored**、无默认 feature 四项、Clippy、原独立时限门禁。原验收仍 **2,791 通过、0 失败、7 保留跳过、4,028 未映射、0 待验证**，完整验收未完成。当前有效终态仍 API **1.85×** / UTF-8 **1.97×**，消费者固定提交与 README 性能/体积表保持。
 - [实验报告](SVG-BYTE-STAGING-EXPERIMENT.md)、[全部证据](research/svg-byte-staging-experiment-2026-10-20/summary.json)、[实验验证](research/svg-byte-staging-experiment-2026-10-20/validation.json)、[生产恢复验证](research/svg-byte-staging-experiment-2026-10-20/production-revalidation.json)、[精确候选补丁](research/svg-byte-staging-experiment-2026-10-20/candidate.patch.gz)。下一轮继续从已验证的生产代码推进完整 2× 与代码体积目标。
 
-最新栈数值文本轮次（基线 `28dbcd3`，代码 `528010f`）：**全 33 类配对原生耗时 -1.09%，API 1.85×，2× 未达**。
+栈数值文本历史轮次（基线 `28dbcd3`，代码 `528010f`）：**全 33 类配对原生耗时 -1.09%，API 1.85×，2× 未达**。
 
 - 新增八类 / 42 原始输入的主口径 CPU 捕获，覆盖 trait 实现符号。私有 NumberText 用每次调用的 32-byte 栈缓冲区保存完整 JS 数值文本，沿用原最短数字及记数法/舍入规则，整数/指数直接写入字节；公开 js::to_string 仍返回拥有所有权的 String。120 处内部调用 / 31 文件改用栈文本，根宽高视图在一次输出内复用，坐标快路径不变。无新依赖、unsafe、预解析或返回缓存；精度、输入和功能保持。
 - 新增一项补充回归，读取 6,905 条既有独立 Node 数值预期，种子 `0x6d0d3e`、4,096 随机位；验证栈文本、Part 字节提示/追加及 String 式填充/精度。原 6,905 字符串 / 48,335 precision / 34,525 fixed 和安全整数参照不变，不计原映射。
