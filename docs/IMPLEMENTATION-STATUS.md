@@ -4,7 +4,7 @@
 
 **验收标准：Pele 全部测试 1:1 移植且通过。** 已按用户要求将基线升级到 Pele 1.7.0，完整清单为 292 个文件、6,826 项；原有 2,770 项映射全部保留，并新增 16 项 `mermaidType`、6 项 CJK 换行与 6 项字体/根样式映射。逐项独立进程超时验收为 2,791 通过、0 失败、7 保留上游跳过、4,028 未映射，正式通过率 40.89%。两个原 skip 测试的实际执行通过仍计为验收跳过。完整验收未完成，详情见 [UPSTREAM-TEST-PARITY.md](UPSTREAM-TEST-PARITY.md)。图类型覆盖为 33/33，本轮 1.7.0 文档完整响应对照为 761/761，原始测试通过率另行统计。
 
-- 最后更新：2026-10-21（[错误路径编译提示实验](COLD-ERROR-EXPERIMENT.md)、[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
+- 最后更新：2026-10-21（[分词器位集合实验](LEXICAL-STATE-EXPERIMENT.md)、[错误路径编译提示实验](COLD-ERROR-EXPERIMENT.md)、[共享预处理视图实验](PREPROCESS-VIEW-EXPERIMENT.md)、[SVG 字节暂存实验](SVG-BYTE-STAGING-EXPERIMENT.md)、[当前栈数值文本](NUMBER-TEXT-OPTIMIZATION.md)、[终态编译体积](CODE-SIZE-OPTIMIZATION.md)及六项字体原始测试迁移）。首页仅展示当前结果，另列 [API/UTF-8 两种输出口径](OUTPUT-BENCHMARK.md)。
 - 方案：[RUST-REWRITE-PLAN.zh-CN.md](RUST-REWRITE-PLAN.zh-CN.md)
 - Zebra 主题契约（必要验收项，自 P1 起）：[ZEBRA-THEME-COMPATIBILITY.md](ZEBRA-THEME-COMPATIBILITY.md)
 - 测试计划：[TEST-PLAN.md](TEST-PLAN.md)
@@ -101,6 +101,15 @@
 状态：1–12 的基础实现已完成。33 类的 702 条成功文档/参考输入已通过双调色板测试，确认 SVG 属性使用具体值、颜色变化不改变尺寸；新增三类另通过 4 项主题、画布及原生 SVG 策略测试。原生 App 内视觉与缓存验证尚未执行。C ABI v2 crate 与 C 头文件已建立，3 项 ABI 测试通过；库内适配覆盖参数校验、错误码与 target_width 不参与布局。完整 Zebra 集成（xcframework 替换、App 内主题切换与缓存测试）不在本项目单元测试范围内，不得冒充。
 
 ## 5. 已运行的验证（实际结果）
+
+分词器位集合临时状态实验（基线 `542f6cd`，未保留为生产运行时）：**候选完整主集合耗时 -0.35%，12 类分配下降，样本 RSS 多数升高；生产仍为 `528010f`**。
+
+- 八类 / 36 个原始输入 CPU 捕获后，实验只改变共享 tokenizer 的每次扫描临时状态：前 64 个禁用标记用局部 u64，更宽动态表回退按需分配；scanner 槽位数组延迟到首次尝试时建立。匹配函数、优先级、LONGER_ALT、EOF、错误与所有数据存储语义未变，无缓存、依赖、精度、功能或构建参数调整。源码与输入/二进制指纹先冻结并验证。
+- 两项补充测试的 38 次手写调用 / 12 个预期拒绝，覆盖 kind 0、63/64、127/128、255/256 到 1,023 的直接/longer 禁用、精确 span/位置、scanner 懒构造和扫描内/跨扫描生命周期；先在未优化生产实现通过，再在候选通过。既有独立 Node 分词参照 **2,008 组 / 15 表**、随机种子与变异次数未改。这些补充测试不计为原测试移植。
+- 候选工作区 **3,245 通过、0 失败、5 ignored**，761 完整响应、167 原始 SVG、39 扩展验证一致；主集合配对 after/before **0.99650**，22 类下降 / 11 类回退。候选 API **1.86×**、UTF-8 **1.98×**，仍未达到 2× API 目标；文档 render **-0.21%**、parse **-0.45%**，Agentflow 拒绝耗时另报。小幅差异不作显著性声明，全部原始进程和回退保留。
+- 主口径和默认样本为 **12 类分配次数/累计申请字节下降、21 类持平、0 类增加**；扩展为 **12 降/27 平/0 增**。扩容与额外存活峰值在所有集合均不变；批次无净留存字节。 cli 文件/代码段 **+0 / +568 bytes**； ffi-static 文件/代码段 **+3,224 / +384 bytes**； ffi-dynamic 文件/代码段 **+384 / +436 bytes**。相同工具链、锁定依赖、完整功能和 release 设置，未 strip。真实 RSS：samples **2 降/2 平/29 增**；extended **5 降/0 平/34 增**。
+- 该表示虽减少分配，但观察主耗时收益很小、三个代码段均增大，且样本 RSS 2 降/2 平/29 增，中位增量 81,920 bytes、最大 196,608 bytes；RSS 受页面/布局/分配器变化影响，不将位集合认定为已证明的唯一原因。该版本未保留，完整源码/两项补充测试补丁和原始数据归档后恢复生产；恢复后工作区 3,243 / 0 / 5、无默认功能四项和原超时门禁重验。原测试仍为 **2,791 通过、0 失败、7 保留 skip、4,028 未映射、0 未验证**，严格入口退出码为 1、完整验收未完成。README、消费者提交锁定和终态性能/体积表维持已验证生产结果。
+- [实验方案与所有取舍](LEXICAL-STATE-EXPERIMENT.md)、[精确源码补丁与全部原始证据](research/lexical-state-experiment-2026-10-21/summary.json)、[恢复生产验证](research/lexical-state-experiment-2026-10-21/production-revalidation.json)。2× 性能和编译代码体积目标继续推进。
 
 错误路径编译提示实验（基线 `32d5532`，未保留为生产运行时）：**候选完整主集合耗时 -0.43%，三个发布产物代码段均增大，生产仍为 `528010f`**。
 

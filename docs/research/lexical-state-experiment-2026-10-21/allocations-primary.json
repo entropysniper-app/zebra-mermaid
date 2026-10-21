@@ -1,0 +1,825 @@
+{
+  "method": "Separate counted allocator using the existing unchanged tools/profiler/src/allocator.rs; exact 167 original primary inputs and Arial16/CSS/fixed-clock options. Five complete warm-up batches and one counted batch per process; input/options setup excluded, full parsing/layout/SVG/results dropped each iteration. Requested bytes count full realloc requests and are not RSS. No overlap with latency.",
+  "sourceSha256": "dbc8ada514a751dd4bf549c8facda1dbe1635d772f27e8948429f8f915ac7b85",
+  "countedAllocatorSourceSha256": "ffa8e4a3d6aa633205951328ff13f62eb0de1c43aaf065a1eda361b545bba71e",
+  "inputSha256": "debbf08ee9d1701902ecd27897851d24597ee3a616a154969bfd28f655d2f546",
+  "builds": {
+    "before": {
+      "binarySha256": "1aeec23b53d44d5db5e5f7a4aca8379e9d4c606d59acf9abfa50c6b215d27353",
+      "dependencyHashes": {
+        "target/lexical-state-22/before/libzebra_mermaid.rlib": "c6be2a04fce92f03ccabe3a6b4fd29f41d3dc687e8137703b518e4b692fce88b",
+        "target/lexical-state-22/before/libserde_json.rlib": "d52cb8c72eee4bd385be29baf1e3d21e06ef25f059f36626e1345b350c98004d"
+      },
+      "normalizedBuildCommand": [
+        "rustc",
+        "--edition=2021",
+        "--crate-name",
+        "primary_allocations",
+        "-C",
+        "opt-level=3",
+        "-C",
+        "lto=thin",
+        "-C",
+        "codegen-units=1",
+        "-L",
+        "dependency=target/cross-bench-build/release/deps",
+        "--extern",
+        "zebra_mermaid=target/lexical-state-22/before/libzebra_mermaid.rlib",
+        "--extern",
+        "serde_json=target/lexical-state-22/before/libserde_json.rlib",
+        "target/lexical-state-22/primary_allocations.rs",
+        "-o",
+        "target/lexical-state-22/primary-allocator-before"
+      ]
+    },
+    "after": {
+      "binarySha256": "d7d7361d3c8bcb97cecd2180af0afb6a699865d5c4e7875e21668aab5a3d41da",
+      "dependencyHashes": {
+        "target/cross-bench-build/release/deps/libzebra_mermaid-1c3da0c3490709a5.rlib": "374140e771c884313823e282f692624560a422e2099d98c6746820ee5e9d21cd",
+        "target/cross-bench-build/release/deps/libserde_json-8b71a9109b148477.rlib": "d52cb8c72eee4bd385be29baf1e3d21e06ef25f059f36626e1345b350c98004d"
+      },
+      "normalizedBuildCommand": [
+        "rustc",
+        "--edition=2021",
+        "--crate-name",
+        "primary_allocations",
+        "-C",
+        "opt-level=3",
+        "-C",
+        "lto=thin",
+        "-C",
+        "codegen-units=1",
+        "-L",
+        "dependency=target/cross-bench-build/release/deps",
+        "--extern",
+        "zebra_mermaid=target/cross-bench-build/release/deps/libzebra_mermaid-1c3da0c3490709a5.rlib",
+        "--extern",
+        "serde_json=target/cross-bench-build/release/deps/libserde_json-8b71a9109b148477.rlib",
+        "target/lexical-state-22/primary_allocations.rs",
+        "-o",
+        "target/lexical-state-22/primary-allocator-after"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "case": "samples: flowchart",
+      "before": {
+        "allocations": 5009,
+        "case": "samples: flowchart",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 43963,
+        "reallocations": 606,
+        "requestedBytes": 449371,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 23453
+      },
+      "after": {
+        "allocations": 5009,
+        "case": "samples: flowchart",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 43963,
+        "reallocations": 606,
+        "requestedBytes": 449371,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 23453
+      }
+    },
+    {
+      "case": "samples: block",
+      "before": {
+        "allocations": 1040,
+        "case": "samples: block",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 38341,
+        "reallocations": 428,
+        "requestedBytes": 352630,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 17160
+      },
+      "after": {
+        "allocations": 1040,
+        "case": "samples: block",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 38341,
+        "reallocations": 428,
+        "requestedBytes": 352630,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 17160
+      }
+    },
+    {
+      "case": "samples: c4",
+      "before": {
+        "allocations": 4301,
+        "case": "samples: c4",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 112066,
+        "reallocations": 1344,
+        "requestedBytes": 1140945,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 75998
+      },
+      "after": {
+        "allocations": 4301,
+        "case": "samples: c4",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 112066,
+        "reallocations": 1344,
+        "requestedBytes": 1140945,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 75998
+      }
+    },
+    {
+      "case": "samples: class",
+      "before": {
+        "allocations": 3533,
+        "case": "samples: class",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 39151,
+        "reallocations": 508,
+        "requestedBytes": 477896,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 29680
+      },
+      "after": {
+        "allocations": 3533,
+        "case": "samples: class",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 39151,
+        "reallocations": 508,
+        "requestedBytes": 477896,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 29680
+      }
+    },
+    {
+      "case": "samples: er",
+      "before": {
+        "allocations": 3201,
+        "case": "samples: er",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 51643,
+        "reallocations": 449,
+        "requestedBytes": 482631,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 33281
+      },
+      "after": {
+        "allocations": 3201,
+        "case": "samples: er",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 51643,
+        "reallocations": 449,
+        "requestedBytes": 482631,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 33281
+      }
+    },
+    {
+      "case": "samples: eventmodeling",
+      "before": {
+        "allocations": 843,
+        "case": "samples: eventmodeling",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 28122,
+        "reallocations": 246,
+        "requestedBytes": 286181,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 32945
+      },
+      "after": {
+        "allocations": 837,
+        "case": "samples: eventmodeling",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 28122,
+        "reallocations": 246,
+        "requestedBytes": 285899,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 32945
+      }
+    },
+    {
+      "case": "samples: gantt",
+      "before": {
+        "allocations": 2284,
+        "case": "samples: gantt",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 45818,
+        "reallocations": 436,
+        "requestedBytes": 295320,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 25738
+      },
+      "after": {
+        "allocations": 2284,
+        "case": "samples: gantt",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 45818,
+        "reallocations": 436,
+        "requestedBytes": 295320,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 25738
+      }
+    },
+    {
+      "case": "samples: git",
+      "before": {
+        "allocations": 3508,
+        "case": "samples: git",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 63473,
+        "reallocations": 1056,
+        "requestedBytes": 782110,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 63237
+      },
+      "after": {
+        "allocations": 3496,
+        "case": "samples: git",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 63473,
+        "reallocations": 1056,
+        "requestedBytes": 778846,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 63237
+      }
+    },
+    {
+      "case": "samples: info",
+      "before": {
+        "allocations": 24,
+        "case": "samples: info",
+        "inputsPerBatch": 2,
+        "peakAdditionalLiveBytes": 1158,
+        "reallocations": 1,
+        "requestedBytes": 3713,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 1530
+      },
+      "after": {
+        "allocations": 20,
+        "case": "samples: info",
+        "inputsPerBatch": 2,
+        "peakAdditionalLiveBytes": 1158,
+        "reallocations": 1,
+        "requestedBytes": 3373,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 1530
+      }
+    },
+    {
+      "case": "samples: journey",
+      "before": {
+        "allocations": 69,
+        "case": "samples: journey",
+        "inputsPerBatch": 1,
+        "peakAdditionalLiveBytes": 23300,
+        "reallocations": 45,
+        "requestedBytes": 44363,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 5996
+      },
+      "after": {
+        "allocations": 69,
+        "case": "samples: journey",
+        "inputsPerBatch": 1,
+        "peakAdditionalLiveBytes": 23300,
+        "reallocations": 45,
+        "requestedBytes": 44363,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 5996
+      }
+    },
+    {
+      "case": "samples: kanban",
+      "before": {
+        "allocations": 424,
+        "case": "samples: kanban",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 43021,
+        "reallocations": 253,
+        "requestedBytes": 134547,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 10476
+      },
+      "after": {
+        "allocations": 424,
+        "case": "samples: kanban",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 43021,
+        "reallocations": 253,
+        "requestedBytes": 134547,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 10476
+      }
+    },
+    {
+      "case": "samples: mindmap",
+      "before": {
+        "allocations": 635,
+        "case": "samples: mindmap",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 35628,
+        "reallocations": 191,
+        "requestedBytes": 218195,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 21524
+      },
+      "after": {
+        "allocations": 635,
+        "case": "samples: mindmap",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 35628,
+        "reallocations": 191,
+        "requestedBytes": 218195,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 21524
+      }
+    },
+    {
+      "case": "samples: packet",
+      "before": {
+        "allocations": 299,
+        "case": "samples: packet",
+        "inputsPerBatch": 4,
+        "peakAdditionalLiveBytes": 24502,
+        "reallocations": 92,
+        "requestedBytes": 91225,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 11597
+      },
+      "after": {
+        "allocations": 291,
+        "case": "samples: packet",
+        "inputsPerBatch": 4,
+        "peakAdditionalLiveBytes": 24502,
+        "reallocations": 92,
+        "requestedBytes": 90205,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 11597
+      }
+    },
+    {
+      "case": "samples: pie",
+      "before": {
+        "allocations": 234,
+        "case": "samples: pie",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 11419,
+        "reallocations": 97,
+        "requestedBytes": 50056,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 7490
+      },
+      "after": {
+        "allocations": 231,
+        "case": "samples: pie",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 11419,
+        "reallocations": 97,
+        "requestedBytes": 50017,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 7490
+      }
+    },
+    {
+      "case": "samples: quadrant",
+      "before": {
+        "allocations": 333,
+        "case": "samples: quadrant",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 15903,
+        "reallocations": 235,
+        "requestedBytes": 96918,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 9035
+      },
+      "after": {
+        "allocations": 333,
+        "case": "samples: quadrant",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 15903,
+        "reallocations": 235,
+        "requestedBytes": 96918,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 9035
+      }
+    },
+    {
+      "case": "samples: requirement",
+      "before": {
+        "allocations": 3026,
+        "case": "samples: requirement",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 109100,
+        "reallocations": 643,
+        "requestedBytes": 603275,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 39858
+      },
+      "after": {
+        "allocations": 3026,
+        "case": "samples: requirement",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 109100,
+        "reallocations": 643,
+        "requestedBytes": 603275,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 39858
+      }
+    },
+    {
+      "case": "samples: sankey",
+      "before": {
+        "allocations": 931,
+        "case": "samples: sankey",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 119774,
+        "reallocations": 213,
+        "requestedBytes": 352124,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 46049
+      },
+      "after": {
+        "allocations": 931,
+        "case": "samples: sankey",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 119774,
+        "reallocations": 213,
+        "requestedBytes": 352124,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 46049
+      }
+    },
+    {
+      "case": "samples: sequence",
+      "before": {
+        "allocations": 893,
+        "case": "samples: sequence",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 36392,
+        "reallocations": 331,
+        "requestedBytes": 359218,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 29304
+      },
+      "after": {
+        "allocations": 893,
+        "case": "samples: sequence",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 36392,
+        "reallocations": 331,
+        "requestedBytes": 359218,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 29304
+      }
+    },
+    {
+      "case": "samples: state",
+      "before": {
+        "allocations": 4643,
+        "case": "samples: state",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 59156,
+        "reallocations": 607,
+        "requestedBytes": 651274,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 26589
+      },
+      "after": {
+        "allocations": 4643,
+        "case": "samples: state",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 59156,
+        "reallocations": 607,
+        "requestedBytes": 651274,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 26589
+      }
+    },
+    {
+      "case": "samples: timeline",
+      "before": {
+        "allocations": 1179,
+        "case": "samples: timeline",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 34102,
+        "reallocations": 322,
+        "requestedBytes": 407184,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 35464
+      },
+      "after": {
+        "allocations": 1179,
+        "case": "samples: timeline",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 34102,
+        "reallocations": 322,
+        "requestedBytes": 407184,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 35464
+      }
+    },
+    {
+      "case": "samples: xychart",
+      "before": {
+        "allocations": 877,
+        "case": "samples: xychart",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 23163,
+        "reallocations": 409,
+        "requestedBytes": 238015,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 23656
+      },
+      "after": {
+        "allocations": 877,
+        "case": "samples: xychart",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 23163,
+        "reallocations": 409,
+        "requestedBytes": 238015,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 23656
+      }
+    },
+    {
+      "case": "samples: agentflow",
+      "before": {
+        "allocations": 6996,
+        "case": "samples: agentflow",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 66538,
+        "reallocations": 778,
+        "requestedBytes": 790881,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 25043
+      },
+      "after": {
+        "allocations": 6996,
+        "case": "samples: agentflow",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 66538,
+        "reallocations": 778,
+        "requestedBytes": 790881,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 25043
+      }
+    },
+    {
+      "case": "samples: architecture",
+      "before": {
+        "allocations": 1349,
+        "case": "samples: architecture",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 65507,
+        "reallocations": 325,
+        "requestedBytes": 390447,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 29144
+      },
+      "after": {
+        "allocations": 1337,
+        "case": "samples: architecture",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 65507,
+        "reallocations": 325,
+        "requestedBytes": 387795,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 29144
+      }
+    },
+    {
+      "case": "samples: cynefin",
+      "before": {
+        "allocations": 428,
+        "case": "samples: cynefin",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 41236,
+        "reallocations": 333,
+        "requestedBytes": 223492,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 23290
+      },
+      "after": {
+        "allocations": 422,
+        "case": "samples: cynefin",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 41236,
+        "reallocations": 333,
+        "requestedBytes": 222778,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 23290
+      }
+    },
+    {
+      "case": "samples: ishikawa",
+      "before": {
+        "allocations": 85,
+        "case": "samples: ishikawa",
+        "inputsPerBatch": 1,
+        "peakAdditionalLiveBytes": 21589,
+        "reallocations": 58,
+        "requestedBytes": 56211,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 4622
+      },
+      "after": {
+        "allocations": 85,
+        "case": "samples: ishikawa",
+        "inputsPerBatch": 1,
+        "peakAdditionalLiveBytes": 21589,
+        "reallocations": 58,
+        "requestedBytes": 56211,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 4622
+      }
+    },
+    {
+      "case": "samples: radar",
+      "before": {
+        "allocations": 329,
+        "case": "samples: radar",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 13027,
+        "reallocations": 146,
+        "requestedBytes": 82031,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 10019
+      },
+      "after": {
+        "allocations": 326,
+        "case": "samples: radar",
+        "inputsPerBatch": 3,
+        "peakAdditionalLiveBytes": 13027,
+        "reallocations": 146,
+        "requestedBytes": 81947,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 10019
+      }
+    },
+    {
+      "case": "samples: railroad",
+      "before": {
+        "allocations": 2216,
+        "case": "samples: railroad",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 39011,
+        "reallocations": 1042,
+        "requestedBytes": 607348,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 47893
+      },
+      "after": {
+        "allocations": 2206,
+        "case": "samples: railroad",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 39011,
+        "reallocations": 1042,
+        "requestedBytes": 605667,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 47893
+      }
+    },
+    {
+      "case": "samples: swimlane",
+      "before": {
+        "allocations": 4370,
+        "case": "samples: swimlane",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 45751,
+        "reallocations": 703,
+        "requestedBytes": 533526,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 28990
+      },
+      "after": {
+        "allocations": 4370,
+        "case": "samples: swimlane",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 45751,
+        "reallocations": 703,
+        "requestedBytes": 533526,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 28990
+      }
+    },
+    {
+      "case": "samples: treemap",
+      "before": {
+        "allocations": 801,
+        "case": "samples: treemap",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 15282,
+        "reallocations": 246,
+        "requestedBytes": 171186,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 18271
+      },
+      "after": {
+        "allocations": 789,
+        "case": "samples: treemap",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 15282,
+        "reallocations": 246,
+        "requestedBytes": 169656,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 18271
+      }
+    },
+    {
+      "case": "samples: treeview",
+      "before": {
+        "allocations": 511,
+        "case": "samples: treeview",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 17091,
+        "reallocations": 286,
+        "requestedBytes": 159980,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 14774
+      },
+      "after": {
+        "allocations": 505,
+        "case": "samples: treeview",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 17091,
+        "reallocations": 286,
+        "requestedBytes": 159902,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 14774
+      }
+    },
+    {
+      "case": "samples: usecase",
+      "before": {
+        "allocations": 5165,
+        "case": "samples: usecase",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 78734,
+        "reallocations": 916,
+        "requestedBytes": 705145,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 26346
+      },
+      "after": {
+        "allocations": 5165,
+        "case": "samples: usecase",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 78734,
+        "reallocations": 916,
+        "requestedBytes": 705145,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 26346
+      }
+    },
+    {
+      "case": "samples: venn",
+      "before": {
+        "allocations": 1335,
+        "case": "samples: venn",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 17499,
+        "reallocations": 192,
+        "requestedBytes": 137727,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 12231
+      },
+      "after": {
+        "allocations": 1335,
+        "case": "samples: venn",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 17499,
+        "reallocations": 192,
+        "requestedBytes": 137727,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 12231
+      }
+    },
+    {
+      "case": "samples: wardley",
+      "before": {
+        "allocations": 1034,
+        "case": "samples: wardley",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 33343,
+        "reallocations": 504,
+        "requestedBytes": 258264,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 28637
+      },
+      "after": {
+        "allocations": 1028,
+        "case": "samples: wardley",
+        "inputsPerBatch": 6,
+        "peakAdditionalLiveBytes": 33343,
+        "reallocations": 504,
+        "requestedBytes": 258006,
+        "retainedBytesAfterBatch": 0,
+        "svgBytesPerBatch": 28637
+      }
+    }
+  ]
+}

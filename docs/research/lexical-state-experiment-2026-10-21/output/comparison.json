@@ -1,0 +1,1643 @@
+{
+  "upstream": {
+    "version": "1.7.0",
+    "commit": "8603bf3313add9143cd417015d4a6bd6c522dada"
+  },
+  "runtime": {
+    "node": "v26.3.0",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "sourceHashes": {
+    "crates/zebra-mermaid/src/cache.rs": "f732c70ee4ecb582b162c67ec2ed85f7cbcce0816c0a001e620c8d7ee7711342",
+    "crates/zebra-mermaid/src/config/json.rs": "d9714c0aaacd61853f373cbf2e17533cbf2622cd3d3f81316f31cb44fde1b8b5",
+    "crates/zebra-mermaid/src/config/mod.rs": "c3aa58563c5b64f0d65891f93eb5b2deb6a62aab993361dadc0b8f343ea92467",
+    "crates/zebra-mermaid/src/config/value.rs": "19f942f5a0d4403a681960e23df8cf623ee344b0c6393661883c4e2f6de4ecfe",
+    "crates/zebra-mermaid/src/config/yaml.rs": "ce64966624a458ef7de4a478f5e6c570a01757e1cb0dbe13e896cbde49d2f8b4",
+    "crates/zebra-mermaid/src/detect.rs": "6face2e6c0ab500a6b0d2586564e537fcdae0dbaf1cbf093e4dfefc951450b9d",
+    "crates/zebra-mermaid/src/diagrams/agentflow/db.rs": "56aefef208790d2786b0b0e679eb523c5dad29d590b47b74bd24760eca90ad7e",
+    "crates/zebra-mermaid/src/diagrams/agentflow/graph.rs": "ac305c3a67a96edb7993a96910384b423a1b347b30381641a1ce372a63b37217",
+    "crates/zebra-mermaid/src/diagrams/agentflow/lexer.rs": "49c676cd54eb42b1de250434c55bf175b8d3b47d6113662480887539803c3831",
+    "crates/zebra-mermaid/src/diagrams/agentflow/mod.rs": "79cbebb53a05384723d0bf1fed2784accae1f2656c9f08b90b332a0b66d34b7d",
+    "crates/zebra-mermaid/src/diagrams/agentflow/parser.rs": "5b36cc9b143fbb2bf69ece686ce5a8a684ebd53aab4aec8348e65ade9da90a46",
+    "crates/zebra-mermaid/src/diagrams/agentflow/render.rs": "996021aae0828ba6997e69f352c37082636f0c6f07169084acaad6ebe274c68c",
+    "crates/zebra-mermaid/src/diagrams/agentflow/shapes.rs": "f7038a8af47cd90bd1a85714eddadf5e4cf3ea99a94d7c7617a8f825e04566fa",
+    "crates/zebra-mermaid/src/diagrams/agentflow/tokens.rs": "aa8f79af27df05368e7b085ed538395c93514a8592e0fe119ba548607345fe7e",
+    "crates/zebra-mermaid/src/diagrams/agentflow/types.rs": "80db69a25f9e12510e1711100a317ccee5805fdf7dfa3e07b8752862252a264b",
+    "crates/zebra-mermaid/src/diagrams/architecture/icons.rs": "56d9ac7f84598fdb995eda002b1eac8aee49aec36447df29f727e8d29fb66dc0",
+    "crates/zebra-mermaid/src/diagrams/architecture/layout.rs": "b1208e67a646421969e98f9c0fe17ac7ef6e07067d06ff2e51a8c0cab6ba05b0",
+    "crates/zebra-mermaid/src/diagrams/architecture/mod.rs": "d23fe6ee6a2bf5560e3aa282d43525a0f6fb879a40e8c7c6ffa25ea5ab2c10ea",
+    "crates/zebra-mermaid/src/diagrams/architecture/parser.rs": "7044241afa15b4ccd813fc3d205c367e0b6239b9262b32a3a0a1dd9d488f6fc8",
+    "crates/zebra-mermaid/src/diagrams/architecture/render.rs": "9d2bdcd8060d6c1c542f80c1ca8c4e9b81d083b27a64ffb42fec80a1d63d0451",
+    "crates/zebra-mermaid/src/diagrams/block/arrows.rs": "11dabc950391b85d1ab87c77d7d3776115e1f1366a73cb55d915ad3db68ff3ab",
+    "crates/zebra-mermaid/src/diagrams/block/layout.rs": "7c854a4056db796bf3028fd8cdabffb8e63679219e6eca66d9ff3d00df5ce983",
+    "crates/zebra-mermaid/src/diagrams/block/lexer.rs": "3d9217749ee6a512ca6766a9c0ec4cd040dfe68cc784a19cec45710d198f6e78",
+    "crates/zebra-mermaid/src/diagrams/block/mod.rs": "b75ebe33d39d6df040488e3c323a7b4afc4e7a63ff9a5cbb5fa5125614e5afa1",
+    "crates/zebra-mermaid/src/diagrams/block/parser.rs": "126b3f4e4025c3a778267b46ebc6ce6a1396e3d5a1f42ad1a76bddde0cde8725",
+    "crates/zebra-mermaid/src/diagrams/block/render.rs": "05ee880a05705d84582c40fe87a12f62043376ae34e09a044ad15c65cedc16ea",
+    "crates/zebra-mermaid/src/diagrams/c4/db.rs": "76e1dfc3b83ad6302172cbf8d0b30ec20c50a69666f549841f416fcef0a7b1d4",
+    "crates/zebra-mermaid/src/diagrams/c4/layout.rs": "a5b6ac6ba6b366377c39477b98b8c69219bc5ac1bdccdf02e47e7567b178751e",
+    "crates/zebra-mermaid/src/diagrams/c4/lexer.rs": "b57112002d9425ce107fb19a98e2367570186ff8dfa4e4c26c60b6366a12e155",
+    "crates/zebra-mermaid/src/diagrams/c4/mod.rs": "d9e7090aa0f9a25277ccb1aafb1ac0e54bcaeb42ef065d8941a092e70cb15cee",
+    "crates/zebra-mermaid/src/diagrams/c4/parser.rs": "11d11c4dd78461b2fd97c2f5b8bb18317310869c0d043685888e2bb2508ff81b",
+    "crates/zebra-mermaid/src/diagrams/c4/render.rs": "6d9be40a32e87265843012ca1d3da4e3f825ed9d50d6da42ef1f99b837020520",
+    "crates/zebra-mermaid/src/diagrams/c4/route.rs": "0bee0af76988e119f888bf12f51994ac4d585b85843c615b62ba643c6c34edc9",
+    "crates/zebra-mermaid/src/diagrams/class/graph.rs": "2ffc5c38b932f6ab3fe2258714c4c36697f672c92aa6e8e57d177cd49c1b1966",
+    "crates/zebra-mermaid/src/diagrams/class/lexer.rs": "edab6d7316f474a426b185168354666f295f9545ec9c2e9d02f58b308b17d11a",
+    "crates/zebra-mermaid/src/diagrams/class/markers.rs": "9f9a7db63cc1706077081617a2e73ec980b2cdf00a80455c8599306c8e4bdfef",
+    "crates/zebra-mermaid/src/diagrams/class/members.rs": "00943d96d220d5d84082fdc99146c4f4184775527a73709205697c720515e93d",
+    "crates/zebra-mermaid/src/diagrams/class/mod.rs": "02af5670ba84a9bb25d58e489b2bdfd131692ec7fe179349e605d14cff90bbe0",
+    "crates/zebra-mermaid/src/diagrams/class/parser.rs": "fd05d294b5a1307cf6e2de113fdce28b0137e9ff6b05b199af992e051989343b",
+    "crates/zebra-mermaid/src/diagrams/class/render.rs": "fef67c549c2fd6e767fb31ffa4fbaa247169d2af1bd9b36a8f0c1e5e0f60984e",
+    "crates/zebra-mermaid/src/diagrams/class/tokens.rs": "ec3144fa2f4276c3e11068053c75c05cda4f86e05a5cbef6123fc9b9dd56a648",
+    "crates/zebra-mermaid/src/diagrams/common/accdescr.rs": "78388d2ebf978a41510980905af63ecbaa970495cc622c26d95962ad8479e45f",
+    "crates/zebra-mermaid/src/diagrams/common/caseless.rs": "d5bdbd9d8e53296ff335254fc2771d558505438ed357b20652c5c68f236bd1bb",
+    "crates/zebra-mermaid/src/diagrams/common/fit.rs": "c9858ef9e59e52a3e7e26fca382c6e494a728621d2e3bd279c7a9f3fa8476ca4",
+    "crates/zebra-mermaid/src/diagrams/common/fit_text.rs": "ad8d8589da86b79de9126fc07c52907e6c76c037d310c73cb5883052baec86fe",
+    "crates/zebra-mermaid/src/diagrams/common/fit_width.rs": "c303f8a44fefaaeb85a753b860fee65629af5d9b2f337c68321f896629605ab2",
+    "crates/zebra-mermaid/src/diagrams/common/generics.rs": "451105a57bdbfecfd1ad8256f9a5e5a3788274b9dae9eadb55fb4781017dfd4a",
+    "crates/zebra-mermaid/src/diagrams/common/icon.rs": "9571aa7d0bfd66df7e3d9d4d72cd5d105829739c1dcf8a762aee8c900913a0ab",
+    "crates/zebra-mermaid/src/diagrams/common/literal_label.rs": "5c99a04e6ebe4114d478ed47663165867e00dd6a92a7ea5f13ba87d69bb3d4d4",
+    "crates/zebra-mermaid/src/diagrams/common/mod.rs": "7ebfe0e33e3dfc39d861dd95bc9ed0188f13891e72235e98d90efb9cc01c4d60",
+    "crates/zebra-mermaid/src/diagrams/common/outline.rs": "a694aea2cdb08cd8b6ceb403a3c2c6f92ebd12d5a4fbdc27524441cdcf996559",
+    "crates/zebra-mermaid/src/diagrams/common/parse_tokens.rs": "3e8db1b23638896581d35131be20c2ef7b6039a36f4e5d8c0fb5ef93a184c7d8",
+    "crates/zebra-mermaid/src/diagrams/common/scan.rs": "b5b76fb4e73bc209dba810673dbb1eb5c86dd985cec0e48a315c3269aa14877f",
+    "crates/zebra-mermaid/src/diagrams/common/scanner_reference.rs": "f9beeeeee54d80e8c46ccd17925afda2f8fb806e27d528691f709369955825a9",
+    "crates/zebra-mermaid/src/diagrams/common/str_entry.rs": "2523e4bf73ea9c8a23679fba5fffd3889d047b6cf242a83cee31b8300038ebf4",
+    "crates/zebra-mermaid/src/diagrams/common/tokens.rs": "114bf3ebab886ce578ba15d95844c6b7932d7209942998c9a70ff378f92319f3",
+    "crates/zebra-mermaid/src/diagrams/cynefin/boundaries.rs": "215f7e3e4a321d4fae72d6c5a5957047805cfcd7d0d32a98c7c31944989a5487",
+    "crates/zebra-mermaid/src/diagrams/cynefin/mod.rs": "089c9c03a76d45556d6f3526afc8f9db9feccda67bb09a8c2fed247afd0487c1",
+    "crates/zebra-mermaid/src/diagrams/cynefin/parser.rs": "d5787bb77689caebf6f7c180fa5d16964e4b4169e6a4117573cdba3ee33b1d72",
+    "crates/zebra-mermaid/src/diagrams/cynefin/render.rs": "dce7fc05b3550b3b4fbb78630f8b230334853de0b8e09cda39f6cc651375a7ce",
+    "crates/zebra-mermaid/src/diagrams/er/lexer.rs": "478d474ba46f136e240d104c37d0beeeac5e9bd6ace7766fb26f3c6d0c15e42e",
+    "crates/zebra-mermaid/src/diagrams/er/mod.rs": "3ecb4324a00207e3dec3fe38d45087eac7cfe57a9b123c5c781b261a253bc1e5",
+    "crates/zebra-mermaid/src/diagrams/er/parser.rs": "5c306ee5446a5b009c42f791b2f0fdb6ca87b01228a6c9eff06e0c87f4531f69",
+    "crates/zebra-mermaid/src/diagrams/er/render.rs": "c59070087973070b5249977a039a39647efd03f71bd1f2d7091c41c859ff9ce1",
+    "crates/zebra-mermaid/src/diagrams/er/tokens.rs": "9bd4ee0f090c4554f5dcb53946262160b94abe7898b36d86d748453d490efa39",
+    "crates/zebra-mermaid/src/diagrams/eventmodeling/mod.rs": "05c9cad5e7b3a54e3abb2eac8a0af49c0dc39bac35e86a99e9dc7a1f17228ec7",
+    "crates/zebra-mermaid/src/diagrams/eventmodeling/parser.rs": "961197ab3a86184fb25a879cc1aee3046fd2d231b75a6a49ff99c9594f13f314",
+    "crates/zebra-mermaid/src/diagrams/eventmodeling/render.rs": "a4e1de8474128abc0128439de57eab9a160d1b103624330fe936e074cca3ac6e",
+    "crates/zebra-mermaid/src/diagrams/flowchart/graph.rs": "0340654348836fe0dc310755ab400dd47825980d7cd441c105b54696e53b7fc3",
+    "crates/zebra-mermaid/src/diagrams/flowchart/lexer.rs": "42f523c96dd20f3afcd1ff93257baf5c2a5a9b54403ea964059601ccc3b39230",
+    "crates/zebra-mermaid/src/diagrams/flowchart/mod.rs": "b9f2080ead8cf9ca147a9cfc381f5b8faa964a4646d64b87d186ef01cab54c00",
+    "crates/zebra-mermaid/src/diagrams/flowchart/model.rs": "d061653c84583b34b7fdc874b5a4bdda6ce03ddc1c44107813a92eacd81caaf1",
+    "crates/zebra-mermaid/src/diagrams/flowchart/parser.rs": "c808b12940ffe8ce0f47eed5ba96c35b8b9c4e5d859f8cb76b9ff401a27539b5",
+    "crates/zebra-mermaid/src/diagrams/flowchart/render.rs": "13a0c9fa1fa6f56d68626ee3889f398fe146538122b554c8336fd03a40ab5e72",
+    "crates/zebra-mermaid/src/diagrams/flowchart/shapes.rs": "9e6d0f1d4ae23db8d782b5ae3f2bb4f72d5d64e45a2167fcfd7311c0dfb2405b",
+    "crates/zebra-mermaid/src/diagrams/flowchart/tokens.rs": "c878d5a1c48d629b15ffb27b9c85c4c63895b16db45a8bd3c07a5d92a763cf52",
+    "crates/zebra-mermaid/src/diagrams/gantt/axis.rs": "4d57e7e8a9de741cc07ffad392fb7a66afacc17125cf416faadd746e1bb8954c",
+    "crates/zebra-mermaid/src/diagrams/gantt/date_parse.rs": "25103c701da8cda57b616d89af11e656a5c4d426ab88e6df59f0d0336c5b8cc6",
+    "crates/zebra-mermaid/src/diagrams/gantt/dates.rs": "a591543b699b7b6fefca2acb5af2fe339b5ebc78be92ca579992d949f366c65f",
+    "crates/zebra-mermaid/src/diagrams/gantt/db.rs": "7bda52f68f1a3a79bed40146b0463787c57aa83ba9c48dfd5b1bd979a418ef27",
+    "crates/zebra-mermaid/src/diagrams/gantt/js_date.rs": "6353c70c035693797d6441177877e0967daf8c408072b8bc265262699c38dea5",
+    "crates/zebra-mermaid/src/diagrams/gantt/lexer.rs": "0facb5959cf6b2db7cb50e227e4b12c3033ae59caec4e1c6b027bee721edbe1e",
+    "crates/zebra-mermaid/src/diagrams/gantt/mod.rs": "dd76176298b1e805f643a23587cba3bc90464f5fdda0cf0b83cfd338b7a31bce",
+    "crates/zebra-mermaid/src/diagrams/gantt/parser.rs": "8ca305d9d4f18aa1eb23ab61b2efd0f37d06769f1f019811782b8922f3bf244a",
+    "crates/zebra-mermaid/src/diagrams/gantt/render.rs": "e0964d4fbd0a4f8b707c91dbec0b381ea8ecbac311e3f933bcdba1808ade3849",
+    "crates/zebra-mermaid/src/diagrams/git_graph/mod.rs": "cfce86600b17bcd55a8cffd56ca115e15ccc096b9b9de47bbc5aa3a41fb9ed2f",
+    "crates/zebra-mermaid/src/diagrams/git_graph/parser.rs": "51049e29349c1182fc1f9cda3fbecb939d1bc473bee480a0d516377f0e6e6bb7",
+    "crates/zebra-mermaid/src/diagrams/git_graph/render.rs": "6451f1462432a2e6aea77f50ad0c08e3686f943b9f34dc871ba529ab4845ff85",
+    "crates/zebra-mermaid/src/diagrams/info/mod.rs": "e0945adcd53f05d0c789077168e62b2e23e9c74e4d9586ae4c75613cec07cead",
+    "crates/zebra-mermaid/src/diagrams/ishikawa/lexer.rs": "d67fba541e40800c35c2d6c6b6f04cb5c8fe10494d4430fa3c40decbabc9aad2",
+    "crates/zebra-mermaid/src/diagrams/ishikawa/mod.rs": "cf280f3b2f9d42f10fa39768d95f410b6d5bd651049e5b9e1aed10eb17532fd1",
+    "crates/zebra-mermaid/src/diagrams/ishikawa/render.rs": "d821adf43e9c9090d32d1515b321ddd7fff5b47a5ee62b005fe1be74afc37ced",
+    "crates/zebra-mermaid/src/diagrams/journey/lexer.rs": "dae23fa92632576268ba90912eaf69aef4b86a8aeae51112b885cd5456ed7656",
+    "crates/zebra-mermaid/src/diagrams/journey/mod.rs": "37c06ecf7f098bdd00b3f713adc86cb09f9a54913f7c43557d788bd04822d9a9",
+    "crates/zebra-mermaid/src/diagrams/journey/parser.rs": "7bb2db68517cec1d5f767bb309d8229a8e701c3a42cf838cd7ee8958a6beb371",
+    "crates/zebra-mermaid/src/diagrams/journey/render.rs": "ed8c8faef7515e57d1f8ef8f59376fb0807e4ebff68bec17d8072585a3cd2eea",
+    "crates/zebra-mermaid/src/diagrams/kanban/mod.rs": "3475ea039d38b4843e90451c1c3ce77cce16e424f9d97bff7e3752202910c0da",
+    "crates/zebra-mermaid/src/diagrams/kanban/render.rs": "f18b8169cd61c25afaf13e1aaea77caf5bafc411682daed3de63bd80a8e3529a",
+    "crates/zebra-mermaid/src/diagrams/mindmap/mod.rs": "ce0818f938faa80b49572429deb22ae326cbe9306a09d2fdcb5e4cfea6fdb252",
+    "crates/zebra-mermaid/src/diagrams/mindmap/render.rs": "72139fc6ea522874c334282f4d499d8408189a4c272463ec301f284ff86f4e3f",
+    "crates/zebra-mermaid/src/diagrams/mod.rs": "96c097eeec0cd53d7410cb2b7534ae3f9bcfb0276d7dd70068a6e7959a0cbeef",
+    "crates/zebra-mermaid/src/diagrams/packet/mod.rs": "27725587db3f0c68e9f77e82336aace8e5d7b6f72db6940672195773aff12a86",
+    "crates/zebra-mermaid/src/diagrams/packet/parser.rs": "8aaa52070f3475fc5b716b34931704bd35493b2483663cc36eb9eef79d3dcba1",
+    "crates/zebra-mermaid/src/diagrams/packet/render.rs": "9dcb11bfa39800cb7289a740acb06390a29d212e9a598307db01cc17b2c65033",
+    "crates/zebra-mermaid/src/diagrams/pie/mod.rs": "b631360361b9ed814ea5a2e708c3c5f22df973789eb4112e3611c72272be0b08",
+    "crates/zebra-mermaid/src/diagrams/pie/parser.rs": "b6b7ba5f04884ad39c153d9e54693fe8c49fadf23a0364e228030cb96888ca12",
+    "crates/zebra-mermaid/src/diagrams/pie/render.rs": "ce611f98e390fd1ab871c11a6978616ff271018815381e7793628f736509240a",
+    "crates/zebra-mermaid/src/diagrams/quadrant/db.rs": "554286d186ed9007836165d7fae81b4de49241fe740fa42df951e6373e0fd857",
+    "crates/zebra-mermaid/src/diagrams/quadrant/lexer.rs": "a24bdbedfae2a8a3f045d72fcee5c821c3c39fc0c6a7485ba19efccc6ac5a894",
+    "crates/zebra-mermaid/src/diagrams/quadrant/mod.rs": "0fad0e11e0f453a9157ad36676a180885547865625ac1be9c6ad0091ea51c3d4",
+    "crates/zebra-mermaid/src/diagrams/quadrant/parser.rs": "f24a331bf5667aed7fc54bcb260943dd62c3edbe6d10c3021d5bda47b447a934",
+    "crates/zebra-mermaid/src/diagrams/quadrant/render.rs": "2e2b567f2bab741c4f854a1966b141cf95f99fe9f080cff1304fde819d9ba5d5",
+    "crates/zebra-mermaid/src/diagrams/quadrant/tokens.rs": "17524f6132a02bd7b40a25545af2393cc48796ab42273e4bbb7cf231f9612a76",
+    "crates/zebra-mermaid/src/diagrams/radar/mod.rs": "76533500bd9be4af23514e600c8656c86b147daf4f64be3479a3d148cb35e294",
+    "crates/zebra-mermaid/src/diagrams/radar/parser.rs": "c4647cd0e6b24aab21931108efa3214cde24353dba3da2afe717bc2834c74e27",
+    "crates/zebra-mermaid/src/diagrams/radar/render.rs": "3bb94e89dacf47febfe2379a5c1bac4f5338a67158edf87a4df7c342be78bca8",
+    "crates/zebra-mermaid/src/diagrams/railroad/abnf.rs": "c323b4aa7b6ba0f04797e0303af074acdb81463d9e9181ec62ea8369d24aa343",
+    "crates/zebra-mermaid/src/diagrams/railroad/common.rs": "b8ff6e5da08bb96aec76dce90686dfd8936cb1ad91aadd79be1c04d0742d163b",
+    "crates/zebra-mermaid/src/diagrams/railroad/ebnf.rs": "cb750cb7a2f217bb731a1778323ef4b0649933e5ea73b2dbb1d6badee0819fb0",
+    "crates/zebra-mermaid/src/diagrams/railroad/ir.rs": "b905c2f4e521c1d8699cbf5d24625268f5b0fa4a8b678ce0b39cc35b2cd7cd20",
+    "crates/zebra-mermaid/src/diagrams/railroad/mod.rs": "9ad7cbd4f4f98bb33fe86739b4a198734e9b6afd6a37685f5b0d8c9751f95751",
+    "crates/zebra-mermaid/src/diagrams/railroad/peg.rs": "12541f0bca73d05eacafb08e189f41443f40091903d44ab6d3d48e1a278f2d7d",
+    "crates/zebra-mermaid/src/diagrams/railroad/render.rs": "9e19e9ea8f1a8aadb0dace5d8b6474e1f774cbb63ae2203ec35afe3a3d443c22",
+    "crates/zebra-mermaid/src/diagrams/requirement/lexer.rs": "f4a2d5629bdb9ddfc3a45f62e4fe58d989a4b5490868c4c94d282700ca0ef746",
+    "crates/zebra-mermaid/src/diagrams/requirement/mod.rs": "e83564b02ab372c72569691535970a428e1986c6180be9cea454e223f006d4c8",
+    "crates/zebra-mermaid/src/diagrams/requirement/parser.rs": "c9d6cafc63318f7ef33914c7be7eb5ef72b1a45f6c89aab46a0efd63f6719e56",
+    "crates/zebra-mermaid/src/diagrams/requirement/render.rs": "1127c83ea448fddc4d659453e529c60b381486d73292d7e233be730c9d6e5810",
+    "crates/zebra-mermaid/src/diagrams/requirement/tokens.rs": "0d78393679a419e32ed84c914e0fece46e849254d34a54e7bcbc755675c53403",
+    "crates/zebra-mermaid/src/diagrams/sankey/layout.rs": "0b7877a037f61d9a1a42a5d6c5649d6ab4055d69d1d5845d5601f9bd09229fa8",
+    "crates/zebra-mermaid/src/diagrams/sankey/mod.rs": "205facd9e627cea1eecbadb5b8f18601bbc9fa068f078625bcdd2be15dc46b39",
+    "crates/zebra-mermaid/src/diagrams/sankey/parser.rs": "f256970a6e384be52edb28191b9538c3ff97ae8103069feebba2bad21db461e9",
+    "crates/zebra-mermaid/src/diagrams/sankey/render.rs": "8f1f033ed0fd346fc264ae6d6bcb7210809e0eddf341faca41bfb25e566afbe1",
+    "crates/zebra-mermaid/src/diagrams/sequence/actors.rs": "c955b4e07effb5613c4d202e171bd917623b55fcb75de44879b058ccf99c5841",
+    "crates/zebra-mermaid/src/diagrams/sequence/colors.rs": "3cd0a9f2acbe9dc029650790e56b8b17c3cd76bfe48a28c5d09cdef064cf06dc",
+    "crates/zebra-mermaid/src/diagrams/sequence/db.rs": "5de9b0e68dcf7f139f5cffeea9e8e59b0153acc7865d01dd2370042383975ea9",
+    "crates/zebra-mermaid/src/diagrams/sequence/lexer.rs": "15767b178f3b4f3b1b0199116c573c1e0ff9586419d7832c1a27d54a168aeaa0",
+    "crates/zebra-mermaid/src/diagrams/sequence/mod.rs": "2af7177dccd01df35085d0f35a3d9a247353c88da7537f30d0dfdb33d1c004ff",
+    "crates/zebra-mermaid/src/diagrams/sequence/parser.rs": "2a3520066da3a5bd3f27669dbc84ed3c64631f89d6d305bfaecff03c4694777f",
+    "crates/zebra-mermaid/src/diagrams/sequence/render.rs": "9b79b57893a78708df4cc72d4ccba5a75aa387269be20ea60668fb8257ad0f44",
+    "crates/zebra-mermaid/src/diagrams/sequence/tokens.rs": "6900547efcb0bb17833703a4b6b6a5d4cf7efc91d82255d5de5e4b49eb601e51",
+    "crates/zebra-mermaid/src/diagrams/state/graph.rs": "18a78972f9afe5c1d59dff5e390304871fb0dd4f09b86964759dd4ceeab5ab13",
+    "crates/zebra-mermaid/src/diagrams/state/lexer.rs": "33a10b12fcfb514f893b57c1d279273657330da449b951e5e21588e002fa72d4",
+    "crates/zebra-mermaid/src/diagrams/state/mod.rs": "161e6f0993b7533f6da2b887db4467dd267d98cd42d9b5e5e2598f13853d252b",
+    "crates/zebra-mermaid/src/diagrams/state/parser.rs": "a16a6decff181390005879a63b937188372cc25ec4df96ca263b3eb0c070210e",
+    "crates/zebra-mermaid/src/diagrams/state/render.rs": "8ba7dc1611fc2797a684adebe4306cf21af6cb51fdaf030a94cb03795ae95593",
+    "crates/zebra-mermaid/src/diagrams/state/tokens.rs": "0eebf92ecb2849a44d79538eb4add9e2ebb1a6580be69f4445dc5649d098decc",
+    "crates/zebra-mermaid/src/diagrams/swimlane/mod.rs": "2da4d1d8129c929bad0cc30297bc2906c3747463742abd750b61d86cff4b00de",
+    "crates/zebra-mermaid/src/diagrams/timeline/lexer.rs": "f61c1c9f6071bc04733a857c77e57a26c30b1ad6f046e276fa16edc37f954e7c",
+    "crates/zebra-mermaid/src/diagrams/timeline/mod.rs": "3d1bdee1636f4ddc1dc70c21ed8e8a9b206d29847873c723147b19514c143890",
+    "crates/zebra-mermaid/src/diagrams/timeline/render.rs": "9814cd1914c5ec3facc2baf604ae7a544397ebf0f4c942587b5ff89df6a3757b",
+    "crates/zebra-mermaid/src/diagrams/treemap/format.rs": "123b6bbb04b525d2bf96be24da669c93239c1f703fe76fd66b79de1275615525",
+    "crates/zebra-mermaid/src/diagrams/treemap/layout.rs": "afb0d68d70138a659e01da8f56527edd4a55e2f38cc40886ea1bd135b68d23cc",
+    "crates/zebra-mermaid/src/diagrams/treemap/mod.rs": "d909fb0f9bfb8da16b60dc2d9f8788213690337438101d765c2adffa9c2e7034",
+    "crates/zebra-mermaid/src/diagrams/treemap/parser.rs": "8a1b17e7d025c79ca6a4464ed5be71c9827e259c87da013dda59f2f20a444c46",
+    "crates/zebra-mermaid/src/diagrams/treemap/render.rs": "bb3a26d019f644432b61a1cc96fe9bd1631c02dd7c9a66f19b3212dba2c3b852",
+    "crates/zebra-mermaid/src/diagrams/treeview/box_drawing.rs": "91d33e23662326b84ef58aa1f2844cef9803cdfa36d144bdc73293c2566cc98a",
+    "crates/zebra-mermaid/src/diagrams/treeview/icons.rs": "d3e6d6e23de2a265463dfcabb08d0f187367d8591d4541df8fdc960b0db7427f",
+    "crates/zebra-mermaid/src/diagrams/treeview/mod.rs": "aa81ced6dae7301948e04312536b10c68db04c24630892b0142982803478f855",
+    "crates/zebra-mermaid/src/diagrams/treeview/parser.rs": "b1d4ab684c2ed043a1e0d528e02c1bead1e2967750f3084334b7d6bf2932dbee",
+    "crates/zebra-mermaid/src/diagrams/treeview/render.rs": "eec68e940a9a26f57982da0d57c1048729d76d8d89b07eb038ec82ca9455cc42",
+    "crates/zebra-mermaid/src/diagrams/usecase/db.rs": "0a0fa177d145830c615eb66355e483764fed005d630bf301755d56833981a266",
+    "crates/zebra-mermaid/src/diagrams/usecase/graph.rs": "d51a5116d2c084f1d418337f3a9d930a080038e7b4a99da0a29554e681f0c657",
+    "crates/zebra-mermaid/src/diagrams/usecase/json.rs": "e1fd801de3f0136f421cb698ee6bba3eb55af9ad0c99b3ab6f72dccbacd67114",
+    "crates/zebra-mermaid/src/diagrams/usecase/lexer.rs": "47553bc28bae41d9c08ba232d652434a2a138847f73d779f3be70fa2c91fcc3b",
+    "crates/zebra-mermaid/src/diagrams/usecase/mod.rs": "67018168fd6577d999c029795bbf187120ce9c64f5c036eaafa31bb5ab9cb80d",
+    "crates/zebra-mermaid/src/diagrams/usecase/parser.rs": "a4af591d51f4ab7ae0f2c7b23f8681fb6e7c0a6e03d1a019b09bf79a4f0cb47d",
+    "crates/zebra-mermaid/src/diagrams/usecase/render.rs": "3c49de9e98696d0cecf35db4ce61441a65a5d82d7fca2c694a7ab772d1a7ee35",
+    "crates/zebra-mermaid/src/diagrams/usecase/tokens.rs": "0cb588a5065becc4673d036a572b9e3499ccfe42951ec96c7f10247028e02900",
+    "crates/zebra-mermaid/src/diagrams/usecase/types.rs": "2115b7b0e8a98ac26b78d69ed4f52a1f0fd3fff4c3801a1c7fcdfec3ee9495df",
+    "crates/zebra-mermaid/src/diagrams/venn/db.rs": "f9100f5729866b7d81473bf61ad8100a037492168b8fdced74c81e6fca53c2b2",
+    "crates/zebra-mermaid/src/diagrams/venn/layout.rs": "0eb0f63469af709aada89be119c681276536c65cd4a93294e2ff2661cbf54322",
+    "crates/zebra-mermaid/src/diagrams/venn/lexer.rs": "072c973781619b1218458d4110545a6645da983eccc1016815044b8f2ef086f9",
+    "crates/zebra-mermaid/src/diagrams/venn/mod.rs": "8ca2032210f19660e95346c86ccc3ec4892f5065eedc5eeb84fc4c96614ea225",
+    "crates/zebra-mermaid/src/diagrams/venn/parser.rs": "f34a74a98d94cfd838bb89bfc1e93ef00ba2625f4d5e1264d61d80e72ded5ca7",
+    "crates/zebra-mermaid/src/diagrams/venn/render.rs": "b57f378dd396bea572c29e187996ca5afbe52b9f90de4a528b13a11e764e92c3",
+    "crates/zebra-mermaid/src/diagrams/wardley/mod.rs": "8ddc16f58bafa325b5b34a8b499960b9a4dc0e349c4bf55e71f27b3d4b38246d",
+    "crates/zebra-mermaid/src/diagrams/wardley/parser.rs": "0c8337ebbdfee99d60c5efb3e74b3bcd5222240dcd5f37e7d69b03e9a76170d1",
+    "crates/zebra-mermaid/src/diagrams/wardley/render.rs": "086a8bc2c0caaac697688e3d7cebe6673649315ca7e91e79fbfa31f0b4d119b3",
+    "crates/zebra-mermaid/src/diagrams/xychart/db.rs": "aba13862dd8f95e9556a6b9857c239e442098f60cce6016f5129f0c8af8b7ce1",
+    "crates/zebra-mermaid/src/diagrams/xychart/lexer.rs": "2ea0ef519fd6c6c6d1d55ca6e39349dfac8ed1a0c6d875b0f416adbb42d2512a",
+    "crates/zebra-mermaid/src/diagrams/xychart/mod.rs": "9d2f1beea56546154e3e405b7fa8a5ee9b215127a0c185a08089f7681a90f0bc",
+    "crates/zebra-mermaid/src/diagrams/xychart/parser.rs": "c056b987f561bfe4c2781c6bf371b53fe5ad5823164fcefc4de51219ce22ce34",
+    "crates/zebra-mermaid/src/diagrams/xychart/render.rs": "41ea8544727601577ffc4c8ddedad3b25f0039479db48ed26889977568f5323c",
+    "crates/zebra-mermaid/src/diagrams/xychart/ticks.rs": "80eb33847a917e0db08681a3f27514e579990e02e94507c8f6e790255fa4989e",
+    "crates/zebra-mermaid/src/diagrams/xychart/tokens.rs": "107d32ce222e74e2b7513f2b1a01a3a56125ec6fb4d974d26ff1da66b2d03cc0",
+    "crates/zebra-mermaid/src/engine.rs": "c937b008c88c97a49f3e13cf4d091dad798b3c5784344533c9e97dc0a553361a",
+    "crates/zebra-mermaid/src/error.rs": "8799e26c0a08c2c8e7e6b4cc6a5c2d86e47c08f9a5792cdeaeffc6ef2b377e27",
+    "crates/zebra-mermaid/src/layout/compound.rs": "d20c105c0cc46084df08558613dd3a862bb55c5d2cffbe9c14776cf7ed9a1da9",
+    "crates/zebra-mermaid/src/layout/lanes.rs": "551c6c572c27bc4f5eef9afeae0aa7a89014b5ee998efe4a0a3066daacc85cf2",
+    "crates/zebra-mermaid/src/layout/layered.rs": "323f48ff6b52e9206d2f2a73a960194a53c2ada1ca2cf73019c76835353dabfe",
+    "crates/zebra-mermaid/src/layout/mod.rs": "2a9d988e827f5e6921d1b9b0fadaa8ff9dd254a38b6efd270a17bba3c6107a7a",
+    "crates/zebra-mermaid/src/lib.rs": "87d20971dd75f73dec76d3bcf9bd34d69f1457d0ee8110420d9a8631a3510292",
+    "crates/zebra-mermaid/src/options.rs": "99d7cf9486d2f58eff49f8bc9f99b277278029f4a52c50b96fc6a19607388764",
+    "crates/zebra-mermaid/src/preprocess/mod.rs": "790688645fbfc8d7c4720f4a37fb4cd9f29847b23fe86a52738b50fd8f2b2f11",
+    "crates/zebra-mermaid/src/preprocess/source_map.rs": "a9c07bbf19838082b930fd035638fba6693dd66c28e02bbcebdfad0df795a3ec",
+    "crates/zebra-mermaid/src/svg/adapter_reference.rs": "7917570c503688cbcbc2028b0f6df0464309ccfab4328f41c006355436c1ec27",
+    "crates/zebra-mermaid/src/svg/builder.rs": "d868f7a0e361d30aa500bc85193aa217939c59ffe72b0a85192ed0a0fbd0ed96",
+    "crates/zebra-mermaid/src/svg/cluster.rs": "555bd0d88c5d4fd17fc71c8998fe526843d5fd92847ab31b55be0776fe4b5294",
+    "crates/zebra-mermaid/src/svg/concat.rs": "242ddeb41099eae81aa5d8332ece92eea300963afdee8805b8633b64dd359065",
+    "crates/zebra-mermaid/src/svg/edges.rs": "82a1b201bd445ced684fcca6d3b44bd5ac8dcae4c7d276c03b1f8a50112e7340",
+    "crates/zebra-mermaid/src/svg/mod.rs": "8a8544a5afe619ca4224a947d4e4759fd59ad915f8bc0e029d49bbaf0159ab33",
+    "crates/zebra-mermaid/src/svg/resolve.rs": "33af6092b9ac7956e8c249762d021ec7268a93854378eae96002338d5245cf9a",
+    "crates/zebra-mermaid/src/svg/root.rs": "d8057835c6e7326c372766d86251c6e5880ec689a78085eb34ffb6e833426ac4",
+    "crates/zebra-mermaid/src/svg/shapes.rs": "7c0a3aaddf8bfcdc21f25632bfa6ab497034cdb5828fd79c83e5293fcf72deaa",
+    "crates/zebra-mermaid/src/svg/theme.rs": "4418f6000508b2a1836308dbbbc8ef68ffd39f7d146cda2b06451e28026af675",
+    "crates/zebra-mermaid/src/svg/title.rs": "dc3568e2018c3635cd76faf498da971b9d11782f88b1e9d8b14b0a7f091186b1",
+    "crates/zebra-mermaid/src/text/entities.rs": "fe9637a077128d56284d991ded93d72be5a291bbbd8a8bf2c915716604aa0d67",
+    "crates/zebra-mermaid/src/text/icons.rs": "c9c3ee25e1e765f9c29ad932f2d85b6d101a7e05a03b9a351be90f331d93a8de",
+    "crates/zebra-mermaid/src/text/label.rs": "244d1638c6fd18f1c0407a82c526c00053603460d86fb3ec31ed5ccf7aaa1a0e",
+    "crates/zebra-mermaid/src/text/label_scanning_reference.rs": "f124975ca362033f7be9d72888c90c2107c16d4a10073b884403fc7cce058fc9",
+    "crates/zebra-mermaid/src/text/measurer.rs": "e95c2dd0e4bd4aab5190005579618e7e1b7bb05cddd65fa6b46b0f20230a84c0",
+    "crates/zebra-mermaid/src/text/metrics.rs": "d62c3d34f02de4382fa21cb86ca24f5373c1033fbd1b369dacf255a0a4bfa16c",
+    "crates/zebra-mermaid/src/text/mod.rs": "f0a6233299c91f380da1c968b385b6e7f77c7b24fc6586115a2f9940f8bc56f2",
+    "crates/zebra-mermaid/src/text/render_label.rs": "f57a867cca4a833a10ba99d085ab71e971106162144c83ee5400dca66365176c",
+    "crates/zebra-mermaid/src/theme/color.rs": "c269a00daa0760a7d1fe57843dcc3a1adfa084c04863819be3057180abe31226",
+    "crates/zebra-mermaid/src/theme/mod.rs": "bd77680ab84025cb7793c54064a087adacab4a9bbccda54679dab1d58e6d1c7d",
+    "crates/zebra-mermaid/src/theme/palette.rs": "763622fcf40c796fcb89a798f16e6692ff1f821cf8b1c96d9ec6d24656166e89",
+    "crates/zebra-mermaid/src/theme/resolved.rs": "4e64cb9d632941c674ccedb65544963da5e70bae76078c8d28f4035011972a18",
+    "crates/zebra-mermaid/src/util/chars.rs": "a6279e6d2745e899d8ae30b28b3c4d36997bac8113401aabe82042872777c9f4",
+    "crates/zebra-mermaid/src/util/fdlibm.rs": "acc45be57e3075bbc7cef9a412fd2af337e58f528600e8d55a8832d6a27008dd",
+    "crates/zebra-mermaid/src/util/hash.rs": "ee5f96123967e4da0ca997bae777378e1921dc78197071153ab2083fd438cdfb",
+    "crates/zebra-mermaid/src/util/js.rs": "d6044c14623f0c73e39f59042a9d282b2bdedd07a642e060476c83868014ded7",
+    "crates/zebra-mermaid/src/util/math.rs": "e0b0085ffc012671e95ad032de146377b77723873c995761e1a84a5430eb6360",
+    "crates/zebra-mermaid/src/util/mod.rs": "a7ae99dcd6a298f1f54b25f6dff155f0560c75a328406afafbafa63c38463127",
+    "crates/zebra-mermaid/src/util/strs.rs": "517c07fc557898f9030f56409105bbec83ac7330cbeed442dbacd3ba45614464",
+    "crates/zebra-mermaid/src/util/unicode.rs": "7ecdc883b11f8a619b7e9783b05882b4a434e35244ff6856e4646a1aab5d13ef",
+    "crates/zebra-mermaid/src/util/unicode_props.rs": "c2cae6e438da9f8c8e765bae4b418bd50b0add63f51808a9fcdf7e6675587ae2",
+    "crates/zebra-mermaid/src/util/url.rs": "6848451d872232d83950741e58eb06cc7a6c6f1c40db9b5885a00c442f43218d",
+    "crates/zebra-mermaid/src/zebra.rs": "096b40ce0641b2cd60dce91d5b0bc434af11386d09b8a38bd764a3be11c867bf",
+    "Cargo.toml": "25de19cede28f84e0269fb6f81f776027144e4df3859503bd72365b4436e02ce",
+    "Cargo.lock": "196e3e8bcd9332a2b6523ccf4dc5b51bc0384e6dfc5fab06d1f2b6be3b5c6748",
+    "crates/zebra-mermaid/Cargo.toml": "a48897585ad7af2b3e595bb1413fdc65ebae18b7886c1feeaee954dc0c6d8fa5",
+    "tools/cross-bench/src/main.rs": "b1b100cae7b4c9f7730439169a4ec1a949618619f8b8b41a0e742f66f4ca3f49",
+    "tools/cross-bench/Cargo.lock": "4cc52d864715769c9d25c82913a7e222d20e2b18d6ed61b08b99041f433aee2a",
+    "tools/bench/cross-pele.mjs": "818fe472c3c0d762882b8a3b4d337db6a2736de261dc5232261519c9b7dcdebf",
+    "tools/bench/compare-output.py": "2fd43e1a23785b622dcb81da7f46fc2d6355c6d724b318e9cbfe930d69352905"
+  },
+  "binarySha256": "dd33cc69d5e949659ea19d01af407d368f0dc8b3bba877b9c05930aae800c05e",
+  "beforeBinarySha256": "6b761d39fa9b68dd54a559657beab8bcb2cdcd22ad496bc228206aa30e644c5c",
+  "inputSha256": "debbf08ee9d1701902ecd27897851d24597ee3a616a154969bfd28f655d2f546",
+  "verified": 167,
+  "method": {
+    "processRuns": 3,
+    "orders": [
+      [
+        "before",
+        "rust",
+        "api",
+        "utf8"
+      ],
+      [
+        "utf8",
+        "api",
+        "rust",
+        "before"
+      ],
+      [
+        "rust",
+        "before",
+        "utf8",
+        "api"
+      ]
+    ],
+    "warmups": 5,
+    "calibrationMs": 10,
+    "minimumSamples": 9,
+    "minimumSamplingMs": 300,
+    "unit": "ms per batch of identical sample inputs",
+    "api": "render(source) followed by svg.length in Node; Rust returns an owned UTF-8 String.",
+    "utf8": "Node render(source) followed by Buffer.from(svg, utf8); includes materialization, encoding and Buffer allocation. Rust String already owns contiguous UTF-8 bytes, so its measured time is shared by both comparisons.",
+    "excluded": "process launch, imports, verification, disk I/O and warm-up; no parsing or result cache"
+  },
+  "summary": {
+    "apiSpeedupGeomean": 1.862651542181166,
+    "utf8SpeedupGeomean": 1.97545938012202,
+    "afterOverBeforeGeomean": 0.9964975045435625
+  },
+  "rows": [
+    {
+      "type": "flowchart",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.186610671875,
+          "runsMs": [
+            0.188264328125,
+            0.186610671875,
+            0.18657356249999998
+          ]
+        },
+        "rust": {
+          "ms": 0.186229828125,
+          "runsMs": [
+            0.182813796875,
+            0.187217453125,
+            0.186229828125
+          ]
+        },
+        "api": {
+          "ms": 0.3120221249999995,
+          "runsMs": [
+            0.3076354062500002,
+            0.35427343749999984,
+            0.3120221249999995
+          ]
+        },
+        "utf8": {
+          "ms": 0.3186744687499994,
+          "runsMs": [
+            0.3186744687499994,
+            0.3104986875,
+            0.3207265624999991
+          ]
+        }
+      },
+      "apiSpeedup": 1.6754680393656702,
+      "utf8Speedup": 1.7111891900372733,
+      "afterOverBefore": 0.9979591534279717
+    },
+    {
+      "type": "block",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.06907080078125,
+          "runsMs": [
+            0.06883837890625,
+            0.06907080078125,
+            0.0692571640625
+          ]
+        },
+        "rust": {
+          "ms": 0.06857991796875,
+          "runsMs": [
+            0.06857991796875,
+            0.06893424609375,
+            0.06815413671875
+          ]
+        },
+        "api": {
+          "ms": 0.09452473437499975,
+          "runsMs": [
+            0.09347689062500031,
+            0.09452473437499975,
+            0.09691210937499939
+          ]
+        },
+        "utf8": {
+          "ms": 0.10102636718750002,
+          "runsMs": [
+            0.10102636718750002,
+            0.09731868749999961,
+            0.10273860156249981
+          ]
+        }
+      },
+      "apiSpeedup": 1.3783150691150154,
+      "utf8Speedup": 1.4731188105756408,
+      "afterOverBefore": 0.9928930487710047
+    },
+    {
+      "type": "c4",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.292287109375,
+          "runsMs": [
+            0.29133725,
+            0.29413803125,
+            0.292287109375
+          ]
+        },
+        "rust": {
+          "ms": 0.29438540625,
+          "runsMs": [
+            0.2941640625,
+            0.294789703125,
+            0.29438540625
+          ]
+        },
+        "api": {
+          "ms": 0.46182684374999994,
+          "runsMs": [
+            0.4608229374999979,
+            0.46182684374999994,
+            0.46739062500000017
+          ]
+        },
+        "utf8": {
+          "ms": 0.4716835937500008,
+          "runsMs": [
+            0.4716835937500008,
+            0.4619322812500002,
+            0.4746953124999962
+          ]
+        }
+      },
+      "apiSpeedup": 1.5687830780504255,
+      "utf8Speedup": 1.6022655462391857,
+      "afterOverBefore": 1.0071788895496854
+    },
+    {
+      "type": "class",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.1500595703125,
+          "runsMs": [
+            0.1498193359375,
+            0.15388607031249998,
+            0.1500595703125
+          ]
+        },
+        "rust": {
+          "ms": 0.151314453125,
+          "runsMs": [
+            0.15004296875,
+            0.151314453125,
+            0.158085296875
+          ]
+        },
+        "api": {
+          "ms": 0.23471484375000173,
+          "runsMs": [
+            0.23215234375000193,
+            0.24756771874999828,
+            0.23471484375000173
+          ]
+        },
+        "utf8": {
+          "ms": 0.24062890625000222,
+          "runsMs": [
+            0.23667382812499937,
+            0.24062890625000222,
+            0.24251693749999959
+          ]
+        }
+      },
+      "apiSpeedup": 1.551172666606442,
+      "utf8Speedup": 1.590257250913236,
+      "afterOverBefore": 1.0083625643461906
+    },
+    {
+      "type": "er",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.139444015625,
+          "runsMs": [
+            0.139444015625,
+            0.14026009374999998,
+            0.139282875
+          ]
+        },
+        "rust": {
+          "ms": 0.13873144531249998,
+          "runsMs": [
+            0.13873144531249998,
+            0.1413160859375,
+            0.13811197656250002
+          ]
+        },
+        "api": {
+          "ms": 0.20777995312499797,
+          "runsMs": [
+            0.20776040624999936,
+            0.20777995312499797,
+            0.21076171874999972
+          ]
+        },
+        "utf8": {
+          "ms": 0.21389714062500076,
+          "runsMs": [
+            0.21389714062500076,
+            0.22614190624999964,
+            0.21356315625000022
+          ]
+        }
+      },
+      "apiSpeedup": 1.4977134611188008,
+      "utf8Speedup": 1.5418071955005301,
+      "afterOverBefore": 0.9948899182994249
+    },
+    {
+      "type": "eventmodeling",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.07066764453125,
+          "runsMs": [
+            0.06968961328125,
+            0.07090901953124999,
+            0.07066764453125
+          ]
+        },
+        "rust": {
+          "ms": 0.06948876953125,
+          "runsMs": [
+            0.06948876953125,
+            0.06971858593750001,
+            0.06880191796875
+          ]
+        },
+        "api": {
+          "ms": 0.16321549999999974,
+          "runsMs": [
+            0.16589712500000076,
+            0.16321549999999974,
+            0.16226953125000065
+          ]
+        },
+        "utf8": {
+          "ms": 0.20179687499999943,
+          "runsMs": [
+            0.20179687499999943,
+            0.20120571875000337,
+            0.20297917187500047
+          ]
+        }
+      },
+      "apiSpeedup": 2.3488040024453105,
+      "utf8Speedup": 2.9040214175795525,
+      "afterOverBefore": 0.9833180374438729
+    },
+    {
+      "type": "gantt",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.13342121875,
+          "runsMs": [
+            0.1328955078125,
+            0.1358662109375,
+            0.13342121875
+          ]
+        },
+        "rust": {
+          "ms": 0.13322721875,
+          "runsMs": [
+            0.13208821875,
+            0.13657454687499998,
+            0.13322721875
+          ]
+        },
+        "api": {
+          "ms": 0.2408886718749983,
+          "runsMs": [
+            0.2408886718749983,
+            0.24271159375000195,
+            0.2367441406249995
+          ]
+        },
+        "utf8": {
+          "ms": 0.24726434375000395,
+          "runsMs": [
+            0.24156250000000057,
+            0.25151301562500095,
+            0.24726434375000395
+          ]
+        }
+      },
+      "apiSpeedup": 1.8081040356102032,
+      "utf8Speedup": 1.855959661020875,
+      "afterOverBefore": 0.9985459584178772
+    },
+    {
+      "type": "git",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.20632160937500002,
+          "runsMs": [
+            0.20632160937500002,
+            0.20619465625,
+            0.20647134374999998
+          ]
+        },
+        "rust": {
+          "ms": 0.205830078125,
+          "runsMs": [
+            0.20506771875,
+            0.205830078125,
+            0.20629753125
+          ]
+        },
+        "api": {
+          "ms": 0.40837371874999917,
+          "runsMs": [
+            0.40837371874999917,
+            0.4035950312499921,
+            0.4141275937499955
+          ]
+        },
+        "utf8": {
+          "ms": 0.4270012812499999,
+          "runsMs": [
+            0.4270012812499999,
+            0.4310859375000007,
+            0.41701043749999656
+          ]
+        }
+      },
+      "apiSpeedup": 1.9840332495136839,
+      "utf8Speedup": 2.0745329600986855,
+      "afterOverBefore": 0.9976176453281409
+    },
+    {
+      "type": "info",
+      "inputs": 2,
+      "timings": {
+        "before": {
+          "ms": 0.0011739781494140625,
+          "runsMs": [
+            0.0011653035278320312,
+            0.0011739781494140625,
+            0.0011792678833007814
+          ]
+        },
+        "rust": {
+          "ms": 0.0011384353637695311,
+          "runsMs": [
+            0.0011390686035156249,
+            0.0010979182128906249,
+            0.0011384353637695311
+          ]
+        },
+        "api": {
+          "ms": 0.002342102050781336,
+          "runsMs": [
+            0.002342102050781336,
+            0.002394612792968709,
+            0.0023024802246093268
+          ]
+        },
+        "utf8": {
+          "ms": 0.0027263083496094076,
+          "runsMs": [
+            0.0027263083496094076,
+            0.0026951091308593522,
+            0.0027400207519531206
+          ]
+        }
+      },
+      "apiSpeedup": 2.057299101308908,
+      "utf8Speedup": 2.3947853662786702,
+      "afterOverBefore": 0.9697244913269715
+    },
+    {
+      "type": "journey",
+      "inputs": 1,
+      "timings": {
+        "before": {
+          "ms": 0.007685343261718751,
+          "runsMs": [
+            0.007619140625,
+            0.007685343261718751,
+            0.0077268876953125
+          ]
+        },
+        "rust": {
+          "ms": 0.0076177978515625,
+          "runsMs": [
+            0.0076177978515625,
+            0.0077076210937499995,
+            0.0075939741210937495
+          ]
+        },
+        "api": {
+          "ms": 0.015544352539062611,
+          "runsMs": [
+            0.015544352539062611,
+            0.016018310546874748,
+            0.015534261718749942
+          ]
+        },
+        "utf8": {
+          "ms": 0.016433023437500083,
+          "runsMs": [
+            0.016511515624999973,
+            0.016433023437500083,
+            0.016285969726562488
+          ]
+        }
+      },
+      "apiSpeedup": 2.040530983094318,
+      "utf8Speedup": 2.1571881740245282,
+      "afterOverBefore": 0.99121113945649
+    },
+    {
+      "type": "kanban",
+      "inputs": 3,
+      "timings": {
+        "before": {
+          "ms": 0.0355396328125,
+          "runsMs": [
+            0.0355396328125,
+            0.035278808593749995,
+            0.035872638671875
+          ]
+        },
+        "rust": {
+          "ms": 0.035722412109375004,
+          "runsMs": [
+            0.035690349609375,
+            0.035722412109375004,
+            0.03572916796875
+          ]
+        },
+        "api": {
+          "ms": 0.05229948046875066,
+          "runsMs": [
+            0.05229948046875066,
+            0.05180533593749814,
+            0.05318522265624992
+          ]
+        },
+        "utf8": {
+          "ms": 0.05421484374999963,
+          "runsMs": [
+            0.055908367187500474,
+            0.05421484374999963,
+            0.05312125390624978
+          ]
+        }
+      },
+      "apiSpeedup": 1.4640523240317571,
+      "utf8Speedup": 1.5176702957237165,
+      "afterOverBefore": 1.0051429708865962
+    },
+    {
+      "type": "mindmap",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.044213867187500006,
+          "runsMs": [
+            0.04436458203125,
+            0.04412272265625,
+            0.044213867187500006
+          ]
+        },
+        "rust": {
+          "ms": 0.043300457031249996,
+          "runsMs": [
+            0.043300457031249996,
+            0.043222007812500005,
+            0.044080078125
+          ]
+        },
+        "api": {
+          "ms": 0.0983834687500007,
+          "runsMs": [
+            0.09941796875000009,
+            0.09440755468749984,
+            0.0983834687500007
+          ]
+        },
+        "utf8": {
+          "ms": 0.10817740624999672,
+          "runsMs": [
+            0.10817740624999672,
+            0.11020605468750233,
+            0.10745117187499886
+          ]
+        }
+      },
+      "apiSpeedup": 2.2721115548271746,
+      "utf8Speedup": 2.4982971004653587,
+      "afterOverBefore": 0.9793410933186083
+    },
+    {
+      "type": "packet",
+      "inputs": 4,
+      "timings": {
+        "before": {
+          "ms": 0.0269224453125,
+          "runsMs": [
+            0.026840982421875,
+            0.027121255859375002,
+            0.0269224453125
+          ]
+        },
+        "rust": {
+          "ms": 0.026592611328124998,
+          "runsMs": [
+            0.026592611328124998,
+            0.02649755859375,
+            0.02690519140625
+          ]
+        },
+        "api": {
+          "ms": 0.060000816406251545,
+          "runsMs": [
+            0.060000816406251545,
+            0.06053482812500022,
+            0.059753742187499626
+          ]
+        },
+        "utf8": {
+          "ms": 0.06256135937499963,
+          "runsMs": [
+            0.06256135937499963,
+            0.06313720703125014,
+            0.06228027343750142
+          ]
+        }
+      },
+      "apiSpeedup": 2.2562965203343235,
+      "utf8Speedup": 2.352584280011388,
+      "afterOverBefore": 0.9877487360250348
+    },
+    {
+      "type": "pie",
+      "inputs": 3,
+      "timings": {
+        "before": {
+          "ms": 0.017782022460937498,
+          "runsMs": [
+            0.017782022460937498,
+            0.01794266796875,
+            0.0177076005859375
+          ]
+        },
+        "rust": {
+          "ms": 0.01775634765625,
+          "runsMs": [
+            0.0179208984375,
+            0.017718750000000002,
+            0.01775634765625
+          ]
+        },
+        "api": {
+          "ms": 0.03347298046874769,
+          "runsMs": [
+            0.03354533007812499,
+            0.03293343164062357,
+            0.03347298046874769
+          ]
+        },
+        "utf8": {
+          "ms": 0.038378417968750966,
+          "runsMs": [
+            0.038049640624997494,
+            0.03913655859374998,
+            0.038378417968750966
+          ]
+        }
+      },
+      "apiSpeedup": 1.8851275677160806,
+      "utf8Speedup": 2.161391447820761,
+      "afterOverBefore": 0.9985561369780126
+    },
+    {
+      "type": "quadrant",
+      "inputs": 3,
+      "timings": {
+        "before": {
+          "ms": 0.0313588046875,
+          "runsMs": [
+            0.03118994140625,
+            0.032182210937500004,
+            0.0313588046875
+          ]
+        },
+        "rust": {
+          "ms": 0.0321181640625,
+          "runsMs": [
+            0.0321181640625,
+            0.031560302734375,
+            0.032252359375000005
+          ]
+        },
+        "api": {
+          "ms": 0.05432193749999925,
+          "runsMs": [
+            0.05432193749999925,
+            0.052763507812500166,
+            0.05437988281250128
+          ]
+        },
+        "utf8": {
+          "ms": 0.0570250664062506,
+          "runsMs": [
+            0.0570250664062506,
+            0.05640885546874941,
+            0.06019808203125265
+          ]
+        }
+      },
+      "apiSpeedup": 1.6913151509623043,
+      "utf8Speedup": 1.775477150415051,
+      "afterOverBefore": 1.0242151887665123
+    },
+    {
+      "type": "requirement",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.1349462890625,
+          "runsMs": [
+            0.1349462890625,
+            0.1355830078125,
+            0.13461132812499998
+          ]
+        },
+        "rust": {
+          "ms": 0.1346217421875,
+          "runsMs": [
+            0.1346217421875,
+            0.1345406953125,
+            0.13486067968749998
+          ]
+        },
+        "api": {
+          "ms": 0.2262317656249877,
+          "runsMs": [
+            0.22432096875000695,
+            0.2262317656249877,
+            0.2295891875000109
+          ]
+        },
+        "utf8": {
+          "ms": 0.23431381250000527,
+          "runsMs": [
+            0.23295182812499604,
+            0.23466470312499155,
+            0.23431381250000527
+          ]
+        }
+      },
+      "apiSpeedup": 1.6804994642685136,
+      "utf8Speedup": 1.740534691444232,
+      "afterOverBefore": 0.9975949922205739
+    },
+    {
+      "type": "sankey",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.10282845312500001,
+          "runsMs": [
+            0.1033564453125,
+            0.10282845312500001,
+            0.1025924453125
+          ]
+        },
+        "rust": {
+          "ms": 0.1030634765625,
+          "runsMs": [
+            0.1030634765625,
+            0.102429359375,
+            0.104888671875
+          ]
+        },
+        "api": {
+          "ms": 0.29130078125001546,
+          "runsMs": [
+            0.29058071874999314,
+            0.29130078125001546,
+            0.29169403125001736
+          ]
+        },
+        "utf8": {
+          "ms": 0.35293487500001675,
+          "runsMs": [
+            0.35102734374999045,
+            0.35293487500001675,
+            0.35498046875
+          ]
+        }
+      },
+      "apiSpeedup": 2.826421065597997,
+      "utf8Speedup": 3.424441778712841,
+      "afterOverBefore": 1.0022855876010728
+    },
+    {
+      "type": "sequence",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.07841031640625,
+          "runsMs": [
+            0.07921044921875,
+            0.07841031640625,
+            0.077653484375
+          ]
+        },
+        "rust": {
+          "ms": 0.07794270703125,
+          "runsMs": [
+            0.0787233046875,
+            0.07794270703125,
+            0.07632454296874999
+          ]
+        },
+        "api": {
+          "ms": 0.1330602187499963,
+          "runsMs": [
+            0.13178222656249972,
+            0.13346842968750394,
+            0.1330602187499963
+          ]
+        },
+        "utf8": {
+          "ms": 0.13751757812499932,
+          "runsMs": [
+            0.13751757812499932,
+            0.13629459375000152,
+            0.14331738281249784
+          ]
+        }
+      },
+      "apiSpeedup": 1.7071541882250474,
+      "utf8Speedup": 1.7643418270020264,
+      "afterOverBefore": 0.9940363794404645
+    },
+    {
+      "type": "state",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.1883828125,
+          "runsMs": [
+            0.18744140625,
+            0.18974023437499998,
+            0.1883828125
+          ]
+        },
+        "rust": {
+          "ms": 0.18785221875000002,
+          "runsMs": [
+            0.18785221875000002,
+            0.1880266875,
+            0.1865514375
+          ]
+        },
+        "api": {
+          "ms": 0.31888799999998696,
+          "runsMs": [
+            0.31988671875001273,
+            0.3184387812499949,
+            0.31888799999998696
+          ]
+        },
+        "utf8": {
+          "ms": 0.32436068750001823,
+          "runsMs": [
+            0.32436068750001823,
+            0.3231406249999793,
+            0.3270364687499807
+          ]
+        }
+      },
+      "apiSpeedup": 1.697547157664258,
+      "utf8Speedup": 1.7266800981024781,
+      "afterOverBefore": 0.9971834280263759
+    },
+    {
+      "type": "timeline",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.084578125,
+          "runsMs": [
+            0.0838232421875,
+            0.0853548125,
+            0.084578125
+          ]
+        },
+        "rust": {
+          "ms": 0.08480696875,
+          "runsMs": [
+            0.08480696875,
+            0.08483170312499999,
+            0.08476139062499999
+          ]
+        },
+        "api": {
+          "ms": 0.19600651562500104,
+          "runsMs": [
+            0.19600651562500104,
+            0.19958918749999555,
+            0.19577082812500635
+          ]
+        },
+        "utf8": {
+          "ms": 0.21472526562500605,
+          "runsMs": [
+            0.21472526562500605,
+            0.21684439062499905,
+            0.21316342187499515
+          ]
+        }
+      },
+      "apiSpeedup": 2.3112076579791805,
+      "utf8Speedup": 2.531929495770429,
+      "afterOverBefore": 1.002705708479586
+    },
+    {
+      "type": "xychart",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.06902116015625,
+          "runsMs": [
+            0.07036295703124999,
+            0.06902116015625,
+            0.0683170546875
+          ]
+        },
+        "rust": {
+          "ms": 0.06911458203125,
+          "runsMs": [
+            0.067978515625,
+            0.06911458203125,
+            0.0703681640625
+          ]
+        },
+        "api": {
+          "ms": 0.11715788281249928,
+          "runsMs": [
+            0.11900814062500586,
+            0.11715788281249928,
+            0.11654329687500109
+          ]
+        },
+        "utf8": {
+          "ms": 0.11836718749999875,
+          "runsMs": [
+            0.12410091406249535,
+            0.1182060546874979,
+            0.11836718749999875
+          ]
+        }
+      },
+      "apiSpeedup": 1.6951253898855472,
+      "utf8Speedup": 1.7126224889340906,
+      "afterOverBefore": 1.0013535251332855
+    },
+    {
+      "type": "agentflow",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.253227875,
+          "runsMs": [
+            0.24693554687499997,
+            0.25444921875,
+            0.253227875
+          ]
+        },
+        "rust": {
+          "ms": 0.24994596875,
+          "runsMs": [
+            0.24994596875,
+            0.25136003125,
+            0.24934243749999999
+          ]
+        },
+        "api": {
+          "ms": 0.3220572812500109,
+          "runsMs": [
+            0.3220572812500109,
+            0.323895843750023,
+            0.31907421875001774
+          ]
+        },
+        "utf8": {
+          "ms": 0.3256145624999931,
+          "runsMs": [
+            0.3256145624999931,
+            0.3223541562499861,
+            0.3304114687500146
+          ]
+        }
+      },
+      "apiSpeedup": 1.2885076037058945,
+      "utf8Speedup": 1.3027398046402503,
+      "afterOverBefore": 0.9870397117615902
+    },
+    {
+      "type": "architecture",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.08381380468750001,
+          "runsMs": [
+            0.0822220078125,
+            0.085371421875,
+            0.08381380468750001
+          ]
+        },
+        "rust": {
+          "ms": 0.082476234375,
+          "runsMs": [
+            0.082476234375,
+            0.08222721093749999,
+            0.0826357421875
+          ]
+        },
+        "api": {
+          "ms": 0.21879296875000875,
+          "runsMs": [
+            0.21879296875000875,
+            0.21739843749999466,
+            0.21902668750000487
+          ]
+        },
+        "utf8": {
+          "ms": 0.22357485937500599,
+          "runsMs": [
+            0.22357485937500599,
+            0.2231568906250061,
+            0.22481185937499504
+          ]
+        }
+      },
+      "apiSpeedup": 2.6528001721709153,
+      "utf8Speedup": 2.710779184685661,
+      "afterOverBefore": 0.9840411693814981
+    },
+    {
+      "type": "cynefin",
+      "inputs": 3,
+      "timings": {
+        "before": {
+          "ms": 0.0507794609375,
+          "runsMs": [
+            0.05042936328125,
+            0.05240316015625,
+            0.0507794609375
+          ]
+        },
+        "rust": {
+          "ms": 0.050893390625,
+          "runsMs": [
+            0.050893390625,
+            0.050766601562500006,
+            0.0517556953125
+          ]
+        },
+        "api": {
+          "ms": 0.10149837500000558,
+          "runsMs": [
+            0.100138023437502,
+            0.10149837500000558,
+            0.10244173437499882
+          ]
+        },
+        "utf8": {
+          "ms": 0.12859082031250324,
+          "runsMs": [
+            0.12859082031250324,
+            0.1279391249999975,
+            0.13011849218749916
+          ]
+        }
+      },
+      "apiSpeedup": 1.994333129578269,
+      "utf8Speedup": 2.5266703344645403,
+      "afterOverBefore": 1.002243617505909
+    },
+    {
+      "type": "ishikawa",
+      "inputs": 1,
+      "timings": {
+        "before": {
+          "ms": 0.0090769248046875,
+          "runsMs": [
+            0.0090318603515625,
+            0.00926336669921875,
+            0.0090769248046875
+          ]
+        },
+        "rust": {
+          "ms": 0.00920633935546875,
+          "runsMs": [
+            0.00920633935546875,
+            0.0089815673828125,
+            0.0093097734375
+          ]
+        },
+        "api": {
+          "ms": 0.01799304199218632,
+          "runsMs": [
+            0.017903158203125713,
+            0.018234456054686987,
+            0.01799304199218632
+          ]
+        },
+        "utf8": {
+          "ms": 0.01868107226562543,
+          "runsMs": [
+            0.018527709960938665,
+            0.01917537499999966,
+            0.01868107226562543
+          ]
+        }
+      },
+      "apiSpeedup": 1.9544187214322153,
+      "utf8Speedup": 2.029153124203324,
+      "afterOverBefore": 1.0142575325416838
+    },
+    {
+      "type": "radar",
+      "inputs": 3,
+      "timings": {
+        "before": {
+          "ms": 0.029361572265625,
+          "runsMs": [
+            0.029270263671874998,
+            0.029657958984375,
+            0.029361572265625
+          ]
+        },
+        "rust": {
+          "ms": 0.029072591796875,
+          "runsMs": [
+            0.029072591796875,
+            0.02893896484375,
+            0.029443197265625002
+          ]
+        },
+        "api": {
+          "ms": 0.07269921874999596,
+          "runsMs": [
+            0.07215039062499784,
+            0.07398144531249784,
+            0.07269921874999596
+          ]
+        },
+        "utf8": {
+          "ms": 0.07571550000000116,
+          "runsMs": [
+            0.07571550000000116,
+            0.07594857031250513,
+            0.07538736718750272
+          ]
+        }
+      },
+      "apiSpeedup": 2.5006101711857136,
+      "utf8Speedup": 2.6043601660633433,
+      "afterOverBefore": 0.9901578680414085
+    },
+    {
+      "type": "railroad",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.1478746796875,
+          "runsMs": [
+            0.1478746796875,
+            0.1487028046875,
+            0.14621321093749998
+          ]
+        },
+        "rust": {
+          "ms": 0.1461494140625,
+          "runsMs": [
+            0.1453782578125,
+            0.1475638046875,
+            0.1461494140625
+          ]
+        },
+        "api": {
+          "ms": 0.20163735937501315,
+          "runsMs": [
+            0.20163735937501315,
+            0.20115429687501774,
+            0.20280925000000138
+          ]
+        },
+        "utf8": {
+          "ms": 0.2098873750000223,
+          "runsMs": [
+            0.20783267187499632,
+            0.2098873750000223,
+            0.212482421874995
+          ]
+        }
+      },
+      "apiSpeedup": 1.3796658759698073,
+      "utf8Speedup": 1.436115063111133,
+      "afterOverBefore": 0.9883329206281565
+    },
+    {
+      "type": "swimlane",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.1924765625,
+          "runsMs": [
+            0.19163671875,
+            0.197326828125,
+            0.1924765625
+          ]
+        },
+        "rust": {
+          "ms": 0.196345703125,
+          "runsMs": [
+            0.196345703125,
+            0.19897656249999998,
+            0.193177734375
+          ]
+        },
+        "api": {
+          "ms": 0.2848164062500018,
+          "runsMs": [
+            0.28725518750002266,
+            0.2840976562499691,
+            0.2848164062500018
+          ]
+        },
+        "utf8": {
+          "ms": 0.28560284374998446,
+          "runsMs": [
+            0.28560284374998446,
+            0.2928164062499832,
+            0.2821314999999913
+          ]
+        }
+      },
+      "apiSpeedup": 1.4505863979548284,
+      "utf8Speedup": 1.4545917695390589,
+      "afterOverBefore": 1.020101879287251
+    },
+    {
+      "type": "treemap",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.062279949218750005,
+          "runsMs": [
+            0.0621554375,
+            0.06576481249999999,
+            0.062279949218750005
+          ]
+        },
+        "rust": {
+          "ms": 0.0617786484375,
+          "runsMs": [
+            0.0617786484375,
+            0.061595539062499996,
+            0.0624970703125
+          ]
+        },
+        "api": {
+          "ms": 0.14086002343749726,
+          "runsMs": [
+            0.14086002343749726,
+            0.13893228906250954,
+            0.1428180312500018
+          ]
+        },
+        "utf8": {
+          "ms": 0.1428596953124952,
+          "runsMs": [
+            0.1428596953124952,
+            0.14335677343748898,
+            0.14227474218749592
+          ]
+        }
+      },
+      "apiSpeedup": 2.280076158998558,
+      "utf8Speedup": 2.3124444921617697,
+      "afterOverBefore": 0.9919508479448297
+    },
+    {
+      "type": "treeview",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.04301611328125,
+          "runsMs": [
+            0.04298876953125,
+            0.0440498046875,
+            0.04301611328125
+          ]
+        },
+        "rust": {
+          "ms": 0.0430576171875,
+          "runsMs": [
+            0.04243148046875,
+            0.04315364453125,
+            0.0430576171875
+          ]
+        },
+        "api": {
+          "ms": 0.09363542187499263,
+          "runsMs": [
+            0.09363542187499263,
+            0.09534179687500455,
+            0.09332779687500192
+          ]
+        },
+        "utf8": {
+          "ms": 0.10203580468750317,
+          "runsMs": [
+            0.10203580468750317,
+            0.10274055468750021,
+            0.10162109375001194
+          ]
+        }
+      },
+      "apiSpeedup": 2.1746540563832175,
+      "utf8Speedup": 2.3697503798961974,
+      "afterOverBefore": 1.0009648455679536
+    },
+    {
+      "type": "usecase",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.2070625,
+          "runsMs": [
+            0.214776046875,
+            0.2070625,
+            0.2068424375
+          ]
+        },
+        "rust": {
+          "ms": 0.2054544375,
+          "runsMs": [
+            0.2024609375,
+            0.211,
+            0.2054544375
+          ]
+        },
+        "api": {
+          "ms": 0.296871093749985,
+          "runsMs": [
+            0.29566406249995225,
+            0.33663021875003096,
+            0.296871093749985
+          ]
+        },
+        "utf8": {
+          "ms": 0.3023502500000177,
+          "runsMs": [
+            0.3091744687500295,
+            0.3005013124999891,
+            0.3023502500000177
+          ]
+        }
+      },
+      "apiSpeedup": 1.444948560675332,
+      "utf8Speedup": 1.471617034312134,
+      "afterOverBefore": 0.9922339269544219
+    },
+    {
+      "type": "venn",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.1635924375,
+          "runsMs": [
+            0.16446940624999998,
+            0.1635924375,
+            0.16318359375
+          ]
+        },
+        "rust": {
+          "ms": 0.16305339062500002,
+          "runsMs": [
+            0.1636953125,
+            0.16305339062500002,
+            0.162701828125
+          ]
+        },
+        "api": {
+          "ms": 0.38507031250003365,
+          "runsMs": [
+            0.39428253125004176,
+            0.38507031250003365,
+            0.3835898437499736
+          ]
+        },
+        "utf8": {
+          "ms": 0.3899791562499786,
+          "runsMs": [
+            0.4037500000000023,
+            0.3851705624999795,
+            0.3899791562499786
+          ]
+        }
+      },
+      "apiSpeedup": 2.3616210066164247,
+      "utf8Speedup": 2.39172675131225,
+      "afterOverBefore": 0.9967049401351454
+    },
+    {
+      "type": "wardley",
+      "inputs": 6,
+      "timings": {
+        "before": {
+          "ms": 0.0772587890625,
+          "runsMs": [
+            0.0772587890625,
+            0.07762679296875,
+            0.076372234375
+          ]
+        },
+        "rust": {
+          "ms": 0.07621533203125,
+          "runsMs": [
+            0.0768704453125,
+            0.07621533203125,
+            0.07598795312500001
+          ]
+        },
+        "api": {
+          "ms": 0.1443639218749979,
+          "runsMs": [
+            0.1443639218749979,
+            0.148441406250015,
+            0.1431367187500001
+          ]
+        },
+        "utf8": {
+          "ms": 0.14871549999998024,
+          "runsMs": [
+            0.14863085937500387,
+            0.14871549999998024,
+            0.15059570312499204
+          ]
+        }
+      },
+      "apiSpeedup": 1.8941585377572778,
+      "utf8Speedup": 1.9512543741068207,
+      "afterOverBefore": 0.9864940022499463
+    }
+  ]
+}

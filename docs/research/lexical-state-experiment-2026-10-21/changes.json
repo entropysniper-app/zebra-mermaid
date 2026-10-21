@@ -1,0 +1,52 @@
+{
+  "baselineRevision": "542f6cd265d0b775b130a626ccd994c2b9e9d006",
+  "baselineProductionRevision": "528010f970b8b9b54d94d88275c43e96f4b32015",
+  "runtimeChanges": [
+    {
+      "path": "crates/zebra-mermaid/src/diagrams/common/tokens.rs",
+      "beforeSha256": "43265e66bab856da9f89d54f58bdb68e82b86bdfd309f0768667d3a0b25dff3d",
+      "afterSha256": "114bf3ebab886ce578ba15d95844c6b7932d7209942998c9a70ff378f92319f3"
+    }
+  ],
+  "supplementaryTests": {
+    "path": "crates/zebra-mermaid/tests/token_workspace.rs",
+    "sha256": "e87ad1d307de6254b06c9b56d6d9d9a93b267633d19eb5d1f29265b05ac0ea46",
+    "tests": 2,
+    "baselineVerifiedBeforeRuntimeEdit": true,
+    "tokenizeCalls": 38,
+    "expectedRejections": 12,
+    "originalPorts": 0
+  },
+  "implementation": [
+    "First 64 disabled-token flags held in a local u64; wider dynamic token tables retain lazily allocated overflow flags.",
+    "Scanner slots remain indexed by original token kind, initialized only when Pattern::Scanner is actually tried. Factories still initialize once per kind per scan."
+  ],
+  "existingIndependentReferences": {
+    "tables": 15,
+    "cases": 2008,
+    "seed": "0x70c3a9",
+    "mutationsPerTable": 96,
+    "typesPerTable": {
+      "info": 10,
+      "architecture": 26,
+      "cynefin": 14,
+      "eventmodeling": 47,
+      "gitGraph": 32,
+      "packet": 15,
+      "pie": 13,
+      "radar": 28,
+      "treemap": 15,
+      "treeView": 13,
+      "wardley": 43,
+      "railroad-ir": 24,
+      "railroad-ebnf": 28,
+      "railroad-abnf": 21,
+      "railroad-peg": 22
+    }
+  },
+  "unchanged": [
+    "Matching functions, first-match ordering, hidden tokens, LONGER_ALT, opener disabling and EOF.",
+    "Token result storage, public API, precise errors, all workloads/features/precision.",
+    "No preparse, source/token/output cache, dependency or compiler/profile change, unsafe code."
+  ]
+}
