@@ -176,15 +176,15 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
     diagram: DiagramType,
 ) -> Result<T, Error> {
     let mut out = T::new(src, types.len());
-    let mut dead = vec![false; types.len()];
-    let mut scanners: Vec<Option<Scanner>> = (0..types.len()).map(|_| None).collect();
+    let mut dead: Vec<bool> = Vec::new();
+    let mut scanners: Vec<Option<Scanner>> = Vec::new();
     let starting = &table.ascii;
     let every = &table.every;
     let b = src.as_bytes();
     let n = b.len();
 
     let mut matcher = |k: usize, p: usize, dead: &mut Vec<bool>| -> Option<usize> {
-        if dead[k] {
+        if dead.get(k).copied().unwrap_or(false) {
             return None;
         }
         let t = &types[k];
@@ -192,6 +192,9 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
             Pattern::Literal(s) => src[p..].starts_with(s).then(|| p + s.len()),
             Pattern::Fn(f) => f(src, p),
             Pattern::Scanner(make) => {
+                if scanners.is_empty() {
+                    scanners.resize_with(types.len(), || None);
+                }
                 let scanner = scanners[k].get_or_insert_with(make);
                 scanner(src, p)
             }
@@ -199,6 +202,9 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
         if end.is_none() {
             if let Some(opener) = t.opener {
                 if opener(src, p).is_some() {
+                    if dead.is_empty() {
+                        dead.resize(types.len(), false);
+                    }
                     dead[k] = true;
                 }
             }
