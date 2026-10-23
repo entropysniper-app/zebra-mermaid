@@ -11,7 +11,7 @@ use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::{class_names, resolve_style, RADIUS};
+use crate::svg::theme::{class_names, resolve_style, rounded};
 use crate::text::entities::decode_entities;
 use crate::text::{layout_render_label as layout_label, style};
 use crate::theme::Role;
@@ -47,7 +47,7 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
     let insets = Insets { gap: option(config, "padding", 4.0, 0.0, 200.0), header: HEADER, side: SIDE };
     let (boxes, placed) = layout_treemap(&model.nodes, &model.roots, width, height, &insets);
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_room(options), style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 8.0 } else { 0.0 };
     let left = pad + js::max(0.0, (title.width - width) / 2.0);
     let top = pad + title_height;
@@ -75,8 +75,6 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
             num(b.w),
             "\" height=\"",
             num(b.h),
-            "\" rx=\"",
-            RADIUS,
             "\" fill=\"",
             color,
             "\""
@@ -126,11 +124,7 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                 "\" ",
                 group,
                 rect,
-                tint,
-                " stroke=\"",
-                color,
-                "\"",
-                style.shape,
+                rounded(&svg_format!(tint, " stroke=\"", color, "\"", style.shape)),
                 "/>",
                 text,
                 "</g>"
@@ -196,7 +190,8 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
                 );
             }
         }
-        svg_write!(leaves, "<g class=\"pele-node pele-leaf", classes, "\" ", group, rect, style.shape, "/>", text, "</g>").unwrap();
+        svg_write!(leaves, "<g class=\"pele-node pele-leaf", classes, "\" ", group, rect, rounded(&style.shape), "/>", text, "</g>")
+            .unwrap();
     }
 
     let total_width = (js::max(width, title.width) + 2.0 * pad).ceil();

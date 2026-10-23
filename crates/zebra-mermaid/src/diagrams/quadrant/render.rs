@@ -14,7 +14,7 @@ use crate::error::Error;
 use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::{class_names, resolve_style, RADIUS};
+use crate::svg::theme::{class_names, resolve_style};
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
@@ -66,7 +66,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     let y_pad = length(config, "yAxisLabelPadding", 5.0, 200.0);
     let has_points = !model.points.is_empty();
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, js::max(width - 2.0 * outer, 40.0), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, js::max(width - 2.0 * outer, 40.0), style::BOLD);
     let title_pad = length(config, "titlePadding", 10.0, 200.0);
     let title_space = if title.height > 0.0 { title.height + title_pad } else { 0.0 };
 
@@ -134,9 +134,9 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
             num(tile_w),
             "\" height=\"",
             num(tile_h),
-            "\" rx=\"",
-            RADIUS,
-            "\"/>",
+            "\"",
+            crate::svg::theme::ROUNDED,
+            "/>",
             label_svg(&text, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", on_region, "\" stroke=\"none\""), None),
             "</g>"
         )
@@ -240,20 +240,40 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         let half_w = text.width / 2.0;
         let half_h = text.size * 0.6 + (text.height - text.line_height) / 2.0;
         let away = reach + text_pad;
-        let spots = [cx, cy + away + half_h, cx, cy - away - half_h, cx + away + half_w, cy, cx - away - half_w, cy];
+        let inset = js::min(away, js::max(0.0, (tile_w - text.width) / 2.0));
+        let heading = 8 + 4 * if cx < left + w / 2.0 {
+            if cy < top + h / 2.0 {
+                1
+            } else {
+                2
+            }
+        } else {
+            if cy < top + h / 2.0 {
+                0
+            } else {
+                3
+            }
+        };
+        let below = js::max(cy + away, taken[heading + 3] + text_pad) + half_h;
+        let spots = [cx, cy + away + half_h, cx, cy - away - half_h, cx + away + half_w, cy, cx - away - half_w, cy, cx, below];
         let mut tx = cx;
         let mut ty = spots[1];
         let mut found = false;
         let mut k = 0;
-        while k < 16 {
-            let spot = k % 8;
-            let x = if spot < 4 && text.width < w { js::min(js::max(spots[spot], left + half_w), left + w - half_w) } else { spots[spot] };
+        while k < 20 {
+            let spot = k % 10;
+            let margin = if spot == 8 { inset } else { 0.0 };
+            let x = if (spot < 4 || spot == 8) && text.width < w {
+                js::min(js::max(spots[spot], left + half_w + margin), left + w - half_w - margin)
+            } else {
+                spots[spot]
+            };
             let y = spots[spot + 1];
             if x - half_w < left || x + half_w > left + w || y - half_h < top || y + half_h > top + h {
                 k += 2;
                 continue;
             }
-            let free = !careful || is_clear(&taken, if k < 8 { 0 } else { 8 }, x - half_w, y - half_h, x + half_w, y + half_h);
+            let free = !careful || is_clear(&taken, if k < 10 { 0 } else { 8 }, x - half_w, y - half_h, x + half_w, y + half_h);
             if !found || free {
                 tx = x;
                 ty = y;

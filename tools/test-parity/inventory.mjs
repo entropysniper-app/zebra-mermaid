@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const upstream = join(root, '.research/pele');
-const commit = '8603bf3313add9143cd417015d4a6bd6c522dada';
+const commit = 'e7f092a4de147cc32210913c20e36eaa5fcd0ef1';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const git = (...args) => execFileSync('git', ['-C', upstream, ...args], { encoding: 'utf8' }).trim();
 if (git('rev-parse', 'HEAD') !== commit) throw new Error('Pele revision differs from the pinned reference');

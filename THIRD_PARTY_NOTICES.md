@@ -5,8 +5,8 @@ sources listed below, under the terms quoted for each.
 
 ## Pele
 
-The renderer (`crates/zebra-mermaid/src/**`) is a Rust port of Pele 1.7.0
-(<https://github.com/obsidianmd/pele>, commit `8603bf3313add9143cd417015d4a6bd6c522dada`),
+The renderer (`crates/zebra-mermaid/src/**`) is a Rust port of Pele 1.9.0
+(<https://github.com/obsidianmd/pele>, commit `e7f092a4de147cc32210913c20e36eaa5fcd0ef1`),
 originally ported at commit `44da152bbb79b91f03e68016f42499bb25bf6e82`:
 its preprocessing, YAML reader, parsers, layout, text measurement tables and SVG output. Pele's
 Arial advance table (`text/metrics.rs`) and Unicode letter table (`util/unicode.rs`) are copied
@@ -225,3 +225,39 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 ```
+
+## RaTeX and its bundled KaTeX fonts
+
+Mathematical labels use `ratex-parser`, `ratex-layout`, `ratex-types` and `ratex-svg`
+0.1.15 from [RaTeX](https://github.com/erweixin/RaTeX), with versions and package checksums
+locked in `Cargo.lock`. RaTeX software is MIT licensed:
+
+```
+MIT License
+
+Copyright (c) erweixin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+`ratex-svg`'s `embed-fonts` feature bundles the KaTeX TrueType fonts through
+`ratex-katex-fonts` 0.1.15. These fonts use the SIL Open Font License 1.1, independently
+of the software license. The original [font notice](licenses/ratex/FONT_NOTICE.txt) and
+[full font license](licenses/ratex/OFL.txt) are distributed with this repository.
+The embedded fonts are used unchanged; exported mathematical glyph outlines are self-contained.

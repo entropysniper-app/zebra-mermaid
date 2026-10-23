@@ -17,6 +17,16 @@ pub const ROOT_STYLE: &str = "--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1
 
 pub const FONT_MONO: &str = "var(--_fm)";
 pub const RADIUS: &str = "var(--pele-radius,4px)";
+pub const ROUNDED: &str = " style=\"rx:var(--_r)\"";
+/// Radius variables use CSS; author styles follow the default and can override it.
+pub fn rounded(attrs: &str) -> String {
+    if let Some(at) = attrs.find(" style=\"") {
+        let at = at + 8;
+        format!("{}rx:var(--_r);{}", &attrs[..at], &attrs[at..])
+    } else {
+        format!("{attrs}{ROUNDED}")
+    }
+}
 /// The color of what a diagram marks as critical. It is not one of the series colors, as a
 /// theme may put those in any order.
 pub const CRITICAL: &str = "var(--pele-critical,#e45756)";

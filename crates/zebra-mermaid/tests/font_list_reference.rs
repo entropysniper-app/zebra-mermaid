@@ -3,7 +3,7 @@
 fn font_lists_and_styles_match_independent_reference() {
     use zebra_mermaid::svg::theme::{families, font_style, is_font_list};
     let fixture: serde_json::Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../tests/fixtures/unit/font-list-reference.json.gz")[..],
+        &include_bytes!("../../../tests/fixtures/pele-1.9.0/unit/font-list-reference.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(fixture["upstreamCommit"], zebra_mermaid::PELE_COMMIT);

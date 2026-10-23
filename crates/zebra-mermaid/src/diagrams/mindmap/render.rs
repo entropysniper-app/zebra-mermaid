@@ -42,15 +42,11 @@ fn left_label(label: &Label, left: f64, cy: f64, icons: Option<&Icons>) -> Strin
         return svg_format!(label_svg(label, left + label.width / 2.0, cy, " class=\"pele-label\"", icons));
     }
     let mut out = String::new();
-    let count = label.lines().len() as f64;
-    for (k, line) in label.lines().iter().enumerate() {
-        let width = label.widths()[k];
-        let one = Label::from_lines(vec![line.to_vec()], vec![width], width, label.line_height, label.size, label.line_height);
-        svg_write!(
-            out,
-            label_svg(&one, left + width / 2.0, cy + (k as f64 - (count - 1.0) / 2.0) * label.line_height, " class=\"pele-label\"", icons,)
-        )
-        .unwrap();
+    let top = cy - label.height / 2.0;
+    for (k, _) in label.lines().iter().enumerate() {
+        let one = label.label_line(k);
+        svg_write!(out, label_svg(&one, left + label.widths()[k] / 2.0, top + label.line_middle(k), " class=\"pele-label\"", icons))
+            .unwrap();
     }
     out
 }
@@ -533,7 +529,7 @@ fn draw(model: &MindmapModel, config: &Config, ctx: &RenderCtx, down: bool) -> R
         }
     }
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_room(options), style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 16.0 } else { 0.0 };
     let width = js::max(max_x - min_x, title.width);
     let total_width = (width + 2.0 * pad).ceil();

@@ -24,7 +24,7 @@ use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::edges::{marker, marker_trim, ARROW};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::shapes::draw_shape;
-use crate::svg::theme::{resolve_style, ResolvedStyle, RADIUS};
+use crate::svg::theme::{resolve_style, ResolvedStyle};
 use crate::text::{layout_render_label as layout_label, style};
 use crate::theme::color::mix_hex;
 use crate::theme::Role;
@@ -429,15 +429,16 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 num(group.bx.w),
                 "\" height=\"",
                 num(group.bx.h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                ctx.paint(Role::GroupFill, "none"),
-                "\" stroke=\"",
-                ctx.paint(Role::GroupStroke, "var(--_b)"),
                 "\"",
-                if node { "" } else { " stroke-dasharray=\"6 4\"" },
-                st.shape,
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    ctx.paint(Role::GroupFill, "none"),
+                    "\" stroke=\"",
+                    ctx.paint(Role::GroupStroke, "var(--_b)"),
+                    "\"",
+                    if node { "" } else { " stroke-dasharray=\"6 4\"" },
+                    st.shape
+                )),
                 "/>"
             )
             .unwrap();
@@ -536,7 +537,8 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
         }
     }
 
-    let title = layout_label(db.title.as_deref(), false, &m, size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
+    let title =
+        layout_label(db.title.as_deref(), false, &m.without_math(), size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(max_x - min_x, title.width);
     let width = (inner + 2.0 * pad).ceil();

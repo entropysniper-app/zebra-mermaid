@@ -12,7 +12,7 @@ use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg, render_shared_style as shared_style, span_style, text_style},
     edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path, EdgePath},
     root::{svg_document, Accessible},
-    theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
+    theme::{class_names, resolve_style, ResolvedStyle},
 };
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
@@ -41,10 +41,16 @@ fn restyle(mut label: Label, bits: u8, m: &Measure) -> Label {
     label
 }
 fn start_text(label: &Label, x: f64, top: f64, attrs: &str) -> String {
-    let mut y = top + label.line_height / 2.0 + label.size * 0.35;
     let shared = shared_style(label);
     let mut body = String::new();
-    for line in &label.lines() {
+    let mut math = String::new();
+    for (i, line) in label.lines().iter().enumerate() {
+        let middle = top + label.line_middle(i);
+        if crate::text::label::has_math(line) {
+            svg_write!(math, label_svg(&label.label_line(i), x + label.widths()[i] / 2.0, middle, attrs, None)).unwrap();
+            continue;
+        }
+        let y = middle + label.size * 0.35;
         let mut first = true;
         for span in line {
             if span.icon.is_some() || span.text.is_empty() {
@@ -62,13 +68,14 @@ fn start_text(label: &Label, x: f64, top: f64, attrs: &str) -> String {
             .unwrap();
             first = false;
         }
-        y += label.line_height;
     }
-    if body.is_empty() {
-        body
+    let mut out = if body.is_empty() {
+        String::new()
     } else {
         svg_format!("<text", text_style(attrs, shared), " text-anchor=\"start\" xml:space=\"preserve\">", body, "</text>")
-    }
+    };
+    out.push_str(&math);
+    out
 }
 fn contains_marker(x: f64, y: f64, dx: f64, dy: f64) -> String {
     let cx = x - dx * 6.0;
@@ -265,6 +272,8 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
         labels.push(label);
     }
     let opt = LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: 40.0,
         edge_sep: 16.0,
         rank_sep: 56.0,
@@ -276,7 +285,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
     };
     let layout = compound_layout(&mut nodes, &mut edges, dir, &opt);
     spread(&nodes, &mut edges, &views);
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_h = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(layout.width, title.width);
     let ox = pad + (inner - layout.width) / 2.0;
@@ -297,14 +306,15 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
             num(v.w),
             "\" height=\"",
             num(v.h),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::NodeFill, "var(--_s)"),
-            "\" stroke=\"",
-            ctx.paint(Role::NodeStroke, "var(--_b)"),
             "\"",
-            st.shape,
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::NodeFill, "var(--_s)"),
+                "\" stroke=\"",
+                ctx.paint(Role::NodeStroke, "var(--_b)"),
+                "\"",
+                st.shape
+            )),
             "/>",
             label_svg(
                 &v.kind,

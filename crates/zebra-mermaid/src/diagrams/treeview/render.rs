@@ -10,7 +10,7 @@ use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::{class_names, RADIUS};
+use crate::svg::theme::class_names;
 use crate::text::entities::decode_entities;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
@@ -104,7 +104,8 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let row_height = js::round(size * 1.5) + 2.0 * padding_y;
     let icon_size = size;
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
+    let title =
+        layout_label(model.title.as_deref(), false, &m.without_math(), size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
 
     let node_icon = |index: usize| {
@@ -238,10 +239,8 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 num(total_width - inset + HIGHLIGHT_OVERHANG - x),
                 "\" height=\"",
                 num(row.height - 2.0),
-                "\" rx=\"",
-                RADIUS,
-                "\" ",
-                fill,
+                "\"",
+                crate::svg::theme::rounded(&svg_format!(" ", fill)),
                 "/>"
             )
             .unwrap();

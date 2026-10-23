@@ -19,7 +19,6 @@ use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
@@ -318,13 +317,9 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
                 num(card_w),
                 "\" height=\"",
                 num(card_h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                fill,
-                "\" stroke=\"",
-                ctx.paint(Role::NodeStroke, "var(--_b)"),
-                "\"/>",
+                "\"",
+                crate::svg::theme::rounded(&svg_format!(" fill=\"", fill, "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"")),
+                "/>",
                 label_svg(
                     &labels[i],
                     cx,
@@ -404,11 +399,9 @@ fn draw(model: &JourneyModel, _config: &Config, ctx: &RenderCtx, down: bool) -> 
                 num(w),
                 "\" height=\"",
                 num(band_h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                fill,
-                "\"/>",
+                "\"",
+                crate::svg::theme::rounded(&svg_format!(" fill=\"", fill, "\"")),
+                "/>",
                 label_svg(
                     label,
                     x + w / 2.0,
@@ -546,13 +539,9 @@ fn vertical_journey(model: &JourneyModel, ctx: &RenderCtx) -> Rendered {
             num(w),
             "\" height=\"",
             num(h),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            fill,
-            "\" stroke=\"",
-            ctx.paint(Role::NodeStroke, "var(--_b)"),
-            "\"/>"
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(" fill=\"", fill, "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"")),
+            "/>"
         )
         .unwrap();
         svg_write!(

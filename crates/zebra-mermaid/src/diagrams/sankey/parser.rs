@@ -52,11 +52,14 @@ struct Token {
     end: usize,
 }
 
-/// RFC 4180 TEXTDATA: printable ASCII except the double quote and the comma. A byte of a
-/// character outside ASCII is none of these, as its UTF-16 code unit is not.
+/// RFC 4180 extended to Unicode, excluding controls and invalid XML characters.
 #[inline]
-fn is_text_data(c: u8) -> bool {
-    (32..=126).contains(&c) && c != 34 && c != 44
+fn is_text_data(c: char) -> bool {
+    let n = c as u32;
+    ((32..=126).contains(&n) && n != 34 && n != 44)
+        || (0xa0..=0xd7ff).contains(&n)
+        || (0xe000..=0xfffd).contains(&n)
+        || (0x10000..=0x10ffff).contains(&n)
 }
 
 /// `src.slice(p, p + word.length).toLowerCase() === word && !isWord(src.charCodeAt(p + word.length))`,
@@ -105,10 +108,10 @@ fn tokenize(src: &str) -> Vec<Token> {
                 continue;
             }
             while q < n {
-                let d = b[q];
-                if is_text_data(d) || d == 44 || d == 13 || d == 10 {
-                    q += 1;
-                } else if d == 34 && b.get(q + 1) == Some(&b'"') {
+                let d = src[q..].chars().next().unwrap();
+                if is_text_data(d) || matches!(d, ',' | '\r' | '\n') {
+                    q += d.len_utf8();
+                } else if d == '"' && b.get(q + 1) == Some(&b'"') {
                     q += 2;
                 } else {
                     break;
@@ -145,8 +148,11 @@ fn tokenize(src: &str) -> Vec<Token> {
                 p += 1;
                 continue;
             }
-            while q < n && is_text_data(b[q]) {
-                q += 1;
+            while let Some(d) = src[q..].chars().next() {
+                if !is_text_data(d) {
+                    break;
+                }
+                q += d.len_utf8();
             }
             tokens.push(Token { kind: T::NonEscapedText, start: p, end: q });
             p = q;
@@ -305,7 +311,12 @@ impl<'a> Parser<'a> {
     }
 
     fn name(&mut self) -> Result<String, Error> {
-        Ok(js::trim(self.field()?).replace("\"\"", "\""))
+        let start = self.tokens[self.i].start;
+        let text = js::trim(self.field()?).replace("\"\"", "\"");
+        if crate::text::entities::decode_entities(&text).chars().any(|c| matches!(c as u32, 0..=8|11|12|14..=31|0xfffe|0xffff)) {
+            return Err(syntax_error(DiagramType::Sankey, self.src, start, "Invalid XML character in node name", false));
+        }
+        Ok(text)
     }
 }
 
@@ -390,17 +401,28 @@ mod tests {
         assert_eq!(e.message, "Parse error on line 2:\n  a,b\n-----^\nExpecting 'COMMA', 'NEWLINE', 'EOF', got 'EOF'");
         assert_eq!(e.offset, Some(14));
         let source = "\t sankey\r\n\r\nx,y,1\n\n\u{e9},z,2\n";
-        let e = parse_sankey(source, &mut model).unwrap_err();
-        assert_eq!((e.line, e.column), (3, 1));
-        assert_eq!(&source[e.offset.unwrap()..], "\u{e9},z,2\n");
+        // Pele 1.9.0 accepts Unicode CSV names at the same original input.
+        parse_sankey(source, &mut model).unwrap();
+        assert_eq!(model.nodes.iter().map(|n| n.id.as_str()).collect::<Vec<_>>(), ["x", "y", "é", "z"]);
+        assert_eq!(model.links.iter().map(|l| l.value).collect::<Vec<_>>(), [1.0, 2.0]);
     }
 
     #[test]
-    fn reports_the_token_before_a_stuck_one() {
-        let mut model = SankeyModel::default();
-        let e = parse_sankey("sankey\na,b,1\né,c,2\n", &mut model).unwrap_err();
-        assert_eq!(e.message, "Parse error on line 3:\né,c,2\n^\nExpecting 'COMMA', 'NEWLINE', 'EOF', got 'NON_ESCAPED_TEXT'");
-        let e = parse_sankey("sankey\na,\"bé\",1\n", &mut model).unwrap_err();
-        assert_eq!(e.message, "Parse error on line 2:\na,\"bé\",1\n----^\nExpecting 'DQUOTE', got 'ESCAPED_TEXT'");
+    fn unicode_names_no_longer_leave_the_lexer_stuck() {
+        for (source, names, values) in
+            [("sankey\na,b,1\né,c,2\n", vec!["a", "b", "é", "c"], vec![1.0, 2.0]), ("sankey\na,\"bé\",1\n", vec!["a", "bé"], vec![1.0])]
+        {
+            let mut model = SankeyModel::default();
+            parse_sankey(source, &mut model).unwrap();
+            assert_eq!(model.nodes.iter().map(|n| n.id.as_str()).collect::<Vec<_>>(), names);
+            assert_eq!(model.links.iter().map(|l| l.value).collect::<Vec<_>>(), values);
+        }
+    }
+    #[test]
+    fn excluded_control_characters_still_report_a_stuck_token() {
+        for source in ["sankey\na,b,1\n\u{7f},c,2\n", "sankey\na,\"b\u{80}\",1\n"] {
+            let mut model = SankeyModel::default();
+            assert!(parse_sankey(source, &mut model).is_err());
+        }
     }
 }

@@ -12,7 +12,7 @@ use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg},
     root::{svg_document, Accessible},
-    theme::{resolve_style, CRITICAL, RADIUS},
+    theme::{resolve_style, CRITICAL},
 };
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
@@ -142,7 +142,7 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
             stop = js::max(stop, t.end.unwrap().time());
         }
     }
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_h = if title.height > 0.0 { title.height + 16.0 } else { 0.0 };
     let acc = Accessible { acc_title: model.acc_title.as_deref(), acc_descr: model.acc_descr.as_deref() };
     if start > stop {
@@ -457,13 +457,9 @@ pub(crate) fn render(model: &GanttModel, config: &Config, ctx: &RenderCtx) -> Re
                     num(bar.x1 - bar.x0),
                     "\" height=\"",
                     num(bar_h),
-                    "\" rx=\"",
-                    RADIUS,
-                    "\" ",
-                    paint,
-                    " stroke=\"",
-                    stroke,
-                    "\"/>"
+                    "\"",
+                    crate::svg::theme::rounded(&svg_format!(" ", paint, " stroke=\"", stroke, "\"")),
+                    "/>"
                 );
             }
             if bar.inside {

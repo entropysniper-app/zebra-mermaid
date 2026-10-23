@@ -250,7 +250,7 @@ fn draw(model: &RadarModel, config: &Config, ctx: &RenderCtx, width: f64, height
         .unwrap();
     }
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_room(options), style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 8.0 } else { 0.0 };
     let body_width = js::max(x1 - x0, title.width);
     let total_width = (body_width + 2.0 * pad).ceil();

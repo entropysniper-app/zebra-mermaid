@@ -399,12 +399,12 @@ fn railroad(t: &str) -> bool {
     starts_ci(rest, "beta")
 }
 
-fn c4(text: &str, t: &str) -> bool {
+fn c4(_text: &str, t: &str) -> bool {
     t.starts_with("C4Context")
-        || text.contains("C4Container")
-        || text.contains("C4Component")
-        || text.contains("C4Dynamic")
-        || text.contains("C4Deployment")
+        || t.starts_with("C4Container")
+        || t.starts_with("C4Component")
+        || t.starts_with("C4Dynamic")
+        || t.starts_with("C4Deployment")
 }
 
 /// Mermaid's detectors, in the order Mermaid registers them. The first match wins. `text` is
@@ -426,7 +426,7 @@ pub fn detect(text: &str) -> Option<DiagramType> {
     if word_b("agentflow-beta") {
         return Some(Agentflow);
     }
-    // `/^\s*C4Context|C4Container|.../`: only the first alternative is anchored.
+    // All C4 alternatives are anchored after leading white space.
     if c4(text, t) {
         return Some(C4);
     }
@@ -545,8 +545,8 @@ mod tests {
         assert_eq!(detect("usecase-beta"), Some(DiagramType::Usecase));
         assert_eq!(detect("agentflow-beta2"), None);
         assert_eq!(detect("unknown"), None);
-        // Mermaid's C4 detector is anchored only for its first alternative.
-        assert_eq!(detect("flowchart TD\n  A[C4Container]"), Some(DiagramType::C4));
+        // Pele 1.9.0 anchors every C4 alternative.
+        assert_eq!(detect("flowchart TD\n  A[C4Container]"), Some(DiagramType::Flowchart));
     }
 
     #[test]

@@ -136,7 +136,7 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
     legend_width += if !legend.is_empty() { SWATCH + 8.0 } else { 0.0 };
     let legend_height = legend.len() as f64 * ROW;
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_room(options), style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 16.0 } else { 0.0 };
 
     // A slice too thin for its percentage gets the label outside the rim, which needs a margin.

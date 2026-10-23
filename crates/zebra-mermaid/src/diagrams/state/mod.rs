@@ -8,8 +8,8 @@ mod tokens;
 #[cfg(test)]
 #[path = "../../../tests/upstream/state_stress_generated.rs"]
 mod upstream_stress;
-use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use super::ParseInput;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::{util::js, Error};
 use indexmap::IndexMap;
 pub(crate) use render::render;

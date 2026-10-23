@@ -118,7 +118,7 @@ pub(crate) fn render(model: &InfoModel, _config: &Config, ctx: &RenderCtx) -> Re
     let m = ctx.measure();
     let pad = options.padding.unwrap_or(8.0);
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 8.0 } else { 0.0 };
     let shown = options.info_text.clone().unwrap_or_else(default_text);
     let text = layout_label(Some(&shown), false, &m, size, 4000.0, 0);

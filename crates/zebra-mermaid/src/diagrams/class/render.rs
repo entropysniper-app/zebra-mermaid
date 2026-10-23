@@ -20,7 +20,7 @@ use crate::svg::{
     edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path, EdgePath},
     root::{svg_document, Accessible},
     shapes::end_side,
-    theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
+    theme::{class_names, resolve_style, ResolvedStyle},
     title::with_title,
 };
 use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, RenderLabel as Label};
@@ -42,7 +42,7 @@ struct View {
     label: Label,
     w: f64,
     h: f64,
-    annotations: Vec<String>,
+    annotations: Vec<(String, Option<Label>)>,
     attributes: Vec<Line>,
     methods: Vec<Line>,
     title_h: f64,
@@ -165,6 +165,20 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
     let tiny_h = js::round(tiny * 1.4);
     let m = ctx.measure();
     let pad = ctx.padding();
+    let math_text = |raw: &str, font_size: f64| -> Option<Label> {
+        if !raw.contains("$$") {
+            return None;
+        }
+        let label = layout_label(Some(raw), false, &m, font_size, 4000.0, 0);
+        label.lines().iter().any(crate::text::label::has_math).then_some(label)
+    };
+    let card_width = |raw: &str| {
+        if raw.is_empty() {
+            0.0
+        } else {
+            math_text(raw, tiny).map_or_else(|| m.width(&decode_entities(raw), tiny, 0), |l| l.width)
+        }
+    };
     let dir = if turned { Dir::TB } else { direction(Some(&db.direction)) };
     let mut children = vec![0; graph.len()];
     for n in &graph {
@@ -229,7 +243,11 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 4000.0,
                 style::BOLD | if st.italic { style::ITALIC } else { 0 },
             );
-            let annotations: Vec<_> = cls.annotations.iter().map(|a| format!("«{}»", js::trim(&decode_entities(a)))).collect();
+            let annotations: Vec<_> = cls
+                .annotations
+                .iter()
+                .map(|a| (format!("«{}»", js::trim(&decode_entities(a))), math_text(&format!("«{}»", js::trim(a)), tiny)))
+                .collect();
             let line = |member: &Member| {
                 let text = js::trim(&decode_entities(&member.display())).to_owned();
                 Line {
@@ -241,8 +259,10 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             let attributes: Vec<_> = cls.members.iter().map(line).collect();
             let methods: Vec<_> = cls.methods.iter().map(line).collect();
             let mut inner = label.width;
-            for a in &annotations {
-                inner = js::max(inner, m.width(a, tiny, 0));
+            let mut annotations_h = 0.0;
+            for (text, math) in &annotations {
+                inner = js::max(inner, math.as_ref().map_or_else(|| m.width(text, tiny, 0), |m| m.width));
+                annotations_h += math.as_ref().map_or(tiny_h, |m| js::max(tiny_h, m.height));
             }
             for l in attributes.iter().chain(&methods) {
                 inner = js::max(inner, l.width);
@@ -257,7 +277,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                     10.0
                 }
             };
-            let title_h = 16.0 + annotations.len() as f64 * tiny_h + js::max(label.height, js::round(font_size * 1.5));
+            let title_h = 16.0 + annotations_h + js::max(label.height, js::round(font_size * 1.5));
             let attributes_h = section(attributes.len());
             let w = js::max(inner + 24.0, 64.0);
             let h = title_h + attributes_h + section(methods.len());
@@ -291,8 +311,8 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         let src = e.source as usize;
         let dst = e.target as usize;
         let label = layout_label(e.label.as_deref(), true, &m, small, 200.0, 0);
-        let sw = if e.tail_label.is_empty() { 0.0 } else { m.width(&decode_entities(&e.tail_label), tiny, 0) };
-        let ew = if e.head_label.is_empty() { 0.0 } else { m.width(&decode_entities(&e.head_label), tiny, 0) };
+        let sw = card_width(&e.tail_label);
+        let ew = card_width(&e.head_label);
         if src == dst {
             nodes[src].w += 2.0 * (26.0 + if label.width > 0.0 { label.width + 12.0 } else { 0.0 });
         } else {
@@ -337,10 +357,19 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         }
     }
     let lettered = start_room.iter().chain(&end_room).any(|&r| r > 0.0);
+    let mut tall_cards = 0.0;
+    if matches!(dir, Dir::TB | Dir::BT) {
+        let card_height = |raw: &str| if raw.is_empty() { 0.0 } else { js::max(tiny_h, math_text(raw, tiny).map_or(0.0, |m| m.height)) };
+        for edge in &drawn {
+            tall_cards = js::max(tall_cards, card_height(&edge.tail_label) + card_height(&edge.head_label) - 2.0 * tiny_h);
+        }
+    }
     let opt = LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: number(conf, "nodeSpacing", 40.0),
         edge_sep: 16.0,
-        rank_sep: number(conf, "rankSpacing", if lettered { 72.0 } else { 56.0 }),
+        rank_sep: number(conf, "rankSpacing", if lettered { 72.0 } else { 56.0 }) + tall_cards,
         port_sep: 20.0,
         tracks: false,
         straight: false,
@@ -471,28 +500,39 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         }
     }
     let (mut min_x, mut min_y, mut max_x, mut max_y) = (0.0, 0.0, layout.width, layout.height);
+    struct Card {
+        text: String,
+        math: Option<Label>,
+        x: f64,
+        y: f64,
+        w: f64,
+        h: f64,
+        parent: usize,
+    }
     let mut cards = vec![];
-    let mut add_card = |raw: &str, w: f64, x: f64, y: f64, side: i32, after: bool| {
+    let mut add_card = |parent: usize, raw: &str, w: f64, x: f64, y: f64, side: i32, after: bool| {
         if raw.is_empty() {
             return;
         }
+        let math = math_text(raw, tiny);
+        let h = math.as_ref().map_or(tiny_h, |m| js::max(tiny_h, m.height));
         let (mut cx, mut cy) = (x, y);
         if side & 1 != 0 {
             cx += if side == 3 { -1.0 } else { 1.0 } * (5.0 + w / 2.0);
-            cy += if after { 1.0 } else { -1.0 } * (7.0 + tiny_h / 2.0);
+            cy += if after { 1.0 } else { -1.0 } * (7.0 + h / 2.0);
         } else {
             cx += if after { 1.0 } else { -1.0 } * (9.0 + w / 2.0);
-            cy += if side == 0 { -1.0 } else { 1.0 } * (3.0 + tiny_h / 2.0);
+            cy += if side == 0 { -1.0 } else { 1.0 } * (3.0 + h / 2.0);
         }
-        cards.push((decode_entities(raw), cx, cy));
+        cards.push(Card { text: decode_entities(raw), math, x: cx, y: cy, w, h, parent });
         min_x = js::min(min_x, cx - w / 2.0);
         max_x = js::max(max_x, cx + w / 2.0);
-        min_y = js::min(min_y, cy - tiny_h / 2.0);
-        max_y = js::max(max_y, cy + tiny_h / 2.0);
+        min_y = js::min(min_y, cy - h / 2.0);
+        max_y = js::max(max_y, cy + h / 2.0);
     };
     let mut loop_seen = IndexMap::<usize, usize>::new();
     let mut loop_at = vec![0; edges.len()];
-    for (i, e) in edges.iter().enumerate() {
+    for (i, e) in edges.iter_mut().enumerate() {
         let edge = drawn[i];
         if e.src == e.dst {
             let k = loop_seen.entry(e.src).or_default();
@@ -501,12 +541,15 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             let v = &views[e.src];
             let x = c.x + v.w / 2.0;
             let spread = js::min(v.h / 2.0 - 4.0, 8.0 + *k as f64 * 6.0);
+            e.label_x = c.x + v.w / 2.0 + 26.0 + *k as f64 * 8.0 + 4.0 + e.label_w / 2.0;
+            e.label_y = c.y;
             *k += 1;
-            add_card(&edge.tail_label, start_room[i], x, c.y - spread, 1, false);
-            add_card(&edge.head_label, end_room[i], x, c.y + spread, 1, true);
+            add_card(e.src, &edge.tail_label, start_room[i], x, c.y - spread, 1, false);
+            add_card(e.dst, &edge.head_label, end_room[i], x, c.y + spread, 1, true);
         } else if e.route.len() >= 6 {
             let last = e.route.len() - 3;
             add_card(
+                e.src,
                 &edge.tail_label,
                 start_room[i],
                 e.route[0],
@@ -515,6 +558,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 starts[i].is_none_or(|e| e.after),
             );
             add_card(
+                e.dst,
                 &edge.head_label,
                 end_room[i],
                 e.route[last],
@@ -523,6 +567,31 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 ends[i].is_none_or(|e| e.after),
             );
         }
+    }
+    if let Some(available) = ctx.options.max_width.filter(|w| *w > 0.0 && max_x - min_x + 2.0 * pad > *w) {
+        let original = nodes.len();
+        nodes.extend(cards.iter().map(|c| {
+            let mut n = cnode(c.w, c.h, c.parent as isize);
+            n.x = c.x;
+            n.y = c.y;
+            n
+        }));
+        if let Some(wrapped) = crate::layout::components::wrap_components(
+            &mut nodes,
+            &mut edges,
+            js::max(1.0, available - 2.0 * pad),
+            number(conf, "nodeSpacing", 40.0),
+        ) {
+            for (i, c) in cards.iter_mut().enumerate() {
+                c.x = nodes[original + i].x;
+                c.y = nodes[original + i].y;
+            }
+            min_x = 0.0;
+            min_y = 0.0;
+            max_x = wrapped.width;
+            max_y = wrapped.height;
+        }
+        nodes.truncate(original);
     }
     let ox = pad - min_x;
     let oy = pad - min_y;
@@ -564,15 +633,17 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
                 num(w),
                 "\" height=\"",
                 num(h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                ctx.paint(Role::GroupFill, "var(--_a)"),
                 "\"",
-                if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
-                " stroke=\"",
-                ctx.paint(Role::GroupStroke, "var(--_b)"),
-                "\"/>",
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    ctx.paint(Role::GroupFill, "var(--_a)"),
+                    "\"",
+                    if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                    " stroke=\"",
+                    ctx.paint(Role::GroupStroke, "var(--_b)"),
+                    "\""
+                )),
+                "/>",
                 if struck { String::new() } else { svg_format!(label_svg(&v.label, tx + ox, ty, &attrs, None)) },
                 "</g>"
             )
@@ -674,8 +745,6 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             let y = c.y + oy;
             let spread = js::min(v.h / 2.0 - 4.0, 8.0 + k * 6.0);
             let reach = 26.0 + k * 8.0;
-            e.label_x = c.x + v.w / 2.0 + reach + 4.0 + e.label_w / 2.0;
-            e.label_y = c.y;
             EdgePath {
                 d: svg_format!(
                     "M",
@@ -742,18 +811,22 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
         }
     }
     let mut cards_out = String::new();
-    for (text, x, y) in cards {
-        svg_write!(
-            cards_out,
-            "<text class=\"pele-cardinality\" x=\"",
-            num(x + ox),
-            "\" y=\"",
-            num(y + oy + tiny * 0.35),
-            "\" text-anchor=\"middle\">",
-            esc(&text),
-            "</text>"
-        )
-        .unwrap();
+    for item in cards {
+        if let Some(math) = item.math {
+            svg_write!(cards_out, label_svg(&math, item.x + ox, item.y + oy, " class=\"pele-cardinality\"", ctx.icons())).unwrap();
+        } else {
+            svg_write!(
+                cards_out,
+                "<text class=\"pele-cardinality\" x=\"",
+                num(item.x + ox),
+                "\" y=\"",
+                num(item.y + oy + tiny * 0.35),
+                "\" text-anchor=\"middle\">",
+                esc(&item.text),
+                "</text>"
+            )
+            .unwrap();
+        }
     }
     let mut content = String::new();
     if !clusters.is_empty() {
@@ -832,14 +905,15 @@ fn class_svg(
         num(v.w),
         "\" height=\"",
         num(v.h),
-        "\" rx=\"",
-        RADIUS,
-        "\" fill=\"",
-        ctx.paint(Role::NodeFill, "var(--_s)"),
-        "\" stroke=\"",
-        ctx.paint(Role::NodeStroke, "var(--_b)"),
         "\"",
-        st.shape,
+        crate::svg::theme::rounded(&svg_format!(
+            " fill=\"",
+            ctx.paint(Role::NodeFill, "var(--_s)"),
+            "\" stroke=\"",
+            ctx.paint(Role::NodeStroke, "var(--_b)"),
+            "\"",
+            st.shape
+        )),
         "/>"
     );
     let first = top + v.title_h;
@@ -869,7 +943,29 @@ fn class_svg(
         .unwrap();
     }
     let mut y = top + 8.0;
-    for annotation in &v.annotations {
+    for (annotation, math) in &v.annotations {
+        if let Some(math) = math {
+            let h = js::max(tiny_h, math.height);
+            svg_write!(
+                body,
+                label_svg(
+                    math,
+                    0.0,
+                    y + h / 2.0,
+                    &svg_format!(
+                        " class=\"pele-annotation\" font-size=\"",
+                        js::number_text(tiny),
+                        "\" fill=\"",
+                        ctx.paint(Role::SecondaryText, "var(--_m)"),
+                        "\""
+                    ),
+                    ctx.icons()
+                )
+            )
+            .unwrap();
+            y += h;
+            continue;
+        }
         svg_write!(
             body,
             "<text class=\"pele-annotation\" x=\"0\" y=\"",

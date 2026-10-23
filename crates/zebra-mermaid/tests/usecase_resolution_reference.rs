@@ -76,7 +76,7 @@ fn model_value(m: &zebra_mermaid::diagrams::usecase::UsecaseModel) -> Value {
 #[test]
 fn semantic_order_metadata_and_error_precedence_match_pinned_node() {
     let mut source = String::new();
-    GzDecoder::new(include_bytes!("../../../tests/fixtures/unit/usecase-resolution-reference.json.gz").as_slice())
+    GzDecoder::new(include_bytes!("../../../tests/fixtures/pele-1.9.0/unit/usecase-resolution-reference.json.gz").as_slice())
         .read_to_string(&mut source)
         .unwrap();
     let fixture: Value = serde_json::from_str(&source).unwrap();

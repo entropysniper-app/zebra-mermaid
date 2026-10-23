@@ -12,7 +12,6 @@ use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::entities::decode_entities;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
@@ -127,7 +126,8 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
 
     let gap = js::min(padding_x, bit_width - 1.0);
     let width = if !rows.is_empty() { bits_per_row * bit_width - gap } else { 0.0 };
-    let title = layout_label(model.title.as_deref(), false, &m, size, if down { title_room(options) } else { 4000.0 }, style::BOLD);
+    let title =
+        layout_label(model.title.as_deref(), false, &m.without_math(), size, if down { title_room(options) } else { 4000.0 }, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + if rows_height > 0.0 { 12.0 } else { 0.0 } } else { 0.0 };
 
     // The pieces of a field split across rows share its label, so each width is fitted once.
@@ -161,13 +161,9 @@ fn draw(model: &PacketModel, config: &Config, ctx: &RenderCtx, down: bool) -> Re
                 num(w),
                 "\" height=\"",
                 num(row_height),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                fill,
-                "\" stroke=\"",
-                stroke,
-                "\"/>"
+                "\"",
+                crate::svg::theme::rounded(&svg_format!(" fill=\"", fill, "\" stroke=\"", stroke, "\"")),
+                "/>"
             )
             .unwrap();
             if down {

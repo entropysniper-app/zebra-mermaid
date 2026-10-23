@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {formatRust} from './format-rust.mjs';
 // Mechanical port of every original classTypes callback; input/output observations stay symbolic.
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -23,7 +24,7 @@ vm.runInNewContext(ts.transpileModule(code,{compilerOptions:{target:ts.ScriptTar
 if(registered.length!==originals.length)throw Error('Count differs');const records=[];
 for(let i=0;i<registered.length;i++){const t=registered[i],o=originals[i];if(t.name!==o.fullName)throw Error('Identity differs');assertions=[];t.fn();if(!assertions.length)throw Error('No assertion');records.push({id:o.id,index:i,name:t.name,assertions})}
 let rust='// Generated from unchanged Mermaid/Pele ClassMember assertions (MIT).\n';for(const r of records)rust+=`#[test]\nfn case_${String(r.index).padStart(2,'0')}() { check("${r.id}"); }\n`;
-const artifacts=[['tests/upstream/ir/class-members.json',JSON.stringify({source:file,sourceSha256,records},null,2)+'\n'],['crates/zebra-mermaid/tests/upstream/class_members_generated.rs',rust]];
+const artifacts=[['tests/upstream/ir/class-members.json',JSON.stringify({source:file,sourceSha256,records},null,2)+'\n'],['crates/zebra-mermaid/tests/upstream/class_members_generated.rs',formatRust(rust)]];
 const path='tests/upstream/ports.json',data=JSON.parse(readFileSync(resolve(root,path),'utf8')),owned=new Set(originals.map(t=>t.id));const previous=data.ports.filter(p=>owned.has(p.upstreamId));data.ports=data.ports.filter(p=>!owned.has(p.upstreamId));
 for(const r of records)data.ports.push({upstreamId:r.id,sourceSha256,target:{kind:'rust',binary:'lib',file:'crates/zebra-mermaid/tests/upstream/class_members_generated.rs',test:`diagrams::class::upstream_members::case_${String(r.index).padStart(2,'0')}`,features:['class']},assertionReview:'Unchanged original callback, constructor input, method/attribute kind and both getDisplayDetails properties are retained. Rust Member::display() maps displayText; the parsed classifier maps cssStyle through the same three-value representation as the reference adapter. Every original string equality is executed; no output is used to generate expectations.'});
 const sort=a=>[...a].sort((a,b)=>a.upstreamId.localeCompare(b.upstreamId));

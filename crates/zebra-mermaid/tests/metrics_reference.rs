@@ -4,7 +4,7 @@ use zebra_mermaid::text::{MetricsMeasurer, TextMeasurer};
 #[test]
 fn default_metrics_match_pinned_reference_bits() {
     let data: serde_json::Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../tests/fixtures/unit/metrics-regression.json.gz")[..],
+        &include_bytes!("../../../tests/fixtures/pele-1.9.0/unit/metrics-regression.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(data["upstreamCommit"], zebra_mermaid::PELE_COMMIT);

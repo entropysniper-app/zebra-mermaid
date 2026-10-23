@@ -599,9 +599,18 @@ mod tests {
 
     #[test]
     fn markers() {
-        assert_eq!(marker("arrow_point", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "<path class=\"pele-marker\" d=\"M10,20L6.64,12L13.36,12Z\" fill=\"red\" stroke=\"none\"/>");
-        assert_eq!(marker("arrow_circle", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "<circle class=\"pele-marker\" cx=\"10\" cy=\"16\" r=\"3.5\" fill=\"red\" stroke=\"none\"/>");
-        assert_eq!(marker("arrow_cross", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "<path class=\"pele-marker\" d=\"M13.5,12.5L6.5,19.5M6.5,12.5L13.5,19.5\"/>");
+        assert_eq!(
+            marker("arrow_point", 10.0, 20.0, 0.0, 1.0, "red").to_string(),
+            "<path class=\"pele-marker\" d=\"M10,20L6.64,12L13.36,12Z\" fill=\"red\" stroke=\"none\"/>"
+        );
+        assert_eq!(
+            marker("arrow_circle", 10.0, 20.0, 0.0, 1.0, "red").to_string(),
+            "<circle class=\"pele-marker\" cx=\"10\" cy=\"16\" r=\"3.5\" fill=\"red\" stroke=\"none\"/>"
+        );
+        assert_eq!(
+            marker("arrow_cross", 10.0, 20.0, 0.0, 1.0, "red").to_string(),
+            "<path class=\"pele-marker\" d=\"M13.5,12.5L6.5,19.5M6.5,12.5L13.5,19.5\"/>"
+        );
         assert_eq!(marker("none", 10.0, 20.0, 0.0, 1.0, "red").to_string(), "");
     }
 }

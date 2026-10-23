@@ -33,6 +33,8 @@ fn dir(v: &Value) -> Option<Dir> {
 
 fn options(v: &Value) -> LayeredOptions {
     LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: num(&v["nodeSep"]),
         edge_sep: num(&v["edgeSep"]),
         rank_sep: num(&v["rankSep"]),
@@ -64,6 +66,8 @@ fn lnodes(v: &Value) -> Vec<LNode> {
             h: num(&n["h"]),
             kind: kind(&n["kind"]),
             pin: num(&n["pin"]),
+            hint: n.get("hint").map_or(f64::NAN, num),
+            key: n.get("key").map_or(f64::NAN, num),
             span: num(&n["span"]),
             x: num(&n["x"]),
             y: num(&n["y"]),

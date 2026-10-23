@@ -1,0 +1,485 @@
+{"source":"a: 1","expect":{"ok":true,"value":{"a":1}}}
+{"source":"a: -0.5e3","expect":{"ok":true,"value":{"a":-500}}}
+{"source":"a: 0x1F","expect":{"ok":true,"value":{"a":31}}}
+{"source":"a: -0o17","expect":{"ok":true,"value":{"a":-15}}}
+{"source":"a: 0b101","expect":{"ok":true,"value":{"a":5}}}
+{"source":"a: .inf","expect":{"ok":true,"value":{"a":{"$number":"Infinity"}}}}
+{"source":"a: -.Inf","expect":{"ok":true,"value":{"a":{"$number":"-Infinity"}}}}
+{"source":"a: .nan","expect":{"ok":true,"value":{"a":{"$number":"NaN"}}}}
+{"source":"a: ~","expect":{"ok":true,"value":{"a":null}}}
+{"source":"a: null","expect":{"ok":true,"value":{"a":null}}}
+{"source":"a: True","expect":{"ok":true,"value":{"a":true}}}
+{"source":"a: 01","expect":{"ok":true,"value":{"a":1}}}
+{"source":"a: 1.","expect":{"ok":true,"value":{"a":1}}}
+{"source":"a: .5","expect":{"ok":true,"value":{"a":0.5}}}
+{"source":"a: +7","expect":{"ok":true,"value":{"a":7}}}
+{"source":"a: \"x\\ty\\u00e9\\U0001F600\"","expect":{"ok":true,"value":{"a":"x\tyé😀"}}}
+{"source":"a: 'it''s'","expect":{"ok":true,"value":{"a":"it's"}}}
+{"source":"a: \"\\xZZ\"","expect":{"ok":false,"message":"Invalid code point NaN"}}
+{"source":"a: \"\\q\"","expect":{"ok":false,"message":"YAML: unknown escape sequence"}}
+{"source":"a: \"\\uD83D\\uDE00\"","expect":{"ok":true,"value":{"a":"😀"}}}
+{"source":"a: [1, 2, [3, {b: c}]]","expect":{"ok":true,"value":{"a":[1,2,[3,{"b":"c"}]]}}}
+{"source":"a: [1 2]","expect":{"ok":true,"value":{"a":["1 2"]}}}
+{"source":"{a: 1 b: 2}","expect":{"ok":true,"value":{"a":"1 b: 2"}}}
+{"source":"a: {x: , y}","expect":{"ok":true,"value":{"a":{"x":null,"y":null}}}}
+{"source":"a: [1, , 2]","expect":{"ok":false,"message":"YAML: expected the node content, but found ','"}}
+{"source":"a: [1,\n  2,\n  3]","expect":{"ok":true,"value":{"a":[1,2,3]}}}
+{"source":"a: {b: [1,\n 2]}","expect":{"ok":true,"value":{"a":{"b":[1,2]}}}}
+{"source":"a: |\n  one\n  two\n","expect":{"ok":true,"value":{"a":"one\ntwo\n"}}}
+{"source":"a: >\n  one\n  two\n\n  three\n","expect":{"ok":true,"value":{"a":"one two\nthree\n"}}}
+{"source":"a: |-\n  x\n","expect":{"ok":true,"value":{"a":"x"}}}
+{"source":"a: |+\n  x\n\n","expect":{"ok":true,"value":{"a":"x\n\n\n"}}}
+{"source":"a: |2\n   x\n","expect":{"ok":true,"value":{"a":" x\n"}}}
+{"source":"a: >-\n  a\n   b\n  c\n","expect":{"ok":true,"value":{"a":"a\n b\nc"}}}
+{"source":"a: plain\n  continued\n\n  after blank","expect":{"ok":true,"value":{"a":"plain continued\nafter blank"}}}
+{"source":"a:\n  - x\n  - y: 1\n    z: 2\n  -\n    - deep","expect":{"ok":true,"value":{"a":["x",{"y":1,"z":2},["deep"]]}}}
+{"source":"- a\n- b","expect":{"ok":true,"value":["a","b"]}}
+{"source":"-\n  - a","expect":{"ok":true,"value":[["a"]]}}
+{"source":"- a: 1\n  b: 2","expect":{"ok":true,"value":[{"a":1,"b":2}]}}
+{"source":"a: 1\n  b: 2","expect":{"ok":true,"value":{"a":"1 b: 2"}}}
+{"source":"a:\n    b: 1\n  c: 2","expect":{"ok":false,"message":"YAML: bad indentation of a mapping entry"}}
+{"source":"\ta: 1","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"a: 1\n\tb: 2","expect":{"ok":true,"value":{"a":"1 b: 2"}}}
+{"source":"a: 1 # comment","expect":{"ok":true,"value":{"a":1}}}
+{"source":"a: 'x' # c","expect":{"ok":true,"value":{"a":"x"}}}
+{"source":"a: \"x\" junk","expect":{"ok":false,"message":"YAML: unexpected content after a value"}}
+{"source":"a: [1, 2] junk","expect":{"ok":false,"message":"YAML: unexpected content after a value"}}
+{"source":"a: [1, 2","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"a: \"open","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"a: 'open","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"\"quoted key\": 1","expect":{"ok":true,"value":{"quoted key":1}}}
+{"source":"'k''s': 2","expect":{"ok":true,"value":{"k's":2}}}
+{"source":"key with spaces: 3","expect":{"ok":true,"value":{"key with spaces":3}}}
+{"source":"? complex","expect":{"ok":true,"value":"? complex"}}
+{"source":"a: b: c","expect":{"ok":true,"value":{"a":"b: c"}}}
+{"source":"---\na: 1\n...","expect":{"ok":false,"message":"YAML: can not read a block mapping entry"}}
+{"source":"---\na: 1\n---\nb: 2","expect":{"ok":true,"value":{"a":1,"b":2}}}
+{"source":"a: &x 1","expect":{"ok":true,"value":{"a":"&x 1"}}}
+{"source":"a: *x","expect":{"ok":true,"value":{"a":"*x"}}}
+{"source":"a: !tag x","expect":{"ok":true,"value":{"a":"!tag x"}}}
+{"source":"1: one\n0: zero\nb: two","expect":{"ok":true,"value":{"0":"zero","1":"one","b":"two"}}}
+{"source":"__proto__: 1","expect":{"ok":true,"value":{"__proto__":1}}}
+{"source":"a:\n  b:\n    c:\n      d: 1","expect":{"ok":true,"value":{"a":{"b":{"c":{"d":1}}}}}}
+{"source":"a: [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]","expect":{"ok":false,"message":"YAML: nesting is too deep"}}
+{"source":"a: [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]","expect":{"ok":true,"value":{"a":[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}}}
+{"source":"标题: 中文 # 注释","expect":{"ok":true,"value":{"标题":"中文"}}}
+{"source":"a: \"line1\n  line2\n\n  line3\"","expect":{"ok":true,"value":{"a":"line1 line2\nline3"}}}
+{"source":"a: 'x\n\n  y'","expect":{"ok":true,"value":{"a":"x\ny"}}}
+{"source":"a: x\n#comment\nb: y","expect":{"ok":true,"value":{"a":"x","b":"y"}}}
+{"source":"a:\n\nb: 1","expect":{"ok":true,"value":{"a":null,"b":1}}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"   ","expect":{"ok":true,"value":null}}
+{"source":"# only comment","expect":{"ok":true,"value":null}}
+{"source":"a: :x","expect":{"ok":true,"value":{"a":":x"}}}
+{"source":"a: x:y","expect":{"ok":true,"value":{"a":"x:y"}}}
+{"source":"a: x: y","expect":{"ok":true,"value":{"a":"x: y"}}}
+{"source":"a: -","expect":{"ok":true,"value":{"a":"-"}}}
+{"source":"a: - b","expect":{"ok":true,"value":{"a":"- b"}}}
+{"source":"-1: x","expect":{"ok":true,"value":{"-1":"x"}}}
+{"source":"- - a","expect":{"ok":true,"value":["- a"]}}
+{"source":"a: \"\"","expect":{"ok":true,"value":{"a":""}}}
+{"source":"a: ''","expect":{"ok":true,"value":{"a":""}}}
+{"source":"a: [a, \"b\", 'c', {d: e}]","expect":{"ok":true,"value":{"a":["a","b","c",{"d":"e"}]}}}
+{"source":"config:\n  pie:\n    textPosition: 0.5\n  themeVariables:\n    pieOuterStrokeWidth: \"5px\"","expect":{"ok":true,"value":{"config":{"pie":{"textPosition":0.5},"themeVariables":{"pieOuterStrokeWidth":"5px"}}}}}
+{"source":"a: {b: 1, b: 2}","expect":{"ok":true,"value":{"a":{"b":2}}}}
+{"source":"a: 1\na: 2","expect":{"ok":true,"value":{"a":2}}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"-2.5'{,\n#x y\n: é'  ]","expect":{"ok":true,"value":"-2.5'{,  : é'  ]"}}
+{"source":"'- \t\n","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":" : : - 'ékey~#>-2.50x10","expect":{"ok":true,"value":": : - 'ékey~#>-2.50x10"}}
+{"source":"~\\b ]}akey","expect":{"ok":true,"value":"~\\b ]}akey"}}
+{"source":"]},0x10-2.5-2.5[]: : ","expect":{"ok":true,"value":"]},0x10-2.5-2.5[]: :"}}
+{"source":"-  >[b-2.5~'\\1~:","expect":{"ok":true,"value":[">[b-2.5~'\\1~:"]}}
+{"source":"1true0x10\\|0x100x10","expect":{"ok":true,"value":"1true0x10\\|0x100x10"}}
+{"source":"\\a\"[x y#é","expect":{"ok":true,"value":"\\a\"[x y#é"}}
+{"source":"#\\}>x y#- \naa0x10\\>","expect":{"ok":true,"value":"aa0x10\\>"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"|x y\t\n  \t1中>","expect":{"ok":true,"value":"|x y 1中>"}}
+{"source":": \t\"#: {  \\nullx y1","expect":{"ok":true,"value":": \t\"#: {  \\nullx y1"}}
+{"source":"|x y0x10\"\n|中null #,' ","expect":{"ok":true,"value":"|x y0x10\" |中null"}}
+{"source":"}, ","expect":{"ok":true,"value":"},"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"a:","expect":{"ok":true,"value":{"a":null}}}
+{"source":"\tb {\"x y]]中x y中'","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"{#- '中key\n\\\\中}","expect":{"ok":true,"value":{"#- '中key \\\\中":null}}}
+{"source":"~\n],","expect":{"ok":true,"value":"~ ],"}}
+{"source":"{\t#}['- true#\tnull","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"}-2.5~#1 ","expect":{"ok":true,"value":"}-2.5~#1"}}
+{"source":"{|null]- key-2.5x y0x10","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"\n  keyx y~","expect":{"ok":true,"value":"keyx y~"}}
+{"source":"\\0x10\n\t\n  '{x yé>","expect":{"ok":true,"value":"\\0x10\n'{x yé>"}}
+{"source":">|\n  \\,: x y,##","expect":{"ok":true,"value":">| \\,: x y,##"}}
+{"source":"0x10: :\n  '{~null'~\n  \"","expect":{"ok":true,"value":{"16":": '{~null'~ \""}}}
+{"source":"1中[~\tnulla é:key~","expect":{"ok":true,"value":"1中[~\tnulla é:key~"}}
+{"source":"|\n  中","expect":{"ok":true,"value":"中\n"}}
+{"source":"b}\tkeykey]中-2.5\n  \"","expect":{"ok":true,"value":"b}\tkeykey]中-2.5 \""}}
+{"source":",","expect":{"ok":true,"value":","}}
+{"source":"' é- -2.5\\","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"x ytrue","expect":{"ok":true,"value":"x ytrue"}}
+{"source":"null>- ","expect":{"ok":true,"value":"null>-"}}
+{"source":":","expect":{"ok":true,"value":":"}}
+{"source":"-2.5\n'key\"}中 x y \n  true","expect":{"ok":true,"value":"-2.5 'key\"}中 x y true"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"~,#-2.5 'key|x ynullkey#]","expect":{"ok":true,"value":"~,#-2.5 'key|x ynullkey#]"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\n  : \n  [中\\nullé-2.5null>-2.5","expect":{"ok":true,"value":": [中\\nullé-2.5null>-2.5"}}
+{"source":"- {1[\n\"|1}","expect":{"ok":true,"value":[{"1[ \"|1":null}]}}
+{"source":"\nx y'}{\\:#'","expect":{"ok":true,"value":"x y'}{\\:#'"}}
+{"source":">key{0x10x y\"-2.5- \t","expect":{"ok":true,"value":">key{0x10x y\"-2.5-"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"}  \"  null\t'0x10 ,","expect":{"ok":true,"value":"}  \"  null\t'0x10 ,"}}
+{"source":"b-2.5","expect":{"ok":true,"value":"b-2.5"}}
+{"source":"  a,1- '0x10- #-2.5","expect":{"ok":true,"value":"a,1- '0x10- #-2.5"}}
+{"source":":>:'","expect":{"ok":true,"value":":>:'"}}
+{"source":"1\\x y#中'","expect":{"ok":true,"value":"1\\x y#中'"}}
+{"source":">>|1éx ytruenull1>","expect":{"ok":true,"value":">>|1éx ytruenull1>"}}
+{"source":"\n\t","expect":{"ok":true,"value":null}}
+{"source":"~b","expect":{"ok":true,"value":"~b"}}
+{"source":"'\\\n   [-2.51[:- ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"key: \nx yax ya\t\"\t|]é","expect":{"ok":false,"message":"YAML: can not read a block mapping entry"}}
+{"source":"]1é","expect":{"ok":true,"value":"]1é"}}
+{"source":"x y]>\nb{  ","expect":{"ok":true,"value":"x y]> b{"}}
+{"source":" [:[~true|x ynulla","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"  {","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":": ,]aa>","expect":{"ok":true,"value":": ,]aa>"}}
+{"source":"- b}énull","expect":{"ok":true,"value":["b}énull"]}}
+{"source":"x y\t0x10[null\\中","expect":{"ok":true,"value":"x y\t0x10[null\\中"}}
+{"source":"-2.5-2.5- - 中[éb##\n,1","expect":{"ok":true,"value":"-2.5-2.5- - 中[éb## ,1"}}
+{"source":"- a#,bb{ 1x y中é","expect":{"ok":true,"value":["a#,bb{ 1x y中é"]}}
+{"source":"\"~~'0x10~[~中\"","expect":{"ok":true,"value":"~~'0x10~[~中"}}
+{"source":"\n  \"0x10x y[","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"é>x y>\\key中~ {","expect":{"ok":true,"value":"é>x y>\\key中~ {"}}
+{"source":"中\"}0x10\t: 1\n#,","expect":{"ok":true,"value":{"中\"}0x10":1}}}
+{"source":"{-2.5|\\: null","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"\\","expect":{"ok":true,"value":"\\"}}
+{"source":">[\\  ","expect":{"ok":true,"value":">[\\"}}
+{"source":",|","expect":{"ok":true,"value":",|"}}
+{"source":"\t","expect":{"ok":true,"value":null}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\" 中~1b |","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"- } ","expect":{"ok":true,"value":["}"]}}
+{"source":",","expect":{"ok":true,"value":","}}
+{"source":"0x1011,[key- #>","expect":{"ok":true,"value":"0x1011,[key-"}}
+{"source":"key\nkey\"x y~keyé0x10}true\\","expect":{"ok":true,"value":"key key\"x y~keyé0x10}true\\"}}
+{"source":"b\n\\: ]中","expect":{"ok":true,"value":"b \\: ]中"}}
+{"source":"{\"中-2.51\n   0x10\\","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"\">\\:b","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"true\\0x10","expect":{"ok":true,"value":"true\\0x10"}}
+{"source":",[]key,  :['\n  >","expect":{"ok":true,"value":",[]key,  :[' >"}}
+{"source":"\tkey~\\-2.5true}中~\\[: {","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"key  }\n~-2.5[\t- \n","expect":{"ok":true,"value":"key  } ~-2.5[\t-"}}
+{"source":"\"0x10\\bnull0x10中a","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"  \"b: \\: ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"#true","expect":{"ok":true,"value":null}}
+{"source":"true~[ab,","expect":{"ok":true,"value":"true~[ab,"}}
+{"source":"null,\"x yé{key1 : \"#a","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"\t#中","expect":{"ok":true,"value":null}}
+{"source":"1}null,é{key\\: :  \n","expect":{"ok":true,"value":{"1}null,é{key\\":":"}}}
+{"source":"a'[#:keybx y\n  \n  1","expect":{"ok":true,"value":"a'[#:keybx y\n1"}}
+{"source":"\n  ,{ ~- é,","expect":{"ok":true,"value":",{ ~- é,"}}
+{"source":"nulltrue- é#1\t中>","expect":{"ok":true,"value":"nulltrue- é#1\t中>"}}
+{"source":"a\\true\\\n  ","expect":{"ok":true,"value":"a\\true\\"}}
+{"source":"\"\n  ]{0x10~#é","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"#key -2.5[","expect":{"ok":true,"value":null}}
+{"source":"x y x ya\t']","expect":{"ok":true,"value":"x y x ya\t']"}}
+{"source":"é{1}  ]}:","expect":{"ok":true,"value":{"é{1}  ]}":null}}}
+{"source":"|-2.5","expect":{"ok":true,"value":"|-2.5"}}
+{"source":"keyé0x10: ","expect":{"ok":true,"value":{"keyé0x10":null}}}
+{"source":": é \\]\t,","expect":{"ok":true,"value":": é \\]\t,"}}
+{"source":"- \">#true: :]","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"key","expect":{"ok":true,"value":"key"}}
+{"source":"a|0x10|\t","expect":{"ok":true,"value":"a|0x10|"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\n  truex yb \téx y中","expect":{"ok":true,"value":"truex yb \téx y中"}}
+{"source":"~1}|x y","expect":{"ok":true,"value":"~1}|x y"}}
+{"source":":0x10true~\n  -2.5~}","expect":{"ok":true,"value":":0x10true~ -2.5~}"}}
+{"source":"}\"|[\"~","expect":{"ok":true,"value":"}\"|[\"~"}}
+{"source":"#key","expect":{"ok":true,"value":null}}
+{"source":"'#\téé","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":",中true,: \n  true#é","expect":{"ok":true,"value":",中true,: true#é"}}
+{"source":",[}>a,> - #key''","expect":{"ok":true,"value":",[}>a,> -"}}
+{"source":" ","expect":{"ok":true,"value":null}}
+{"source":"x y\n  }x y:]\n  -2.5","expect":{"ok":true,"value":"x y }x y:] -2.5"}}
+{"source":"'\" '中- 0x10#\n  #true~","expect":{"ok":false,"message":"YAML: unexpected content after a value"}}
+{"source":"é:]x y中  b\\\n   ': null","expect":{"ok":true,"value":"é:]x y中  b\\ ': null"}}
+{"source":"|中-2.5x y","expect":{"ok":true,"value":"|中-2.5x y"}}
+{"source":"{\\true","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"[1b|","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"[#\né\n   : - -2.5''  ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"\\}  ['x y:#0x10'","expect":{"ok":true,"value":"\\}  ['x y:#0x10'"}}
+{"source":"~|trueé:a~1","expect":{"ok":true,"value":"~|trueé:a~1"}}
+{"source":"\t: 0x10~","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":": key}é'#\"'1x yéx y'","expect":{"ok":true,"value":": key}é'#\"'1x yéx y'"}}
+{"source":"- \t\":null","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"\n  ]key\",  >{\t,1~key","expect":{"ok":true,"value":"]key\",  >{\t,1~key"}}
+{"source":"- btruekey-2.5 >","expect":{"ok":true,"value":["btruekey-2.5 >"]}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"{  - |\n  a:énull[nulltrue","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"\n>akey'\n    - 中  ","expect":{"ok":true,"value":">akey' - 中"}}
+{"source":"  |[x y#null  }}  ","expect":{"ok":true,"value":"|[x y#null  }}"}}
+{"source":">é'a\té- >中- \n   ","expect":{"ok":true,"value":">é'a\té- >中-"}}
+{"source":"~true  #>}","expect":{"ok":true,"value":"~true"}}
+{"source":"- \\|~","expect":{"ok":true,"value":["\\|~"]}}
+{"source":"'|:x y中0x10中é| ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":">\"é:  [\n|x y11,,","expect":{"ok":true,"value":">\"é:  [ |x y11,,"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":": a: ","expect":{"ok":true,"value":": a:"}}
+{"source":"  :\"#'\n  \n  ","expect":{"ok":true,"value":":\"#'"}}
+{"source":"中[","expect":{"ok":true,"value":"中["}}
+{"source":"a{}null","expect":{"ok":true,"value":"a{}null"}}
+{"source":"~'|{中  {|bx y|>","expect":{"ok":true,"value":"~'|{中  {|bx y|>"}}
+{"source":"a\n,","expect":{"ok":true,"value":"a ,"}}
+{"source":"\\","expect":{"ok":true,"value":"\\"}}
+{"source":"\n  b:: :x yx y~","expect":{"ok":true,"value":"b:: :x yx y~"}}
+{"source":":}","expect":{"ok":true,"value":":}"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"}}é: {\"\n  é}x y","expect":{"ok":true,"value":"}}é: {\" é}x y"}}
+{"source":"}b\nx y\",x y-2.5 ","expect":{"ok":true,"value":"}b x y\",x y-2.5"}}
+{"source":"x y  1: '~x y ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"- x y>}>key}] ","expect":{"ok":true,"value":["x y>}>key}]"]}}
+{"source":" a0x10null x yé","expect":{"ok":true,"value":"a0x10null x yé"}}
+{"source":"\n  '","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"true~b}","expect":{"ok":true,"value":"true~b}"}}
+{"source":"\n  x y:,0x10","expect":{"ok":true,"value":"x y:,0x10"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"'","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"- 中,\nnull","expect":{"ok":false,"message":"YAML: end of the stream or a document separator is expected"}}
+{"source":"]\n","expect":{"ok":true,"value":"]"}}
+{"source":"é\n  ~","expect":{"ok":true,"value":"é ~"}}
+{"source":"~,\n>- \"\t:#truekey#","expect":{"ok":true,"value":"~, >- \"\t:#truekey#"}}
+{"source":": #\\{","expect":{"ok":true,"value":":"}}
+{"source":"\t\"keyx y,\\0x10\n  true","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"x y\t- b-2.5中[","expect":{"ok":true,"value":"x y\t- b-2.5中["}}
+{"source":"  bb x y[|: é\\:: é","expect":{"ok":true,"value":{"bb x y[|":"é\\:: é"}}}
+{"source":"> ~nullkeyé","expect":{"ok":true,"value":"> ~nullkeyé"}}
+{"source":"a~é}a  \n    '{","expect":{"ok":true,"value":"a~é}a '{"}}
+{"source":"|- '#true\n  x y","expect":{"ok":true,"value":"|- '#true x y"}}
+{"source":" |btrue]a[x y|true : ","expect":{"ok":true,"value":"|btrue]a[x y|true :"}}
+{"source":"x ytrue{0x10","expect":{"ok":true,"value":"x ytrue{0x10"}}
+{"source":": - {''|]","expect":{"ok":true,"value":": - {''|]"}}
+{"source":"true中\nb\t}key","expect":{"ok":true,"value":"true中 b\t}key"}}
+{"source":"null  [éa0x10key\n","expect":{"ok":true,"value":"null  [éa0x10key"}}
+{"source":"\"","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"key: : ]>'\t\nb","expect":{"ok":false,"message":"YAML: can not read a block mapping entry"}}
+{"source":"key:|\" |\"~1|\t","expect":{"ok":true,"value":"key:|\" |\"~1|"}}
+{"source":"é: a,","expect":{"ok":true,"value":{"é":"a,"}}}
+{"source":">}b>b  x y\t- '","expect":{"ok":true,"value":">}b>b  x y\t- '"}}
+{"source":">|1\n  {}#'{a'","expect":{"ok":true,"value":">|1 {}#'{a'"}}
+{"source":"]#","expect":{"ok":true,"value":"]#"}}
+{"source":"x y\n-2.5{\n\"true: ","expect":{"ok":true,"value":"x y -2.5{ \"true:"}}
+{"source":" b>","expect":{"ok":true,"value":"b>"}}
+{"source":"null  null\t","expect":{"ok":true,"value":"null  null"}}
+{"source":"- |","expect":{"ok":true,"value":[""]}}
+{"source":"0x10","expect":{"ok":true,"value":16}}
+{"source":" 1{x y-2.5,'{é'[|","expect":{"ok":true,"value":"1{x y-2.5,'{é'[|"}}
+{"source":"}\nx y'\n  x y1\"[': \"\\","expect":{"ok":true,"value":"} x y' x y1\"[': \"\\"}}
+{"source":">  中{null>{é ","expect":{"ok":true,"value":">  中{null>{é"}}
+{"source":"nulltrue]:key\t} ]- [","expect":{"ok":true,"value":"nulltrue]:key\t} ]- ["}}
+{"source":"'","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":" ,\"{x y\n  中-2.5","expect":{"ok":true,"value":",\"{x y 中-2.5"}}
+{"source":"\n\tanull: ","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"{key]#}中|","expect":{"ok":false,"message":"YAML: unexpected content after a value"}}
+{"source":"x y]é~","expect":{"ok":true,"value":"x y]é~"}}
+{"source":"x y\tnull\n  ][\n  - x y","expect":{"ok":true,"value":"x y\tnull ][ - x y"}}
+{"source":"1[中 ,0x10","expect":{"ok":true,"value":"1[中 ,0x10"}}
+{"source":"-2.5truea\n  \t'true  key","expect":{"ok":true,"value":"-2.5truea 'true  key"}}
+{"source":"\t>:  1","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"a\\{keya  }","expect":{"ok":true,"value":"a\\{keya  }"}}
+{"source":"bnull]bétrue[b1~#\t","expect":{"ok":true,"value":"bnull]bétrue[b1~#"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"' \nkey-2.5:\t11","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\"-2.5]b1\n  {#","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"- -2.5\nb:- -2.5\n","expect":{"ok":false,"message":"YAML: end of the stream or a document separator is expected"}}
+{"source":"key#","expect":{"ok":true,"value":"key#"}}
+{"source":"\n|x ytrue:b\":","expect":{"ok":true,"value":"|x ytrue:b\":"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\\,anull~\n  1 ","expect":{"ok":true,"value":"\\,anull~ 1"}}
+{"source":"'#:|","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":" }: \n: ","expect":{"ok":false,"message":"YAML: end of the stream or a document separator is expected"}}
+{"source":"akey'\n","expect":{"ok":true,"value":"akey'"}}
+{"source":"#é-2.5é|","expect":{"ok":true,"value":null}}
+{"source":",,","expect":{"ok":true,"value":",,"}}
+{"source":"bé}>\\","expect":{"ok":true,"value":"bé}>\\"}}
+{"source":"b\t","expect":{"ok":true,"value":"b"}}
+{"source":":中0x10null{\t \t","expect":{"ok":true,"value":":中0x10null{"}}
+{"source":"\t}:\t\"中: keytruea中'","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":",0x10true true,1null1'","expect":{"ok":true,"value":",0x10true true,1null1'"}}
+{"source":"\t]]-2.5}#ab","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"{   : 1:~key|~","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"a\\: >x ynull","expect":{"ok":true,"value":{"a\\":">x ynull"}}}
+{"source":">  中é  true~[","expect":{"ok":true,"value":">  中é  true~["}}
+{"source":"1|: ,\"a- ","expect":{"ok":true,"value":{"1|":",\"a-"}}}
+{"source":",}}|aa","expect":{"ok":true,"value":",}}|aa"}}
+{"source":" ","expect":{"ok":true,"value":null}}
+{"source":"~\n  ~[}\n  \n|'- null","expect":{"ok":true,"value":"~ ~[}\n|'- null"}}
+{"source":"bnullb\n'\n  \"key:\"\n1a","expect":{"ok":true,"value":"bnullb ' \"key:\" 1a"}}
+{"source":",- \t\tx y","expect":{"ok":true,"value":",- \t\tx y"}}
+{"source":"null[>","expect":{"ok":true,"value":"null[>"}}
+{"source":"a}é{中: ","expect":{"ok":true,"value":{"a}é{中":null}}}
+{"source":"é: \\é: ","expect":{"ok":true,"value":{"é":"\\é:"}}}
+{"source":"'\\: ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"null:0x10: {b\": #}b\t","expect":{"ok":true,"value":"null:0x10: {b\": #}b"}}
+{"source":"é:key[0x10","expect":{"ok":true,"value":"é:key[0x10"}}
+{"source":":}1a\t ]}","expect":{"ok":true,"value":":}1a\t ]}"}}
+{"source":"-2.5-2.5#","expect":{"ok":true,"value":"-2.5-2.5#"}}
+{"source":"\n  x y1[,: b b|nullb","expect":{"ok":true,"value":{"x y1[,":"b b|nullb"}}}
+{"source":":\\\na[x y#","expect":{"ok":true,"value":":\\ a[x y#"}}
+{"source":"\nkey}- >[~]  ","expect":{"ok":true,"value":"key}- >[~]"}}
+{"source":"|","expect":{"ok":true,"value":""}}
+{"source":":[","expect":{"ok":true,"value":":["}}
+{"source":"{#b: ,,true\n  true\"","expect":{"ok":false,"message":"YAML: expected the node content, but found ','"}}
+{"source":"0x10\"':null: 中- |中","expect":{"ok":true,"value":"0x10\"':null: 中- |中"}}
+{"source":"~~","expect":{"ok":true,"value":"~~"}}
+{"source":"1#key\"\t#  ","expect":{"ok":true,"value":"1#key\"\t#"}}
+{"source":"': é- : key>","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"0x10: : ","expect":{"ok":true,"value":{"16":":"}}}
+{"source":"1:null-2.5{\n  \n  {  |#","expect":{"ok":true,"value":"1:null-2.5{\n{  |#"}}
+{"source":"\t,\"#中-   |","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"'true-2.5{0x10","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"\\  0x10\n'- \\\n  ,truetruenull","expect":{"ok":true,"value":"\\  0x10 '- \\ ,truetruenull"}}
+{"source":"  é\\key","expect":{"ok":true,"value":"é\\key"}}
+{"source":"b\n'key\n\\: >","expect":{"ok":true,"value":"b 'key \\: >"}}
+{"source":"][{>,\n]nulltrue","expect":{"ok":true,"value":"][{>, ]nulltrue"}}
+{"source":"  -2.5a\n,\\>'true","expect":{"ok":false,"message":"YAML: end of the stream or a document separator is expected"}}
+{"source":"~é","expect":{"ok":true,"value":"~é"}}
+{"source":"x y\t{}é中- [\\\n  ","expect":{"ok":true,"value":"x y\t{}é中- [\\"}}
+{"source":"\tnulla'\"{-   ,1-2.5b","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\t'é0x10","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"1~- \n>中null:","expect":{"ok":true,"value":"1~- >中null:"}}
+{"source":"|\\|nullé, >","expect":{"ok":true,"value":"|\\|nullé, >"}}
+{"source":"\n  '","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"  [\nx y: ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"null#]key\n  \": ","expect":{"ok":true,"value":"null#]key \":"}}
+{"source":":[\\0x10  - - true","expect":{"ok":true,"value":":[\\0x10  - - true"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"~[:- ","expect":{"ok":true,"value":"~[:-"}}
+{"source":"#'b}","expect":{"ok":true,"value":null}}
+{"source":"\t'x y0x10~}}>","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"x ykey0x10\"1\n  |","expect":{"ok":true,"value":"x ykey0x10\"1 |"}}
+{"source":",中x y\\","expect":{"ok":true,"value":",中x y\\"}}
+{"source":"  []}{","expect":{"ok":false,"message":"YAML: unexpected content after a value"}}
+{"source":"#","expect":{"ok":true,"value":null}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"中x y","expect":{"ok":true,"value":"中x y"}}
+{"source":"é\t#b 0x10null  nullkeykey","expect":{"ok":true,"value":"é"}}
+{"source":"étrue0x10é-2.5\t: 11\\0x10中","expect":{"ok":true,"value":{"étrue0x10é-2.5":"11\\0x10中"}}}
+{"source":"é>key]","expect":{"ok":true,"value":"é>key]"}}
+{"source":"akeytrue\t~x yé\\~1key","expect":{"ok":true,"value":"akeytrue\t~x yé\\~1key"}}
+{"source":"\"","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a double quoted scalar"}}
+{"source":"中:\"key\n","expect":{"ok":true,"value":"中:\"key"}}
+{"source":"a0x10\n  >0x10  a\\key","expect":{"ok":true,"value":"a0x10 >0x10  a\\key"}}
+{"source":"#","expect":{"ok":true,"value":null}}
+{"source":"\\","expect":{"ok":true,"value":"\\"}}
+{"source":"key","expect":{"ok":true,"value":"key"}}
+{"source":"]b\\nullnull[\n  [,>true","expect":{"ok":true,"value":"]b\\nullnull[ [,>true"}}
+{"source":"'0x10-2.5keyb~\n  -2.5bab~,","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"-2.5'>\n\n  ,","expect":{"ok":true,"value":"-2.5'>\n,"}}
+{"source":"\n1x y[[b\t|~\n  [\n  b","expect":{"ok":true,"value":"1x y[[b\t|~ [ b"}}
+{"source":"\nkey: éb['key-2.5","expect":{"ok":true,"value":{"key":"éb['key-2.5"}}}
+{"source":"x y]- b\n,  ","expect":{"ok":true,"value":"x y]- b ,"}}
+{"source":"null\": |-2.5>{]","expect":{"ok":true,"value":{"null\"":"|-2.5>{]"}}}
+{"source":"  #\"[: ' anull: [é","expect":{"ok":true,"value":null}}
+{"source":"key[#- ","expect":{"ok":true,"value":"key[#-"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"\\: 0x100x10\"]  ]null0x10}[  ","expect":{"ok":true,"value":{"\\":"0x100x10\"]  ]null0x10}["}}}
+{"source":"~- 1}","expect":{"ok":true,"value":"~- 1}"}}
+{"source":"x y,,'","expect":{"ok":true,"value":"x y,,'"}}
+{"source":">\"1 b- ","expect":{"ok":true,"value":">\"1 b-"}}
+{"source":"|1:'>aa>'{","expect":{"ok":true,"value":"|1:'>aa>'{"}}
+{"source":"\n  }~key1","expect":{"ok":true,"value":"}~key1"}}
+{"source":"key  anull\\{: >}\nbtrue","expect":{"ok":false,"message":"YAML: can not read a block mapping entry"}}
+{"source":"}{|","expect":{"ok":true,"value":"}{|"}}
+{"source":"a1|\t{é","expect":{"ok":true,"value":"a1|\t{é"}}
+{"source":"\n  0x10","expect":{"ok":true,"value":16}}
+{"source":"~keyx yb': }-2.5\nb","expect":{"ok":false,"message":"YAML: can not read a block mapping entry"}}
+{"source":"]中x y#~x y1é","expect":{"ok":true,"value":"]中x y#~x y1é"}}
+{"source":"aé0x10","expect":{"ok":true,"value":"aé0x10"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":" bnull1\\null","expect":{"ok":true,"value":"bnull1\\null"}}
+{"source":"'bkey-2.5b>|keyb","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"\t,-2.5","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":" \n-2.5x y}~,b","expect":{"ok":true,"value":"-2.5x y}~,b"}}
+{"source":": \tx y:","expect":{"ok":true,"value":": \tx y:"}}
+{"source":"|1","expect":{"ok":true,"value":""}}
+{"source":"}{null]中>\"","expect":{"ok":true,"value":"}{null]中>\""}}
+{"source":"bb\n  ]'1key\"\">|- ]","expect":{"ok":true,"value":"bb ]'1key\"\">|- ]"}}
+{"source":"]é-2.5\n  中1: ","expect":{"ok":true,"value":"]é-2.5 中1:"}}
+{"source":"0x10,-  1\\'éb: ['","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"|}-2.5\"a>a  '","expect":{"ok":true,"value":"|}-2.5\"a>a  '"}}
+{"source":":,a'#|","expect":{"ok":true,"value":":,a'#|"}}
+{"source":"|\\","expect":{"ok":true,"value":"|\\"}}
+{"source":"null1","expect":{"ok":true,"value":"null1"}}
+{"source":": 中key>['","expect":{"ok":true,"value":": 中key>['"}}
+{"source":"}- >true\n#1","expect":{"ok":true,"value":"}- >true"}}
+{"source":": ,#>:- null中","expect":{"ok":true,"value":": ,#>:- null中"}}
+{"source":">true  |null","expect":{"ok":true,"value":">true  |null"}}
+{"source":"中>]|[","expect":{"ok":true,"value":"中>]|["}}
+{"source":"-2.5a\":- ]","expect":{"ok":true,"value":"-2.5a\":- ]"}}
+{"source":"-2.5{b","expect":{"ok":true,"value":"-2.5{b"}}
+{"source":"}\naa","expect":{"ok":true,"value":"} aa"}}
+{"source":"}>'    \tnull,[","expect":{"ok":true,"value":"}>'    \tnull,["}}
+{"source":"'|{btruenullnull1}}- ","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"[中null0x10}\n中","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}
+{"source":"a-2.5,x ytrue","expect":{"ok":true,"value":"a-2.5,x ytrue"}}
+{"source":"a中 中~-2.5","expect":{"ok":true,"value":"a中 中~-2.5"}}
+{"source":"中é>[","expect":{"ok":true,"value":"中é>["}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"}    \"{é- :\ntrue","expect":{"ok":true,"value":"}    \"{é- : true"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"] [#\n,-2.5|   [:1","expect":{"ok":true,"value":"] [# ,-2.5|   [:1"}}
+{"source":"true|\n   key'é","expect":{"ok":true,"value":"true| key'é"}}
+{"source":"\n   null:>~1  中\n  {","expect":{"ok":false,"message":"YAML: end of the stream or a document separator is expected"}}
+{"source":"\\中\n|é\\- étruekey","expect":{"ok":true,"value":"\\中 |é\\- étruekey"}}
+{"source":"#aa \n  \\|0x10- >\t  ","expect":{"ok":true,"value":"\\|0x10- >"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"0x10]-2.5","expect":{"ok":true,"value":"0x10]-2.5"}}
+{"source":"nullx ytrue- \n","expect":{"ok":true,"value":"nullx ytrue-"}}
+{"source":"1[>éx y'|","expect":{"ok":true,"value":"1[>éx y'|"}}
+{"source":"[]","expect":{"ok":true,"value":[]}}
+{"source":"null{key\"\ttrue","expect":{"ok":true,"value":"null{key\"\ttrue"}}
+{"source":"\tb~{}##é","expect":{"ok":false,"message":"YAML: tabs are not allowed for indentation"}}
+{"source":"x y\n-2.5|1","expect":{"ok":true,"value":"x y -2.5|1"}}
+{"source":"bnull0x10b- :-2.5\t]","expect":{"ok":true,"value":"bnull0x10b- :-2.5\t]"}}
+{"source":"-2.5\n  \\\\|{: {","expect":{"ok":true,"value":"-2.5 \\\\|{: {"}}
+{"source":"a","expect":{"ok":true,"value":"a"}}
+{"source":"|-2.5-2.5}true","expect":{"ok":true,"value":"|-2.5-2.5}true"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"]'true\\  ","expect":{"ok":true,"value":"]'true\\"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"1>[\n]]]\"- ","expect":{"ok":true,"value":"1>[ ]]]\"-"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"中,\\中|{]x y","expect":{"ok":true,"value":"中,\\中|{]x y"}}
+{"source":"éx yé","expect":{"ok":true,"value":"éx yé"}}
+{"source":"x y\\\n  0x101  [,\"","expect":{"ok":true,"value":"x y\\ 0x101  [,\""}}
+{"source":"中-2.5}\"{'\n    : ","expect":{"ok":true,"value":"中-2.5}\"{' :"}}
+{"source":"true\\      ","expect":{"ok":true,"value":"true\\"}}
+{"source":"true\\},key  }}- \n- true","expect":{"ok":true,"value":"true\\},key  }}- - true"}}
+{"source":"key[,true0x10,]\na1-2.5- ","expect":{"ok":true,"value":"key[,true0x10,] a1-2.5-"}}
+{"source":"x y~>{-2.5","expect":{"ok":true,"value":"x y~>{-2.5"}}
+{"source":"\\}~  b1\t0x10  : #>","expect":{"ok":true,"value":{"\\}~  b1\t0x10":null}}}
+{"source":"null:key: \n  |key  >","expect":{"ok":true,"value":"null:key: |key  >"}}
+{"source":"- ~é[","expect":{"ok":true,"value":["~é["]}}
+{"source":"'~|aa\"","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a single quoted scalar"}}
+{"source":"\\0x10  a,\"é","expect":{"ok":true,"value":"\\0x10  a,\"é"}}
+{"source":"#|:{中{]","expect":{"ok":true,"value":null}}
+{"source":"- ][ key|true][\n  ]中key","expect":{"ok":true,"value":["][ key|true][ ]中key"]}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"}null#>11~{","expect":{"ok":true,"value":"}null#>11~{"}}
+{"source":"-2.5'key'|: ","expect":{"ok":true,"value":{"-2.5'key'|":null}}}
+{"source":": |békey#","expect":{"ok":true,"value":": |békey#"}}
+{"source":"  :keya","expect":{"ok":true,"value":":keya"}}
+{"source":"","expect":{"ok":true,"value":null}}
+{"source":"中:,\\é\n\n  1","expect":{"ok":true,"value":"中:,\\é\n1"}}
+{"source":"{-2.5|\\\t\"\nnull-2.5","expect":{"ok":false,"message":"YAML: unexpected end of the stream within a flow collection"}}

@@ -9,6 +9,8 @@ use zebra_mermaid::svg::shapes::end_side;
 const DIRS: [Dir; 4] = [Dir::TB, Dir::BT, Dir::LR, Dir::RL];
 fn options() -> LayeredOptions {
     LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: 40.0,
         edge_sep: 16.0,
         rank_sep: 48.0,

@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Independent pinned-reference output and measurement traces for both label storage paths.
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -54,5 +56,5 @@ for(let i=0;i<4096;i++){
  const value=fromBits(hex);if(Number.isFinite(value))roundValues.push(value);
 }
 const round=roundValues.map(value=>[bits(value),bits(Math.round(value))]);
-writeFileSync('tests/fixtures/unit/render-label-reference.json.gz',gzipSync(JSON.stringify({upstreamCommit,seed:'0x18c0de',absentSource:'JavaScript undefined corresponds to Rust None',restyleSourceSha256:createHash('sha256').update(readFileSync('.research/pele/src/diagrams/requirement/render.ts')).digest('hex'),cases,round}),{level:9}));
+writeFileSync('tests/fixtures/pele-1.9.0/unit/render-label-reference.json.gz',gzipSync(JSON.stringify({upstreamCommit,seed:'0x18c0de',absentSource:'JavaScript undefined corresponds to Rust None',restyleSourceSha256:createHash('sha256').update(readFileSync('.research/pele/src/diagrams/requirement/render.ts')).digest('hex'),cases,round}),{level:9}));
 console.log(JSON.stringify({labels:cases.length,restyle:cases.reduce((n,c)=>n+c.restyled.length,0),round:round.length}));

@@ -5,7 +5,7 @@ use zebra_mermaid::{DiagramType, MermaidType};
 fn type_names_preserve_detector_precedence_and_railroad_case_rules() {
     for (source, diagram_type, mermaid_type) in [
         ("\u{3000}FLOWCHART TD", None, None),
-        ("flowchart TD\n A[C4Container]", Some(DiagramType::C4), Some(MermaidType::C4)),
+        ("flowchart TD\n A[C4Container]", Some(DiagramType::Flowchart), Some(MermaidType::FlowchartV2)),
         ("flowchart-elk TD\n A[C4Container]", Some(DiagramType::Flowchart), Some(MermaidType::FlowchartElk)),
         ("\u{feff}Railroad-EBNF-beta", Some(DiagramType::Railroad), Some(MermaidType::RailroadEbnf)),
         ("RAILROAD-abnf-BETA", Some(DiagramType::Railroad), Some(MermaidType::RailroadAbnf)),

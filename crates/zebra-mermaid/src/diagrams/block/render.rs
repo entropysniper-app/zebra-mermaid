@@ -16,7 +16,7 @@ use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::edges::{marker, marker_trim, render_edge_label_svg as edge_label_svg, EdgePath};
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::shapes::{draw_shape, shape_inset, shape_size};
-use crate::svg::theme::{class_names, resolve_style, ResolvedStyle, RADIUS};
+use crate::svg::theme::{class_names, resolve_style, ResolvedStyle};
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
@@ -664,7 +664,8 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         routes.push(Route { edge, points, loop_k: if s == t { k + 1 } else { 0 }, label, lx, ly });
     }
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
+    let title =
+        layout_label(model.title.as_deref(), false, &m.without_math(), size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(max_x - min_x, title.width);
     let ox = pad - min_x + (inner - (max_x - min_x)) / 2.0;
@@ -703,14 +704,15 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 num(c.w),
                 "\" height=\"",
                 num(c.h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                ctx.paint(Role::GroupFill, "var(--_a)"),
-                "\" fill-opacity=\"0.5\" stroke=\"",
-                ctx.paint(Role::GroupStroke, "var(--_b)"),
                 "\"",
-                v.style.shape,
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    ctx.paint(Role::GroupFill, "var(--_a)"),
+                    "\" fill-opacity=\"0.5\" stroke=\"",
+                    ctx.paint(Role::GroupStroke, "var(--_b)"),
+                    "\"",
+                    v.style.shape
+                )),
                 "/>",
                 label_svg(
                     &v.label,

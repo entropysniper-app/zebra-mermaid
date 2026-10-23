@@ -18,7 +18,7 @@ use crate::svg::{
     cluster::{cluster_title_x, mark_crossings, Crossings},
     edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path},
     root::{svg_document, Accessible},
-    theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
+    theme::{class_names, resolve_style, rounded, ResolvedStyle},
 };
 use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, Icons, RenderLabel as Label};
 use crate::theme::Role;
@@ -152,7 +152,12 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
     if label.lines().is_empty() {
         return;
     }
-    if label.lines().len() == 1 && label.lines()[0].len() == 1 && label.lines()[0][0].icon.is_none() && label.lines()[0][0].style == 0 {
+    if label.lines().len() == 1
+        && label.lines()[0].len() == 1
+        && label.lines()[0][0].icon.is_none()
+        && label.lines()[0][0].math.is_none()
+        && label.lines()[0][0].style == 0
+    {
         out.push_str("<text");
         out.push_str(attrs);
         out.push_str(" x=\"");
@@ -166,9 +171,17 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
     }
     let shared = shared_style(label);
     svg_write!(out, "<text", text_style(attrs, shared), " xml:space=\"preserve\">").unwrap();
-    // Icons are drawn after the text element.
+    let shift = label.size * 0.35;
+    let top = y - shift - label.line_height / 2.0;
+    // Icons and math are drawn after the text element.
     let mut extra = String::new();
-    for line in &label.lines() {
+    for (i, line) in label.lines().iter().enumerate() {
+        let middle = top + label.line_middle(i);
+        if crate::text::label::has_math(line) {
+            svg_write!(extra, label_svg(&label.label_line(i), x + label.widths()[i] / 2.0, middle, attrs, icons)).unwrap();
+            continue;
+        }
+        y = middle + shift;
         let has_icon = line.iter().any(|s| s.icon.is_some());
         let mut sx = x;
         let mut placed = false;
@@ -185,7 +198,7 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
                     push_num(out, y);
                     out.push('"');
                 }
-                out.push_str(span_style(s.style & !shared));
+                out.push_str(&span_style(s.style & !shared));
                 out.push('>');
                 push_esc(out, &s.text);
                 out.push_str("</tspan>");
@@ -193,7 +206,6 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
             }
             sx += s.width;
         }
-        y += label.line_height;
     }
     out.push_str("</text>");
     out.push_str(&extra);
@@ -425,6 +437,8 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         nodes.push(c);
     }
     let opt = LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: option(config, "nodeSpacing", 48.0),
         edge_sep: 20.0,
         rank_sep: option(config, "rankSpacing", 64.0),
@@ -444,7 +458,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
             layout_width = js::max(layout_width, c.x + c.w / 2.0 + 18.0 + 28.0 * 0.75 + 10.0 + reach);
         }
     }
-    let title = layout_label(db.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(db.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_h = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(layout_width, title.width);
     shift_layout(&mut nodes, &mut edges, pad + (inner - layout_width) / 2.0, pad + title_h);
@@ -485,16 +499,17 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                 num(c.w),
                 "\" height=\"",
                 num(c.h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                ctx.paint(Role::GroupFill, "var(--_a)"),
                 "\"",
-                if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
-                " stroke=\"",
-                ctx.paint(Role::GroupStroke, "var(--_b)"),
-                "\"",
-                v.style.shape,
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    ctx.paint(Role::GroupFill, "var(--_a)"),
+                    "\"",
+                    if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                    " stroke=\"",
+                    ctx.paint(Role::GroupStroke, "var(--_b)"),
+                    "\"",
+                    v.style.shape
+                )),
                 "/>",
                 label_svg(
                     &v.label,
@@ -511,8 +526,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         let x0 = -v.w / 2.0;
         let y0 = -v.h / 2.0;
         let text = &v.style.text;
-        let shape =
-            svg_format!("x=\"", num(x0), "\" y=\"", num(y0), "\" width=\"", num(v.w), "\" height=\"", num(v.h), "\" rx=\"", RADIUS, "\"");
+        let shape = svg_format!("x=\"", num(x0), "\" y=\"", num(y0), "\" width=\"", num(v.w), "\" height=\"", num(v.h), "\"");
         let mut name = svg_format!(label_svg(
             &v.label,
             0.0,
@@ -549,7 +563,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         )
         .unwrap();
         if v.rows.is_empty() {
-            svg_write!(nodes_out, "<rect ", shape, box_attrs, v.style.shape, "/>", name).unwrap();
+            svg_write!(nodes_out, "<rect ", shape, rounded(&svg_format!(box_attrs, v.style.shape)), "/>", name).unwrap();
         } else {
             let row_line = js::round(v.row_size * 1.5);
             let line_color =
@@ -576,9 +590,9 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                             num(y),
                             "\" height=\"",
                             num(row.h),
-                            "\" rx=\"",
-                            RADIUS,
-                            "\"/><rect ",
+                            "\"",
+                            crate::svg::theme::ROUNDED,
+                            "/><rect ",
                             span,
                             " y=\"",
                             num(y),
@@ -602,8 +616,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                 nodes_out,
                 "<rect ",
                 shape,
-                box_attrs,
-                v.style.shape,
+                rounded(&svg_format!(box_attrs, v.style.shape)),
                 "/><g class=\"pele-er-stripes\" fill=\"",
                 ctx.paint(Role::GroupHeader, "var(--_bg)"),
                 "\"",
@@ -623,7 +636,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                 " fill=\"none\" stroke=\"",
                 ctx.paint(Role::NodeStroke, "var(--_b)"),
                 "\"",
-                v.style.line,
+                rounded(&v.style.line),
                 "/>",
                 name,
                 "<g class=\"pele-er-attributes\" font-size=\"",

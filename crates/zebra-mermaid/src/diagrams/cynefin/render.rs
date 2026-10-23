@@ -11,7 +11,6 @@ use crate::error::Error;
 use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::edges::{marker, marker_trim};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
@@ -154,7 +153,7 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
         }
     }
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let width = 2.0 * quad_w;
     let height = 2.0 * quad_h;
@@ -310,14 +309,15 @@ pub(crate) fn render(model: &CynefinModel, config: &Config, ctx: &RenderCtx) -> 
                 num(item.w),
                 "\" height=\"",
                 num(item.h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                item_fill,
-                "\" stroke=\"",
-                item_stroke,
                 "\"",
-                if item.overflow { " stroke-dasharray=\"3 2\"" } else { "" },
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    item_fill,
+                    "\" stroke=\"",
+                    item_stroke,
+                    "\"",
+                    if item.overflow { " stroke-dasharray=\"3 2\"" } else { "" }
+                )),
                 "/>"
             )
             .unwrap();

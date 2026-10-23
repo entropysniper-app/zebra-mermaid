@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {formatRust} from './format-rust.mjs';
 // Freeze only the original tests' independent reference values, never Pele/Rust outputs.
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -47,7 +48,7 @@ const artifacts=[];
 artifacts.push(['tests/upstream/ir/utilities.json',JSON.stringify({referenceChecks:{unterminatedYamlThrows},sources:sources.map(file=>({file,sha256:inventory.files.find(f=>f.path===file).sha256})),reference:'Original @braintree/sanitize-url, js-yaml JSON_SCHEMA and preprocess regex reference; random seed 11, original 20000 iterations and exact LCG call order.',records},null,2)+'\n']);
 let rust='// Generated from frozen upstream callbacks by compile-utilities.mjs.\n';
 for(const r of records.filter(r=>!r.file.includes('preprocess'))){const kind=r.file.includes('yaml')?'yaml':'url';rust+=`#[test]\nfn ${kind}_${String(r.index).padStart(2,'0')}() { check("${r.id}"); }\n`;}
-artifacts.push(['crates/zebra-mermaid/tests/upstream/utilities_generated.rs',rust]);
+artifacts.push(['crates/zebra-mermaid/tests/upstream/utilities_generated.rs',formatRust(rust)]);
 const pp='tests/upstream/ports.json',ports=JSON.parse(readFileSync(resolve(root,pp),'utf8'));
 const owned=new Set(records.map(r=>r.id)),previous=ports.ports.filter(p=>owned.has(p.upstreamId));ports.ports=ports.ports.filter(p=>!owned.has(p.upstreamId));
 for(const r of records){const preprocess=r.file.includes('preprocess'),kind=r.file.includes('yaml')?'yaml':'url';ports.ports.push({upstreamId:r.id,sourceSha256:inventory.files.find(f=>f.path===r.file).sha256,target:{kind:'rust',binary:preprocess?'lib':'upstream_parity',file:preprocess?'crates/zebra-mermaid/tests/upstream/preprocess.rs':'crates/zebra-mermaid/tests/upstream/utilities_generated.rs',test:preprocess?`preprocess::upstream_tests::entities_${r.index}`:`utilities::${kind}_${String(r.index).padStart(2,'0')}`,features:[]},assertionReview:'Original callback and parameter rows execute during translation with symbolic actual values. Expected values come only from the independent reference explicitly invoked by the original assertion. Every captured assertion runs against the Rust function. Entity random inputs retain seed 11, all 20000 iterations and RNG call order; Rust independently checks the generated sequence. No Pele or Rust outputs become expectations.'})}

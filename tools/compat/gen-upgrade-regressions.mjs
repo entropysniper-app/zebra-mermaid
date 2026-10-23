@@ -1,0 +1,21 @@
+// Node-only provenance for local expectations changed by the Pele 1.9.0 upgrade.
+import {loadOracle,answer} from './oracle.mjs';
+import {build} from '../../.research/pele/node_modules/esbuild/lib/main.js';
+import {pathToFileURL} from 'node:url';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+const commit=JSON.parse(readFileSync('tests/upstream/inventory.json')).commit;
+if(execFileSync('git',['-C','.research/pele','rev-parse','HEAD'],{encoding:'utf8'}).trim()!==commit)throw Error('Unexpected reference revision');
+execFileSync('git',['-C','.research/pele','diff','--exit-code','HEAD','--','src']);
+const o=await loadOracle();
+const output='target/compat/upgrade-shapes.mjs';
+await build({stdin:{contents:"export {drawShape} from './.research/pele/src/svg/shapes.ts';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',outfile:output});
+const shapes=await import(pathToFileURL(`${process.cwd()}/${output}`));
+const sources=['flowchart TD\n A[C4Container]','\t sankey\r\n\r\nx,y,1\n\né,z,2\n','sankey\na,b,1\né,c,2\n','sankey\na,"bé",1\n'];
+const results=sources.map(source=>({source,expect:answer(o,{op:'parse',source})}));
+const rect={input:['rect',10,4,' a="1"',''],expect:shapes.drawShape('rect',10,4,' a="1"','')};
+const seq=o.render('sequenceDiagram\n  participant A as $$\\alpha$$\n  A->>B: Solve $$x^2$$\n  Note over A: $$\\int x$$',{math:()=>({svg:'<path/>',width:30,height:18})}).svg;
+const proof={commit,runtime:{node:process.version},method:'Pinned upstream parser, shape function and constant math fixture callback only; no Rust output used.',results,rect,sequenceMathBoxes:(seq.match(/class="pele-math"/g)??[]).length};
+mkdirSync('tests/fixtures/pele-1.9.0',{recursive:true});
+writeFileSync('tests/fixtures/pele-1.9.0/upgrade-regressions.json',JSON.stringify(proof,null,2)+'\n');
+console.log(JSON.stringify({references:results.length,sequenceMathBoxes:proof.sequenceMathBoxes}));

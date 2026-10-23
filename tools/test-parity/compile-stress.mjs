@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {formatRust} from './format-rust.mjs';
 // Translate the input-building AST, not evaluated renderer output. Input construction remains timed.
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -143,7 +144,7 @@ for(const type of ['sequence','class','agentflow','er','state','requirement']){
  rust+='}); }\n';owned.add(o.id);records.push({id:o.id,index:o.index,name:o.fullName,mode:o.mode,timeoutMs:o.timeoutMs,assertions:captured.map(x=>({kind:x.assertion,sourceFnv64:fnv(x.source),sourceBytes:Buffer.byteLength(x.source)}))});
  }
  const target=`crates/zebra-mermaid/tests/upstream/${type}_stress_generated.rs`;
- artifacts.push([target,rust]);files.push({source:file,sourceSha256:expected.sha256,records});
+ artifacts.push([target,formatRust(rust)]);files.push({source:file,sourceSha256:expected.sha256,records});
 }
 const manifest='tests/upstream/ir/stress.json';artifacts.push([manifest,JSON.stringify({files},null,2)+'\n']);
 const previous=ports.ports.filter(p=>owned.has(p.upstreamId));ports.ports=ports.ports.filter(p=>!owned.has(p.upstreamId));

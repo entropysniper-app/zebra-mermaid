@@ -39,7 +39,7 @@ fn freeze_label(label: LabelView<'_>) -> Value {
 #[test]
 fn labels_and_combined_callbacks_match_pinned_reference() {
     let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../../tests/fixtures/unit/label-scanning-reference.json.gz")[..],
+        &include_bytes!("../../../../tests/fixtures/pele-1.9.0/unit/label-scanning-reference.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);

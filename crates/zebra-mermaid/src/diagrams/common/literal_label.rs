@@ -72,12 +72,13 @@ pub fn literal_label(text: &str, m: &Measure, size: f64, room: f64, style: u8) -
     let line_height = js::round(size * 1.5);
     let height = lines.len() as f64 * line_height;
     Label {
-        lines: lines.into_iter().zip(&widths).map(|(text, &w)| vec![Span { text, style, icon: None, width: w }]).collect(),
+        lines: lines.into_iter().zip(&widths).map(|(text, &w)| vec![Span { text, style, icon: None, math: None, width: w }]).collect(),
         widths,
         width,
         height,
         size,
         line_height,
+        heights: None,
     }
 }
 
@@ -112,7 +113,7 @@ fn break_view(label: LabelView<'_>, m: &Measure, room: f64) -> Label {
         let mut current: Vec<Span> = Vec::new();
         let mut width = 0.0;
         for span in line {
-            if span.icon.is_some() {
+            if span.icon.is_some() || span.math.is_some() {
                 if !current.is_empty() && width + span.width > room {
                     lines.push(std::mem::take(&mut current));
                     widths.push(width);
@@ -125,7 +126,7 @@ fn break_view(label: LabelView<'_>, m: &Measure, room: f64) -> Label {
             for ch in span.text.chars() {
                 let mut bytes = [0; 4];
                 let character = ch.encode_utf8(&mut bytes);
-                let joined = matches!(current.last(), Some(last) if last.icon.is_none() && last.style == span.style);
+                let joined = matches!(current.last(), Some(last) if last.icon.is_none() && last.math.is_none() && last.style == span.style);
                 // Measure the actual mutable prefix. If it wraps, remove the candidate
                 // before committing the old line; callbacks see the same strings/order.
                 let next_width = if joined {
@@ -151,7 +152,7 @@ fn break_view(label: LabelView<'_>, m: &Measure, room: f64) -> Label {
                 if can_join {
                     current.last_mut().unwrap().width += added;
                 } else {
-                    current.push(Span { text: character.to_owned(), style: span.style, icon: None, width: added });
+                    current.push(Span { text: character.to_owned(), style: span.style, icon: None, math: None, width: added });
                 }
                 width += added;
             }
@@ -166,7 +167,11 @@ fn break_view(label: LabelView<'_>, m: &Measure, room: f64) -> Label {
         width = js::max(width, w);
     }
     let height = lines.len() as f64 * label.line_height;
-    Label { lines, widths, width, height, size: label.size, line_height: label.line_height }
+    let mut broken = Label { lines, widths, width, height, size: label.size, line_height: label.line_height, heights: None };
+    if label.heights.is_some() {
+        crate::text::label::with_heights(&mut broken);
+    }
+    broken
 }
 
 /// Writes a label with every line starting at x. A line is anchored at its start and keeps its
@@ -215,16 +220,17 @@ fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: &LabelView<'
     let shared = shared_style_view(label);
     let open = text_style(attrs, shared);
     for (i, spans) in label.lines.iter().enumerate() {
-        let cy = top + (i as f64 + 0.5) * label.line_height;
-        if spans.iter().any(|s| s.icon.is_some()) {
+        let cy = top + label.heights.map_or((i as f64 + 0.5) * label.line_height, |h| h[..i].iter().sum::<f64>() + h[i] / 2.0);
+        if spans.iter().any(|s| s.icon.is_some() || s.math.is_some()) {
             let width = label.widths[i];
             let single = Label {
                 lines: vec![spans.to_vec()],
                 widths: vec![width],
                 width,
-                height: label.line_height,
+                height: label.heights.map_or(label.line_height, |h| h[i]),
                 size: label.size,
                 line_height: label.line_height,
+                heights: label.heights.as_ref().map(|h| vec![h[i]]),
             };
             write!(out, "{}", label_svg(&single, x + width / 2.0, cy, attrs, None))?;
             continue;
@@ -249,7 +255,7 @@ fn write_left_label_svg<W: fmt::Write + ?Sized>(out: &mut W, label: &LabelView<'
             let own = span_style(span.style & !shared);
             if !own.is_empty() {
                 out.write_str("<tspan")?;
-                out.write_str(own)?;
+                out.write_str(&own)?;
                 out.write_char('>')?;
             }
             write_esc(out, &span.text)?;
@@ -271,7 +277,7 @@ mod adapter_reference {
     #[test]
     fn direct_left_label_parts_match_independent_node_svg() {
         let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../../tests/fixtures/unit/literal-label-regression.json.gz")[..],
+            &include_bytes!("../../../../../tests/fixtures/pele-1.9.0/unit/literal-label-regression.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);

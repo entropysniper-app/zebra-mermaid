@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // A fail-closed, one-test-to-one-test audit. Golden render fixtures are deliberately not mappings.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -8,6 +8,9 @@ import { spawnSync } from 'node:child_process';
 import { acceptanceState } from './result.mjs';
 
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
+const output=join(root,'target/test-parity');mkdirSync(output,{recursive:true});
+// A failed source/build audit must not leave an older success report looking current.
+rmSync(join(output,'report.json'),{force:true});
 const read = p => readFileSync(join(root,p),'utf8');
 const hash = s => createHash('sha256').update(s).digest('hex');
 const inventory = JSON.parse(read('tests/upstream/inventory.json'));
@@ -75,7 +78,7 @@ for(const port of ports){
   for(const feature of port.target.features) features.add(feature);
 }
 const observed=new Map(),executables=[];let processFailed=false;
-const output=join(root,'target/test-parity');mkdirSync(output,{recursive:true});
+
 if(run&&ports.length){
   const args=['test','-p','zebra-mermaid','--test','upstream_parity','--no-run','--message-format=json'];
   if(ports.some(p=>binaryOf(p)==='lib'))args.push('--lib');

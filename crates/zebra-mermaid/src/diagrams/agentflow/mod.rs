@@ -2,14 +2,14 @@
 mod db;
 mod graph;
 mod lexer;
-#[cfg(test)]
-#[path = "../../../tests/upstream/agentflow_stress_generated.rs"]
-mod upstream_stress;
 mod parser;
 mod render;
 mod shapes;
 mod tokens;
 mod types;
+#[cfg(test)]
+#[path = "../../../tests/upstream/agentflow_stress_generated.rs"]
+mod upstream_stress;
 use super::ParseInput;
 use crate::{ConfigValue, Error};
 pub use db::AgentflowModel;

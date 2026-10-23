@@ -20,7 +20,7 @@ use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, render_push_label_svg as push_label_svg};
 use crate::svg::edges::{marker, push_marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::{class_names, resolve_style, RADIUS};
+use crate::svg::theme::{class_names, resolve_style};
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
@@ -928,11 +928,8 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     w,
                     "\" height=\"",
                     num(bottom - frame.top),
-                    "\" rx=\"",
-                    RADIUS,
                     "\"",
-                    if fill.is_empty() { " fill-opacity=\"0.5\"" } else { "" },
-                    fill,
+                    crate::svg::theme::rounded(&svg_format!(if fill.is_empty() { " fill-opacity=\"0.5\"" } else { "" }, fill)),
                     "/>"
                 ));
             } else {
@@ -945,9 +942,9 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     w,
                     "\" height=\"",
                     num(bottom - frame.top),
-                    "\" rx=\"",
-                    RADIUS,
-                    "\" fill=\"none\"/>"
+                    "\"",
+                    crate::svg::theme::rounded(&svg_format!(" fill=\"none\"")),
+                    "/>"
                 );
                 for k in 0..frame.divider_y.len() {
                     let dy = frame.divider_y[k];
@@ -965,11 +962,9 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     num(frame.tab_w),
                     "\" height=\"",
                     js::number_text(TAB_H),
-                    "\" rx=\"",
-                    RADIUS,
-                    "\" fill=\"",
-                    ctx.paint(Role::GroupHeader, "var(--_s)"),
-                    "\"/>"
+                    "\"",
+                    crate::svg::theme::rounded(&svg_format!(" fill=\"", ctx.paint(Role::GroupHeader, "var(--_s)"), "\"")),
+                    "/>"
                 )
                 .unwrap();
                 svg_write!(
@@ -1027,9 +1022,9 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 num(view.w),
                 "\" height=\"",
                 num(h),
-                "\" rx=\"",
-                RADIUS,
-                "\"/>",
+                "\"",
+                crate::svg::theme::ROUNDED,
+                "/>",
                 label_svg(&view.label, x + view.w / 2.0, top + h / 2.0, &note_label_attrs, icons),
                 "</g>"
             )
@@ -1152,7 +1147,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     )
                     .unwrap();
                 }
-                line_y = bottom;
+                line_y = js::max(bottom, (top + bottom) / 2.0 + label.height / 2.0);
             } else {
                 let (a, b) = (&cols[ai], &cols[bi]);
                 let dir = if b.x > a.x { 1.0 } else { -1.0 };
@@ -1308,15 +1303,16 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             num(x1 - x0),
             "\" height=\"",
             num(bottom + box_pad),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::GroupFill, "var(--_a)"),
-            "\" stroke=\"",
-            ctx.paint(Role::GroupStroke, "var(--_b)"),
             "\"",
-            if fill.is_empty() { " fill-opacity=\"0.5\"" } else { "" },
-            fill,
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::GroupFill, "var(--_a)"),
+                "\" stroke=\"",
+                ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\"",
+                if fill.is_empty() { " fill-opacity=\"0.5\"" } else { "" },
+                fill
+            )),
             "/>",
             label_svg(&run.title, (x0 + x1) / 2.0, box_pad / 2.0 + 2.0 + run.title.height / 2.0, &box_label_attrs, icons),
             "</g>"
@@ -1329,7 +1325,10 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
 
     let mut min_y = 0.0;
     let mut title_out = String::new();
-    let title = text(db.title.as_deref(), size, false, if tight { title_room(options) } else { wrap_w }, style::BOLD);
+    let room = title_room(options);
+    let plain_title =
+        layout_label(db.title.as_deref(), false, &m.without_math(), size, if tight { room } else { f64::INFINITY }, style::BOLD);
+    let title = if tight { break_label(&plain_title, &m, js::max(120.0, room)) } else { plain_title };
     if min_x > max_x {
         extend(&mut min_x, &mut max_x, 0.0, js::max(title.width, 40.0));
     }

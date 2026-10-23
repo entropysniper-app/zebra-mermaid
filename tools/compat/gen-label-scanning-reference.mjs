@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Independent labels and the combined icon/measurement callback order from pinned Pele.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -49,7 +51,7 @@ for (const source of sources) for (const markdown of [false, true]) for (const i
     cases.push({ source, markdown, icons, size: bits(size), max: bits(max), base, mode, expected, trace });
   }
 const hash = p => createHash('sha256').update(readFileSync(p)).digest('hex');
-writeFileSync('tests/fixtures/unit/label-scanning-reference.json.gz', gzipSync(JSON.stringify({ upstreamCommit,
+writeFileSync('tests/fixtures/pele-1.9.0/unit/label-scanning-reference.json.gz', gzipSync(JSON.stringify({ upstreamCommit,
   seed: '0x1abe17', generatedSources: 64, sourceCases: sources.length,
   scope: 'Supplementary valid-Rust-string label values and exact combined callback order; not an original-test port.',
   sourceHashes: { label: hash('.research/pele/src/text/label.ts'), icons: hash('.research/pele/src/text/icons.ts') }, cases }), { level: 9 }));

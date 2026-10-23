@@ -172,7 +172,7 @@ pub(crate) mod tests {
 
     pub(crate) fn check_table(name: &str, types: &'static [TokenType], diagram: DiagramType) {
         let fixture: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../../tests/fixtures/unit/token-storage-reference.json.gz")[..],
+            &include_bytes!("../../../../../tests/fixtures/pele-1.9.0/unit/token-storage-reference.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(fixture["upstreamCommit"], crate::PELE_COMMIT);

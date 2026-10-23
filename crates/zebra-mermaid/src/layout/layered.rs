@@ -55,6 +55,8 @@ pub struct LNode {
     pub kind: Kind,
     /// -1 keeps the node first in its rank, 1 last, 0 lets it move.
     pub pin: f64,
+    pub hint: f64,
+    pub key: f64,
     /// How much of the side that edges meet may be shared out between them; 0 keeps them all
     /// at its middle.
     pub span: f64,
@@ -82,6 +84,12 @@ pub struct LEdge {
     pub label_y: f64,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct LayeredGroups {
+    pub of: Vec<isize>,
+    pub parent: Vec<isize>,
+}
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct LayeredOptions {
     pub node_sep: f64,
@@ -100,17 +108,21 @@ pub struct LayeredOptions {
     /// along the line that shows, and the curves either side of it have the same room to turn
     /// in. `None` is Pele's `undefined`.
     pub head_room: Option<f64>,
+    pub groups: Option<LayeredGroups>,
+    pub order_only: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LayeredResult {
     pub width: f64,
     pub height: f64,
+    pub crossings: Option<i64>,
+    pub declared: Option<i64>,
 }
 
 /// `lnode(w, h, kind)`.
 pub fn lnode(w: f64, h: f64, kind: Kind) -> LNode {
-    LNode { w, h, kind, pin: 0.0, span: 0.0, x: 0.0, y: 0.0, rank: 0 }
+    LNode { w, h, kind, pin: 0.0, hint: f64::NAN, key: f64::NAN, span: 0.0, x: 0.0, y: 0.0, rank: 0 }
 }
 
 /// `ledge(tail, head, minlen, labelW, labelH)`; Pele's defaults are 1, 0 and 0.
@@ -246,6 +258,9 @@ struct Graph {
     order: Vec<usize>,
     pos: Vec<usize>,
     offsets: bool,
+    fixed: Vec<bool>,
+    grp: Option<Vec<isize>>,
+    group_parent: Vec<isize>,
 }
 
 fn set_positions(order: &[usize], pos: &mut [usize], layer_start: &[usize], max_rank: usize) {
@@ -277,9 +292,16 @@ struct Pieces {
 pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -> LayeredResult {
     let real = nodes.len();
     if real == 0 {
-        return LayeredResult { width: 0.0, height: 0.0 };
+        return LayeredResult { width: 0.0, height: 0.0, crossings: None, declared: None };
     }
     let m = edges.len();
+    if real == 1 && m == 0 && nodes[0].kind == Kind::Node {
+        let node = &mut nodes[0];
+        node.rank = 0;
+        node.x = node.w / 2.0;
+        node.y = node.h / 2.0;
+        return LayeredResult { width: node.w, height: node.h, crossings: None, declared: None };
+    }
 
     // Every edge gets a middle rank of its own when labels or parallel edges need the room.
     let mut step: i32 = 1;
@@ -372,6 +394,10 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
     let mut etk: Option<Vec<u8>> = if spans { Some(vec![HELD; segments]) } else { None };
     let mut first_seg = vec![-1isize; m];
     let mut last_seg = vec![-1isize; m];
+    let mut key = vec![f64::NAN; n];
+    for i in 0..real {
+        key[i] = nodes[i].key;
+    }
     let mut offsets = false;
     {
         let mut next = real;
@@ -421,6 +447,7 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
                 let d = next;
                 next += 1;
                 rank_of[d] = r as usize;
+                key[d] = key[a] + ((key[b] - key[a]) * (r - ra) as f64) / (rb - ra) as f64;
                 if r == label_rank {
                     w[d] = e.label_w;
                     h[d] = e.label_h;
@@ -450,6 +477,45 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
         }
     }
 
+    let grp = opt.groups.as_ref().map(|groups| {
+        let mut grp = vec![-1; n];
+        grp[..real].copy_from_slice(&groups.of[..real]);
+        let depth = |mut gr: isize| {
+            let mut d = 0;
+            while gr >= 0 {
+                d += 1;
+                gr = groups.parent[gr as usize];
+            }
+            d
+        };
+        let lca = |mut x: isize, mut y: isize| {
+            let (mut dx, mut dy) = (depth(x), depth(y));
+            while dx > dy {
+                x = groups.parent[x as usize];
+                dx -= 1;
+            }
+            while dy > dx {
+                y = groups.parent[y as usize];
+                dy -= 1;
+            }
+            while x != y {
+                x = groups.parent[x as usize];
+                y = groups.parent[y as usize];
+            }
+            x
+        };
+        for (ei, e) in edges.iter().enumerate() {
+            if first_dummy[ei] < 0 {
+                continue;
+            }
+            let gr = lca(groups.of[e.tail], groups.of[e.head]);
+            let from = first_dummy[ei] as usize;
+            for d in from..from + span[ei] - 1 {
+                grp[d] = gr;
+            }
+        }
+        grp
+    });
     let mut succ_start = vec![0usize; n + 1];
     let mut pred_start = vec![0usize; n + 1];
     for e in 0..segments {
@@ -518,6 +584,17 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
         }
     }
 
+    fn sort_rank(order: &mut [usize], layer_start: &[usize], r: usize, key: impl Fn(usize) -> f64) -> bool {
+        let row = &mut order[layer_start[r]..layer_start[r + 1]];
+        if row.len() < 2 || row.iter().any(|&v| key(v).is_nan()) {
+            return false;
+        }
+        row.sort_by(|&a, &b| num_cmp(key(a), key(b)));
+        true
+    }
+    for r in 0..=max_rank {
+        sort_rank(&mut order, &layer_start, r, |v| key[v]);
+    }
     let pinned = nodes.iter().any(|node| node.pin != 0.0);
     if pinned {
         for r in 0..=max_rank {
@@ -526,6 +603,16 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
             // A stable sort by pin keeps the rest in the order they had.
             layer.sort_by(|&a, &b| num_cmp(pin_of(a), pin_of(b)));
         }
+    }
+    let mut fixed = vec![false; max_rank + 1];
+    for r in [0, max_rank] {
+        fixed[r] = sort_rank(&mut order, &layer_start, r, |v| {
+            if v < real && matches!(nodes[v].kind, Kind::StartPort | Kind::EndPort) {
+                nodes[v].hint
+            } else {
+                f64::NAN
+            }
+        });
     }
     set_positions(&order, &mut pos, &layer_start, max_rank);
 
@@ -548,11 +635,36 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
         order,
         pos,
         offsets,
+        fixed,
+        grp,
+        group_parent: opt.groups.as_ref().map_or_else(Vec::new, |g| g.parent.clone()),
     };
 
+    let (mut crossings, mut declared) = (0, 0);
     if segments > 0 && max_rank > 0 {
-        reduce_crossings(&mut g, nodes);
+        (crossings, declared) = reduce_crossings(&mut g, nodes);
         set_positions(&g.order, &mut g.pos, &g.layer_start, g.max_rank);
+    }
+
+    if opt.order_only {
+        let at = position(&mut g, opt);
+        for i in 0..real {
+            nodes[i].x = at[i];
+        }
+        for (ei, e) in edges.iter_mut().enumerate() {
+            let a = if e.reversed { e.head } else { e.tail };
+            let b = if e.reversed { e.tail } else { e.head };
+            let mut pts = vec![g.rank[a] as f64, at[a]];
+            if !direct[ei] && first_dummy[ei] >= 0 {
+                let from = first_dummy[ei] as usize;
+                for d in from..from + span[ei] - 1 {
+                    pts.extend([g.rank[d] as f64, at[d]]);
+                }
+            }
+            pts.extend([g.rank[b] as f64, at[b]]);
+            e.points = pts;
+        }
+        return LayeredResult { width: 0.0, height: 0.0, crossings: Some(crossings), declared: Some(declared) };
     }
 
     if let (Some(efk), Some(etk)) = (efk.as_ref(), etk.as_ref()) {
@@ -886,7 +998,7 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
         e.points = pts;
     }
 
-    LayeredResult { width: max_x - min_x, height }
+    LayeredResult { width: max_x - min_x, height, crossings: None, declared: None }
 }
 
 /// Reverses the edges that close a cycle, found by depth-first search in declaration order.
@@ -2060,7 +2172,121 @@ fn past_labels(g: &Graph, xs: &mut [f64], first_dummy: &[isize], span: &[usize],
     }
 }
 
-fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
+// Compare siblings in their nearest common group; n+group identifies a group item.
+fn arrange_groups(g: &mut Graph, r: usize, key: &[f64]) {
+    let grp = g.grp.as_ref().unwrap();
+    let parent = &g.group_parent;
+    let groups = parent.len();
+    let mut depth = vec![0usize; groups];
+    for gr in 0..groups {
+        let mut p = gr as isize;
+        while p >= 0 {
+            depth[gr] += 1;
+            p = parent[p as usize];
+        }
+    }
+    let (s, e) = (g.layer_start[r], g.layer_start[r + 1]);
+    let mut sum = vec![0.0; groups];
+    let mut count = vec![0usize; groups];
+    let mut first = vec![0usize; groups];
+    for i in s..e {
+        let v = g.order[i];
+        let mut gr = grp[v];
+        while gr >= 0 {
+            let q = gr as usize;
+            if count[q] == 0 {
+                first[q] = i;
+            }
+            sum[q] += key[v];
+            count[q] += 1;
+            gr = parent[q];
+        }
+    }
+    let value = |v: usize| if v >= g.n { sum[v - g.n] / count[v - g.n] as f64 } else { key[v] };
+    let first_of = |v: usize| if v >= g.n { first[v - g.n] } else { s + g.pos[v] };
+    let mut row = g.order[s..e].to_vec();
+    row.sort_by(|&a, &b| {
+        let (mut ia, mut ib) = (a, b);
+        let (mut ca, mut cb) = (grp[a], grp[b]);
+        let (mut da, mut db) = (if ca < 0 { 0 } else { depth[ca as usize] }, if cb < 0 { 0 } else { depth[cb as usize] });
+        while da > db {
+            ia = g.n + ca as usize;
+            ca = parent[ca as usize];
+            da -= 1;
+        }
+        while db > da {
+            ib = g.n + cb as usize;
+            cb = parent[cb as usize];
+            db -= 1;
+        }
+        while ca != cb {
+            ia = g.n + ca as usize;
+            ca = parent[ca as usize];
+            ib = g.n + cb as usize;
+            cb = parent[cb as usize];
+        }
+        num_cmp(value(ia), value(ib)).then(first_of(ia).cmp(&first_of(ib)))
+    });
+    g.order[s..e].copy_from_slice(&row);
+    for i in s..e {
+        g.pos[g.order[i]] = i - s;
+    }
+}
+
+fn transpose(g: &mut Graph, nodes: &[LNode]) {
+    fn between(g: &Graph, a: usize, b: usize) -> usize {
+        let at = |e: usize, up: bool| {
+            let u = if up { g.ef[e] } else { g.et[e] };
+            g.pos[u] as f64 + if g.offsets && g.w[u] > 0.0 { (if up { g.efd[e] } else { g.etd[e] }) / g.w[u] } else { 0.0 }
+        };
+        let mut c = 0;
+        for k in g.pred_start[a]..g.pred_start[a + 1] {
+            let x = at(g.pred_e[k], true);
+            for j in g.pred_start[b]..g.pred_start[b + 1] {
+                if x > at(g.pred_e[j], true) {
+                    c += 1;
+                }
+            }
+        }
+        for k in g.succ_start[a]..g.succ_start[a + 1] {
+            let x = at(g.succ_e[k], false);
+            for j in g.succ_start[b]..g.succ_start[b + 1] {
+                if x > at(g.succ_e[j], false) {
+                    c += 1;
+                }
+            }
+        }
+        c
+    }
+    let pin = |v: usize| if v < g.real { nodes[v].pin } else { 0.0 };
+    for _ in 0..8 {
+        let mut improved = false;
+        for r in 0..=g.max_rank {
+            if g.fixed[r] {
+                continue;
+            }
+            let s = g.layer_start[r];
+            for i in s..g.layer_start[r + 1].saturating_sub(1) {
+                let (a, b) = (g.order[i], g.order[i + 1]);
+                if pin(a) != pin(b) || g.grp.as_ref().is_some_and(|grp| grp[a] != grp[b]) {
+                    continue;
+                }
+                if between(g, b, a) >= between(g, a, b) {
+                    continue;
+                }
+                g.order.swap(i, i + 1);
+                g.pos[b] = i - s;
+                g.pos[a] = i + 1 - s;
+                improved = true;
+            }
+        }
+        if !improved {
+            break;
+        }
+    }
+}
+
+fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) -> (i64, i64) {
     let n = g.n;
     let real = g.real;
     let max_rank = g.max_rank;
@@ -2068,6 +2294,9 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
     let mut widest = 0usize;
     for r in 0..=max_rank {
         widest = widest.max(g.layer_start[r + 1] - g.layer_start[r]);
+    }
+    if widest < 2 {
+        return (0, 0);
     }
     // With offsets, edges that reach one node at different offsets take separate places along
     // it.
@@ -2185,17 +2414,31 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
         total
     };
 
-    let mut best = count(g, &mut place, &mut tree, &mut targets);
-    if best == 0 {
-        return;
-    }
-    let mut best_order = g.order.clone();
+    let declared = count(g, &mut place, &mut tree, &mut targets);
     let mut bary = vec![0.0f64; n];
     let mut moving = vec![0usize; widest];
+    if g.grp.is_some() {
+        let mut at = vec![0.0; n];
+        for r in 0..=max_rank {
+            for i in g.layer_start[r]..g.layer_start[r + 1] {
+                at[g.order[i]] = (i - g.layer_start[r]) as f64;
+            }
+            arrange_groups(g, r, &at);
+        }
+    }
+    let mut best = if g.grp.is_some() { count(g, &mut place, &mut tree, &mut targets) } else { declared };
+    if best == 0 {
+        return (0, declared);
+    }
+    let mut best_order = g.order.clone();
+    let threshold = best.min(declared);
 
     let sweep = |g: &mut Graph, bary: &mut [f64], moving: &mut [usize], down: bool, bias_right: bool| {
         for step in 1..=max_rank {
             let r = if down { step } else { max_rank - step };
+            if g.fixed[r] {
+                continue;
+            }
             let s = g.layer_start[r];
             let e = g.layer_start[r + 1];
             let mut movable = 0usize;
@@ -2216,6 +2459,12 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
                     let from = start[v];
                     let to = start[v + 1];
                     if from == to {
+                        if g.grp.is_some() {
+                            let across =
+                                if down { g.layer_start[r] - g.layer_start[r - 1] } else { g.layer_start[r + 2] - g.layer_start[r + 1] };
+                            bary[v] = ((i - s) * across) as f64 / (e - s) as f64;
+                            continue;
+                        }
                         bary[v] = -1.0;
                         continue;
                     }
@@ -2231,6 +2480,10 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
                     moving[movable] = v;
                     movable += 1;
                 }
+            }
+            if g.grp.is_some() {
+                arrange_groups(g, r, bary);
+                continue;
             }
             if movable < 2 {
                 continue;
@@ -2283,7 +2536,7 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
     // Only for graphs small enough to be read node by node: a second run costs as much as the
     // first.
     let initial = g.order.clone();
-    let start = best;
+    let start = threshold;
     let small = n <= 600;
     let mut chosen = best_order.clone();
     let mut chosen_out = u64::MAX;
@@ -2311,6 +2564,15 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
             stale += 1;
         }
         g.order.copy_from_slice(&found_order);
+        if small && found > 0 {
+            settle_positions(g);
+            transpose(g, nodes);
+            let c = count(g, &mut place, &mut tree, &mut targets);
+            if c < found {
+                found = c;
+                found_order.copy_from_slice(&g.order);
+            }
+        }
         let out = if small { out_of_order(g) } else { 0 };
         if attempt == 0 || found < best || (found == best && out < chosen_out) {
             best = found;
@@ -2321,16 +2583,19 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
     g.order.copy_from_slice(&chosen);
     settle_positions(g);
     best_order.copy_from_slice(&chosen);
+    if g.grp.is_some() {
+        best = count(g, &mut place, &mut tree, &mut targets);
+    }
 
     // A drawing and its mirror image cross as often too. Of those two, likewise.
     if !small {
-        return;
+        return (best, declared);
     }
     if nodes.iter().take(real).any(|node| node.pin != 0.0) {
-        return;
+        return (best, declared);
     }
-    if chosen_out == 0 {
-        return;
+    if chosen_out == 0 || g.fixed[0] || g.fixed[max_rank] {
+        return (best, declared);
     }
     for r in 0..=max_rank {
         let (s, e) = (g.layer_start[r], g.layer_start[r + 1]);
@@ -2341,6 +2606,7 @@ fn reduce_crossings(g: &mut Graph, nodes: &[LNode]) {
     if count(g, &mut place, &mut tree, &mut targets) > best || out_of_order(g) >= chosen_out {
         g.order.copy_from_slice(&best_order);
     }
+    (best, declared)
 }
 
 /// Half the room a node, bend or port takes across the flow, with its share of the gap beside

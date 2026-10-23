@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {formatRust} from './format-rust.mjs';
 // Original date callbacks emit symbolic calls; all expectations remain original literals/Date constructors.
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -51,7 +52,7 @@ for(let index=0;index<registered.length;index++){
 if(manual.length!==1)throw Error('Manual adapter count changed');
 let rust='// Generated from unchanged Pele Gantt date assertions. One function per original test.\n';
 for(const r of records)rust+=`#[test]\nfn case_${String(r.index).padStart(2,'0')}() { check("${r.id}"); }\n`;
-const artifacts=[['tests/upstream/ir/gantt-dates.json',JSON.stringify({source:file,sourceSha256,timezone:'UTC',records,manual},null,2)+'\n'],['crates/zebra-mermaid/tests/upstream/gantt_dates_generated.rs',rust]];
+const artifacts=[['tests/upstream/ir/gantt-dates.json',JSON.stringify({source:file,sourceSha256,timezone:'UTC',records,manual},null,2)+'\n'],['crates/zebra-mermaid/tests/upstream/gantt_dates_generated.rs',formatRust(rust)]];
 const path='tests/upstream/ports.json',data=JSON.parse(readFileSync(resolve(root,path),'utf8')),owned=new Set(originals.map(t=>t.id));const previous=data.ports.filter(p=>owned.has(p.upstreamId));data.ports=data.ports.filter(p=>!owned.has(p.upstreamId));
 for(const r of [...records,...manual]){const isManual=manual.includes(r);data.ports.push({upstreamId:r.id,sourceSha256,target:{kind:'rust',binary:'lib',file:`crates/zebra-mermaid/tests/upstream/gantt_dates${isManual?'':'_generated'}.rs`,test:`diagrams::gantt::upstream_dates::${isManual?'adds_exact_time_units':'case_'+String(r.index).padStart(2,'0')}`,features:['gantt']},assertionReview:'Original callbacks and every parameter row preserved. Calls remain symbolic until execution against Rust date/axis functions; expected Date constructors, arrays, NaN and undefined remain typed, with UTC as the deterministic test time zone. Actual-result numeric coercion is handled by the explicit manual port retaining all four subtraction assertions. No renderer/reference output is used as an expectation.'})}
 const sort=a=>[...a].sort((a,b)=>a.upstreamId.localeCompare(b.upstreamId));

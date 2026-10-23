@@ -4,15 +4,15 @@ mod actors;
 mod colors;
 mod db;
 mod lexer;
-#[cfg(test)]
-#[path = "../../../tests/upstream/sequence_stress_generated.rs"]
-mod upstream_stress;
 mod parser;
 mod render;
 mod tokens;
 #[cfg(test)]
 #[path = "../../../tests/upstream/sequence_parser.rs"]
 mod upstream_parser;
+#[cfg(test)]
+#[path = "../../../tests/upstream/sequence_stress_generated.rs"]
+mod upstream_stress;
 
 use indexmap::IndexMap;
 

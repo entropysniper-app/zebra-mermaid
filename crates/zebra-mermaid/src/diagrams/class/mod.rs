@@ -19,8 +19,8 @@ mod upstream_parser;
 #[cfg(test)]
 #[path = "../../../tests/upstream/class_stress_generated.rs"]
 mod upstream_stress;
-use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use super::ParseInput;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::{
     text::entities::decode_entities,
     util::{js, url::sanitize_url},

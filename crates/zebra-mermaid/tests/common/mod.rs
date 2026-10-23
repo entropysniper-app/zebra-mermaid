@@ -10,11 +10,13 @@ use zebra_mermaid::util::js;
 use zebra_mermaid::{ConfigMap, ConfigValue};
 
 pub fn fixtures() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/pele-1.9.0")
 }
 
 pub fn read_jsonl(rel: &str) -> Vec<Value> {
-    read_jsonl_path(&fixtures().join(rel))
+    let current = fixtures().join(rel);
+    let path = if current.exists() { current } else { fixtures().parent().unwrap().join(rel) };
+    read_jsonl_path(&path)
 }
 
 /// Reads a `.jsonl` or gzip-compressed `.jsonl.gz` file.
@@ -41,9 +43,22 @@ pub fn read_jsonl_path(path: &std::path::Path) -> Vec<Value> {
                     // Never discard an arbitrary malformed fixture or count an exclusion as a pass.
                     static EXCLUDED: std::sync::OnceLock<std::collections::HashSet<String>> = std::sync::OnceLock::new();
                     let known = EXCLUDED.get_or_init(|| {
-                        let manifest: Value =
-                            serde_json::from_str(include_str!("../../../../tests/fixtures/unrepresentable-inputs.json")).unwrap();
-                        manifest["entries"].as_array().unwrap().iter().map(|entry| entry["record"].as_str().unwrap().to_owned()).collect()
+                        let manifests = [
+                            include_str!("../../../../tests/fixtures/unrepresentable-inputs.json"),
+                            include_str!("../../../../tests/fixtures/pele-1.9.0/unrepresentable-inputs.json"),
+                        ];
+                        manifests
+                            .into_iter()
+                            .flat_map(|text| {
+                                let manifest: Value = serde_json::from_str(text).unwrap();
+                                manifest["entries"]
+                                    .as_array()
+                                    .unwrap()
+                                    .iter()
+                                    .map(|entry| entry["record"].as_str().unwrap().to_owned())
+                                    .collect::<Vec<_>>()
+                            })
+                            .collect()
                     });
                     if known.contains(line.trim()) {
                         excluded += 1;
@@ -114,7 +129,7 @@ pub fn render_options(o: &Value, icons: &Value) -> zebra_mermaid::RenderOptions 
         // `clock(null)` in the JS boundary is epoch zero. Absence instead reads
         // the clock (normalized by the fixture generator); preserve that distinction.
         now: o.get("now").map(|v| if v.is_null() { 0.0 } else { number(v) }),
-        info_text: Some("Pele v1.6.0".into()),
+        info_text: None,
         ..Default::default()
     };
     if let ConfigValue::Object(c) = json_to_config(&o["config"]) {

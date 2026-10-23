@@ -10,7 +10,6 @@ use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::edges::{marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
@@ -43,10 +42,8 @@ fn rect(x: f64, y: f64, w: f64, h: f64, attrs: &str) -> String {
         num(w),
         "\" height=\"",
         num(h),
-        "\" rx=\"",
-        RADIUS,
         "\"",
-        attrs,
+        crate::svg::theme::rounded(&svg_format!(attrs)),
         "/>"
     )
 }
@@ -238,10 +235,11 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
             for &i in &group.periods {
                 let color = color_of(group, i);
                 let h = chip_height(&period_labels[i]);
-                let cy = y + h / 2.0;
+                let first = event_labels[i].first().map_or(h, &event_height);
+                let cy = y + js::max(h, first) / 2.0;
                 let mut d = svg_format!("M", num(left + col_w), ",", num(cy), "H", num(axis_x));
                 let mut cards = String::new();
-                let mut ey = y;
+                let mut ey = cy - first / 2.0;
                 let mut last = cy;
                 for label in &event_labels[i] {
                     let eh = event_height(label);
@@ -254,12 +252,12 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                     svg_write!(d, "M", num(axis_x), ",", num(cy), "H", num(spine_x), "V", num(last)).unwrap();
                 }
                 body.push_str(&open_period(i));
-                body.push_str(&period(&period_labels, i, &color, left, y, h));
+                body.push_str(&period(&period_labels, i, &color, left, cy - h / 2.0, h));
                 svg_write!(body, "<path class=\"pele-edge\" d=\"", d, "\"", line, "/>").unwrap();
                 body.push_str(&dot(axis_x, cy, &color));
                 body.push_str(&cards);
                 body.push_str("</g>");
-                y = js::max(y + h, ey - EVENT_GAP) + GAP;
+                y = js::max(cy + h / 2.0, ey - EVENT_GAP) + GAP;
             }
             if group.periods.is_empty() {
                 y += GAP - SECTION_GAP - 4.0;

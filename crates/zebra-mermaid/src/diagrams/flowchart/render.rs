@@ -17,7 +17,7 @@ use crate::svg::{
     edges::*,
     root::{svg_document, Accessible},
     shapes::*,
-    theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
+    theme::{class_names, resolve_style, ResolvedStyle},
 };
 use crate::text::entities::decode_entities;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
@@ -194,6 +194,8 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
     }
     let curve = flow.get("curve").and_then(ConfigValue::as_str);
     let opt = LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: positive(flow, "nodeSpacing", 40.0) * if tight { 0.5 } else { 1.0 },
         edge_sep: 16.0,
         rank_sep: positive(flow, "rankSpacing", 48.0) * if tight { 0.75 } else { 1.0 },
@@ -208,7 +210,14 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
     } else {
         compound_layout(&mut cnodes, &mut cedges, root_dir, &opt)
     };
-    let title = layout_label(db.title.as_deref(), false, &measure, size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
+    let title = layout_label(
+        db.title.as_deref(),
+        false,
+        &measure.without_math(),
+        size,
+        if tight { title_room(options) } else { 4000.0 },
+        style::BOLD,
+    );
     let title_h = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(layout.width, title.width);
     shift_layout(&mut cnodes, &mut cedges, pad + (inner - layout.width) / 2.0, pad + title_h);
@@ -310,16 +319,17 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
                 num(c.w),
                 "\" height=\"",
                 num(c.h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                ctx.paint(Role::GroupFill, "var(--_a)"),
                 "\"",
-                if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
-                " stroke=\"",
-                ctx.paint(Role::GroupStroke, "var(--_b)"),
-                "\"",
-                v.style.shape,
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    ctx.paint(Role::GroupFill, "var(--_a)"),
+                    "\"",
+                    if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                    " stroke=\"",
+                    ctx.paint(Role::GroupStroke, "var(--_b)"),
+                    "\"",
+                    v.style.shape
+                )),
                 "/>",
                 if crossed { String::new() } else { svg_format!(label_svg(&v.label, tx, ty, &attrs, icons)) },
                 "</g>"

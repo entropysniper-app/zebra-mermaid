@@ -3,7 +3,7 @@
 use crate::diagrams::RenderCtx;
 use crate::svg::builder::{num, render_label_svg as label_svg};
 use crate::svg::concat::svg_format;
-use crate::svg::theme::RADIUS;
+use crate::svg::theme::ROUNDED;
 use crate::text::{Icons, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
@@ -150,22 +150,10 @@ pub(super) fn draw_actor(kind: &str, cx: f64, top: f64, size: ActorSize, label: 
     if kind == "collections" {
         let bw = w - STACK;
         let bh = h - STACK;
-        let back = format!(
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{shape}/>",
-            num(left + STACK),
-            num(top),
-            num(bw),
-            num(bh),
-            RADIUS
-        );
-        let front = format!(
-            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{shape}/>",
-            num(left),
-            num(top + STACK),
-            num(bw),
-            num(bh),
-            RADIUS
-        );
+        let back =
+            format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{shape}{ROUNDED}/>", num(left + STACK), num(top), num(bw), num(bh));
+        let front =
+            format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{shape}{ROUNDED}/>", num(left), num(top + STACK), num(bw), num(bh));
         return back + &front + &svg_format!(label_svg(label, left + bw / 2.0, top + STACK + bh / 2.0, text, icons));
     }
     if kind == "queue" {
@@ -179,6 +167,6 @@ pub(super) fn draw_actor(kind: &str, cx: f64, top: f64, size: ActorSize, label: 
             p.line
         ) + &svg_format!(label_svg(label, cx - CAP / 2.0, top + h / 2.0, text, icons));
     }
-    format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"{shape}/>", num(left), num(top), num(w), num(h), RADIUS)
+    format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"{shape}{ROUNDED}/>", num(left), num(top), num(w), num(h))
         + &svg_format!(label_svg(label, cx, top + h / 2.0, text, icons))
 }

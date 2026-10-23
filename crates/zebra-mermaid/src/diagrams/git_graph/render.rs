@@ -16,7 +16,6 @@ use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
@@ -390,11 +389,9 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                     num(w),
                     "\" height=\"",
                     num(h),
-                    "\" rx=\"",
-                    RADIUS,
-                    "\" fill=\"",
-                    color,
-                    "\"/>"
+                    "\"",
+                    crate::svg::theme::rounded(&svg_format!(" fill=\"", color, "\"")),
+                    "/>"
                 )
                 .unwrap();
                 let text = ctx.theming.text_on(&color, "var(--_bg)");
@@ -641,7 +638,7 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
     if b.min_x > b.max_x {
         b.grow(0.0, 0.0, 0.0, 0.0);
     }
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 16.0 } else { 0.0 };
     let inner = js::max(b.max_x - b.min_x, title.width);
     let width = (inner + 2.0 * pad).ceil();

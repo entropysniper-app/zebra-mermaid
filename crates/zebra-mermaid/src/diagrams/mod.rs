@@ -102,6 +102,8 @@ pub struct RenderCtx<'a> {
     pub responsive: bool,
     measurer: &'a dyn TextMeasurer,
     icons: &'a Icons,
+    math: crate::text::math::Math,
+    math_enabled: bool,
     /// The color choices of this render.
     pub theming: &'a Theming,
 }
@@ -114,7 +116,20 @@ impl<'a> RenderCtx<'a> {
         icons: &'a Icons,
         theming: &'a Theming,
     ) -> Self {
-        RenderCtx { options, responsive, measurer, icons, theming }
+        RenderCtx {
+            options,
+            responsive,
+            measurer,
+            icons,
+            math: (if theming.resolved_mode() {
+                crate::text::math::Math::native(theming.resolved.color(Role::Text))
+            } else {
+                crate::text::math::Math::default()
+            })
+            .with_images(options.images != Some(false)),
+            math_enabled: false,
+            theming,
+        }
     }
 
     /// The color of a part playing `role`, where Pele writes `css`. See [`Theming::paint`].
@@ -134,8 +149,12 @@ impl<'a> RenderCtx<'a> {
     }
 
     /// The measurer and icons for label layout.
-    pub fn measure(&self) -> Measure<'a> {
-        Measure::new(self.measurer, self.icons)
+    pub fn measure(&self) -> Measure<'_> {
+        Measure::with_math(self.measurer, self.icons, self.math_enabled.then_some(&self.math))
+    }
+
+    pub(crate) fn enable_math(&mut self, enabled: bool) {
+        self.math_enabled = enabled;
     }
 
     /// The host's icon resolver, when it gave one, as Pele passes `options.icons`.

@@ -103,7 +103,7 @@ Use the reference revisions listed above, the locked website dependencies, and P
 ```sh
 cargo build --release --locked --manifest-path tools/cross-bench/Cargo.toml --target-dir target/cross-bench-build
 python3 tools/bench/run-cross.py
-BENCH_REPORT_SUFFIX=-pele-1-7-0 python3 tools/bench/publish-cross.py
+BENCH_REPORT_SUFFIX=-pele-1-9-0 python3 tools/bench/publish-cross.py
 ```
 
 `PLAYWRIGHT_MODULE` and `PLAYWRIGHT_BROWSERS_PATH` can point to a separate browser installation. Publishing requires a fresh report suffix to preserve existing measurement evidence.

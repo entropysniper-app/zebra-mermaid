@@ -23,6 +23,7 @@ pub(crate) fn label(value: &Value) -> Label {
                         text: span["text"].as_str().unwrap().to_owned(),
                         style: number(&span["style"]) as u8,
                         icon: span["icon"].as_str().map(str::to_owned),
+                        math: None,
                         width: number(&span["width"]),
                     })
                     .collect()
@@ -33,13 +34,14 @@ pub(crate) fn label(value: &Value) -> Label {
         height: number(&value["height"]),
         size: number(&value["size"]),
         line_height: number(&value["lineHeight"]),
+        heights: value["heights"].as_array().map(|h| h.iter().map(number).collect()),
     }
 }
 
 #[test]
 fn direct_label_parts_match_independent_node_svg() {
     let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../../tests/fixtures/unit/render-label-reference.json.gz")[..],
+        &include_bytes!("../../../../tests/fixtures/pele-1.9.0/unit/render-label-reference.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);

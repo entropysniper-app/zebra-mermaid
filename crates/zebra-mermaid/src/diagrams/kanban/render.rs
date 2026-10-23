@@ -9,7 +9,7 @@ use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, text_style};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::{class_names, RADIUS};
+use crate::svg::theme::class_names;
 use crate::text::{layout_render_label as layout_label, style, Icons, Measure, RenderLabel as Label, Span};
 use crate::theme::Role;
 use crate::util::js;
@@ -62,7 +62,7 @@ fn fit_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max: f64
             continue;
         }
         for span in &label.lines()[i] {
-            if span.icon.is_some() {
+            if span.icon.is_some() || span.math.is_some() {
                 if width > 0.0 && width + span.width > max {
                     commit(&mut lines, &mut widths, &mut widest, &mut line, &mut width);
                 }
@@ -77,7 +77,7 @@ fn fit_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max: f64
                 let w = m.width(ch.encode_utf8(&mut buf), size, span.style);
                 if width > 0.0 && width + w > max {
                     if !text.is_empty() {
-                        line.push(Span { text: std::mem::take(&mut text), style: span.style, icon: None, width: width - from });
+                        line.push(Span { text: std::mem::take(&mut text), style: span.style, icon: None, math: None, width: width - from });
                     }
                     commit(&mut lines, &mut widths, &mut widest, &mut line, &mut width);
                     from = 0.0;
@@ -86,21 +86,29 @@ fn fit_label(raw: Option<&str>, markdown: bool, m: &Measure, size: f64, max: f64
                 width += w;
             }
             if !text.is_empty() {
-                line.push(Span { text, style: span.style, icon: None, width: width - from });
+                line.push(Span { text, style: span.style, icon: None, math: None, width: width - from });
             }
         }
         commit(&mut lines, &mut widths, &mut widest, &mut line, &mut width);
     }
     let height = lines.len() as f64 * label.line_height;
-    Label::from_lines(lines, widths, widest, height, label.size, label.line_height)
+    let mut fitted = Label::from_lines(lines, widths, widest, height, label.size, label.line_height);
+    if label.heights.is_some() {
+        fitted.with_heights();
+    }
+    fitted
 }
 
 /// Writes a label with every line starting at x, or ending there, and the first line's box starting at y.
 fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>, end: bool) -> String {
     let mut out = String::new();
     for (i, line) in label.lines().iter().enumerate() {
-        let cy = y + (i as f64 + 0.5) * label.line_height;
-        if line.len() == 1 && line[0].icon.is_none() {
+        let cy = y + label.line_middle(i);
+        if line.len() == 1
+            && line[0].icon.is_none()
+            && line[0].math.is_none()
+            && line[0].style & (style::SUB | style::SUP | style::UNDERLINE) == 0
+        {
             svg_write!(
                 out,
                 "<text",
@@ -118,7 +126,7 @@ fn text_block(label: &Label, x: f64, y: f64, attrs: &str, icons: Option<&Icons>,
             .unwrap();
         } else {
             let width = label.widths()[i];
-            let one = Label::from_lines(vec![line.to_vec()], vec![width], width, label.line_height, label.size, label.line_height);
+            let one = label.label_line(i);
             let half = (if end { -width } else { width }) / 2.0;
             svg_write!(out, label_svg(&one, x + half, cy, attrs, icons)).unwrap();
         }
@@ -146,10 +154,42 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
     let pad = options.padding.unwrap_or(8.0);
     let icons = ctx.icons();
     let has = |name: Option<&str>| name.is_some_and(|n| !n.is_empty() && !m.icon_markup(n).is_empty());
-    let own_width = match config.lookup("kanban", "sectionWidth") {
-        Some(ConfigValue::Number(w)) if *w > 0.0 => js::min(js::max(*w, 80.0), 2000.0),
-        _ => 200.0,
+    let glyph = small * 1.25;
+    let mut math_width = 0.0;
+    let mut holds = |raw: Option<&str>, font_size: f64, reserved: f64| {
+        let Some(raw) = raw.filter(|r| r.contains("$$")) else {
+            return;
+        };
+        let label = layout_label(Some(raw), true, &m, font_size, f64::INFINITY, 0);
+        for spans in label.lines().iter() {
+            for span in spans {
+                if let Some(math) = &span.math {
+                    math_width = js::max(math_width, math.width + reserved);
+                }
+            }
+        }
     };
+    for section in &model.sections {
+        let count = m.width(&section.items.len().to_string(), small, 0);
+        holds(
+            Some(&section.node.label),
+            size,
+            2.0 * COLUMN_PAD + 8.0 + count + 12.0 + if has(section.node.icon.as_deref()) { glyph + ICON_GAP } else { 0.0 },
+        );
+        for item in &section.items {
+            let reserved = 2.0 * (COLUMN_PAD + CARD_PAD);
+            holds(Some(&item.label), small, reserved + if has(item.icon.as_deref()) { glyph + ICON_GAP } else { 0.0 });
+            holds(item.ticket.as_deref(), small, reserved);
+            holds(item.assigned.as_deref(), small, reserved);
+        }
+    }
+    let own_width = js::max(
+        match config.lookup("kanban", "sectionWidth") {
+            Some(ConfigValue::Number(w)) if *w > 0.0 => js::min(js::max(*w, 80.0), 2000.0),
+            _ => 200.0,
+        },
+        math_width.ceil(),
+    );
     // A board wider than the width the host has is folded into rows of columns, which then
     // share the row between them.
     let room = match options.max_width {
@@ -159,18 +199,20 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
     let count = model.sections.len() as f64;
     let fits = count * (own_width + COLUMN_GAP) - COLUMN_GAP <= room;
     let per_row = if fits { js::max(count, 1.0) } else { js::max(1.0, ((room + COLUMN_GAP) / (own_width + COLUMN_GAP)).floor()) };
-    let column_width = if fits {
-        own_width
-    } else {
-        js::max(js::min(own_width, room), js::min(((room + COLUMN_GAP) / per_row).floor() - COLUMN_GAP, own_width * 2.0))
-    };
+    let column_width = js::max(
+        if fits {
+            own_width
+        } else {
+            js::max(js::min(own_width, room), js::min(((room + COLUMN_GAP) / per_row).floor() - COLUMN_GAP, own_width * 2.0))
+        },
+        math_width.ceil(),
+    );
     let base_url = match config.lookup("kanban", "ticketBaseUrl") {
         Some(ConfigValue::String(s)) => s.as_str(),
         _ => "",
     };
     let card_width = column_width - 2.0 * COLUMN_PAD;
     let text_width = card_width - 2.0 * CARD_PAD;
-    let glyph = small * 1.25;
     let mut links: Vec<LinkInfo> = Vec::new();
 
     let sections = &model.sections;
@@ -238,7 +280,7 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
         _ => 0.0,
     };
 
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_room(options), style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 16.0 } else { 0.0 };
     let board_width = js::max(js::min(count, per_row) * (column_width + COLUMN_GAP) - COLUMN_GAP, 0.0);
     let width = js::max(board_width, title.width);
@@ -265,10 +307,8 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
             js::number_text(column_width),
             "\" height=\"",
             num(row_height),
-            "\" rx=\"",
-            RADIUS,
             "\"",
-            column_paint,
+            crate::svg::theme::rounded(&svg_format!(column_paint)),
             "/>"
         );
         body.push_str(&text_block(
@@ -308,13 +348,15 @@ pub(crate) fn render(model: &KanbanModel, config: &Config, ctx: &RenderCtx) -> R
                 js::number_text(card_width),
                 "\" height=\"",
                 num(card.height),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                ctx.paint(Role::NodeFill, "var(--_bg)"),
-                "\" stroke=\"",
-                ctx.paint(Role::NodeStroke, "var(--_b)"),
-                "\"/>"
+                "\"",
+                crate::svg::theme::rounded(&svg_format!(
+                    " fill=\"",
+                    ctx.paint(Role::NodeFill, "var(--_bg)"),
+                    "\" stroke=\"",
+                    ctx.paint(Role::NodeStroke, "var(--_b)"),
+                    "\""
+                )),
+                "/>"
             );
             if let Some(color) = &color {
                 svg_write!(

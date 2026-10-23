@@ -5,15 +5,20 @@ use super::theme::{families, RADIUS};
 use crate::diagrams::RenderCtx;
 use crate::svg::concat::{svg_format, svg_write};
 use crate::theme::{CanvasBackground, ColorMode, Role};
-use crate::util::{js, strs};
+use crate::util::js;
+#[cfg(test)]
+use crate::util::strs;
 use memchr::memmem::Finder;
 use std::fmt::Write;
 use std::sync::OnceLock;
 
+#[cfg(test)]
 const ROUNDED: &str = " rx=\"var(--pele-radius,4px)\"";
 
 struct Searches {
+    #[cfg(test)]
     rect: Finder<'static>,
+    #[cfg(test)]
     rounded: Finder<'static>,
     variables: [Finder<'static>; 4],
 }
@@ -21,7 +26,9 @@ struct Searches {
 fn searches() -> &'static Searches {
     static SEARCHES: OnceLock<Searches> = OnceLock::new();
     SEARCHES.get_or_init(|| Searches {
+        #[cfg(test)]
         rect: Finder::new("<rect"),
+        #[cfg(test)]
         rounded: Finder::new(ROUNDED),
         variables: ["var(--_r)", "var(--_tw)", "var(--_hw)", "var(--_w)"].map(Finder::new),
     })
@@ -29,6 +36,7 @@ fn searches() -> &'static Searches {
 
 /// Each `<rect ...>` tag of `content` (`/<rect\b[^>]*>/g`): the text before it since the last
 /// one, and the tag. `f` returns false to stop. Returns the end of the last tag visited.
+#[cfg(test)]
 fn for_each_rect(content: &str, mut f: impl FnMut(&str, &str) -> bool) -> usize {
     let b = content.as_bytes();
     let mut last = 0;
@@ -58,6 +66,7 @@ fn for_each_rect(content: &str, mut f: impl FnMut(&str, &str) -> bool) -> usize 
 ///
 /// Appends `content` to `out` with that rewriting. The caller has found that `content` holds
 /// the variable somewhere.
+#[cfg(test)]
 fn push_rounded(out: &mut String, content: &str) {
     let last = for_each_rect(content, |between, tag| {
         out.push_str(between);
@@ -84,6 +93,7 @@ fn push_rounded(out: &mut String, content: &str) {
 }
 
 /// Whether [`push_rounded`] would rewrite any tag of `content`.
+#[cfg(test)]
 fn has_rounded_rect(content: &str) -> bool {
     let mut found = false;
     for_each_rect(content, |_, tag| {
@@ -161,11 +171,8 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
     let mut out = String::with_capacity(content.len() + head.len() + 900);
     match theming.mode {
         ColorMode::Css => {
-            // The rewriting of rounded rectangles adds `var(--_r)` references; the root has to
-            // declare the variable before the content, so the content is looked over first.
-            let rounding = searches().rounded.find(content.as_bytes()).is_some();
             let found = uses(content);
-            let radius = found.radius || (rounding && has_rounded_rect(content));
+            let radius = found.radius;
             svg_write!(
                 out,
                 "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"pele pele-",
@@ -216,11 +223,7 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
             if theming.canvas == CanvasBackground::Opaque {
                 out.push_str(&canvas("var(--_bg)"));
             }
-            if rounding {
-                push_rounded(&mut out, content);
-            } else {
-                out.push_str(content);
-            }
+            out.push_str(content);
         }
         ColorMode::Resolved => {
             let text = theming.resolved.color(Role::Text);

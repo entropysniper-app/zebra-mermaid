@@ -12,7 +12,15 @@ mod info_render;
 #[path = "upstream/info_stress.rs"]
 mod info_stress;
 
-#[cfg(all(feature = "flowchart", feature = "class", feature = "kanban", feature = "treeView", feature = "sequence", feature = "timeline", feature = "pie"))]
+#[cfg(all(
+    feature = "flowchart",
+    feature = "class",
+    feature = "kanban",
+    feature = "treeView",
+    feature = "sequence",
+    feature = "timeline",
+    feature = "pie"
+))]
 #[path = "upstream/fonts_render.rs"]
 mod fonts_render;
 
@@ -32,3 +40,8 @@ mod lanes;
 
 #[path = "upstream/utilities.rs"]
 mod utilities;
+
+#[path = "upstream/break_hints.rs"]
+mod break_hints;
+#[path = "upstream/layered.rs"]
+mod layered;

@@ -6,7 +6,8 @@
 //! its other end. The nesting is walked level by level from a queue, never by recursion, so a
 //! deeply nested input cannot exhaust the stack.
 
-use super::layered::{layered, ledge, lnode, orient, rank, Kind, LEdge, LNode, LayeredOptions};
+pub use super::crossings::{route_crossings, style_of, Style};
+use super::layered::{layered, ledge, lnode, orient, rank, Kind, LEdge, LNode, LayeredGroups, LayeredOptions, LayeredResult};
 use crate::util::hash::IndexedMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -92,6 +93,7 @@ struct PortEdge {
     inner: usize,
     out: bool,
     side: Side,
+    hint: f64,
     px: f64,
     py: f64,
     route: Vec<f64>,
@@ -355,15 +357,286 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
             for &inner in path {
                 let li = level_index(&level_of, nodes[inner].parent);
                 let level = &mut order[li];
-                level.ports.push(PortEdge { e: ei, inner, out, side: Side::Top, px: 0.0, py: 0.0, route: Vec::new() });
+                level.ports.push(PortEdge { e: ei, inner, out, side: Side::Top, hint: f64::NAN, px: 0.0, py: 0.0, route: Vec::new() });
                 let at = level.ports.len() - 1;
                 level.port_of.insert(ei * 2 + if out { 0 } else { 1 }, at);
             }
         }
     }
 
-    let endpoint_below = |item: usize, e: &CEdge, out: bool| -> bool { (if out { e.src } else { e.dst }) != item };
+    let ordered = ports > 1 && ports <= 400 && edges.len() <= 500;
+    let mut key = vec![f64::NAN; n];
+    let flat = if order.len() > 1 && ordered && order.iter().all(|level| level.dir == root_dir) {
+        let vertical = matches!(root_dir, Dir::TB | Dir::BT);
+        let mut leaf = vec![-1isize; n];
+        let mut group = vec![-1isize; n];
+        let mut lnodes = Vec::new();
+        let mut of = Vec::new();
+        let mut parent = Vec::new();
+        for i in 0..n {
+            if nodes[i].is_group {
+                group[i] = parent.len() as isize;
+                parent.push(-1);
+            }
+        }
+        for i in 0..n {
+            let p = nodes[i].parent;
+            if nodes[i].is_group {
+                parent[group[i] as usize] = if p >= 0 { group[p as usize] } else { -1 };
+            } else {
+                leaf[i] = lnodes.len() as isize;
+                lnodes.push(lnode(
+                    if vertical { nodes[i].w } else { nodes[i].h },
+                    if vertical { nodes[i].h } else { nodes[i].w },
+                    Kind::Node,
+                ));
+                of.push(if p >= 0 { group[p as usize] } else { -1 });
+            }
+        }
+        let mut ledges = Vec::new();
+        let mut edge_of = vec![-1isize; edges.len()];
+        for (ei, e) in edges.iter().enumerate() {
+            if e.src == e.dst || leaf[e.src] < 0 || leaf[e.dst] < 0 {
+                continue;
+            }
+            edge_of[ei] = ledges.len() as isize;
+            ledges.push(ledge(
+                leaf[e.src] as usize,
+                leaf[e.dst] as usize,
+                e.minlen,
+                if vertical { e.label_w } else { e.label_h },
+                if vertical { e.label_h } else { e.label_w },
+            ));
+        }
+        let flat_layout = layered(
+            &mut lnodes,
+            &mut ledges,
+            &LayeredOptions { groups: Some(LayeredGroups { of, parent }), order_only: true, ..opt.clone() },
+        );
+        let crossings = flat_layout.crossings.unwrap_or(0).min(flat_layout.declared.unwrap_or(0));
+        let mut sum = vec![0.0; n];
+        let mut count = vec![0; n];
+        let mut last = vec![-1; n];
+        for i in 0..n {
+            if leaf[i] < 0 {
+                continue;
+            }
+            let ln = &lnodes[leaf[i] as usize];
+            key[i] = ln.x;
+            let mut p = nodes[i].parent;
+            while p >= 0 {
+                let q = p as usize;
+                sum[q] += key[i];
+                count[q] += 1;
+                last[q] = last[q].max(ln.rank);
+                p = nodes[q].parent;
+            }
+        }
+        for i in 0..n {
+            if count[i] > 0 {
+                key[i] = sum[i] / count[i] as f64;
+            }
+        }
+        Some(Flat { edge_of, edges: ledges, last, crossings })
+    } else {
+        None
+    };
+    let mut laid: Vec<Vec<Laid>> = (0..order.len()).map(|_| Vec::new()).collect();
+    let style = style_of(opt);
+    let mut keyed = flat.is_some();
+    let mut total = place(&mut order, &level_of, nodes, edges, opt, keyed.then_some(key.as_slice()), flat.as_ref(), ordered, &mut laid);
+    let mut crossings = None;
+    if let Some(flat) = &flat {
+        let crossed = route_crossings(nodes, edges, style);
+        crossings = Some(crossed);
+        if crossed as f64 > flat.crossings as f64 * 1.5 + 4.0 {
+            let first = snapshot(nodes, edges, &order, total);
+            keyed = false;
+            total = place(&mut order, &level_of, nodes, edges, opt, None, Some(flat), ordered, &mut laid);
+            let own = route_crossings(nodes, edges, style);
+            if own >= crossed {
+                keyed = true;
+                total = restore(first, nodes, edges, &mut order);
+            } else {
+                crossings = Some(own);
+            }
+        }
+    }
+    if keyed == flat.is_some() && ordered {
+        let mut again = false;
+        for level in &mut order {
+            if level.id < 0 {
+                continue;
+            }
+            let b = &nodes[level.id as usize];
+            let vertical = matches!(level.dir, Dir::TB | Dir::BT);
+            let end = opposite(start_side(level.dir));
+            let mut seen = Vec::new();
+            for port in &mut level.ports {
+                if port.side != end {
+                    continue;
+                }
+                let route = &edges[port.e].route;
+                let (bx, by) = (level.x + port.px, level.y + port.py);
+                let mut at = None;
+                for k in (0..route.len()).step_by(3) {
+                    if (route[k] - bx).abs() < 0.01 && (route[k + 1] - by).abs() < 0.01 {
+                        at = Some(k);
+                        if !port.out {
+                            break;
+                        }
+                    }
+                }
+                let Some(at) = at else {
+                    continue;
+                };
+                let a = if vertical { 0 } else { 1 };
+                let step = if port.out { 3 } else { -3 };
+                let mut next = at as isize + step;
+                while next >= 0 && (next as usize) < route.len() && (route[next as usize + a] - route[at + a]).abs() < 0.5 {
+                    next += step;
+                }
+                if next < 0 || next as usize >= route.len() {
+                    continue;
+                }
+                port.hint = route[next as usize + a] - if vertical { b.x - b.w / 2.0 } else { b.y - b.h / 2.0 };
+                seen.push((if vertical { port.px } else { port.py }, port.hint));
+            }
+            seen.sort_by(|p, q| p.0.partial_cmp(&q.0).unwrap_or(std::cmp::Ordering::Equal));
+            if seen.windows(2).any(|w| w[0].1 > w[1].1) {
+                again = true;
+            }
+        }
+        if again {
+            let before = crossings.unwrap_or_else(|| route_crossings(nodes, edges, style));
+            if before > 0 {
+                let first = snapshot(nodes, edges, &order, total);
+                total = place(&mut order, &level_of, nodes, edges, opt, keyed.then_some(key.as_slice()), flat.as_ref(), ordered, &mut laid);
+                if route_crossings(nodes, edges, style) >= before {
+                    total = restore(first, nodes, edges, &mut order);
+                }
+            }
+        }
+    }
 
+    for &ei in &stray {
+        let (ax, ay) = (nodes[edges[ei].src].x, nodes[edges[ei].src].y);
+        let (bx, by) = (nodes[edges[ei].dst].x, nodes[edges[ei].dst].y);
+        let e = &mut edges[ei];
+        e.route = vec![ax, ay, 0.0, bx, by, 0.0];
+        e.label_x = (ax + bx) / 2.0;
+        e.label_y = (ay + by) / 2.0;
+    }
+    for &ei in &loops {
+        let node = &nodes[edges[ei].src];
+        let (x, y, w) = (node.x, node.y, node.w);
+        let e = &mut edges[ei];
+        e.label_x = x + w / 2.0 + 28.0 + e.label_w / 2.0;
+        e.label_y = y;
+    }
+
+    total
+}
+
+/// The flat graph of one level: its items, its edges, and a port node for every edge that
+/// passes through the level's border at its start or end side. `sized` is false for the first,
+/// top-down pass, which only ranks.
+fn build(
+    order: &[Level],
+    q: usize,
+    level_of: &[usize],
+    nodes: &[CNode],
+    edges: &[CEdge],
+    sized: bool,
+    key: Option<&[f64]>,
+    far: Option<&Flat>,
+) -> (Vec<LNode>, Vec<LEdge>, Vec<isize>) {
+    let level = &order[q];
+    let vertical = level.dir == Dir::TB || level.dir == Dir::BT;
+    let start = start_side(level.dir);
+    let mut local: IndexedMap<usize, usize> = IndexedMap::with_capacity_and_hasher(level.items.len(), Default::default());
+    let mut lnodes: Vec<LNode> = Vec::with_capacity(level.items.len() + level.ports.len());
+    let mut ledges: Vec<LEdge> = Vec::with_capacity(level.edges.len() + level.ports.len());
+    for (i, &item) in level.items.iter().enumerate() {
+        local.insert(item, i);
+        let node = &nodes[item];
+        let mut ln = if sized {
+            lnode(if vertical { node.w } else { node.h }, if vertical { node.h } else { node.w }, Kind::Node)
+        } else {
+            lnode(0.0, 0.0, Kind::Node)
+        };
+        ln.span = if node.is_group { crate::util::js::min(node.span, ln.w - 2.0 * node.pad_x) } else { node.span };
+        ln.key = key.map_or(f64::NAN, |key| key[item]);
+        lnodes.push(ln);
+    }
+    let endpoint_below = |item: usize, e: &CEdge, out: bool| -> bool { (if out { e.src } else { e.dst }) != item };
+    let held = |item: usize, ei: usize, out: bool| -> bool { nodes[item].is_group && endpoint_below(item, &edges[ei], out) };
+    let offset = |item: usize, ei: usize, out: bool| -> f64 {
+        if !sized || !nodes[item].is_group || !endpoint_below(item, &edges[ei], out) {
+            return 0.0;
+        }
+        let inner = &order[level_index(level_of, item as isize)];
+        let port = &inner.ports[inner.port_of[&(ei * 2 + if out { 0 } else { 1 })]];
+        if vertical {
+            port.px - nodes[item].w / 2.0
+        } else {
+            port.py - nodes[item].h / 2.0
+        }
+    };
+    for le in &level.edges {
+        let e = &edges[le.e];
+        let mut edge = ledge(local[&le.a], local[&le.b], e.minlen, 0.0, 0.0);
+        if sized {
+            edge.label_w = if vertical { e.label_w } else { e.label_h };
+            edge.label_h = if vertical { e.label_h } else { e.label_w };
+            edge.tail_dx = offset(le.a, le.e, true);
+            edge.head_dx = offset(le.b, le.e, false);
+            edge.tail_fixed = held(le.a, le.e, true);
+            edge.head_fixed = held(le.b, le.e, false);
+        }
+        ledges.push(edge);
+    }
+    let mut dummies = vec![-1isize; level.ports.len()];
+    for (i, port) in level.ports.iter().enumerate() {
+        if port.side == start || port.side == opposite(start) {
+            let d = lnodes.len();
+            let mut ln = lnode(0.0, 0.0, if port.side == start { Kind::StartPort } else { Kind::EndPort });
+            ln.key = key.map_or(f64::NAN, |key| key[if port.out { edges[port.e].dst } else { edges[port.e].src }]);
+            ln.hint = if port.hint.is_nan() && key.is_some() {
+                far.map_or(f64::NAN, |flat| flat.hint(level, port, edges, key.unwrap()))
+            } else {
+                port.hint
+            };
+            lnodes.push(ln);
+            dummies[i] = d as isize;
+            let mut edge = if port.out { ledge(local[&port.inner], d, 1.0, 0.0, 0.0) } else { ledge(d, local[&port.inner], 1.0, 0.0, 0.0) };
+            if port.out {
+                edge.tail_dx = offset(port.inner, port.e, true);
+                edge.tail_fixed = held(port.inner, port.e, true);
+            } else {
+                edge.head_dx = offset(port.inner, port.e, false);
+                edge.head_fixed = held(port.inner, port.e, false);
+            }
+            ledges.push(edge);
+        } else {
+            lnodes[local[&port.inner]].pin = if port.side == Side::Top || port.side == Side::Left { -1.0 } else { 1.0 };
+        }
+    }
+    (lnodes, ledges, dummies)
+}
+
+fn place(
+    order: &mut [Level],
+    level_of: &[usize],
+    nodes: &mut [CNode],
+    edges: &mut [CEdge],
+    opt: &LayeredOptions,
+    key: Option<&[f64]>,
+    far: Option<&Flat>,
+    ordered: bool,
+    laid: &mut [Vec<Laid>],
+) -> CompoundResult {
+    let endpoint_below = |item: usize, e: &CEdge, out: bool| -> bool { (if out { e.src } else { e.dst }) != item };
     // Top-down: rank each level to learn which side of a group every crossing edge leaves from.
     for q in 0..order.len() {
         for pi in 0..order[q].ports.len() {
@@ -390,7 +663,7 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
         if !needed {
             continue;
         }
-        let (mut lnodes, mut ledges, _) = build(&order, q, &level_of, nodes, edges, false);
+        let (mut lnodes, mut ledges, _) = build(order, q, level_of, nodes, edges, false, key, far);
         orient(&lnodes, &mut ledges);
         rank(&mut lnodes, &ledges, 1);
         let start = start_side(order[q].dir);
@@ -420,8 +693,42 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
         let dir = order[q].dir;
         let vertical = dir == Dir::TB || dir == Dir::BT;
         let flip = dir == Dir::BT || dir == Dir::RL;
-        let (mut lnodes, mut ledges, dummies) = build(&order, q, &level_of, nodes, edges, true);
-        let size = layered(&mut lnodes, &mut ledges, opt);
+        let (mut lnodes, mut ledges, dummies) = build(order, q, level_of, nodes, edges, true, key, far);
+        let size = if ordered {
+            let mut given = Vec::new();
+            let mut add = |x: f64| given.push(if x.is_nan() { f64::NAN.to_bits() } else { x.to_bits() });
+            for ln in &lnodes {
+                for v in [ln.w, ln.h, ln.kind as u8 as f64, ln.pin, ln.hint, ln.key, ln.span] {
+                    add(v);
+                }
+            }
+            for le in &ledges {
+                for v in [
+                    le.tail as f64,
+                    le.head as f64,
+                    le.minlen,
+                    le.label_w,
+                    le.label_h,
+                    le.tail_dx,
+                    le.head_dx,
+                    le.tail_fixed as u8 as f64,
+                    le.head_fixed as u8 as f64,
+                ] {
+                    add(v);
+                }
+            }
+            if let Some(past) = laid[q].iter().find(|p| p.given == given) {
+                lnodes.clone_from(&past.nodes);
+                ledges.clone_from(&past.edges);
+                past.size
+            } else {
+                let size = layered(&mut lnodes, &mut ledges, opt);
+                laid[q].push(Laid { given, nodes: lnodes.clone(), edges: ledges.clone(), size });
+                size
+            }
+        } else {
+            layered(&mut lnodes, &mut ledges, opt)
+        };
         let content_w = if vertical { size.width } else { size.height };
         let content_h = if vertical { size.height } else { size.width };
         let group = if id >= 0 { Some(&nodes[id as usize]) } else { None };
@@ -586,7 +893,7 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
         }
     };
 
-    for level in &order {
+    for level in order.iter() {
         for le in &level.edges {
             let (src, dst) = (edges[le.e].src, edges[le.e].dst);
             let mut route: Vec<f64> = Vec::new();
@@ -620,98 +927,81 @@ pub fn compound_layout(nodes: &mut [CNode], edges: &mut [CEdge], root_dir: Dir, 
         }
     }
 
-    for &ei in &stray {
-        let (ax, ay) = (nodes[edges[ei].src].x, nodes[edges[ei].src].y);
-        let (bx, by) = (nodes[edges[ei].dst].x, nodes[edges[ei].dst].y);
-        let e = &mut edges[ei];
-        e.route = vec![ax, ay, 0.0, bx, by, 0.0];
-        e.label_x = (ax + bx) / 2.0;
-        e.label_y = (ay + by) / 2.0;
-    }
-    for &ei in &loops {
-        let node = &nodes[edges[ei].src];
-        let (x, y, w) = (node.x, node.y, node.w);
-        let e = &mut edges[ei];
-        e.label_x = x + w / 2.0 + 28.0 + e.label_w / 2.0;
-        e.label_y = y;
-    }
-
     total
 }
 
-/// The flat graph of one level: its items, its edges, and a port node for every edge that
-/// passes through the level's border at its start or end side. `sized` is false for the first,
-/// top-down pass, which only ranks.
-fn build(
-    order: &[Level],
-    q: usize,
-    level_of: &[usize],
-    nodes: &[CNode],
-    edges: &[CEdge],
-    sized: bool,
-) -> (Vec<LNode>, Vec<LEdge>, Vec<isize>) {
-    let level = &order[q];
-    let vertical = level.dir == Dir::TB || level.dir == Dir::BT;
-    let start = start_side(level.dir);
-    let mut local: IndexedMap<usize, usize> = IndexedMap::with_capacity_and_hasher(level.items.len(), Default::default());
-    let mut lnodes: Vec<LNode> = Vec::with_capacity(level.items.len() + level.ports.len());
-    let mut ledges: Vec<LEdge> = Vec::with_capacity(level.edges.len() + level.ports.len());
-    for (i, &item) in level.items.iter().enumerate() {
-        local.insert(item, i);
-        let node = &nodes[item];
-        let mut ln = if sized {
-            lnode(if vertical { node.w } else { node.h }, if vertical { node.h } else { node.w }, Kind::Node)
-        } else {
-            lnode(0.0, 0.0, Kind::Node)
-        };
-        ln.span = if node.is_group { crate::util::js::min(node.span, ln.w - 2.0 * node.pad_x) } else { node.span };
-        lnodes.push(ln);
-    }
-    let endpoint_below = |item: usize, e: &CEdge, out: bool| -> bool { (if out { e.src } else { e.dst }) != item };
-    let held = |item: usize, ei: usize, out: bool| -> bool { nodes[item].is_group && endpoint_below(item, &edges[ei], out) };
-    let offset = |item: usize, ei: usize, out: bool| -> f64 {
-        if !sized || !nodes[item].is_group || !endpoint_below(item, &edges[ei], out) {
-            return 0.0;
+struct Flat {
+    edge_of: Vec<isize>,
+    edges: Vec<LEdge>,
+    last: Vec<i32>,
+    crossings: i64,
+}
+impl Flat {
+    fn hint(&self, level: &Level, port: &PortEdge, edges: &[CEdge], key: &[f64]) -> f64 {
+        let le = self.edge_of[port.e];
+        if le < 0 || level.id < 0 || !port.out || port.side != opposite(start_side(level.dir)) {
+            return f64::NAN;
         }
-        let inner = &order[level_index(level_of, item as isize)];
-        let port = &inner.ports[inner.port_of[&(ei * 2 + if out { 0 } else { 1 })]];
-        if vertical {
-            port.px - nodes[item].w / 2.0
-        } else {
-            port.py - nodes[item].h / 2.0
-        }
-    };
-    for le in &level.edges {
-        let e = &edges[le.e];
-        let mut edge = ledge(local[&le.a], local[&le.b], e.minlen, 0.0, 0.0);
-        if sized {
-            edge.label_w = if vertical { e.label_w } else { e.label_h };
-            edge.label_h = if vertical { e.label_h } else { e.label_w };
-            edge.tail_dx = offset(le.a, le.e, true);
-            edge.head_dx = offset(le.b, le.e, false);
-            edge.tail_fixed = held(le.a, le.e, true);
-            edge.head_fixed = held(le.b, le.e, false);
-        }
-        ledges.push(edge);
-    }
-    let mut dummies = vec![-1isize; level.ports.len()];
-    for (i, port) in level.ports.iter().enumerate() {
-        if port.side == start || port.side == opposite(start) {
-            let d = lnodes.len();
-            lnodes.push(lnode(0.0, 0.0, if port.side == start { Kind::StartPort } else { Kind::EndPort }));
-            dummies[i] = d as isize;
-            let mut edge = if port.out { ledge(local[&port.inner], d, 1.0, 0.0, 0.0) } else { ledge(d, local[&port.inner], 1.0, 0.0, 0.0) };
-            if port.out {
-                edge.tail_dx = offset(port.inner, port.e, true);
-                edge.tail_fixed = held(port.inner, port.e, true);
-            } else {
-                edge.head_dx = offset(port.inner, port.e, false);
-                edge.head_fixed = held(port.inner, port.e, false);
+        let points = &self.edges[le as usize].points;
+        let mut inside = key[edges[port.e].src];
+        let mut outside = 0.0;
+        for k in (0..points.len()).step_by(2) {
+            if points[k] == self.last[level.id as usize] as f64 {
+                inside = points[k + 1];
             }
-            ledges.push(edge);
-        } else {
-            lnodes[local[&port.inner]].pin = if port.side == Side::Top || port.side == Side::Left { -1.0 } else { 1.0 };
+            if points[k] == (self.last[level.id as usize] + 1) as f64 {
+                outside = points[k + 1];
+            }
+        }
+        inside + outside * 1e-6
+    }
+}
+struct Laid {
+    given: Vec<u64>,
+    nodes: Vec<LNode>,
+    edges: Vec<LEdge>,
+    size: LayeredResult,
+}
+struct Snapshot {
+    nodes: Vec<[f64; 4]>,
+    routes: Vec<Vec<f64>>,
+    labels: Vec<[f64; 2]>,
+    levels: Vec<Vec<f64>>,
+    total: CompoundResult,
+}
+fn snapshot(nodes: &[CNode], edges: &[CEdge], levels: &[Level], total: CompoundResult) -> Snapshot {
+    Snapshot {
+        nodes: nodes.iter().map(|n| [n.x, n.y, n.w, n.h]).collect(),
+        routes: edges.iter().map(|e| e.route.clone()).collect(),
+        labels: edges.iter().map(|e| [e.label_x, e.label_y]).collect(),
+        levels: levels
+            .iter()
+            .map(|l| {
+                let mut v = vec![l.x, l.y];
+                for p in &l.ports {
+                    v.extend([p.px, p.py]);
+                }
+                v
+            })
+            .collect(),
+        total,
+    }
+}
+fn restore(s: Snapshot, nodes: &mut [CNode], edges: &mut [CEdge], levels: &mut [Level]) -> CompoundResult {
+    for (n, at) in nodes.iter_mut().zip(s.nodes) {
+        [n.x, n.y, n.w, n.h] = at;
+    }
+    for ((e, r), at) in edges.iter_mut().zip(s.routes).zip(s.labels) {
+        e.route = r;
+        [e.label_x, e.label_y] = at;
+    }
+    for (l, at) in levels.iter_mut().zip(s.levels) {
+        l.x = at[0];
+        l.y = at[1];
+        for (i, p) in l.ports.iter_mut().enumerate() {
+            p.px = at[2 + 2 * i];
+            p.py = at[3 + 2 * i];
         }
     }
-    (lnodes, ledges, dummies)
+    s.total
 }

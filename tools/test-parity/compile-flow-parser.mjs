@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {formatRust} from './format-rust.mjs';
 // Mechanical translation of flowchart parser calls AND assertions. No Pele/Rust outputs are harvested.
 // Model observations are symbolic until the generated Rust test executes its real parser.
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
@@ -131,7 +132,7 @@ const artifacts=[];
 artifacts.push([resolve(root,'tests/upstream/ir/flow-parser.json'),JSON.stringify({sources,records,untranslated},null,2)+'\n']);
 let rust='// Generated from original Mermaid/Pele flowchart callbacks; one function per case (MIT).\n';
 for(const r of records)rust+=`#[test]\n${r.mode==='skip'?'#[ignore = "Original upstream skip; not counted as passed"]\n':''}fn ${slug(r.file)}_${String(r.index).padStart(3,'0')}() { run_case("${r.id}"); }\n`;
-artifacts.push([resolve(root,'crates/zebra-mermaid/tests/upstream/flow_parser_generated.rs'),rust]);
+artifacts.push([resolve(root,'crates/zebra-mermaid/tests/upstream/flow_parser_generated.rs'),formatRust(rust)]);
 const portPath=resolve(root,'tests/upstream/ports.json'),ports=JSON.parse(readFileSync(portPath,'utf8'));
 const owned=new Set(inventory.tests.filter(t=>files.includes(t.file)).map(t=>t.id));
 const previous=ports.ports.filter(p=>owned.has(p.upstreamId));ports.ports=ports.ports.filter(p=>!owned.has(p.upstreamId));

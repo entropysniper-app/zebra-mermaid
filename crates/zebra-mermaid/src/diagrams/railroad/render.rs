@@ -15,7 +15,7 @@ use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::{FONT_MONO, RADIUS};
+use crate::svg::theme::{FONT_MONO, ROUNDED};
 use crate::text::entities::decode_entities;
 use crate::text::{layout_render_label as layout_label, style, Measure};
 use crate::theme::Role;
@@ -549,10 +549,9 @@ impl Painter<'_, '_> {
             // terminals; in resolved mode it takes the secondary surface to stay set apart.
             Kind::NonTerminal => write!(
                 self.nodes,
-                "<g class=\"pele-node pele-nonterminal\" data-id=\"{}\">{} rx=\"{}\" fill=\"{}\" stroke=\"{}\"{}/>{}>{}</text></g>",
+                "<g class=\"pele-node pele-nonterminal\" data-id=\"{}\">{} fill=\"{}\" stroke=\"{}\"{}{ROUNDED}/>{}>{}</text></g>",
                 esc_text(&bx.id),
                 shape,
-                RADIUS,
                 ctx.paint(Role::GroupHeader, "var(--_bg)"),
                 stroke_color,
                 self.stroke,
@@ -566,10 +565,9 @@ impl Painter<'_, '_> {
                 // `text.slice(2, -2)`: the text between "? " and " ?".
                 let inner = &text[2..text.len() - 2];
                 write!(self.nodes,
-                    "<g class=\"pele-node pele-special\">{} rx=\"{}\" fill=\"{}\" stroke=\"{}\" stroke-dasharray=\"4 3\"{}/>{} font-style=\"italic\"><tspan fill=\"{}\">? </tspan>{}<tspan fill=\"{}\"> ?</tspan></text></g>",
+                    "<g class=\"pele-node pele-special\">{} fill=\"{}\" stroke=\"{}\" stroke-dasharray=\"4 3\"{}{ROUNDED}/>{} font-style=\"italic\"><tspan fill=\"{}\">? </tspan>{}<tspan fill=\"{}\"> ?</tspan></text></g>",
                     shape,
-                    RADIUS,
-                    ctx.paint(Role::Background, "var(--_bg)"),
+                        ctx.paint(Role::Background, "var(--_bg)"),
                     stroke_color,
                     self.stroke,
                     label,
@@ -610,8 +608,14 @@ fn draw(model: &RailroadModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let a = svg_format!(num(arc));
     let turn = |sweep: u8, dx: &str, dy: &str| format!("a{a},{a} 0 0 {sweep} {dx}{a},{dy}{a}");
 
-    let title =
-        layout_label(model.title.as_deref(), false, &m.measure, base, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
+    let title = layout_label(
+        model.title.as_deref(),
+        false,
+        &m.measure.without_math(),
+        base,
+        if tight { title_room(options) } else { 4000.0 },
+        style::BOLD,
+    );
     let title_height = if title.height > 0.0 { title.height + 16.0 } else { 0.0 };
     let head_height = js::round(head_size * 1.5);
 

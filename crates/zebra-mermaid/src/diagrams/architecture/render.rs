@@ -13,7 +13,6 @@ use crate::error::Error;
 use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::edges::{marker, marker_trim, render_edge_label_svg as edge_label_svg};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, Icons, Measure, RenderLabel as Label, Span};
 use crate::theme::Role;
 use crate::util::{js, math};
@@ -101,7 +100,7 @@ fn fit(label: &Label, max_width: f64, max_lines: usize, m: &Measure) -> Label {
         if width > max_width || (cut && i + 1 == max_lines) {
             loop {
                 let Some(span) = line.last_mut() else {
-                    line.push(Span { text: "…".to_string(), style: 0, icon: None, width: dots });
+                    line.push(Span { text: "…".to_string(), style: 0, icon: None, math: None, width: dots });
                     width = dots;
                     break;
                 };
@@ -710,13 +709,9 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             num(w),
             "\" height=\"",
             num(bottom(g) - y),
-            "\" rx=\"",
-            RADIUS,
-            "\" ",
-            group_fill,
-            " stroke=\"",
-            ctx.paint(Role::GroupStroke, "var(--_b)"),
-            "\"/>",
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(" ", group_fill, " stroke=\"", ctx.paint(Role::GroupStroke, "var(--_b)"), "\"")),
+            "/>",
             head,
             "</g>"
         )
@@ -772,13 +767,15 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
             num(icon_size),
             "\" height=\"",
             num(icon_size),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::NodeFill, "var(--_s)"),
-            "\" stroke=\"",
-            ctx.paint(Role::NodeStroke, "var(--_b)"),
-            "\"/>",
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::NodeFill, "var(--_s)"),
+                "\" stroke=\"",
+                ctx.paint(Role::NodeStroke, "var(--_b)"),
+                "\""
+            )),
+            "/>",
             inner,
             label_svg(&labels[i], 0.0, icon_size + LABEL_GAP + labels[i].height / 2.0, " class=\"pele-label\"", icons),
             "</g>"
@@ -787,7 +784,7 @@ fn draw(model: &ArchitectureModel, config: &Config, ctx: &RenderCtx, tight: bool
     }
 
     let title_max = if tight { title_room(options) } else { 4000.0 };
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_max, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_max, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let width = (js::max(max_x - min_x, title.width) + 2.0 * pad).ceil();
     let height = (max_y - min_y + title_height + 2.0 * pad).ceil();

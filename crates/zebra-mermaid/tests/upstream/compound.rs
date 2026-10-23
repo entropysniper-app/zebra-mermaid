@@ -8,6 +8,8 @@ use zebra_mermaid::util::js;
 const DIRS: [Dir; 4] = [Dir::TB, Dir::BT, Dir::LR, Dir::RL];
 fn options() -> LayeredOptions {
     LayeredOptions {
+        groups: None,
+        order_only: false,
         node_sep: 40.0,
         edge_sep: 16.0,
         rank_sep: 48.0,
@@ -556,4 +558,152 @@ fn survives_mutually_containing_groups() {
     let size = compound_layout(&mut nodes, &mut edges, Dir::TB, &options());
     assert!(size.width.is_finite());
     assert!(edges[0].route.len() >= 6);
+}
+
+fn ordered_group(seq: f64) -> CNode {
+    let mut n = node(0.0, 0.0);
+    n.is_group = true;
+    n.pad_x = 20.0;
+    n.pad_top = 40.0;
+    n.pad_bottom = 20.0;
+    n.span = f64::INFINITY;
+    n.seq = seq;
+    n
+}
+fn fan_in() -> (Vec<CNode>, Vec<CEdge>) {
+    let mut nodes = vec![ordered_group(100.0), ordered_group(101.0), ordered_group(102.0), cnode(80.0, 60.0, 2)];
+    let mut edges = vec![];
+    for g in [0, 1] {
+        for i in 0..5 {
+            let v = nodes.len();
+            nodes.push(cnode(40.0, 40.0, g));
+            nodes[v].seq = v as f64;
+            if i > 0 {
+                edges.push(edge(v - 1, v));
+            }
+            edges.push(edge(v, 3));
+        }
+    }
+    (nodes, edges)
+}
+#[test]
+fn counts_route_crossings_but_excludes_shared_node_fans() {
+    use zebra_mermaid::layout::compound::{route_crossings, Style};
+    let mut nodes = vec![node(40.0, 40.0); 4];
+    for (i, n) in nodes.iter_mut().enumerate() {
+        n.x = 100.0 * (i % 2) as f64;
+        n.y = 200.0 * (i / 2) as f64;
+    }
+    let mut crossed = vec![edge(0, 3), edge(1, 2)];
+    crossed[0].route = vec![0.0, 20.0, 0.0, 100.0, 180.0, 0.0];
+    crossed[1].route = vec![100.0, 20.0, 0.0, 0.0, 180.0, 0.0];
+    assert_eq!(route_crossings(&nodes, &crossed, Style::Curved), 1);
+    let mut fan = vec![edge(0, 2), edge(0, 3)];
+    fan[0].route = vec![10.0, 20.0, 0.0, 0.0, 180.0, 0.0];
+    fan[1].route = vec![-10.0, 20.0, 0.0, 100.0, 180.0, 0.0];
+    assert_eq!(route_crossings(&nodes, &fan, Style::Curved), 0);
+}
+#[test]
+fn merging_into_a_shared_straight_run_does_not_count_as_crossing() {
+    use zebra_mermaid::layout::compound::{route_crossings, Style};
+    let mut nodes = vec![node(40.0, 40.0); 3];
+    nodes[1].x = 100.0;
+    nodes[2].x = 50.0;
+    nodes[2].y = 300.0;
+    let mut edges = vec![edge(0, 2), edge(1, 2)];
+    edges[0].route = vec![0.0, 20.0, 0.0, 0.0, 200.0, 0.0, 50.0, 200.0, 0.0, 50.0, 280.0, 0.0];
+    edges[1].route = vec![100.0, 20.0, 0.0, 100.0, 150.0, 0.0, 50.0, 150.0, 0.0, 50.0, 280.0, 0.0];
+    assert_eq!(route_crossings(&nodes, &edges, Style::Curved), 0);
+    let (mut fan, mut into) = fan_in();
+    compound_layout(&mut fan, &mut into, Dir::TB, &LayeredOptions { tracks: true, ..options() });
+    assert_eq!(route_crossings(&fan, &into, Style::Curved), 0);
+}
+#[test]
+fn counts_the_crossings_of_the_rendered_corner_or_step() {
+    use zebra_mermaid::layout::compound::{route_crossings, Style};
+    let mut nodes = vec![node(40.0, 40.0); 4];
+    nodes[0].y = -20.0;
+    nodes[1].x = 120.0;
+    nodes[1].y = 100.0;
+    nodes[2].x = 5.0;
+    nodes[2].y = 170.0;
+    nodes[3].x = 5.0;
+    nodes[3].y = 40.0;
+    let mut corner = vec![edge(0, 1), edge(2, 3)];
+    corner[0].route = vec![0.0, 0.0, 0.0, 0.0, 100.0, 0.0, 100.0, 100.0, 1.0];
+    corner[1].route = vec![5.0, 150.0, 0.0, 5.0, 60.0, 0.0];
+    assert_eq!(route_crossings(&nodes, &corner, Style::Curved), 0);
+    assert_eq!(route_crossings(&nodes, &corner, Style::Stepped), 1);
+    assert_eq!(route_crossings(&nodes, &corner, Style::Linear), 1);
+    let (mut fan, mut into) = fan_in();
+    compound_layout(&mut fan, &mut into, Dir::TB, &options());
+    assert!(route_crossings(&fan, &into, Style::Curved) <= 4);
+}
+#[test]
+fn far_ports_follow_their_destinations_without_crossing_between_groups() {
+    for dir in [Dir::TB, Dir::LR] {
+        let mut nodes = vec![ordered_group(100.0), ordered_group(101.0), ordered_group(102.0), cnode(80.0, 40.0, 2)];
+        let mut edges = vec![];
+        for g in [0, 1] {
+            for i in 0..5 {
+                let v = nodes.len();
+                nodes.push(cnode(100.0, 40.0, g));
+                if i > 0 {
+                    edges.push(edge(v - 1, v));
+                }
+                edges.push(edge(v, 3));
+            }
+        }
+        for (i, n) in nodes.iter_mut().enumerate() {
+            if n.is_group {
+                continue;
+            }
+            n.seq = i as f64;
+            n.span = 72.0;
+        }
+        compound_layout(&mut nodes, &mut edges, dir, &options());
+        let across = if dir == Dir::TB { 0 } else { 1 };
+        let at = |e: &CEdge, g: usize| {
+            for k in (0..e.route.len()).step_by(3) {
+                if border(&nodes[g], e.route[k], e.route[k + 1]) {
+                    return e.route[k + across];
+                }
+            }
+            f64::NAN
+        };
+        let fan: Vec<_> = edges.iter().filter(|e| e.dst == 3).collect();
+        let leave: Vec<_> = fan.iter().map(|e| at(e, nodes[e.src].parent as usize)).collect();
+        let enter: Vec<_> = fan.iter().map(|e| at(e, 2)).collect();
+        for i in 0..fan.len() {
+            assert!(!(leave[i].is_nan() || enter[i].is_nan()), "{dir:?} edge {i}");
+            for j in i + 1..fan.len() {
+                assert_eq!(js::sign(leave[i] - leave[j]), js::sign(enter[i] - enter[j]), "{dir:?} edges {i} and {j}");
+            }
+        }
+    }
+}
+#[test]
+fn coordinates_rows_of_groups_as_one_drawing_without_crossing() {
+    use zebra_mermaid::layout::compound::{route_crossings, Style};
+    let mut nodes = vec![ordered_group(100.0), ordered_group(101.0), ordered_group(102.0)];
+    let mut stage = |g| {
+        (0..5)
+            .map(|_| {
+                nodes.push(cnode(80.0, 40.0, g));
+                let n = nodes.len();
+                nodes[n - 1].seq = n as f64;
+                n - 1
+            })
+            .collect::<Vec<_>>()
+    };
+    let (a, b, c) = (stage(0), stage(1), stage(2));
+    let mut edges = vec![];
+    for (i, j) in [4, 2, 0, 3, 1].into_iter().enumerate() {
+        edges.push(edge(a[i], b[j]));
+    }
+    for (i, j) in [1, 3, 0, 4, 2].into_iter().enumerate() {
+        edges.push(edge(b[i], c[j]));
+    }
+    compound_layout(&mut nodes, &mut edges, Dir::LR, &options());
+    assert_eq!(route_crossings(&nodes, &edges, Style::Curved), 0);
 }

@@ -1,0 +1,25 @@
+{"source":"pie\n  \"a\": 1","expect":{"ok":true,"text":"pie\n  \"a\": 1","title":null,"config":{},"withComments":"pie\n  \"a\": 1","lineOffset":0,"encoded":"pie\n  \"a\": 1"}}
+{"source":"---\ntitle: Hello\nconfig:\n  pie:\n    textPosition: 0.5\n---\npie\n  \"a\": 1\n","expect":{"ok":true,"text":"pie\n  \"a\": 1\n","title":"Hello","config":{"pie":{"textPosition":0.5}},"withComments":"pie\n  \"a\": 1\n","lineOffset":6,"encoded":"pie\n  \"a\": 1\n"}}
+{"source":"---\ntitle: x\n---","expect":{"ok":true,"text":"---\ntitle: x\n---","title":null,"config":{},"withComments":"---\ntitle: x\n---","lineOffset":0,"encoded":"---\ntitle: x\n---"}}
+{"source":"  ---\n  title: Indented\n  ---\npie","expect":{"ok":true,"text":"pie","title":"Indented","config":{},"withComments":"pie","lineOffset":3,"encoded":"pie"}}
+{"source":"%%{init: {'pie': {'textPosition': 0.3}}}%%\npie\n","expect":{"ok":true,"text":"pie\n","title":null,"config":{"pie":{"textPosition":0.3}},"withComments":"\npie\n","lineOffset":0,"encoded":"pie\n"}}
+{"source":"%%{wrap}%%\ngraph TD","expect":{"ok":true,"text":"graph TD","title":null,"config":{"wrap":true},"withComments":"\ngraph TD","lineOffset":0,"encoded":"graph TD"}}
+{"source":"%%{init: {bad json}}%%\npie","expect":{"ok":true,"text":"pie","title":null,"config":{},"withComments":"\npie","lineOffset":0,"encoded":"pie"}}
+{"source":"pie\r\n%% a comment\r\n  \"a\": 1\r\n%%\r\n","expect":{"ok":true,"text":"pie\n  \"a\": 1\n%%\n","title":null,"config":{},"withComments":"pie\n%% a comment\n  \"a\": 1\n%%\n","lineOffset":0,"encoded":"pie\n  \"a\": 1\n%%\n"}}
+{"source":"\n\n  %% c\npie","expect":{"ok":true,"text":"pie","title":null,"config":{},"withComments":"\n\n  %% c\npie","lineOffset":0,"encoded":"pie"}}
+{"source":"graph TD\nA[\"<span class=\"x\">a</span>\"]","expect":{"ok":true,"text":"graph TD\nA[\"<span class='x'>a</span>\"]","title":null,"config":{},"withComments":"graph TD\nA[\"<span class='x'>a</span>\"]","lineOffset":0,"encoded":"graph TD\nA[\"<span class='x'>a</span>\"]"}}
+{"source":"graph TD\nA[#quot;x#59;]","expect":{"ok":true,"text":"graph TD\nA[#quot;x#59;]","title":null,"config":{},"withComments":"graph TD\nA[#quot;x#59;]","lineOffset":0,"encoded":"graph TD\nA[ﬂ°quot¶ßxﬂ°°59¶ß]"}}
+{"source":"style A fill:#f9f;","expect":{"ok":true,"text":"style A fill:#f9f;","title":null,"config":{},"withComments":"style A fill:#f9f;","lineOffset":0,"encoded":"style A fill:#f9f"}}
+{"source":"classDef c fill:#f9f,stroke:#333;","expect":{"ok":true,"text":"classDef c fill:#f9f,stroke:#333;","title":null,"config":{},"withComments":"classDef c fill:#f9f,stroke:#333;","lineOffset":0,"encoded":"classDef c fill:#f9f,stroke:#333"}}
+{"source":"---\ntitle: [a, b]\ndisplayMode: compact\n---\ngantt","expect":{"ok":true,"text":"gantt","title":"a,b","config":{"gantt":{"displayMode":"compact"}},"withComments":"gantt","lineOffset":4,"encoded":"gantt"}}
+{"source":"---\nconfig: {a: 1}\n---\n%%{init: {\"a\": 2, \"b\": {\"c\": 1}}}%%\npie","expect":{"ok":true,"text":"pie","title":null,"config":{"a":2,"b":{"c":1}},"withComments":"\npie","lineOffset":3,"encoded":"pie"}}
+{"source":"---\nbad: [\n---\npie","expect":{"ok":false,"message":"Front matter is not valid YAML. YAML: unexpected end of the stream within a flow collection","code":"syntax"}}
+{"source":"%%{initialize: {\"x\": 1}}%%pie","expect":{"ok":true,"text":"pie","title":null,"config":{"x":1},"withComments":"pie","lineOffset":0,"encoded":"pie"}}
+{"source":"%%{init: {\"a\": 1}}%% %%{init: {\"a\": 2}}%%\npie","expect":{"ok":true,"text":"pie","title":null,"config":{"a":2},"withComments":" \npie","lineOffset":0,"encoded":"pie"}}
+{"source":"pie %% trailing","expect":{"ok":true,"text":"pie %% trailing","title":null,"config":{},"withComments":"pie %% trailing","lineOffset":0,"encoded":"pie %% trailing"}}
+{"source":"pie\n%%{ notdirective\n","expect":{"ok":true,"text":"pie\n","title":null,"config":{},"withComments":"pie\n","lineOffset":0,"encoded":"pie\n"}}
+{"source":" %% x\npie","expect":{"ok":true,"text":"pie","title":null,"config":{},"withComments":" %% x\npie","lineOffset":0,"encoded":"pie"}}
+{"source":"---\n---\npie","expect":{"ok":true,"text":"---\n---\npie","title":null,"config":{},"withComments":"---\n---\npie","lineOffset":0,"encoded":"---\n---\npie"}}
+{"source":"---\na: 1\n---\n---\nb: 2\n---\npie","expect":{"ok":true,"text":"---\nb: 2\n---\npie","title":null,"config":{},"withComments":"---\nb: 2\n---\npie","lineOffset":3,"encoded":"---\nb: 2\n---\npie"}}
+{"source":"lifestyle: #ccc;","expect":{"ok":true,"text":"lifestyle: #ccc;","title":null,"config":{},"withComments":"lifestyle: #ccc;","lineOffset":0,"encoded":"lifestyle: ﬂ°ccc¶ß"}}
+{"source":"#1; #name; #9x; ##;","expect":{"ok":true,"text":"#1; #name; #9x; ##;","title":null,"config":{},"withComments":"#1; #name; #9x; ##;","lineOffset":0,"encoded":"ﬂ°°1¶ß ﬂ°name¶ß ﬂ°9x¶ß ##;"}}

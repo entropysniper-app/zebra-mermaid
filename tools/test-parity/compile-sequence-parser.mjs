@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {formatRust} from './format-rust.mjs';
 // Preserve async test order and independent Diagram instances; expectations are never generated from output.
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -112,7 +113,7 @@ for(let i=0;i<registered.length;i++){
  catch(e){if(!(e instanceof Unsupported))throw e;untranslated.push({id:o.id,index:i,reason:e.message})}
 }
 let rust='// Generated from frozen sequence assertions (MIT). One test per original callback.\n';for(const r of records)rust+=`#[test]\n${r.mode==='skip'?'#[ignore = "Original upstream skip; not passed"]\n':''}fn case_${String(r.index).padStart(3,'0')}() { run_case("${r.id}"); }\n`;
-const artifacts=[['tests/upstream/ir/sequence-parser.json',JSON.stringify({source:file,sourceSha256,records,untranslated},null,2)+'\n'],['crates/zebra-mermaid/tests/upstream/sequence_parser_generated.rs',rust]];
+const artifacts=[['tests/upstream/ir/sequence-parser.json',JSON.stringify({source:file,sourceSha256,records,untranslated},null,2)+'\n'],['crates/zebra-mermaid/tests/upstream/sequence_parser_generated.rs',formatRust(rust)]];
 const path='tests/upstream/ports.json',ports=JSON.parse(readFileSync(resolve(root,path),'utf8')),owned=new Set(originals.map(t=>t.id)),previous=ports.ports.filter(p=>owned.has(p.upstreamId));ports.ports=ports.ports.filter(p=>!owned.has(p.upstreamId));
 for(const r of records)ports.ports.push({upstreamId:r.id,sourceSha256,target:{kind:'rust',binary:'lib',file:'crates/zebra-mermaid/tests/upstream/sequence_parser_generated.rs',test:`diagrams::sequence::upstream_parser::case_${String(r.index).padStart(3,'0')}`,features:['sequence']},assertionReview:'Original async callback and parameter order retained. Each Diagram receives a distinct native model identity, including multiple diagrams in one test. Original configuration at construction, entity encoding, trailing newline, model getters, primitive/deep/partial/inline-snapshot assertions are preserved. Snapshot syntax is parsed as literal data only. No renderer output generates expectations; filter/forEach predicates, actual native rendering and numbering, public preprocess/parse Promise results, exact boolean/message try-catch paths, and original test timeouts are retained. Renderer bounds without an upstream counterpart remain unmapped.'});
 const sort=a=>[...a].sort((a,b)=>a.upstreamId.localeCompare(b.upstreamId));

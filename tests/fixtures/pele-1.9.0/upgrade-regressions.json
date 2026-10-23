@@ -1,0 +1,289 @@
+{
+  "commit": "e7f092a4de147cc32210913c20e36eaa5fcd0ef1",
+  "runtime": {
+    "node": "v26.3.0"
+  },
+  "method": "Pinned upstream parser, shape function and constant math fixture callback only; no Rust output used.",
+  "results": [
+    {
+      "source": "flowchart TD\n A[C4Container]",
+      "expect": {
+        "ok": true,
+        "model": {
+          "type": "flowchart",
+          "direction": "TB",
+          "nodes": {
+            "$map": [
+              [
+                "A",
+                {
+                  "id": "A",
+                  "labelType": "text",
+                  "styles": [],
+                  "classes": [],
+                  "text": "C4Container",
+                  "type": "square",
+                  "props": {}
+                }
+              ]
+            ]
+          },
+          "edges": [],
+          "subgraphs": [],
+          "classes": {
+            "$map": []
+          },
+          "tooltips": {
+            "$map": []
+          },
+          "subgraphLookup": {
+            "$map": []
+          },
+          "members": {},
+          "edgeById": {
+            "$map": []
+          },
+          "pairCount": {
+            "$map": []
+          },
+          "subCount": 0,
+          "options": {
+            "inheritDir": false,
+            "maxEdges": 5000
+          },
+          "mermaidType": "flowchart-v2"
+        }
+      }
+    },
+    {
+      "source": "\t sankey\r\n\r\nx,y,1\n\né,z,2\n",
+      "expect": {
+        "ok": true,
+        "model": {
+          "type": "sankey",
+          "nodes": [
+            {
+              "id": "x",
+              "index": 0
+            },
+            {
+              "id": "y",
+              "index": 1
+            },
+            {
+              "id": "é",
+              "index": 2
+            },
+            {
+              "id": "z",
+              "index": 3
+            }
+          ],
+          "links": [
+            {
+              "source": {
+                "id": "x",
+                "index": 0
+              },
+              "target": {
+                "id": "y",
+                "index": 1
+              },
+              "value": 1
+            },
+            {
+              "source": {
+                "id": "é",
+                "index": 2
+              },
+              "target": {
+                "id": "z",
+                "index": 3
+              },
+              "value": 2
+            }
+          ],
+          "lookup": {
+            "$map": [
+              [
+                "x",
+                {
+                  "id": "x",
+                  "index": 0
+                }
+              ],
+              [
+                "y",
+                {
+                  "id": "y",
+                  "index": 1
+                }
+              ],
+              [
+                "é",
+                {
+                  "id": "é",
+                  "index": 2
+                }
+              ],
+              [
+                "z",
+                {
+                  "id": "z",
+                  "index": 3
+                }
+              ]
+            ]
+          },
+          "mermaidType": "sankey"
+        }
+      }
+    },
+    {
+      "source": "sankey\na,b,1\né,c,2\n",
+      "expect": {
+        "ok": true,
+        "model": {
+          "type": "sankey",
+          "nodes": [
+            {
+              "id": "a",
+              "index": 0
+            },
+            {
+              "id": "b",
+              "index": 1
+            },
+            {
+              "id": "é",
+              "index": 2
+            },
+            {
+              "id": "c",
+              "index": 3
+            }
+          ],
+          "links": [
+            {
+              "source": {
+                "id": "a",
+                "index": 0
+              },
+              "target": {
+                "id": "b",
+                "index": 1
+              },
+              "value": 1
+            },
+            {
+              "source": {
+                "id": "é",
+                "index": 2
+              },
+              "target": {
+                "id": "c",
+                "index": 3
+              },
+              "value": 2
+            }
+          ],
+          "lookup": {
+            "$map": [
+              [
+                "a",
+                {
+                  "id": "a",
+                  "index": 0
+                }
+              ],
+              [
+                "b",
+                {
+                  "id": "b",
+                  "index": 1
+                }
+              ],
+              [
+                "é",
+                {
+                  "id": "é",
+                  "index": 2
+                }
+              ],
+              [
+                "c",
+                {
+                  "id": "c",
+                  "index": 3
+                }
+              ]
+            ]
+          },
+          "mermaidType": "sankey"
+        }
+      }
+    },
+    {
+      "source": "sankey\na,\"bé\",1\n",
+      "expect": {
+        "ok": true,
+        "model": {
+          "type": "sankey",
+          "nodes": [
+            {
+              "id": "a",
+              "index": 0
+            },
+            {
+              "id": "bé",
+              "index": 1
+            }
+          ],
+          "links": [
+            {
+              "source": {
+                "id": "a",
+                "index": 0
+              },
+              "target": {
+                "id": "bé",
+                "index": 1
+              },
+              "value": 1
+            }
+          ],
+          "lookup": {
+            "$map": [
+              [
+                "a",
+                {
+                  "id": "a",
+                  "index": 0
+                }
+              ],
+              [
+                "bé",
+                {
+                  "id": "bé",
+                  "index": 1
+                }
+              ]
+            ]
+          },
+          "mermaidType": "sankey"
+        }
+      }
+    }
+  ],
+  "rect": {
+    "input": [
+      "rect",
+      10,
+      4,
+      " a=\"1\"",
+      ""
+    ],
+    "expect": "<rect x=\"-5\" y=\"-2\" width=\"10\" height=\"4\" a=\"1\" style=\"rx:var(--_r)\"/>"
+  },
+  "sequenceMathBoxes": 4
+}

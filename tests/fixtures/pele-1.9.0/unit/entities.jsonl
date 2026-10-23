@@ -1,0 +1,15 @@
+{"source":"a &amp; b","expect":"a & b"}
+{"source":"&#35;&#x41;","expect":"#A"}
+{"source":"&unknown;","expect":"&unknown;"}
+{"source":"&#0;","expect":"&#0;"}
+{"source":"&#55296;","expect":"&#55296;"}
+{"source":"&#1114112;","expect":"&#1114112;"}
+{"source":"&#128512;","expect":"😀"}
+{"source":"&&amp;","expect":"&&"}
+{"source":"ﬂ°quot¶ß","expect":"\""}
+{"source":"ﬂ°°35¶ßx","expect":"#x"}
+{"source":"ﬂ°nope¶ß","expect":"&nope;"}
+{"source":"ﬂ°°0¶ß","expect":"&#0;"}
+{"source":"ﬂ°a¶x ﬂ°amp¶ß","expect":"ﬂ°a¶x &"}
+{"source":"ﬂ°°¶ß","expect":"&#;"}
+{"source":"ﬂ°°1.5¶ß","expect":"&#1.5;"}

@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Independent literal-label, break-label and SVG references from the pinned clean source.
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -70,5 +72,5 @@ for (const label of labels) {
     svg.push({label: freeze(label), x: bits(-12.345), top: bits(0.1), attrs, expected: o.leftLabelSvg(label, -12.345, 0.1, attrs)});
   }
 }
-writeFileSync('tests/fixtures/unit/literal-label-regression.json.gz', gzipSync(JSON.stringify({upstreamCommit, seed: '0x17e2b6', literal, broken, svg}), {level: 9}));
+writeFileSync('tests/fixtures/pele-1.9.0/unit/literal-label-regression.json.gz', gzipSync(JSON.stringify({upstreamCommit, seed: '0x17e2b6', literal, broken, svg}), {level: 9}));
 console.log(JSON.stringify({literal: literal.length, broken: broken.length, svg: svg.length}));

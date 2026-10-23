@@ -1,6 +1,6 @@
 //! The C4 grid layout. Ported from Pele `src/diagrams/c4/layout.ts`.
 
-use super::route::{Bx, HEAD, LANE};
+use super::route::{Bx, HEAD, LABEL_PAD, LANE, NARROW};
 use super::{C4Model, C4Shape};
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::util::js;
@@ -9,7 +9,7 @@ pub(super) const SHAPE_W: f64 = 216.0;
 const SHAPE_MIN_H: f64 = 64.0;
 const PAD_X: f64 = 14.0;
 const PAD_Y: f64 = 12.0;
-const GAP_X: f64 = 100.0;
+const GAP_X: f64 = NARROW + LABEL_PAD + 3.0 * crate::svg::edges::ARROW;
 const GAP_Y: f64 = 88.0;
 /// Room for a relation to run along the inside of a boundary.
 pub(super) const GROUP_PAD: f64 = LANE + 8.0;

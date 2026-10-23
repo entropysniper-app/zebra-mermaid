@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Independent fixed-reference semantic maps and error precedence for ownership changes.
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -24,7 +26,7 @@ const canonical=m=>({
  classDefs:[...m.classDefs].map(([id,c])=>[id,c.styles]),
  direction:m.direction,title:nullable(m.title),accTitle:m.accTitle,accDescr:m.accDescr,accDescription:m.accDescription,
 });
-const docs=gunzipSync(readFileSync('tests/fixtures/pele-1.7.0.jsonl.gz')).toString().trim().split('\n').map(JSON.parse).filter(r=>r.id.includes('usecase-docs')).map(r=>r.source);
+const docs=gunzipSync(readFileSync('tests/fixtures/pele-1.9.0.jsonl.gz')).toString().trim().split('\n').map(JSON.parse).filter(r=>r.id.includes('usecase-docs')).map(r=>r.source);
 const sources=[...docs,
  'usecase-beta\nA1 --> U0\nactor A0@{ type: awesome, business: true }\nactor A1@{ type: awesome, business: true }\nU0',
  'usecase-beta\nactor A0@{ type: awesome, business: true }\nactor A1\nA0 ..> : include A1',
@@ -64,5 +66,5 @@ const cases=sources.map((source,index)=>{
 if(cases.filter(c=>c.expect.ok).length===0)throw Error('No successful reference model');
 const sha=x=>createHash('sha256').update(x).digest('hex');
 const value={upstreamCommit,seed:'0x4a0e14',generatedCases:128,documentationCases:docs.length,scope:'Public ordered element/class/relationship maps, metadata and first semantic error; unchanged ordered-JSON payload arenas and statement/source-position trees are not projected here. This is supplementary coverage, not an original-test port.',sourceHashes:{db:sha(readFileSync('.research/pele/src/diagrams/usecase/db.ts')),parser:sha(readFileSync('.research/pele/src/diagrams/usecase/parser.ts'))},cases};
-writeFileSync('tests/fixtures/unit/usecase-resolution-reference.json.gz',gzipSync(JSON.stringify(value),{level:9}));
+writeFileSync('tests/fixtures/pele-1.9.0/unit/usecase-resolution-reference.json.gz',gzipSync(JSON.stringify(value),{level:9}));
 console.log(JSON.stringify({cases:cases.length,successes:cases.filter(c=>c.expect.ok).length,rejections:cases.filter(c=>!c.expect.ok).length}));

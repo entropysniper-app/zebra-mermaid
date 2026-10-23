@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0',{recursive:true});
 // Independent regression expectations from the pinned upstream SVG root, never Rust output.
 import {build} from '../../.research/pele/node_modules/esbuild/lib/main.js';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
@@ -32,5 +34,5 @@ for(let i=0;i<512;i++){
  const size=[0,12,16,18.25][random()%4];
  cases.push({content,options,acc,size,expected:svgDocument('flowchart',641.25,480.5,size,options,acc,content)});
 }
-writeFileSync('tests/fixtures/svg-root.json.gz',gzipSync(JSON.stringify({commit,seed:'0x51a7',cases}),{level:9}));
+writeFileSync('tests/fixtures/pele-1.9.0/svg-root.json.gz',gzipSync(JSON.stringify({commit,seed:'0x51a7',cases}),{level:9}));
 console.log(JSON.stringify({cases:cases.length,commit}));

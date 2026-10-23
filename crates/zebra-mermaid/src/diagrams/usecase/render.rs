@@ -17,7 +17,7 @@ use crate::svg::{
     cluster::{mark_crossings, Crossings},
     edges::{default_reach, marker, marker_trim, render_edge_label_svg as edge_label_svg, route_path, EdgePath},
     root::{svg_document, Accessible},
-    theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
+    theme::{class_names, resolve_style, ResolvedStyle},
 };
 use crate::text::{layout_render_label as layout_label, style, Icons, Measure, RenderLabel as Label};
 use crate::theme::Role;
@@ -186,7 +186,13 @@ fn figure(v: &View, ctx: &RenderCtx, surface: &str) -> String {
     let line = svg_format!(" fill=\"none\" stroke=\"", border, "\"", v.style.line);
     let mut head = -21.0;
     let mut radius = 9.0;
-    let mut out=match n.actor_type.as_deref(){Some("hollow")=>{radius=8.0;svg_format!("<circle cy=\"-21\" r=\"8\" fill=\"", bg, "\" stroke=\"", border, "\"", shape, "/><path d=\"M-20,-9H20V0H5.5L20,15.5L12,25.5L0,12L-12,25.5L-20,15.5L-5.5,0H-20Z\" fill=\"", bg, "\" stroke=\"", border, "\" stroke-linejoin=\"round\"", shape, "/>")},Some("awesome")=>svg_format!("<path d=\"M0,-30A11,11 0 1 1 0,-8A11,11 0 1 1 0,-30ZM-20,25C-20,9 -12,-3 0,-3C12,-3 20,9 20,25C20,28 18,30 15,30H-15C-18,30 -20,28 -20,25Z\" fill=\"", border, "\"", shape, "/>"),Some("icon")=>{head = -14.0;radius=12.0;let icon=n.icon.as_deref().unwrap_or("");svg_format!("<rect x=\"-22\" y=\"-26\" width=\"44\" height=\"44\" rx=\"", RADIUS, "\"", surface, shape, "/><svg class=\"pele-icon\" data-icon=\"", esc_text(icon), "\" x=\"-14\" y=\"-18\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", ctx.icons().map_or_else(String::new,|i|i.markup(icon).to_string()), "</svg>")},_=>svg_format!("<circle cy=\"-21\" r=\"9\"", surface, shape, "/><path d=\"M0,-12V10M-14,-3H14M0,10L-12,30M0,10L12,30\"", line, "/>")};
+    let mut out=match n.actor_type.as_deref(){Some("hollow")=>{radius=8.0;svg_format!("<circle cy=\"-21\" r=\"8\" fill=\"", bg, "\" stroke=\"", border, "\"", shape, "/><path d=\"M-20,-9H20V0H5.5L20,15.5L12,25.5L0,12L-12,25.5L-20,15.5L-5.5,0H-20Z\" fill=\"", bg, "\" stroke=\"", border, "\" stroke-linejoin=\"round\"", shape, "/>")},Some("awesome")=>svg_format!("<path d=\"M0,-30A11,11 0 1 1 0,-8A11,11 0 1 1 0,-30ZM-20,25C-20,9 -12,-3 0,-3C12,-3 20,9 20,25C20,28 18,30 15,30H-15C-18,30 -20,28 -20,25Z\" fill=\"", border, "\"", shape, "/>"),Some("icon")=>{head = -14.0;radius=12.0;let icon=n.icon.as_deref().unwrap_or("");svg_format!("<rect x=\"-22\" y=\"-26\" width=\"44\" height=\"44\"",
+crate::svg::theme::rounded(&svg_format!(surface, shape)),
+"/><svg class=\"pele-icon\" data-icon=\"",
+esc_text(icon),
+"\" x=\"-14\" y=\"-18\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">",
+ctx.icons().map_or_else(String::new,|i|i.markup(icon).to_string()),
+"</svg>")},_=>svg_format!("<circle cy=\"-21\" r=\"9\"", surface, shape, "/><path d=\"M0,-12V10M-14,-3H14M0,10L-12,30M0,10L12,30\"", line, "/>")};
     if n.business {
         svg_write!(
             out,
@@ -244,19 +250,9 @@ fn left_label(label: &Label, x: f64, cy: f64, attrs: &str, icons: Option<&Icons>
     }
     let mut out = String::new();
     for i in 0..label.lines().len() {
-        let line = Label::from_lines(
-            vec![label.lines()[i].to_vec()],
-            vec![label.widths()[i]],
-            label.width,
-            label.line_height,
-            label.size,
-            label.line_height,
-        );
-        svg_write!(
-            out,
-            label_svg(&line, x + label.widths()[i] / 2.0, cy - label.height / 2.0 + (i as f64 + 0.5) * label.line_height, attrs, icons,)
-        )
-        .unwrap();
+        let line = label.label_line(i);
+        svg_write!(out, label_svg(&line, x + label.widths()[i] / 2.0, cy - label.height / 2.0 + label.line_middle(i), attrs, icons,))
+            .unwrap();
     }
     out
 }
@@ -329,7 +325,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     let value = text(Some(&row.value), false, &m, small, 260.0, base);
                     v.key_w = js::max(v.key_w, key.width);
                     value_w = js::max(value_w, value.width);
-                    v.h += js::max(value.height, js::round(small * 1.5)) + 8.0;
+                    v.h += js::max(js::max(key.height, value.height), js::round(small * 1.5)) + 8.0;
                     v.rows.push((key, value));
                 }
                 if v.key_w > 0.0 {
@@ -407,6 +403,8 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
         &mut edges,
         root_dir,
         &LayeredOptions {
+            groups: None,
+            order_only: false,
             node_sep: option(config, "nodeSpacing", 32.0),
             edge_sep: 16.0,
             rank_sep: option(config, "rankSpacing", 72.0),
@@ -417,7 +415,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             apart: false,
         },
     );
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_h = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(layout.width, title.width);
     shift_layout(&mut nodes, &mut edges, pad + (inner - layout.width) / 2.0, pad + title_h);
@@ -495,10 +493,8 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     num(c.w),
                     "\" height=\"",
                     num(c.h),
-                    "\" rx=\"",
-                    RADIUS,
                     "\"",
-                    box_attrs,
+                    crate::svg::theme::rounded(&svg_format!(box_attrs)),
                     "/>",
                     label_svg(&v.label, title_x(c, v.label.width, &crossings), y + 8.0 + v.label.height / 2.0, &title_attrs, icons)
                 )
@@ -537,7 +533,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                 svg_write!(lines, "M", num(x0 + v.key_w), ",", num(y), "V", num(h / 2.0)).unwrap();
             }
             for (key, value) in &v.rows {
-                let rh = js::max(value.height, js::round(small * 1.5)) + 8.0;
+                let rh = js::max(js::max(key.height, value.height), js::round(small * 1.5)) + 8.0;
                 svg_write!(
                     cells,
                     label_svg(
@@ -567,11 +563,8 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                 num(w),
                 "\" height=\"",
                 num(h),
-                "\" rx=\"",
-                RADIUS,
                 "\"",
-                surface,
-                shape,
+                crate::svg::theme::rounded(&svg_format!(surface, shape)),
                 "/><path class=\"pele-json-lines\" d=\"",
                 lines,
                 "\" fill=\"none\" stroke=\"",
@@ -672,11 +665,8 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     num(w),
                     "\" height=\"",
                     num(h),
-                    "\" rx=\"",
-                    RADIUS,
                     "\"",
-                    surface,
-                    shape,
+                    crate::svg::theme::rounded(&svg_format!(surface, shape)),
                     "/>"
                 );
             }

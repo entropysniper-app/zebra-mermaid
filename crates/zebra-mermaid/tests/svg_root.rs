@@ -11,7 +11,9 @@ use zebra_mermaid::MetricsMeasurer;
 #[test]
 fn root_output_matches_upstream_for_markup_fonts_and_accessibility() {
     let mut text = String::new();
-    flate2::read::GzDecoder::new(&include_bytes!("../../../tests/fixtures/svg-root.json.gz")[..]).read_to_string(&mut text).unwrap();
+    flate2::read::GzDecoder::new(&include_bytes!("../../../tests/fixtures/pele-1.9.0/svg-root.json.gz")[..])
+        .read_to_string(&mut text)
+        .unwrap();
     let fixture: serde_json::Value = serde_json::from_str(&text).unwrap();
     assert_eq!(fixture["commit"], zebra_mermaid::PELE_COMMIT);
     let cases = fixture["cases"].as_array().unwrap();

@@ -203,6 +203,7 @@ pub(crate) fn render(db: &StateModel, config: &Config, ctx: &RenderCtx) -> Resul
     }
 }
 fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<Rendered, Error> {
+    let curve = config.lookup("flowchart", "curve").and_then(ConfigValue::as_str);
     let size = ctx.font_size();
     let small = js::round(size * 0.875);
     let m = ctx.measure();
@@ -499,13 +500,15 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         &mut edges,
         root_dir,
         &LayeredOptions {
+            groups: None,
+            order_only: false,
             node_sep: option(config, "nodeSpacing", 40.0),
             edge_sep: 16.0,
             rank_sep: option(config, "rankSpacing", 44.0),
             port_sep: 20.0,
             head_room: Some(marker_trim("arrow_point")),
-            tracks: false,
-            straight: false,
+            tracks: matches!(curve, Some("step" | "stepBefore" | "stepAfter")),
+            straight: curve == Some("linear"),
             apart: false,
         },
     );
@@ -834,7 +837,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                     }
                 }
             }
-            path = route_path(&route, None, 0.0, marker_trim(end_type), leaves, arrives);
+            path = route_path(&route, curve, 0.0, marker_trim(end_type), leaves, arrives);
         }
         let class = if note {
             svg_format!("pele-note-edge\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\" stroke-dasharray=\"3 4")

@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Freeze the pinned default text measurer's exact binary64 results.
 import {readFileSync, writeFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -39,7 +41,7 @@ const bits = value => {
   return view.getBigUint64(0).toString(16).padStart(16, '0');
 };
 const widths = sources.map(source => styles.flatMap(style => sizes.map(size => bits(oracle.metricsMeasurer.width(source, size, style)))));
-writeFileSync('tests/fixtures/unit/metrics-regression.json.gz', gzipSync(JSON.stringify({
+writeFileSync('tests/fixtures/pele-1.9.0/unit/metrics-regression.json.gz', gzipSync(JSON.stringify({
   upstreamCommit, seed: '0x51a710', randomScalars: 4096, randomStrings: 128,
   sizes: sizes.map(bits), styles, sources, widths,
 }), {level: 9}));

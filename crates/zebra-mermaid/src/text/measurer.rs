@@ -13,6 +13,9 @@ pub mod style {
     pub const BOLD: u8 = 1;
     pub const ITALIC: u8 = 2;
     pub const MONO: u8 = 4;
+    pub const SUB: u8 = 8;
+    pub const SUP: u8 = 16;
+    pub const UNDERLINE: u8 = 32;
 }
 
 /// Measures the advance width of a run of text in pixels.
@@ -62,7 +65,8 @@ fn is_wide(c: u16) -> bool {
 }
 
 fn is_zero_width(c: u16) -> bool {
-    (0x300..=0x36f).contains(&c)
+    c == 0xad
+        || (0x300..=0x36f).contains(&c)
         || (0x200b..=0x200f).contains(&c)
         || (0xdc00..=0xdfff).contains(&c)
         || (0xfe00..=0xfe0f).contains(&c)
@@ -107,7 +111,8 @@ impl TextMeasurer for MetricsMeasurer {
                 }
             }
         }
-        (units * size) / 1000.0
+        let effective = if style & (style::SUB | style::SUP) != 0 { size / 1.2 } else { size };
+        (units * effective) / 1000.0
     }
 }
 

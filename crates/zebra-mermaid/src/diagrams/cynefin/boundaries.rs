@@ -111,7 +111,8 @@ pub fn forward(curve: &[f64]) -> String {
     let mut d = String::new();
     let mut i = 2;
     while i + 5 < curve.len() {
-        write!(d, 
+        write!(
+            d,
             "C{},{} {},{} {},{}",
             num(curve[i]),
             num(curve[i + 1]),
@@ -119,7 +120,8 @@ pub fn forward(curve: &[f64]) -> String {
             num(curve[i + 3]),
             num(curve[i + 4]),
             num(curve[i + 5])
-        ).unwrap();
+        )
+        .unwrap();
         i += 6;
     }
     d
@@ -131,7 +133,8 @@ pub fn backward(curve: &[f64]) -> String {
     let mut i = curve.len() as isize - 6;
     while i >= 2 {
         let k = i as usize;
-        write!(d, 
+        write!(
+            d,
             "C{},{} {},{} {},{}",
             num(curve[k + 2]),
             num(curve[k + 3]),
@@ -139,7 +142,8 @@ pub fn backward(curve: &[f64]) -> String {
             num(curve[k + 1]),
             num(curve[k - 2]),
             num(curve[k - 1])
-        ).unwrap();
+        )
+        .unwrap();
         i -= 6;
     }
     d

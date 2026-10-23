@@ -153,7 +153,7 @@ fn exit_codes() {
     assert_eq!(code(&o), 2);
     let o = run(&["--version"], None);
     assert_eq!(code(&o), 0);
-    assert!(stdout(&o).contains("Pele 1.7.0"));
+    assert!(stdout(&o).contains(&format!("Pele {}", zebra_mermaid::PELE_VERSION)));
 }
 
 #[test]

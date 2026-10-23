@@ -175,13 +175,34 @@ impl Num {
 const BOLD: &str = " font-weight=\"var(--_w)\"";
 const ITALIC: &str = " font-style=\"italic\"";
 
-pub fn span_style(st: u8) -> &'static str {
-    match (st & style::BOLD != 0, st & style::ITALIC != 0) {
-        (true, true) => " font-weight=\"var(--_w)\" font-style=\"italic\"",
-        (true, false) => BOLD,
-        (false, true) => ITALIC,
-        (false, false) => "",
+pub fn span_style(st: u8) -> Cow<'static, str> {
+    if st & !(style::BOLD | style::ITALIC) == 0 {
+        return Cow::Borrowed(match (st & style::BOLD != 0, st & style::ITALIC != 0) {
+            (true, true) => " font-weight=\"var(--_w)\" font-style=\"italic\"",
+            (true, false) => BOLD,
+            (false, true) => ITALIC,
+            (false, false) => "",
+        });
     }
+    let mut out = String::new();
+    if st & style::BOLD != 0 {
+        out.push_str(BOLD);
+    }
+    if st & style::ITALIC != 0 {
+        out.push_str(ITALIC);
+    }
+    if st & style::MONO != 0 {
+        out.push_str(" font-family=\"var(--_fm)\"");
+    }
+    if st & style::UNDERLINE != 0 {
+        out.push_str(" text-decoration=\"underline\"");
+    }
+    if st & style::SUB != 0 {
+        out.push_str(" baseline-shift=\"sub\" font-size=\"smaller\"");
+    } else if st & style::SUP != 0 {
+        out.push_str(" baseline-shift=\"super\" font-size=\"smaller\"");
+    }
+    Cow::Owned(out)
 }
 
 /// The emphasis every span of a label has. It is written once, on the text element, where a
@@ -194,7 +215,7 @@ pub(crate) fn render_shared_style(label: &RenderLabel) -> u8 {
 }
 
 pub(crate) fn shared_style_view(label: &LabelView<'_>) -> u8 {
-    let mut shared = style::BOLD | style::ITALIC;
+    let mut shared = style::BOLD | style::ITALIC | style::MONO;
     let mut any = false;
     for line in label.lines.iter() {
         for span in line {
@@ -217,7 +238,8 @@ pub(crate) fn shared_style_view(label: &LabelView<'_>) -> u8 {
 pub fn text_style(attrs: &str, shared: u8) -> Cow<'_, str> {
     let bold = shared & style::BOLD != 0 && !strs::contains(attrs, " font-weight=\"");
     let italic = shared & style::ITALIC != 0 && !strs::contains(attrs, " font-style=\"");
-    if !bold && !italic {
+    let mono = shared & style::MONO != 0 && !strs::contains(attrs, " font-family=\"");
+    if !bold && !italic && !mono {
         return Cow::Borrowed(attrs);
     }
     let mut out = String::with_capacity(attrs.len() + BOLD.len() + ITALIC.len());
@@ -227,6 +249,9 @@ pub fn text_style(attrs: &str, shared: u8) -> Cow<'_, str> {
     }
     if italic {
         out.push_str(ITALIC);
+    }
+    if mono {
+        out.push_str(" font-family=\"var(--_fm)\"");
     }
     Cow::Owned(out)
 }
@@ -292,9 +317,11 @@ pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
     }
     let lh = label.line_height;
     let shift = label.size * 0.35;
-    let mut y = cy - label.height / 2.0 + lh / 2.0 + shift;
+    let mut top = cy - label.height / 2.0;
+    let first_h = label.heights.map_or(lh, |h| h[0]);
+    let y = top + first_h / 2.0 + shift;
 
-    if lines.len() == 1 && lines[0].len() == 1 && lines[0][0].icon.is_none() && lines[0][0].style == 0 {
+    if lines.len() == 1 && lines[0].len() == 1 && lines[0][0].icon.is_none() && lines[0][0].math.is_none() && lines[0][0].style == 0 {
         out.write_str("<text")?;
         out.write_str(attrs)?;
         out.write_str(" x=\"")?;
@@ -306,6 +333,7 @@ pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
         return out.write_str("</text>");
     }
 
+    let look = lines.iter().any(|line| line.iter().any(|s| s.math.is_some())).then(|| math_look(attrs));
     let shared = shared_style_view(label);
     let attrs = text_style(attrs, shared);
     out.write_str("<text")?;
@@ -314,21 +342,46 @@ pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
     // Icons are drawn after the text element, so they are kept aside until it is closed.
     let mut extra = String::new();
     for (i, line) in lines.iter().enumerate() {
-        let has_icon = line.iter().any(|s| s.icon.is_some());
+        let h = label.heights.map_or(lh, |h| h[i]);
+        let mid = top + h / 2.0;
+        let y = mid + shift;
+        let has_icon = line.iter().any(|s| s.icon.is_some() || s.math.is_some());
         if has_icon {
             let mut x = cx - label.widths[i] / 2.0;
             for span in line {
-                if let Some(icon) = &span.icon {
+                if let Some(math) = &span.math {
+                    let look = look.as_ref().unwrap();
+                    let box_attrs = format!(
+                        "x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"",
+                        num(x),
+                        num(mid - math.height / 2.0),
+                        num(math.width),
+                        num(math.height)
+                    );
+                    if let Some(halo) = look.halo {
+                        svg_write!(extra, "<rect ", box_attrs, " rx=\"2\" fill=\"", halo, "\"/>").unwrap();
+                    } else {
+                        let svg = if let Some(foreground) = &math.native_foreground {
+                            let fallback = std::str::from_utf8(foreground).expect("normalized palette color");
+                            let color = look.color.filter(|c| *c != "currentColor").unwrap_or(fallback);
+                            Cow::Owned(math.svg.replace("=\"currentColor\"", &format!("=\"{color}\"")))
+                        } else {
+                            Cow::Borrowed(math.svg.as_str())
+                        };
+                        svg_write!(extra, "<svg class=\"pele-math\" ", box_attrs, " overflow=\"visible\"", look.attrs, ">", svg, "</svg>")
+                            .unwrap();
+                    }
+                } else if let Some(icon) = &span.icon {
                     let side = label.size * 1.1;
                     let inner = icons.map(|i| i.markup(icon)).unwrap_or_else(|| "".into());
-                    svg_write!(extra, "<svg class=\"pele-icon\" data-icon=\"", esc_text(icon), "\" x=\"", num(x), "\" y=\"", num(y - shift - side / 2.0), "\" width=\"", num(side), "\" height=\"", num(side), "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", inner, "</svg>").unwrap();
+                    svg_write!(extra, "<svg class=\"pele-icon\" data-icon=\"", esc_text(icon), "\" x=\"", num(x), "\" y=\"", num(mid - side / 2.0), "\" width=\"", num(side), "\" height=\"", num(side), "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">", inner, "</svg>").unwrap();
                 } else if !span.text.is_empty() {
                     out.write_str("<tspan x=\"")?;
                     write_num(out, x)?;
                     out.write_str("\" y=\"")?;
                     write_num(out, y)?;
                     out.write_str("\" text-anchor=\"start\"")?;
-                    out.write_str(span_style(span.style & !shared))?;
+                    out.write_str(&span_style(span.style & !shared))?;
                     out.write_char('>')?;
                     write_esc(out, &span.text)?;
                     out.write_str("</tspan>")?;
@@ -345,7 +398,7 @@ pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
                     write_num(out, y)?;
                     out.write_char('"')?;
                 }
-                out.write_str(span_style(span.style & !shared))?;
+                out.write_str(&span_style(span.style & !shared))?;
                 out.write_char('>')?;
                 write_esc(out, &span.text)?;
                 out.write_str("</tspan>")?;
@@ -358,10 +411,42 @@ pub(crate) fn write_label_view<W: fmt::Write + ?Sized>(
                 out.write_str("\"> </tspan>")?;
             }
         }
-        y += lh;
+        top += h;
     }
     out.write_str("</text>")?;
     out.write_str(&extra)
+}
+
+fn attribute<'a>(attrs: &'a str, prefix: &str) -> Option<&'a str> {
+    let start = attrs.find(prefix)? + prefix.len();
+    Some(&attrs[start..start + attrs[start..].find('"')?])
+}
+fn property<'a>(style: &'a str, name: &str) -> Option<&'a str> {
+    style.split(';').find_map(|part| part.trim_start().strip_prefix(name)).map(str::trim)
+}
+struct MathLook<'a> {
+    attrs: String,
+    color: Option<&'a str>,
+    halo: Option<&'a str>,
+}
+fn math_look(attrs: &str) -> MathLook<'_> {
+    let style = attribute(attrs, " style=\"").unwrap_or("");
+    let fill = property(style, "fill:").or_else(|| attribute(attrs, " fill=\"")).unwrap_or("").trim();
+    if fill == "none" {
+        return MathLook { attrs: String::new(), color: None, halo: Some(attribute(attrs, " stroke=\"").unwrap_or("none")) };
+    }
+    let mut out = String::new();
+    if !fill.is_empty() {
+        out.push_str(" color=\"");
+        out.push_str(fill);
+        out.push('"');
+    }
+    if let Some(opacity) = property(style, "opacity:").filter(|s| !s.is_empty()) {
+        out.push_str(" opacity=\"");
+        out.push_str(opacity);
+        out.push('"');
+    }
+    MathLook { attrs: out, color: (!fill.is_empty()).then_some(fill), halo: None }
 }
 
 // A small initial buffer avoids repeated growth for the usual text element. It is a

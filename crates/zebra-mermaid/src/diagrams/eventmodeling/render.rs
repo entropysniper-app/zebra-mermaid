@@ -10,7 +10,7 @@ use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg},
     edges::{marker, marker_trim},
     root::{svg_document, Accessible},
-    theme::{FONT_MONO, RADIUS},
+    theme::{FONT_MONO, ROUNDED},
 };
 use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
@@ -146,7 +146,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     }
     let content_right = placed.iter().fold(0.0, |w, p| js::max(w, p.x + p.w));
     let lane_width = label_column + content_right + 12.0;
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_h = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let left = pad;
     let top = pad + title_h;
@@ -155,7 +155,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
     for (i, band) in bands.iter_mut().enumerate() {
         band.y = y;
         band.h += 24.0;
-        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{RADIUS}\" fill=\"{}\"/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&svg_format!(" class=\"pele-cluster-label\" font-size=\"", js::number_text(small), "\" font-weight=\"var(--_hw)\" fill=\"", ctx.paint(Role::SecondaryText,"var(--_m)"), "\""),None)).unwrap();
+        write!(lanes, "<g class=\"pele-cluster pele-em-lane\" data-id=\"{}\"><rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\"{ROUNDED}/>{}</g>",esc_text(&model.lanes[i].label),num(left),num(y),num(lane_width),num(band.h),ctx.paint(Role::GroupFill,"var(--_s)"),label_svg(&band.label,left+12.0+band.label.width/2.0,y+band.h/2.0,&svg_format!(" class=\"pele-cluster-label\" font-size=\"", js::number_text(small), "\" font-weight=\"var(--_hw)\" fill=\"", ctx.paint(Role::SecondaryText,"var(--_m)"), "\""),None)).unwrap();
         y += band.h + 8.0;
     }
     let mut bottom = if bands.is_empty() { top } else { y - 8.0 };
@@ -165,19 +165,7 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
         let band = &bands[b.lane];
         item.x += left + label_column;
         item.y = band.y + (band.h - item.h) / 2.0;
-        let frame = svg_format!(
-            "x=\"",
-            num(item.x),
-            "\" y=\"",
-            num(item.y),
-            "\" width=\"",
-            num(item.w),
-            "\" height=\"",
-            num(item.h),
-            "\" rx=\"",
-            RADIUS,
-            "\""
-        );
+        let frame = svg_format!("x=\"", num(item.x), "\" y=\"", num(item.y), "\" width=\"", num(item.w), "\" height=\"", num(item.h), "\"");
         let shape = match series(b.kind) {
             None => svg_format!(
                 "<rect ",
@@ -186,7 +174,9 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
                 ctx.paint(Role::Background, "var(--_bg)"),
                 "\" stroke=\"",
                 ctx.paint(Role::NodeStroke, "var(--_b)"),
-                "\"/>"
+                "\"",
+                ROUNDED,
+                "/>"
             ),
             Some(i) => {
                 let color = ctx.series(i);
@@ -195,13 +185,17 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
                     frame,
                     " fill=\"",
                     ctx.paint(Role::Background, "var(--_bg)"),
-                    "\"/><rect ",
+                    "\"",
+                    ROUNDED,
+                    "/><rect ",
                     frame,
                     " fill=\"",
                     color,
                     "\" fill-opacity=\"0.22\" stroke=\"",
                     color,
-                    "\"/>"
+                    "\"",
+                    ROUNDED,
+                    "/>"
                 )
             }
         };
@@ -337,13 +331,15 @@ fn horizontal(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, E
             num(w),
             "\" height=\"",
             num(h),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::Background, "var(--_bg)"),
-            "\" stroke=\"",
-            ctx.paint(Role::NodeStroke, "var(--_b)"),
-            "\"/>",
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::Background, "var(--_bg)"),
+                "\" stroke=\"",
+                ctx.paint(Role::NodeStroke, "var(--_b)"),
+                "\""
+            )),
+            "/>",
             label_svg(
                 &head,
                 left + 12.0 + head.width / 2.0,
@@ -435,7 +431,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
     let gutter = 24.0 + 8.0 * ends.len().saturating_sub(1) as f64;
     let card_width = js::max(120.0, room - gutter);
     let text_room = card_width - 24.0;
-    let title = layout_label(model.title.as_deref(), false, &m, size, room, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, room, style::BOLD);
     let mut y = pad + if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let mut bottom = pad + title.height;
     let mut width = js::max(title.width, card_width + gutter);
@@ -453,8 +449,7 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
         );
         let h = 20.0 + name.height + data.as_ref().map_or(0.0, |d| d.height + 6.0);
         let cy = y + lane.height + 12.0;
-        let frame =
-            svg_format!("x=\"", num(pad), "\" y=\"", num(cy), "\" width=\"", num(w), "\" height=\"", num(h), "\" rx=\"", RADIUS, "\"");
+        let frame = svg_format!("x=\"", num(pad), "\" y=\"", num(cy), "\" width=\"", num(w), "\" height=\"", num(h), "\"");
         svg_write!(
             nodes,
             "<g class=\"pele-cluster pele-em-lane\" data-id=\"",
@@ -483,10 +478,12 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
             ctx.paint(Role::Background, "var(--_bg)"),
             "\" stroke=\"",
             ctx.paint(Role::NodeStroke, "var(--_b)"),
-            "\"/>",
+            "\"",
+            ROUNDED,
+            "/>",
             series(b.kind).map_or_else(String::new, |i| {
                 let c = ctx.series(i);
-                svg_format!("<rect ", frame, " fill=\"", c, "\" fill-opacity=\"0.22\" stroke=\"", c, "\"/>")
+                svg_format!("<rect ", frame, " fill=\"", c, "\" fill-opacity=\"0.22\" stroke=\"", c, "\"", ROUNDED, "/>")
             }),
             label_svg(
                 &name,
@@ -594,13 +591,15 @@ fn vertical(model: &EventModelingModel, ctx: &RenderCtx) -> Result<Rendered, Err
             num(w),
             "\" height=\"",
             num(h),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::Background, "var(--_bg)"),
-            "\" stroke=\"",
-            ctx.paint(Role::NodeStroke, "var(--_b)"),
-            "\"/>",
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::Background, "var(--_bg)"),
+                "\" stroke=\"",
+                ctx.paint(Role::NodeStroke, "var(--_b)"),
+                "\""
+            )),
+            "/>",
             label_svg(
                 &head,
                 pad + 12.0 + head.width / 2.0,

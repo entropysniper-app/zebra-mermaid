@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Independent pinned-Pele token streams and errors for the internal/public storage paths.
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -27,7 +29,7 @@ export {tokenize, Reader} from './.research/pele/src/diagrams/common/tokens.ts';
 export {lexRadar} from './.research/pele/src/diagrams/radar/parser.ts';
 `,resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',outfile});
 const oracle=await import(pathToFileURL(`${process.cwd()}/${outfile}`).href);
-const fixturePath='tests/fixtures/pele-1.7.0.jsonl.gz';
+const fixturePath='tests/fixtures/pele-1.9.0.jsonl.gz';
 const docs=gunzipSync(readFileSync(fixturePath)).toString().trim().split('\n').map(JSON.parse);
 const common=['', ' ', '\t\r\n', '\u2028\u2029', '\u00a0\ufeff', '\u0000', '😀', '中文', 'é e\u0301',
   'title AV 😀\r\n', 'accTitle: AV\n', 'accDescr: 中😀 %% comment\n', 'accDescr {a\n b}\n',
@@ -75,5 +77,5 @@ for(const [name,module,prefix] of specs){
 }
 const count=tables.reduce((n,t)=>n+t.cases.length,0);
 const value={upstreamCommit,seed:'0x70c3a9',mutationsPerTable:96,referenceFixtureSha256:createHash('sha256').update(readFileSync(fixturePath)).digest('hex'),tables,count};
-writeFileSync('tests/fixtures/unit/token-storage-reference.json.gz',gzipSync(JSON.stringify(value),{level:9}));
+writeFileSync('tests/fixtures/pele-1.9.0/unit/token-storage-reference.json.gz',gzipSync(JSON.stringify(value),{level:9}));
 console.log(JSON.stringify({tables:tables.length,cases:count,perTable:tables.map(t=>[t.name,t.cases.length])}));

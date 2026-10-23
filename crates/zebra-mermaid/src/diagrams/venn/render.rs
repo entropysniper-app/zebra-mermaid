@@ -216,7 +216,7 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
     }
 
     let title_text = model.title.as_deref().filter(|t| !t.is_empty()).map(normalize_text);
-    let title = layout_label(title_text.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(title_text.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(max_x - min_x, title.width);
     let ox = pad + (inner - (max_x - min_x)) / 2.0 - min_x;

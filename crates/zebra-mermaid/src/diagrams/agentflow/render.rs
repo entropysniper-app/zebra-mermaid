@@ -20,7 +20,7 @@ use crate::svg::{
     edges::{default_reach, loop_path, marker, marker_trim, render_edge_label_svg as edge_label_svg, route_path, EdgePath, LoopLabel},
     root::{svg_document, Accessible},
     shapes::{draw_shape, inset_route, shape_size, PAD_X, PAD_Y},
-    theme::{class_names, resolve_style, ResolvedStyle, RADIUS},
+    theme::{class_names, resolve_style, ResolvedStyle},
 };
 use crate::text::{entities::decode_entities, layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
@@ -266,6 +266,8 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         &mut edges,
         root,
         &LayeredOptions {
+            groups: None,
+            order_only: false,
             node_sep: option(config, "nodeSpacing", 40.0),
             edge_sep: 16.0,
             rank_sep: option(config, "rankSpacing", 48.0),
@@ -276,7 +278,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
             head_room: None,
         },
     );
-    let title = layout_label(db.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(db.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let th = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let inner = js::max(layout.width, title.width);
     shift_layout(&mut nodes, &mut edges, pad + (inner - layout.width) / 2.0, pad + th);
@@ -373,11 +375,8 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                 num(c.w),
                 "\" height=\"",
                 num(c.h),
-                "\" rx=\"",
-                RADIUS,
                 "\"",
-                tint(n.color_index.unwrap_or(7), "0.06", &v.style, ctx, true),
-                v.style.shape,
+                crate::svg::theme::rounded(&svg_format!(tint(n.color_index.unwrap_or(7), "0.06", &v.style, ctx, true), v.style.shape)),
                 "/>",
                 label_svg(
                     &v.label,
@@ -407,11 +406,8 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                 num(w),
                 "\" height=\"",
                 num(h),
-                "\" rx=\"",
-                RADIUS,
                 "\"",
-                tint(n.color_index.unwrap_or(7), "0.06", &v.style, ctx, true),
-                v.style.shape,
+                crate::svg::theme::rounded(&svg_format!(tint(n.color_index.unwrap_or(7), "0.06", &v.style, ctx, true), v.style.shape)),
                 "/><path d=\"M",
                 num(-w / 2.0 + 10.0),
                 ",",

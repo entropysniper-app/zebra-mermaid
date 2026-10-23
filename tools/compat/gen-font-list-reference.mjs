@@ -1,3 +1,5 @@
+import {mkdirSync as ensureReleaseDir} from 'node:fs';
+ensureReleaseDir('tests/fixtures/pele-1.9.0/unit',{recursive:true});
 // Independent expectations from the pinned upstream font-style function.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -47,5 +49,5 @@ const cases = inputs.map(input => ({ input, accepted: fontStyle(16, input, undef
 const value = { upstreamCommit, seed: '0x16f017', generatedCases: 4096,
   scope: 'Supplementary font-list acceptance and exact public font-style output on valid Rust strings; not an original-test port.',
   upstreamThemeSha256: createHash('sha256').update(readFileSync('.research/pele/src/svg/theme.ts')).digest('hex'), cases };
-writeFileSync('tests/fixtures/unit/font-list-reference.json.gz', gzipSync(JSON.stringify(value), { level: 9 }));
+writeFileSync('tests/fixtures/pele-1.9.0/unit/font-list-reference.json.gz', gzipSync(JSON.stringify(value), { level: 9 }));
 console.log(JSON.stringify({ cases: cases.length, accepted: cases.filter(c => c.accepted).length, rejected: cases.filter(c => !c.accepted).length }));

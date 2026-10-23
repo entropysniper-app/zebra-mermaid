@@ -12,7 +12,7 @@ pub struct Titled {
 
 /// Puts a diagram title above content that was laid out without one.
 pub fn with_title(title: Option<&str>, m: &Measure, size: f64, pad: f64, width: f64, height: f64, content: String) -> Titled {
-    let label = layout_label(title, false, m, size, 4000.0, style::BOLD);
+    let label = layout_label(title, false, &m.without_math(), size, 4000.0, style::BOLD);
     if label.height == 0.0 {
         return Titled { width, height, content };
     }

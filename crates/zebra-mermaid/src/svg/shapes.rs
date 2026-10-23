@@ -23,7 +23,7 @@ pub const PAD_Y: f64 = 12.0;
 /// Kept clear at each end of a straight side, for the corner.
 const CORNER: f64 = 12.0;
 
-const ROUNDED: &str = " rx=\"var(--pele-radius,4px)\"";
+use super::theme::rounded;
 
 const SHAPES: [&str; 54] = [
     "rect",
@@ -338,7 +338,7 @@ pub fn shape_size(shape: &str, tw: f64, th: f64) -> ShapeSize {
 /// Draws a shape of size `w` by `h` centered on the origin. `a` is the fill and stroke
 /// attributes of the outline; `line` those of inner lines (`fill="none"` is added).
 pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Theming) -> String {
-    let rr = |w: f64, h: f64, a: &str| rect(w, h, a, ROUNDED);
+    let rr = |w: f64, h: f64, a: &str| rect(w, h, &rounded(a), "");
     let lcolor = theming.paint(Role::Line, "var(--_l)");
     match known(shape) {
         "rect" => rr(w, h, a),
@@ -645,8 +645,7 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
                     "\" height=\"",
                     num(bh),
                     "\"",
-                    ROUNDED,
-                    a,
+                    rounded(a),
                     "/>"
                 )
                 .unwrap();
@@ -1075,8 +1074,7 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             "\" height=\"",
             num(h - 8.0),
             "\"",
-            ROUNDED,
-            a,
+            rounded(a),
             "/><rect x=\"",
             num(-w / 2.0),
             "\" y=\"",
@@ -1086,8 +1084,7 @@ pub fn draw_shape(shape: &str, w: f64, h: f64, a: &str, line: &str, theming: &Th
             "\" height=\"",
             num(h - 4.0),
             "\"",
-            ROUNDED,
-            a,
+            rounded(a),
             "/>"
         ),
         _ => rr(w, h, a),
@@ -1279,7 +1276,10 @@ mod tests {
     #[test]
     fn basic_markup() {
         let t = Theming::pele();
-        assert_eq!(draw_shape("rect", 10.0, 4.0, " a=\"1\"", "", &t), "<rect x=\"-5\" y=\"-2\" width=\"10\" height=\"4\" rx=\"var(--pele-radius,4px)\" a=\"1\"/>");
+        assert_eq!(
+            draw_shape("rect", 10.0, 4.0, " a=\"1\"", "", &t),
+            "<rect x=\"-5\" y=\"-2\" width=\"10\" height=\"4\" a=\"1\" style=\"rx:var(--_r)\"/>"
+        );
         assert_eq!(draw_shape("rounded", 10.0, 4.0, "", "", &t), "<rect x=\"-5\" y=\"-2\" width=\"10\" height=\"4\" rx=\"2\"/>");
         assert_eq!(draw_shape("stadium", 10.0, 5.0, "", "", &t), "<rect x=\"-5\" y=\"-2.5\" width=\"10\" height=\"5\" rx=\"2.5\"/>");
         assert_eq!(draw_shape("diam", 10.0, 4.0, " a", "", &t), "<polygon points=\"0,-2 5,0 0,2 -5,0\" a/>");

@@ -5,13 +5,13 @@ mod render;
 mod tokens;
 
 #[cfg(test)]
-#[path = "../../../tests/upstream/er_stress_generated.rs"]
-mod upstream_stress;
-#[cfg(test)]
 #[path = "../../../tests/upstream/er_parser.rs"]
 mod upstream_parser;
-use crate::diagrams::common::str_entry::or_insert_with as str_entry;
+#[cfg(test)]
+#[path = "../../../tests/upstream/er_stress_generated.rs"]
+mod upstream_stress;
 use super::ParseInput;
+use crate::diagrams::common::str_entry::or_insert_with as str_entry;
 use crate::{util::js, Error};
 use indexmap::{IndexMap, IndexSet};
 pub(crate) use render::render;

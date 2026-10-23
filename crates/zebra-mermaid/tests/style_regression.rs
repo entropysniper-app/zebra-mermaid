@@ -7,7 +7,7 @@ use zebra_mermaid::svg::theme::resolve_style;
 #[test]
 fn author_styles_preserve_upstream_values_order_and_filtering() {
     let mut text = String::new();
-    flate2::read::GzDecoder::new(&include_bytes!("../../../tests/fixtures/style-regression.json.gz")[..])
+    flate2::read::GzDecoder::new(&include_bytes!("../../../tests/fixtures/pele-1.9.0/style-regression.json.gz")[..])
         .read_to_string(&mut text)
         .unwrap();
     let data: serde_json::Value = serde_json::from_str(&text).unwrap();

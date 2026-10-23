@@ -146,7 +146,21 @@ pub fn render_parsed(parsed: &ParsedDiagram, options: &RenderOptions) -> Result<
         Some(m) => m.as_ref(),
         None => &default_measurer,
     };
-    let ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
+    let mut ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
+    ctx.enable_math(matches!(
+        diagram_type,
+        DiagramType::Flowchart
+            | DiagramType::Er
+            | DiagramType::Class
+            | DiagramType::Block
+            | DiagramType::Usecase
+            | DiagramType::Kanban
+            | DiagramType::Sequence
+            | DiagramType::Requirement
+            | DiagramType::Mindmap
+            | DiagramType::Swimlane
+            | DiagramType::State
+    ));
     let mut rendered = diagrams::render(&parsed.model, &parsed.config, &ctx).map_err(|e| e.tag(found))?;
     let output_limit = options.output_limit.unwrap_or(DEFAULT_OUTPUT_LIMIT);
     if rendered.svg.len() > output_limit && js::len16(&rendered.svg) > output_limit {

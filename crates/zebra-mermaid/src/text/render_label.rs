@@ -9,6 +9,7 @@ pub(crate) struct RenderLabel {
     pub height: f64,
     pub size: f64,
     pub line_height: f64,
+    pub heights: Option<Vec<f64>>,
     content: Content,
 }
 
@@ -118,6 +119,7 @@ pub(crate) struct LabelView<'a> {
     pub height: f64,
     pub size: f64,
     pub line_height: f64,
+    pub heights: Option<&'a [f64]>,
 }
 
 pub(crate) trait LabelRead {
@@ -133,6 +135,7 @@ impl LabelRead for Label {
             height: self.height,
             size: self.size,
             line_height: self.line_height,
+            heights: self.heights.as_deref(),
         }
     }
 }
@@ -146,6 +149,7 @@ impl LabelRead for RenderLabel {
             height: self.height,
             size: self.size,
             line_height: self.line_height,
+            heights: self.heights.as_deref(),
         }
     }
 }
@@ -156,7 +160,7 @@ impl RenderLabel {
     }
     pub fn single(span: Span, size: f64, line_height: f64) -> Self {
         let width = span.width;
-        Self { width, height: line_height, size, line_height, content: Content::Single { span, line_width: width } }
+        Self { width, height: line_height, size, line_height, heights: None, content: Content::Single { span, line_width: width } }
     }
     pub fn from_owned(label: Label) -> Self {
         Self {
@@ -164,11 +168,12 @@ impl RenderLabel {
             height: label.height,
             size: label.size,
             line_height: label.line_height,
+            heights: label.heights,
             content: Content::Rich { lines: label.lines, widths: label.widths },
         }
     }
     pub fn from_lines(lines: Vec<Vec<Span>>, widths: Vec<f64>, width: f64, height: f64, size: f64, line_height: f64) -> Self {
-        Self { width, height, size, line_height, content: Content::Rich { lines, widths } }
+        Self { width, height, size, line_height, heights: None, content: Content::Rich { lines, widths } }
     }
     pub fn keep_first_line(&mut self) {
         if let Content::Rich { lines, widths } = &mut self.content {
@@ -176,7 +181,10 @@ impl RenderLabel {
                 lines.truncate(1);
                 widths.truncate(1);
                 self.width = widths[0];
-                self.height = self.line_height;
+                self.height = self.heights.as_ref().map_or(self.line_height, |h| h[0]);
+                if let Some(h) = &mut self.heights {
+                    h.truncate(1);
+                }
             }
         }
     }
@@ -188,7 +196,7 @@ impl RenderLabel {
             Content::Empty => {}
             Content::Single { span, line_width } => {
                 span.style |= bits;
-                if span.icon.is_none() {
+                if span.icon.is_none() && span.math.is_none() {
                     span.width = m.width(&span.text, self.size, span.style);
                 }
                 *line_width = 0.0 + span.width;
@@ -201,7 +209,7 @@ impl RenderLabel {
                     let mut total = 0.0;
                     for span in line {
                         span.style |= bits;
-                        if span.icon.is_none() {
+                        if span.icon.is_none() && span.math.is_none() {
                             span.width = m.width(&span.text, self.size, span.style);
                         }
                         total += span.width;
@@ -213,6 +221,35 @@ impl RenderLabel {
                 self.width = width;
             }
         }
+    }
+    pub fn line_middle(&self, i: usize) -> f64 {
+        self.heights.as_ref().map_or((i as f64 + 0.5) * self.line_height, |h| h[..i].iter().sum::<f64>() + h[i] / 2.0)
+    }
+    pub fn label_line(&self, i: usize) -> Self {
+        let width = self.widths()[i];
+        let height = self.heights.as_ref().map_or(self.line_height, |h| h[i]);
+        let mut line = Self::from_lines(vec![self.lines()[i].to_vec()], vec![width], width, height, self.size, self.line_height);
+        line.heights = (height != self.line_height).then(|| vec![height]);
+        line
+    }
+    pub fn with_heights(&mut self) {
+        let mut heights = None;
+        for (i, line) in self.lines().iter().enumerate() {
+            let mut h = self.line_height;
+            for span in line {
+                if let Some(math) = &span.math {
+                    h = crate::util::js::max(h, (math.height + self.size / 4.0).ceil());
+                }
+            }
+            if h != self.line_height && heights.is_none() {
+                heights = Some(vec![self.line_height; self.lines().len()]);
+            }
+            if let Some(heights) = &mut heights {
+                heights[i] = h;
+            }
+        }
+        self.height = heights.as_ref().map_or(self.lines().len() as f64 * self.line_height, |h| h.iter().sum());
+        self.heights = heights;
     }
     pub fn lines(&self) -> Lines<'_> {
         match &self.content {
@@ -240,7 +277,7 @@ mod tests {
 
     fn fixture() -> Value {
         let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../tests/fixtures/unit/render-label-reference.json.gz")[..],
+            &include_bytes!("../../../../tests/fixtures/pele-1.9.0/unit/render-label-reference.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);
@@ -345,7 +382,7 @@ mod tests {
     fn restyling_matches_the_pinned_internal_node_function() {
         let data = fixture();
         let cases = data["cases"].as_array().unwrap();
-        assert_eq!(data["restyleSourceSha256"], "dd6dfbb4ab327b00ee0e5a99d3000548fc3f85a29df52d6b83d03b3ea9a53918");
+        assert_eq!(data["restyleSourceSha256"], "5a625011eab2fc9c45f165e877a397e4466cb472bc8e32a8a96d1b2331ca5519");
         let mut count = 0;
         for (index, case) in cases.iter().enumerate() {
             for styled in case["restyled"].as_array().unwrap() {

@@ -10,7 +10,6 @@ use crate::svg::builder::{esc_text, num, render_label_svg as label_svg};
 use crate::svg::concat::{svg_format, svg_write};
 use crate::svg::edges::{marker, ARROW};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
@@ -161,7 +160,7 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
     if down {
         return vertical_causes(model, ctx);
     }
-    let title = layout_label(model.title.as_deref(), false, &m, size, 4000.0, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, 4000.0, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let length = length();
     let line = ctx.paint(Role::Line, "var(--_l)");
@@ -260,13 +259,9 @@ fn draw(model: &IshikawaModel, _config: &Config, ctx: &RenderCtx, down: bool) ->
                 num(category.box_w),
                 "\" height=\"",
                 num(category.box_h),
-                "\" rx=\"",
-                RADIUS,
-                "\" fill=\"",
-                node_fill,
-                "\" stroke=\"",
-                node_stroke,
-                "\"/>"
+                "\"",
+                crate::svg::theme::rounded(&svg_format!(" fill=\"", node_fill, "\" stroke=\"", node_stroke, "\"")),
+                "/>"
             )
             .unwrap();
             svg_write!(groups, label_svg(&category.label, end_x, box_y, " class=\"pele-label\"", None)).unwrap();
@@ -345,7 +340,7 @@ fn vertical_causes(model: &IshikawaModel, ctx: &RenderCtx) -> Rendered {
     let m = ctx.measure();
     let pad = ctx.padding();
     let room = js::max(140.0, options.max_width.unwrap_or(320.0) - 2.0 * pad);
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_room(options), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_room(options), style::BOLD);
     let mut order: Vec<Entry> = Vec::new();
     let mut pending: Vec<(usize, usize, Option<usize>)> = if model.nodes.is_empty() { Vec::new() } else { vec![(0, 0, None)] };
     let mut depth = 0;

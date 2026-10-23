@@ -7,10 +7,12 @@
 
 use super::entities::decode_entities_cow;
 use super::measurer::style;
+use super::MathMarkup;
 use super::Measure;
 use crate::util::chars::{char_at, char_before, is_space, is_word};
 use crate::util::{js, strs};
 use std::borrow::Cow;
+use std::rc::Rc;
 
 #[cfg(test)]
 #[path = "label_scanning_reference.rs"]
@@ -21,6 +23,7 @@ pub struct Span {
     pub text: String,
     pub style: u8,
     pub icon: Option<String>,
+    pub math: Option<Rc<MathMarkup>>,
     pub width: f64,
 }
 
@@ -32,6 +35,7 @@ pub struct Label {
     pub height: f64,
     pub size: f64,
     pub line_height: f64,
+    pub heights: Option<Vec<f64>>,
 }
 
 impl Label {
@@ -222,51 +226,104 @@ fn dedent(text: &str) -> String {
     out.join("\n")
 }
 
-fn push_text(line: &mut Vec<Span>, text: &str, style: u8) {
+fn push_plain(line: &mut Vec<Span>, text: &str, style: u8) {
     if text.is_empty() {
         return;
     }
     let decoded = decode_entities_cow(text);
     if let Some(last) = line.last_mut() {
-        if last.style == style && last.icon.is_none() {
+        if last.style == style && plain(last) {
             last.text.push_str(&decoded);
             return;
         }
     }
-    line.push(Span { text: decoded.into_owned(), style, icon: None, width: 0.0 });
+    line.push(Span { text: decoded.into_owned(), style, icon: None, math: None, width: 0.0 });
 }
 
-fn push_icons(line: &mut Vec<Span>, text: &str, style: u8, m: &Measure) {
+fn plain(span: &Span) -> bool {
+    span.icon.is_none() && span.math.is_none()
+}
+
+struct Marks {
+    tex: Vec<String>,
+    math: Vec<Option<Rc<MathMarkup>>>,
+}
+
+fn push_text(line: &mut Vec<Span>, text: &str, style: u8, marks: Option<&Marks>) {
+    let Some(marks) = marks else {
+        push_plain(line, text, style);
+        return;
+    };
+    let mut start = 0;
+    for (at, ch) in text.char_indices() {
+        if ('\u{e000}'..='\u{f8ff}').contains(&ch) {
+            if at > start {
+                push_plain(line, &text[start..at], style);
+            }
+            let i = ch as usize - 0xe000;
+            if let Some(math) = &marks.math[i] {
+                line.push(Span { text: String::new(), style, icon: None, math: Some(math.clone()), width: math.width });
+            } else {
+                push_plain(line, &format!("$${}$$", marks.tex[i]), style);
+            }
+            start = at + ch.len_utf8();
+        }
+    }
+    if start < text.len() {
+        push_plain(line, &text[start..], style);
+    }
+}
+
+fn push_icons(line: &mut Vec<Span>, text: &str, style: u8, m: &Measure, marks: Option<&Marks>) {
     if !strs::contains(text, ":fa-") {
-        push_text(line, text, style);
+        push_text(line, text, style, marks);
         return;
     }
     let mut last = 0;
     let mut from = 0;
     while let Some((start, end)) = find_icon(text, from) {
         let icon = &text[start..end];
-        push_text(line, &text[last..start], style);
+        push_text(line, &text[last..start], style, marks);
         last = end;
         from = end;
         if !m.icon_markup(icon).is_empty() {
-            line.push(Span { text: String::new(), style, icon: Some(icon.to_string()), width: 0.0 });
+            line.push(Span { text: String::new(), style, icon: Some(icon.to_string()), math: None, width: 0.0 });
         } else if text.as_bytes().get(last) == Some(&b' ') {
-            // An icon the host does not have leaves no gap, nor the space that set it off.
             last += 1;
         } else if last == text.len() {
             if let Some(before) = line.last_mut() {
-                if before.icon.is_none() {
+                if plain(before) {
                     before.text.truncate(js::trim_end(&before.text).len());
                 }
             }
         }
     }
-    push_text(line, &text[last..], style);
+    push_text(line, &text[last..], style, marks);
 }
 
+#[derive(Default)]
+struct Open {
+    style: u8,
+    shifts: Vec<u8>,
+}
+
+fn tag_style(tag: &str) -> u8 {
+    match tag {
+        "b" | "strong" => style::BOLD,
+        "i" | "em" | "cite" | "dfn" | "var" => style::ITALIC,
+        "code" | "kbd" | "samp" | "tt" => style::MONO,
+        "sub" => style::SUB,
+        "sup" => style::SUP,
+        "u" | "ins" => style::UNDERLINE,
+        _ => 0,
+    }
+}
+
+const HTML_TAGS: &str = "a abbr address article aside audio b bdi bdo big blockquote body br button caption center cite code col colgroup data dd del details dfn dialog div dl dt em embed fieldset figcaption figure font footer form h1 h2 h3 h4 h5 h6 head header hr html i iframe img input ins kbd label legend li link main map mark meta meter nav noscript object ol optgroup option output p picture pre progress q rp rt ruby s samp script section select small source span strike strong style sub summary sup table tbody td template textarea tfoot th thead time title tr track tt u ul var video wbr";
+
 /// Splits inline HTML and, for markdown labels, emphasis markers into styled spans.
-fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Measure) {
-    let mut st = base;
+fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Measure, open: &mut Open, marks: Option<&Marks>) {
+    let mut st = open.style;
     let mut marked: u8 = 0;
     let mut text = String::new();
     let mut start = 0;
@@ -277,10 +334,10 @@ fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Meas
     // disjoint pieces joined before icon/entity recognition, preserving the original flushes.
     let flush = |line: &mut Vec<Span>, text: &mut String, start: usize, end: usize, style: u8| {
         if text.is_empty() {
-            push_icons(line, &source[start..end], style, m);
+            push_icons(line, &source[start..end], style, m, marks);
         } else {
             text.push_str(&source[start..end]);
-            push_icons(line, text, style, m);
+            push_icons(line, text, style, m, marks);
             text.clear();
         }
     };
@@ -292,28 +349,35 @@ fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Meas
         if ch == b'<' {
             if let Some((end, name)) = match_tag(source, i) {
                 let closing = b.get(i + 1) == Some(&b'/');
-                let bit = if name.eq_ignore_ascii_case("b") || name.eq_ignore_ascii_case("strong") {
-                    style::BOLD
-                } else if name.eq_ignore_ascii_case("i") || name.eq_ignore_ascii_case("em") {
-                    style::ITALIC
-                } else {
-                    0
-                };
-                if bit != 0 {
-                    flush(line, &mut text, start, i, st);
+                let tag = name.to_ascii_lowercase();
+                let bit = tag_style(&tag);
+                let effective = st | open.shifts.last().copied().unwrap_or(0);
+                if bit & (style::SUB | style::SUP) != 0 {
+                    flush(line, &mut text, start, i, effective);
+                    if !closing {
+                        open.shifts.push(bit);
+                    } else if let Some(at) = open.shifts.iter().rposition(|&b| b == bit) {
+                        open.shifts.remove(at);
+                    }
+                } else if bit != 0 {
+                    flush(line, &mut text, start, i, effective);
+                    open.style = if closing { (open.style & !bit) | (base & bit) } else { open.style | bit };
                     st = if closing { (st & !bit) | (base & bit) } else { st | bit };
-                } else {
-                    text.push_str(&source[start..i]);
                 }
-                start = end;
-                i = end;
-                continue;
+                if bit != 0 || HTML_TAGS.split(' ').any(|t| t == tag) {
+                    if bit == 0 {
+                        text.push_str(&source[start..i]);
+                    }
+                    start = end;
+                    i = end;
+                    continue;
+                }
             }
         } else if markdown && (ch == b'*' || ch == b'_') {
             let double = b.get(i + 1) == Some(&ch);
             let bit = if double { style::BOLD } else { style::ITALIC };
             let len = if double { 2 } else { 1 };
-            let open = marked & bit == 0;
+            let md_open = marked & bit == 0;
             let prev = if i > 0 { char_before(source, i).unwrap_or(' ') } else { ' ' };
             let next = if i + len < n { char_at(source, i + len).unwrap_or(' ') } else { ' ' };
             let marker = if double {
@@ -327,11 +391,11 @@ fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Meas
             } else {
                 "_"
             };
-            let can_open = open && !is_space(next) && source[i + len..].contains(marker);
-            let can_close = !open && !is_space(prev);
+            let can_open = md_open && !is_space(next) && source[i + len..].contains(marker);
+            let can_close = !md_open && !is_space(prev);
             let wordy = ch == b'_' && is_word(prev) && is_word(next);
             if (can_open || can_close) && !wordy {
-                flush(line, &mut text, start, i, st);
+                flush(line, &mut text, start, i, st | open.shifts.last().copied().unwrap_or(0));
                 marked = if can_open { marked | bit } else { marked & !bit };
                 st = if can_open { st | bit } else { (st & !bit) | (base & bit) };
                 i += len;
@@ -341,13 +405,19 @@ fn inline(line: &mut Vec<Span>, source: &str, markdown: bool, base: u8, m: &Meas
         }
         i += 1;
     }
-    flush(line, &mut text, start, n, st);
+    flush(line, &mut text, start, n, st | open.shifts.last().copied().unwrap_or(0));
 }
 
 fn measure_spans(line: &mut [Span], m: &Measure, size: f64) -> f64 {
     let mut total = 0.0;
     for span in line.iter_mut() {
-        span.width = if span.icon.is_some() { size * 1.25 } else { m.width(&span.text, size, span.style) };
+        span.width = if span.icon.is_some() {
+            size * 1.25
+        } else if let Some(math) = &span.math {
+            math.width
+        } else {
+            m.width(&span.text, size, span.style)
+        };
         total += span.width;
     }
     total
@@ -405,10 +475,14 @@ fn group_at(text: &str, s: usize) -> Option<usize> {
         }
         j -= char_before(text, j).map_or(1, char::len_utf8);
     }
-    // [^\sCJK]+[CLOSE]*
-    let e = skip_while(text, s, |c| !is_space(c) && !is_cjk(c));
+    // [^\sCJK HINT]+[HINT]*[CLOSE]* | [HINT]+
+    let e = skip_while(text, s, |c| !is_space(c) && !is_cjk(c) && !is_hint(c));
     if e > s {
-        return Some(skip_while(text, e, is_close));
+        return Some(skip_while(text, skip_while(text, e, is_hint), is_close));
+    }
+    let e = skip_while(text, s, is_hint);
+    if e > s {
+        return Some(e);
     }
     None
 }
@@ -434,60 +508,95 @@ fn piece_at(text: &str, p: usize) -> Option<usize> {
     }
 }
 
+fn is_hint(c: char) -> bool {
+    c == '\u{200b}' || c == '\u{ad}'
+}
+
 fn wrap(line: Vec<Span>, m: &Measure, size: f64, max: f64, out: &mut Vec<Vec<Span>>, widths: &mut Vec<f64>) {
     let mut current: Vec<Span> = Vec::new();
     let mut width = 0.0;
-    let commit = |current: &mut Vec<Span>, width: &mut f64, out: &mut Vec<Vec<Span>>, widths: &mut Vec<f64>| {
-        if let Some(last) = current.last_mut() {
-            if last.icon.is_none() {
-                let trimmed = js::trim_end(&last.text);
-                if trimmed.len() != last.text.len() {
-                    let w = m.width(trimmed, size, last.style);
-                    *width += w - last.width;
-                    last.text.truncate(trimmed.len());
-                    last.width = w;
-                }
+    let commit = |current: &mut Vec<Span>, width: &mut f64, out: &mut Vec<Vec<Span>>, widths: &mut Vec<f64>, hyphen: bool| {
+        if let Some(last) = current.last_mut().filter(|s| plain(s)) {
+            let trimmed = js::trim_end(&last.text);
+            let trimmed = if hyphen && last.text.ends_with('\u{ad}') {
+                Cow::Owned(format!("{}-", trimmed.strip_suffix('\u{ad}').unwrap_or(trimmed)))
+            } else {
+                Cow::Borrowed(trimmed)
+            };
+            if trimmed != last.text {
+                let w = m.width(&trimmed, size, last.style);
+                *width += w - last.width;
+                last.text = trimmed.into_owned();
+                last.width = w;
             }
         }
         out.push(std::mem::take(current));
         widths.push(*width);
         *width = 0.0;
     };
-    for span in line {
-        if span.icon.is_some() {
-            let w = size * 1.25;
+    let last_span = line.len().saturating_sub(1);
+    for (index, span) in line.into_iter().enumerate() {
+        if !plain(&span) {
+            let w = span.math.as_ref().map_or(size * 1.25, |m| m.width);
             if width > 0.0 && width + w > max {
-                commit(&mut current, &mut width, out, widths);
+                commit(&mut current, &mut width, out, widths, false);
             }
             current.push(Span { width: w, ..span });
             width += w;
             continue;
         }
-        for piece in piece_iter(&span.text) {
+        let pieces: Vec<&str> = piece_iter(&span.text).collect();
+        let soft = span.text.contains('\u{ad}');
+        let n = if soft { pieces.len() } else { 0 };
+        let mut own = vec![0.0; n];
+        let mut rest = vec![0.0; n + 1];
+        for q in (0..n).rev() {
+            let shy = pieces[q].ends_with('\u{ad}');
+            let end = js::trim_end(pieces[q]);
+            own[q] = m.width(if shy { end.strip_suffix('\u{ad}').unwrap_or(end) } else { end }, size, span.style);
+            rest[q] = if !shy {
+                own[q]
+            } else if q == n - 1 {
+                if index == last_span {
+                    own[q]
+                } else {
+                    f64::INFINITY
+                }
+            } else {
+                own[q] + rest[q + 1]
+            };
+        }
+        for (p, piece) in pieces.into_iter().enumerate() {
             let mut part = piece;
-            if width > 0.0 && width + m.width(js::trim_end(part), size, span.style) > max {
-                commit(&mut current, &mut width, out, widths);
+            let part_width = if soft { own[p] } else { m.width(js::trim_end(part), size, span.style) };
+            let fits = if !soft || !part.ends_with('\u{ad}') {
+                width + part_width <= max
+            } else {
+                width + m.width(&format!("{}-", part.strip_suffix('\u{ad}').unwrap()), size, span.style) <= max || width + rest[p] <= max
+            };
+            if width > 0.0 && !fits {
+                commit(&mut current, &mut width, out, widths, js::trim_start(part) == part);
                 part = js::trim_start(part);
             }
             match current.last_mut() {
-                Some(last) if last.style == span.style && last.icon.is_none() => {
+                Some(last) if last.style == span.style && plain(last) => {
                     last.text.push_str(part);
-                    last.width = m.width(&last.text, size, last.style);
-                    width = 0.0;
-                    for s in &current {
-                        width += s.width;
+                    if part_width > 0.0 || js::trim_end(part) != part {
+                        let before = last.width;
+                        last.width = m.width(&last.text, size, last.style);
+                        width += last.width - before;
                     }
                 }
                 _ => {
                     let w = m.width(part, size, span.style);
-                    current.push(Span { text: part.to_string(), style: span.style, icon: None, width: w });
+                    current.push(Span { text: part.to_string(), style: span.style, icon: None, math: None, width: w });
                     width += w;
                 }
             }
         }
     }
     if !current.is_empty() || out.is_empty() {
-        commit(&mut current, &mut width, out, widths);
+        commit(&mut current, &mut width, out, widths, false);
     }
 }
 
@@ -520,7 +629,7 @@ impl LabelOutput for Label {
     }
     fn single(span: Span, size: f64, line_height: f64) -> Self {
         let width = span.width;
-        Self { lines: vec![vec![span]], widths: vec![width], width, height: line_height, size, line_height }
+        Self { lines: vec![vec![span]], widths: vec![width], width, height: line_height, size, line_height, heights: None }
     }
     fn from_owned(label: Label) -> Self {
         label
@@ -544,24 +653,39 @@ fn layout_as<T: LabelOutput>(raw: Option<&str>, markdown: bool, m: &Measure, siz
         Some(r) => r,
     };
     let line_height = js::round(size * LINE_HEIGHT);
+    let marked = if m.math_active() && raw.contains("$$") && !raw.chars().any(|c| ('\u{e000}'..='\u{f8ff}').contains(&c)) {
+        mark_math(raw, m, size)
+    } else {
+        None
+    };
+    let raw = marked.as_ref().map_or(raw, |(raw, _)| raw.as_str());
+    let marks = marked.as_ref().map(|(_, marks)| marks);
 
-    if !has_markup(raw) && !raw.contains('&') && !raw.contains('\u{fb02}') {
+    if marks.is_none() && !has_markup(raw) && !raw.contains('&') && !raw.contains('\u{fb02}') {
         let text = js::trim(raw);
         let width = m.width(text, size, base);
-        if width <= max_width || !(text.contains(' ') || text.chars().any(is_cjk)) {
-            return T::single(Span { text: text.to_string(), style: base, icon: None, width }, size, line_height);
+        if width <= max_width || !(text.contains(' ') || text.chars().any(|c| is_cjk(c) || is_hint(c))) {
+            return T::single(Span { text: text.to_string(), style: base, icon: None, math: None, width }, size, line_height);
         }
         let mut lines = Vec::new();
         let mut widths = Vec::new();
-        wrap(vec![Span { text: text.to_string(), style: base, icon: None, width }], m, size, max_width, &mut lines, &mut widths);
+        wrap(
+            vec![Span { text: text.to_string(), style: base, icon: None, math: None, width }],
+            m,
+            size,
+            max_width,
+            &mut lines,
+            &mut widths,
+        );
         let mut widest = 0.0;
         for &w in &widths {
             if w > widest {
                 widest = w;
             }
         }
-        let height = lines.len() as f64 * line_height;
-        return T::from_owned(Label { lines, widths, width: widest, height, size, line_height });
+        let snug = if lines.len() > 1 { js::round(size * 1.3) } else { line_height };
+        let height = lines.len() as f64 * snug;
+        return T::from_owned(Label { lines, widths, width: widest, height, size, line_height: snug, heights: None });
     }
 
     let source = if markdown {
@@ -573,9 +697,10 @@ fn layout_as<T: LabelOutput>(raw: Option<&str>, markdown: bool, m: &Measure, siz
     let mut lines: Vec<Vec<Span>> = Vec::new();
     let mut widths: Vec<f64> = Vec::new();
     let mut width = 0.0;
+    let mut open = Open { style: base, shifts: Vec::new() };
     for part in split_breaks(&source) {
         let mut line: Vec<Span> = Vec::new();
-        inline(&mut line, js::trim(part), markdown, base, m);
+        inline(&mut line, js::trim(part), markdown, base, m, &mut open, marks);
         let w = measure_spans(&mut line, m, size);
         if w > max_width {
             wrap(line, m, size, max_width, &mut lines, &mut widths);
@@ -589,8 +714,91 @@ fn layout_as<T: LabelOutput>(raw: Option<&str>, markdown: bool, m: &Measure, siz
             width = w;
         }
     }
-    let height = lines.len() as f64 * line_height;
-    T::from_owned(Label { lines, widths, width, height, size, line_height })
+    let snug = if lines.len() > 1 { js::round(size * 1.3) } else { line_height };
+    let height = lines.len() as f64 * snug;
+    let mut label = Label { lines, widths, width, height, size, line_height: snug, heights: None };
+    if marks.is_some() {
+        with_heights(&mut label);
+    }
+    T::from_owned(label)
+}
+
+fn mark_math(raw: &str, m: &Measure, size: f64) -> Option<(String, Marks)> {
+    let mut out = String::with_capacity(raw.len());
+    let mut tex = Vec::new();
+    let mut cursor = 0;
+    let mut last = 0;
+    while let Some(at) = raw[cursor..].find("$$") {
+        let start = cursor + at;
+        let inside = start + 2;
+        let Some(first) = raw.get(inside..).and_then(|s| s.chars().next()) else {
+            break;
+        };
+        let search = inside + first.len_utf8();
+        let Some(end) = raw[search..].find("$$").map(|p| search + p) else {
+            break;
+        };
+        if raw[inside..end].chars().any(|c| matches!(c, '\r' | '\n' | '\u{2028}' | '\u{2029}')) {
+            cursor = start + 1;
+            continue;
+        }
+        if tex.len() == 0x1900 {
+            break;
+        }
+        out.push_str(&raw[last..start]);
+        out.push(char::from_u32(0xe000 + tex.len() as u32).unwrap());
+        tex.push(raw[inside..end].to_owned());
+        cursor = end + 2;
+        last = cursor;
+    }
+    if tex.is_empty() {
+        return None;
+    }
+    out.push_str(&raw[last..]);
+    let math = tex.iter().map(|tex| m.typeset(&decode_entities_cow(tex), size)).collect();
+    Some((out, Marks { tex, math }))
+}
+
+pub fn has_math(line: &[Span]) -> bool {
+    line.iter().any(|s| s.math.is_some())
+}
+
+pub fn with_heights(label: &mut Label) {
+    let mut heights: Option<Vec<f64>> = None;
+    for (i, line) in label.lines.iter().enumerate() {
+        let mut h = label.line_height;
+        for span in line {
+            if let Some(math) = &span.math {
+                h = js::max(h, (math.height + label.size / 4.0).ceil());
+            }
+        }
+        if h != label.line_height && heights.is_none() {
+            heights = Some(vec![label.line_height; label.lines.len()]);
+        }
+        if let Some(heights) = &mut heights {
+            heights[i] = h;
+        }
+    }
+    label.height = heights.as_ref().map_or(label.lines.len() as f64 * label.line_height, |heights| heights.iter().sum());
+    label.heights = heights;
+}
+
+pub fn line_middle(label: &Label, i: usize) -> f64 {
+    label.heights.as_ref().map_or((i as f64 + 0.5) * label.line_height, |h| h[..i].iter().sum::<f64>() + h[i] / 2.0)
+}
+
+pub fn label_line(label: &Label, i: usize) -> Label {
+    let width = label.widths[i];
+    let height = label.heights.as_ref().map_or(label.line_height, |h| h[i]);
+    Label {
+        lines: vec![label.lines[i].clone()],
+        widths: vec![width],
+        width,
+        height,
+        size: label.size,
+        line_height: label.line_height,
+        heights: (height != label.line_height).then(|| vec![height]),
+    }
 }
 
 #[cfg(test)]
@@ -655,7 +863,8 @@ mod tests {
         for line in &l.lines {
             assert!(!line.last().unwrap().text.ends_with(' '));
         }
-        assert_eq!(l.height, l.lines.len() as f64 * 24.0);
+        // Pele 1.9.0 uses round(16 * 1.3) = 21 for multiline labels.
+        assert_eq!(l.height, l.lines.len() as f64 * 21.0);
     }
 
     #[test]

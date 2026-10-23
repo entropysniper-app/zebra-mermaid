@@ -12,7 +12,6 @@ use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, render_shared_style as shared_style, span_style, text_style};
 use crate::svg::edges::{marker, marker_trim};
 use crate::svg::root::{svg_document, Accessible};
-use crate::svg::theme::RADIUS;
 use crate::text::{layout_render_label as layout_label, style, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::{js, math};
@@ -282,13 +281,15 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             num(right - left + 2.0 * PIPELINE_PAD),
             "\" height=\"",
             num(4.0 * R),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::GroupFill, "var(--_s)"),
-            "\" stroke=\"",
-            ctx.paint(Role::GroupStroke, "var(--_b)"),
-            "\"/>"
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::GroupFill, "var(--_s)"),
+                "\" stroke=\"",
+                ctx.paint(Role::GroupStroke, "var(--_b)"),
+                "\""
+            )),
+            "/>"
         )
         .unwrap();
         if parts.len() > 1 {
@@ -757,13 +758,15 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
             num(width),
             "\" height=\"",
             num(height),
-            "\" rx=\"",
-            RADIUS,
-            "\" fill=\"",
-            ctx.paint(Role::Background, "var(--_bg)"),
-            "\" stroke=\"",
-            ctx.paint(Role::InnerStroke, "var(--_b)"),
-            "\"/>",
+            "\"",
+            crate::svg::theme::rounded(&svg_format!(
+                " fill=\"",
+                ctx.paint(Role::Background, "var(--_bg)"),
+                "\" stroke=\"",
+                ctx.paint(Role::InnerStroke, "var(--_b)"),
+                "\""
+            )),
+            "/>",
             rows,
             "</g>"
         )
@@ -841,7 +844,7 @@ fn draw(model: &WardleyModel, config: &Config, ctx: &RenderCtx, plot_w: f64, nat
     }
 
     let title_max = if tight { js::max(80.0, plot_w) } else { 4000.0 };
-    let title = layout_label(model.title.as_deref(), false, &m, size, title_max, style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, title_max, style::BOLD);
     let title_height = if title.height > 0.0 { title.height + 12.0 } else { 0.0 };
     let left = js::min(ext.min_x, plot_w / 2.0 - title.width / 2.0);
     let right = js::max(ext.max_x, plot_w / 2.0 + title.width / 2.0);

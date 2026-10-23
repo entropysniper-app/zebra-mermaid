@@ -7,7 +7,7 @@ use zebra_mermaid::text::{Icons, Label, Measure, MetricsMeasurer, Span, TextMeas
 
 fn fixture() -> Value {
     let value: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../tests/fixtures/unit/literal-label-regression.json.gz")[..],
+        &include_bytes!("../../../tests/fixtures/pele-1.9.0/unit/literal-label-regression.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(value["upstreamCommit"], zebra_mermaid::PELE_COMMIT);
@@ -37,6 +37,7 @@ fn label(value: &Value) -> Label {
                         text: span["text"].as_str().unwrap().to_owned(),
                         style: number(&span["style"]) as u8,
                         icon: span["icon"].as_str().map(str::to_owned),
+                        math: None,
                         width: number(&span["width"]),
                     })
                     .collect()
@@ -47,6 +48,7 @@ fn label(value: &Value) -> Label {
         height: number(&value["height"]),
         size: number(&value["size"]),
         line_height: number(&value["lineHeight"]),
+        heights: value["heights"].as_array().map(|h| h.iter().map(number).collect()),
     }
 }
 
