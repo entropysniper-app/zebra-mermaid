@@ -1,0 +1,232 @@
+{
+  "implementationCommit": "2f2c3b097dcaa1e9d15a448f9cda0822049301a3",
+  "upstream": {
+    "version": "1.9.0",
+    "commit": "e7f092a4de147cc32210913c20e36eaa5fcd0ef1",
+    "baseline": {
+      "passed": 6866,
+      "skipped": 103,
+      "todo": 2
+    }
+  },
+  "runtime": {
+    "node": "v26.3.0",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "checks": [
+    {
+      "name": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "result-audit",
+      "command": [
+        "node",
+        "--test",
+        "tools/test-parity/result.test.mjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--all-features",
+        "--locked",
+        "--",
+        "--test-threads=1"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "feature-matrix",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "zebra-mermaid",
+        "--no-default-features",
+        "--locked",
+        "--test",
+        "mermaid_type"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-features",
+        "--locked"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "workspace": {
+    "passed": 3271,
+    "failed": 0,
+    "ignored": 5
+  },
+  "originalTests": {
+    "total": 6971,
+    "mapped": 2815,
+    "unmapped": 4156,
+    "passed": 2808,
+    "failed": 0,
+    "skipped": 7,
+    "unverified": 0,
+    "complete": false,
+    "execution": {
+      "isolated": true,
+      "timeoutBasis": "Original per-test Vitest timeout; process startup included, no added grace period"
+    },
+    "executedUpstreamSkips": 2
+  },
+  "releaseCorpus": {
+    "completeResponses": 761,
+    "successfulRenders": 702,
+    "expectedRejections": 59
+  },
+  "supplementalHarvest": {
+    "matched": 13194,
+    "isolatedUtf16RowsNotRepresentable": 6,
+    "originalTestMapping": false
+  },
+  "extendedVerification": {
+    "cases": 39,
+    "inputs": 879,
+    "mismatches": [],
+    "timezone": "UTC"
+  },
+  "math": {
+    "backend": "RaTeX 0.1.15",
+    "callbackApi": false,
+    "defaultEnabled": true,
+    "diagramTypes": 11,
+    "integrationTestsPassed": 6,
+    "unitTestsPassed": 2,
+    "glyphs": "Embedded KaTeX outlines; unsupported glyphs and invalid TeX fall back to source; image restrictions respected.",
+    "nativePaint": "Concrete theme colors; author colors preserved.",
+    "differenceFromPele": "The user explicitly requested built-in math instead of the optional host callback; original callback tests remain in the inventory and are not reported as equivalent ports."
+  },
+  "lint": {
+    "ordinaryClippyExitCode": 0,
+    "warningsAsErrorsPassed": false,
+    "note": "Clippy has existing and translated-algorithm style warnings; -D warnings is not claimed as passing."
+  },
+  "sourceFingerprint": {
+    "inventorySha256": "8a1a813152fc7338a5eea0fde3e7c85ee327b8d423c3e1cb1d275387cd89cb74",
+    "portsSha256": "b344b875e2f6d8bdc8900e1b506222e1a56c8cc86d7b9feef181de8e2d2aad21"
+  },
+  "optimizationGoal": "Stopped; this is a finite version alignment and default math integration.",
+  "renderingComparison": {
+    "samples": 167,
+    "types": 33,
+    "rustSuccessful": 167,
+    "peleSuccessful": 167,
+    "mermaidSuccessful": 167,
+    "identicalRustPeleSvgAndDimensions": 167,
+    "binarySha256": "ac6ac6e5eaff01203e6bbd16cb890706ae7264bc0b2ae1df828aad9deae1bce2",
+    "note": "Final comparison used a frozen release sample executable after compilation completed; earlier mixed-binary scratch run was discarded."
+  },
+  "performance": {
+    "apiSpeedupGeomean": 1.76116883042213,
+    "utf8SpeedupGeomean": 1.8946478924849777,
+    "samples": 167,
+    "types": 33,
+    "belowTwoTimes": 23,
+    "slowestType": "agentflow",
+    "slowestSpeedup": 1.2017779376800692,
+    "fastestType": "sankey",
+    "fastestSpeedup": 2.7706899888547314,
+    "targetMet": false,
+    "containsMath": false,
+    "evidence": "docs/research/output-benchmark-2026-10-23-pele-1-9-0-ratex/comparison.json",
+    "binarySha256": "6f7ecc0da7e108d290eb6cc3331a54581c007d9f7a539481d8a71fca70e62cc5",
+    "inputSha256": "debbf08ee9d1701902ecd27897851d24597ee3a616a154969bfd28f655d2f546",
+    "method": {
+      "processRuns": 3,
+      "orders": [
+        [
+          "rust",
+          "api",
+          "utf8"
+        ],
+        [
+          "utf8",
+          "api",
+          "rust"
+        ],
+        [
+          "rust",
+          "utf8",
+          "api"
+        ]
+      ],
+      "warmups": 5,
+      "calibrationMs": 10,
+      "minimumSamples": 9,
+      "minimumSamplingMs": 300,
+      "unit": "ms per batch of identical sample inputs",
+      "api": "render(source) followed by svg.length in Node; Rust returns an owned UTF-8 String.",
+      "utf8": "Node render(source) followed by Buffer.from(svg, utf8); includes materialization, encoding and Buffer allocation. Rust String already owns contiguous UTF-8 bytes, so its measured time is shared by both comparisons.",
+      "excluded": "process launch, imports, verification, disk I/O and warm-up; no parsing or result cache"
+    }
+  },
+  "extendedTiming": {
+    "groups": 39,
+    "consistent": 39,
+    "successfulRenders": 820,
+    "expectedRejections": 59,
+    "documentTypes": 33,
+    "renderRustOverPeleGeomean": 0.5393758041676793,
+    "parseRustOverPeleGeomean": 0.5095828180245646,
+    "evidence": "docs/research/benchmark-2026-10-23-33-types-pele-1-9-0-ratex/comparison.json",
+    "inputSha256": "3394dca947019058a8c45335c6f09ce2a0e3f938b2e8ef3af2ef03ea89ddcf90",
+    "method": {
+      "runs": 3,
+      "minimumSamples": 9,
+      "minimumSamplingMs": 300,
+      "calibrationMs": 10,
+      "mode": "css",
+      "font": "default Arial metrics",
+      "now": 1792368000000,
+      "timezone": "UTC",
+      "correctness": "Every success must match UTF-8 SVG FNV-1a-64 and dimensions; every rejection must match code, message, line and column. Successful render and expected rejection workloads are timed separately."
+    }
+  },
+  "originalProtocol": {
+    "groups": 5,
+    "success": true,
+    "diagrams": 118,
+    "method": "exact SVG strings and dimensions outside timing",
+    "evidence": "docs/research/upstream-benchmark-2026-10-23-33-types-pele-1-9-0-ratex/comparison.json",
+    "scriptSha256": "5afa837231ac555041eccae2d8b82e29414675caff0aa3ec4c48ddfaaed35ec6"
+  },
+  "size": {
+    "evidence": "docs/research/pele-1.9.0-alignment-2026-10-23/size-comparison.json",
+    "newCapabilitiesIncluded": true,
+    "stripped": false,
+    "currentMemoryProbe": false
+  },
+  "artifacts": {
+    "docs/math/flowchart.mmd": "ac053fda7b51a7faa5089ef37359b8703164db2b6f73c68adb9da4b85f4cab9d",
+    "docs/math/flowchart.svg": "eb9b882ddcb2803a9cb1360920ba80073a72fe88e19106214fcc6c29ab1844f0",
+    "docs/render-comparison/results.json": "7b4eeb67a5c9151c105dfef87f9711bc7c8a64a9d2057560aa435840ac76c7b5",
+    "docs/research/pele-1.9.0-alignment-2026-10-23/upstream-report.json.gz": "e735d7011c0fb264e6f50707529b11a0166b1bd7f58c4b4babbbe36e58ba7d42",
+    "docs/research/output-benchmark-2026-10-23-pele-1-9-0-ratex/comparison.json": "31e56d48c4b90a44e7727362aceb397a098712944d6bc46fa5b745027c16a84c",
+    "docs/research/benchmark-2026-10-23-33-types-pele-1-9-0-ratex/comparison.json": "a87921ed152c3ce434f1838eeaa6de59a1ac0a6d4e5f5ade35598c29c8fc0b8c",
+    "docs/research/upstream-benchmark-2026-10-23-33-types-pele-1-9-0-ratex/comparison.json": "1f59f517124c35df228bae8eb2c04e0787995c5d9991767f50bf946d78bf643d"
+  }
+}

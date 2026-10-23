@@ -1,0 +1,88 @@
+{
+  "createdAt": "2026-10-23T10:30:27.287Z",
+  "enabledTypes": [
+    "flowchart",
+    "sequence",
+    "class",
+    "state",
+    "er",
+    "pie",
+    "gantt",
+    "gitGraph",
+    "mindmap",
+    "timeline",
+    "journey",
+    "xychart",
+    "quadrantChart",
+    "requirement",
+    "c4",
+    "sankey",
+    "block",
+    "packet",
+    "kanban",
+    "architecture",
+    "radar",
+    "treemap",
+    "info",
+    "agentflow",
+    "usecase",
+    "railroad",
+    "treeView",
+    "venn",
+    "cynefin",
+    "wardley",
+    "swimlane",
+    "ishikawa",
+    "eventmodeling"
+  ],
+  "commit": "e7f092a4de147cc32210913c20e36eaa5fcd0ef1",
+  "scriptSha256": "5afa837231ac555041eccae2d8b82e29414675caff0aa3ec4c48ddfaaed35ec6",
+  "inputSha256": "08dace297c7bf8746b61ddecccac2dd17f118211ad6acce5e0050fd3ccd250e7",
+  "runtime": {
+    "node": "v26.3.0"
+  },
+  "protocol": "Original scripts/bench.mjs unmodified: render(src), 1 warm-up batch, >=300 ms, >=5 samples, maximum 2000 batches, upper median; ms per full batch",
+  "rows": [
+    {
+      "case": "docs: all examples",
+      "diagrams": 114,
+      "pele": "2.3 ms",
+      "zebra-mermaid": "1.1 ms"
+    },
+    {
+      "case": "tree: 50 nodes",
+      "diagrams": 1,
+      "pele": "0.187 ms",
+      "zebra-mermaid": "0.156 ms"
+    },
+    {
+      "case": "mesh: 50 nodes, 20 extra labelled edges",
+      "diagrams": 1,
+      "pele": "0.566 ms",
+      "zebra-mermaid": "0.314 ms"
+    },
+    {
+      "case": "tree: 500 nodes",
+      "diagrams": 1,
+      "pele": "2.0 ms",
+      "zebra-mermaid": "1.6 ms"
+    },
+    {
+      "case": "mesh: 500 nodes, 200 extra labelled edges",
+      "diagrams": 1,
+      "pele": "7.8 ms",
+      "zebra-mermaid": "4.8 ms"
+    }
+  ],
+  "validation": {
+    "success": true,
+    "diagrams": 118,
+    "method": "exact SVG strings and dimensions outside timing"
+  },
+  "size": {
+    "peleMinifiedBytes": 701816,
+    "peleGzipBytes": 261718,
+    "rustCliBytes": 9237136,
+    "rustCliGzipBytes": 4088934
+  }
+}

@@ -4,13 +4,13 @@
 
 ## 完整参照
 
-- 固定版本：Pele 1.7.0，`8603bf3313add9143cd417015d4a6bd6c522dada`（按用户 2026-10-20 升级要求替换原 `44da152b` 基线）。
+- 固定版本：Pele 1.9.0，`e7f092a4de147cc32210913c20e36eaa5fcd0ef1`（按用户 2026-10-23 要求升级；原版本的证据保留）。
 - 逐项清单：[`tests/upstream/inventory.json`](../tests/upstream/inventory.json)。保存文件、SHA-256、完整测试名称、位置、文件内序号、执行模式、原始 Vitest 超时值和稳定 ID。
 - 完整原始测试及辅助文件：`tests/upstream/source/tests/`，保留上游版权注释，许可证在 `tests/upstream/source/LICENSE` 与 `THIRD_PARTY_NOTICES.md`。
 - 参数化测试展开为独立项；重复名称通过文件内序号区分。
 - 测试范围是全部 `tests/**/*.{test,spec}.{ts,js}`，包含 `tests/website/`、mount、zoom、browser、字体加载与入口打包测试。不能沿用 `npm test` 排除 website 的范围。
 
-完整上游复跑结果：**292 个文件，6,826 个测试项；6,721 通过、103 跳过、2 todo**。这是 TypeScript 参照基线，不是 Rust 结果。网站依赖按其现有锁文件安装，未改动测试或实现源文件。
+完整上游复跑结果：**295 个文件，6,971 个测试项；6,866 通过、103 跳过、2 todo**。这是 TypeScript 参照基线，不是 Rust 结果。网站依赖按其现有锁文件安装，未改动测试或实现源文件。
 
 ## 1:1 的含义
 
@@ -48,6 +48,10 @@ node tools/test-parity/check.mjs --require-complete
 
 ## 当前移植结果
 
+2026-10-23 的逐项独立进程原超时审计：2,808 通过、0 失败、7 保留原 skip、4,156 未映射、0 待验证。完整门禁仍非零退出；[执行证据](research/pele-1.9.0-alignment-2026-10-23/validation.json)与[完整原始报告](research/pele-1.9.0-alignment-2026-10-23/upstream-report.json.gz)单独保存。
+
+用户明确要求默认使用 RaTeX 并移除数学回调。这是有意的宿主 API 差异；上游数学回调用例完整保留，不以默认 RaTeX 的补充测试替代或计入等价移植通过。
+
 | 原文件 | 已映射项数 | Rust 验收通过 | 保留上游跳过 |
 | --- | ---: | ---: | ---: |
 | `tests/agentflow/stress.test.ts` | 69 | 69 | 0 |
@@ -77,7 +81,9 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/flowchart/parser.test.ts` | 6 | 6 | 0 |
 | `tests/gantt/dates.test.ts` | 90 | 90 | 0 |
 | `tests/info/stress.test.ts` | 13 | 13 | 0 |
-| `tests/layout/compound.test.ts` | 22 | 22 | 0 |
+| `tests/layout/compound.test.ts` | 27 | 27 | 0 |
+| `tests/layout/layered.test.ts` | 1 | 1 | 0 |
+| `tests/render/break-hints.test.ts` | 11 | 11 | 0 |
 | `tests/layout/lanes.test.ts` | 24 | 24 | 0 |
 | `tests/render/edges.test.ts` | 6 | 6 | 0 |
 | `tests/render/fonts.test.ts`（原文件 7 项） | 6 | 6 | 0 |
@@ -90,17 +96,17 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/util/preprocess.test.ts` | 9 | 9 | 0 |
 | `tests/util/url.test.ts` | 30 | 30 | 0 |
 | `tests/util/yaml.test.ts` | 29 | 29 | 0 |
-| **合计** | **2,798** | **2,791** | **7** |
+| **合计** | **2,815** | **2,808** | **7** |
 
-未映射项按范围分为 **Rust 核心 3,965 项、宿主/打包 53 项、网站 10 项**，三个范围均保留在目标内。
+未映射项按范围分为 **Rust 核心 4,090 项、宿主/打包 56 项、网站 10 项**，三个范围均保留在目标内。
 
-还有 **4,028 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,826 项计算，当前可计入验收的 1:1 通过率约 **40.89%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；39/39 是此前基准快照，本批未重新计时。
+还有 **4,156 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,971 项计算，当前可计入验收的 1:1 通过率约 **40.28%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；本批已重新完成 39/39 组验证与计时，详见 [扩展报告](BENCHMARK.zh-CN.md)，仍不替代原测试逐项验收。
 
 ER 文件共有 634 项。其中 632 项通过机械转换保留解析调用、字段访问、全部断言与异常检查；生成过程中模型观察值保持符号形式，未拿原版或 Rust 输出生成期望值。转换流分别在原版 Pele 和真实 Rust 原始解析器上运行通过。原先跳过的 Unicode 名称测试已启用并实际执行通过，但仍按原 skip 标记计入跳过，不计入正式验收通过数；class 前导换行测试同理。其余两项虽然在上游显示 passed，但函数体只有 `/* TODO */`，没有输入、断言或受测调用，当前保持未移植，不生成空测试凑数。
 
 相关工具：`tools/test-parity/compile-er.mjs`（生成/校验逐项转换）、`tools/test-parity/verify-er-reference.mjs`（用原始 Pele 解析器验证同一断言流）。不支持的测试语法会记为未转换；审计运行前重新生成比对 IR 与测试映射，防止期望值被手动改成 Rust 输出。
 
-首批测试暴露 `info` 默认版本文本与上游不同。库默认输出跟随固定参照，升级至 1.7.0 后为 `Pele v1.7.0`，原始断言不变；调用方仍可显式设置 `info_text`。CLI 自身版本继续使用项目版本。此前采集差分显式传入版本文本，不能证明默认行为一致。
+首批测试暴露 `info` 默认版本文本与上游不同。库默认输出跟随固定参照，当前升级至 1.9.0 后为 `Pele v1.9.0`，原始断言不变；调用方仍可显式设置 `info_text`。CLI 自身版本继续使用项目版本。此前采集差分显式传入版本文本，不能证明默认行为一致。
 
 33 类解析与渲染已接通；后续继续补齐原始测试逐项映射、宿主适配、网站和打包测试。全量完成前不宣布“完整替代 Pele”。
 
@@ -163,7 +169,7 @@ Class 解析器现为 382/384 项逐项通过：379 项生成断言流，加上 
 
 本批最终严格门禁 `node tools/test-parity/check.mjs --require-complete` 实际结果为 **2,765 通过、0 失败、5 跳过、4,040 未映射、0 待验证**，`complete: false`，按预期退出 1。常规工作区回归为 **3,163 通过、0 失败、5 跳过**；已提交采集样本独立对照 **13,194/13,194 一致**，另 6 条孤立代理项输入未执行，不计通过，也不豁免原测试验收。本轮未复跑本地缺失的采集全集，亦未刷新此前 39/39 性能基准。
 
-后续按用户发布要求完成了 [完整性能复测](BENCHMARK-COMPLETE.zh-CN.md)，刷新 39/39 组基准与四引擎数据，并在测量后重跑上述严格门禁和工作区回归，结果数量不变。性能标签 `v0.1.0-benchmark.20261020` 不增加原始测试映射或通过数量；全量验收仍未完成。
+后续按用户发布要求完成了历史完整性能复测（原始证据见 `research/complete-benchmark-2026-10-19-codex-takeover/`），刷新当时的 39/39 组基准与四引擎数据，并在测量后重跑上述严格门禁和工作区回归，结果数量不变。性能标签 `v0.1.0-benchmark.20261020` 不增加原始测试映射或通过数量；全量验收仍未完成。
 
 
 ## 2026-10-20：Pele 1.7.0

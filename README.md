@@ -1,9 +1,10 @@
 # zebra-mermaid
 
-A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/8603bf3313add9143cd417015d4a6bd6c522dada) and aligned with **1.7.0**, targeting **Mermaid 12.1.0** syntax.
+A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/e7f092a4de147cc32210913c20e36eaa5fcd0ef1) and aligned with **1.9.0**, targeting **Mermaid 12.1.0** syntax.
 
 - **33 diagram types** enabled by default, with Cargo features for smaller builds.
 - **Native rendering** with no JavaScript, browser, or external layout process at runtime.
+- **Built-in mathematics** with [RaTeX](https://github.com/erweixin/RaTeX), bundled math fonts, and self-contained SVG glyphs.
 - **Host-controlled appearance** with CSS variables for web content and resolved colors for native SVG consumers.
 - **Library, CLI, and C ABI** with parsed-model reuse, an optional render cache, batch conversion, and structured errors.
 
@@ -15,7 +16,7 @@ Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from G
 
 ```sh
 cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
-  --rev b85c7c10bcc0db77d4758f7ad0c4a029257a56fe \
+  --rev 2f2c3b097dcaa1e9d15a448f9cda0822049301a3 \
   --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
@@ -82,65 +83,25 @@ The table shows the first sample of each diagram type. Click a preview to open i
 
 <!-- sample-comparison:end -->
 
-<!-- four-engine-benchmark:start -->
 ## Performance
 
-Current-version results on identical inputs, measured as **milliseconds per complete batch**. Each value is the median of three independent runs; parsing, layout, and SVG generation are included, while startup and warm-up are excluded. Lower is faster within the same row.
-
-| Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 / 6 | 86.60000 | 0.31484 | 0.18502 | 88.55150 |
-| block | 6 / 6 | 78.60000 | 0.09479 | 0.06939 | 0.14286 |
-| c4 | 6 / 6 | 90.60000 | 0.48374 | 0.29732 | 1.11649 |
-| class | 5 / 6 | 116.90000 | 0.20197 | 0.12678 | 0.36417 |
-| er | 6 / 6 | 80.20000 | 0.21059 | 0.14145 | 6.17748 |
-| eventmodeling | 0 / 6 | — | — | — | — |
-| gantt | 6 / 6 | 15.80000 | 0.24204 | 0.13596 | 0.38672 |
-| git | 6 / 6 | 102.40000 | 0.40969 | 0.21082 | 0.61003 |
-| info | 0 / 2 | — | — | — | — |
-| journey | 1 / 1 | 2.82500 | 0.01590 | 0.00787 | 0.03905 |
-| kanban | 3 / 3 | 26.60000 | 0.05190 | 0.03607 | 0.12334 |
-| mindmap | 6 / 6 | 83.20000 | 0.09296 | 0.04421 | 0.34948 |
-| packet | 4 / 4 | 6.30000 | 0.05930 | 0.02701 | 2.34660 |
-| pie | 3 / 3 | 4.35000 | 0.03304 | 0.01796 | 0.07270 |
-| quadrant | 3 / 3 | 9.05000 | 0.05254 | 0.03177 | 0.08469 |
-| requirement | 6 / 6 | 79.50000 | 0.23206 | 0.13648 | 1.79999 |
-| sankey | 6 / 6 | 29.80000 | 0.30879 | 0.10423 | 0.42104 |
-| sequence | 4 / 6 | 22.60000 | 0.09024 | 0.05183 | 0.70259 |
-| state | 6 / 6 | 113.00000 | 0.32780 | 0.19200 | 5.22392 |
-| timeline | 6 / 6 | 28.40000 | 0.19777 | 0.08577 | 0.36958 |
-| xychart | 6 / 6 | 24.10000 | 0.11460 | 0.06924 | 0.20871 |
-| agentflow | 0 / 6 | — | — | — | — |
-| architecture | 6 / 6 | 66.30000 | 0.21183 | 0.08379 | 0.25317 |
-| cynefin | 0 / 3 | — | — | — | — |
-| ishikawa | 0 / 1 | — | — | — | — |
-| radar | 3 / 3 | 5.75000 | 0.07161 | 0.02921 | 0.08851 |
-| railroad | 0 / 6 | — | — | — | — |
-| swimlane | 0 / 6 | — | — | — | — |
-| treemap | 6 / 6 | 13.60000 | 0.14480 | 0.06266 | 0.24859 |
-| treeview | 0 / 6 | — | — | — | — |
-| usecase | 0 / 6 | — | — | — | — |
-| venn | 0 / 6 | — | — | — | — |
-| wardley | 0 / 6 | — | — | — | — |
-
-The shared benchmark set contains **110/167 samples across 22 diagram types**. A dash means no input passed type and SVG checks in all four engines. Layout and font measurement differ between engines. See the [benchmark report](docs/BENCHMARK.md) for versions, coverage, methodology, and raw results.
-<!-- four-engine-benchmark:end -->
+The comparison uses complete parsing, layout, and SVG generation on the same sources. Each engine runs in three independent processes with alternating order; validation and builds run outside timing. The full table covers every diagram type.
 
 <!-- output-contract-benchmark:start -->
-Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.89× at API return** and **1.98× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
+Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.76× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
 <!-- output-contract-benchmark:end -->
 
-Continuous optimization is stopped after this measured snapshot. The 2× API-return target and complete upstream-test acceptance remain unmet.
+Continuous optimization remains stopped. This release receives a finite verification run; complete upstream-test acceptance remains unfinished.
 
 Compiled code size is also an optimization target, alongside the full 33-type 2× performance target. Current full-feature release sizes (unstripped, thin LTO, one codegen unit):
 
 | Artifact | File bytes | Instruction text bytes |
 | --- | ---: | ---: |
-| CLI | 5,160,080 | 3,797,916 |
-| FFI dynamic library | 4,766,544 | 3,516,592 |
-| FFI static archive | 41,593,080 | 4,229,256 |
+| CLI | 9,237,040 | 5,649,348 |
+| FFI dynamic library | 8,811,776 | 5,326,912 |
+| FFI static archive | 62,027,464 | 6,400,400 |
 
-The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These are the current [release-size results](docs/CODE-SIZE-OPTIMIZATION.md), with paired comparisons, fingerprints and section totals. Size, speed, allocations and RSS are reported separately; all diagram types and correctness requirements remain enabled.
+Built-in math adds parser, layout, SVG generation, and bundled font data to these artifacts. The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These are the current [release-size results](docs/CODE-SIZE-OPTIMIZATION.md), with paired comparisons, fingerprints and section totals. Size, speed, allocations and RSS are reported separately; all diagram types and correctness requirements remain enabled.
 
 ## Library API
 
@@ -148,7 +109,7 @@ Add the library to your application's `Cargo.toml`. Both installation examples p
 
 ```toml
 [dependencies]
-zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "b85c7c10bcc0db77d4758f7ad0c4a029257a56fe" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "2f2c3b097dcaa1e9d15a448f9cda0822049301a3" }
 ```
 
 ```rust
@@ -174,6 +135,19 @@ fn main() -> Result<(), zebra_mermaid::Error> {
 
 Use `render(source, &options)` for a single call, or keep a parsed diagram and render it repeatedly with different appearance or width options. `RenderCache` adds bounded caching. A host can provide its own `TextMeasurer`; the default uses deterministic Arial advance metrics.
 
+### Mathematics
+
+Write TeX between `$$` delimiters in labels. Math renders by default in flowchart, sequence, state, class, ER, mindmap, kanban, block, requirement, usecase, and swimlane diagrams:
+
+```mermaid
+flowchart LR
+  A["Energy $$E=mc^2$$"] --> B["Ratio $$\frac{a}{b}$$"]
+```
+
+No math callback or JavaScript typesetter is needed. RaTeX 0.1.15 performs parsing and layout in Rust; bundled KaTeX fonts become SVG glyph outlines, so ordinary formulas need no external fonts or stylesheet. Formula dimensions participate in wrapping, node sizing, and line spacing. Native output uses concrete theme colors. Diagram titles, class members, and other diagram types retain plain text; invalid TeX and unavailable glyphs remain visible as source. Native image restrictions also apply to math.
+
+[Open a standalone math example](docs/math/flowchart.svg) · [Source](docs/math/flowchart.mmd)
+
 ### Themes and native integration
 
 The library defaults to CSS variables (`--pele-*`); the CLI defaults to resolved colors for standalone SVGs. Choose `ColorMode::Resolved` for native image consumers, supply your host's current `MermaidPalette`, and select an opaque or transparent canvas. No separate theme file is required for the Zebra host; `--palette` is an optional CLI input.
@@ -188,10 +162,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,245 passed**, 0 failed, 5 ignored |
-| Original-test acceptance | **2,791/6,826 passed** (40.89%); 7 preserved skips, 4,028 unmapped |
+| Workspace tests | **3,271 passed**, 0 failed, 5 ignored |
+| Original-test acceptance | **2,808/6,971 passed** (40.28%); 7 preserved skips, 4,156 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/lazy-token-state-optimization-2026-10-21/validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.9.0-alignment-2026-10-23/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1

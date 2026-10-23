@@ -1,134 +1,22 @@
 # Performance comparison
 
-Measured: 2026-10-21T01:26:09.306698+00:00.
+Current source: `2f2c3b097dcaa1e9d15a448f9cda0822049301a3`, with Pele **1.9.0** fixed at `e7f092a4de147cc32210913c20e36eaa5fcd0ef1`. Measurements were refreshed on 2026-10-23 after the default RaTeX integration. The library retains all 33 diagram types.
 
-The current library is compared with three other renderers using the same **167 Playground samples across 33 diagram types**. All four engines attempt every original input without syntax rewriting. Timing includes only samples that pass type and SVG validation in all four engines.
+| Endpoint | Inputs | Equal-weight geometric mean speedup |
+| --- | --- | ---: |
+| API return | All 167 original samples, 33 types | **1.76×** |
+| Contiguous UTF-8 output | The same 167 samples, 33 types | **1.89×** |
 
-## Versions
+The **2× API-return target remains unmet**. Across the 33 types, API speedup ranges from agentflow 1.20× to sankey 2.77×; 23 types are below 2×. These averages describe this workload, not arbitrary application throughput. None of these original samples contains a math formula, so the table does not measure formula typesetting throughput. Continuous optimization remains stopped.
 
-| Renderer | Version | Execution |
-| --- | --- | --- |
-| zebra-mermaid | 0.1.0 | Native Rust, release, thin LTO, codegen-units=1 |
-| Pele | 1.7.0 | Node, commit `8603bf3313add9143cd417015d4a6bd6c522dada` |
-| Mermaid.js | 12.1.0 | Chromium 151.0.7922.34 |
-| mermaid-rs-renderer | 0.3.1 | Native Rust, release, thin LTO, codegen-units=1; commit `3726ccbffe0e8032361eb9668694b24f77858060` |
+Both endpoints include full parsing, layout, and SVG generation with no parsed-model or output-cache reuse. Node's UTF-8 endpoint additionally encodes and allocates a Buffer; it is a different output contract. Three independent process runs alternate engine order, with five warm-up batches, at least 10 ms calibration, and at least nine samples plus 300 ms per group. Builds, tests, browser rendering and probes run outside timing.
 
-Runtime versions: rustc 1.96.1 (31fca3adb 2026-06-26); Node v26.3.0. The two native libraries share one development benchmark driver and matching optimization settings. The comparison renderer is not a dependency of the production library.
+The [complete 33-type table](OUTPUT-BENCHMARK.md) includes every input group and all raw process timings. Independent full SVG validation succeeds on 167/167 original samples. The refreshed [rendering gallery](render-comparison/index.html) also renders the same sources with Mermaid.js; it is a rendering comparison, not a current four-engine latency benchmark.
 
-## Method
+The [extended report](BENCHMARK.zh-CN.md) preserves all 39 workloads: 879 input occurrences, 820 successful renders and 59 expected rejections. All 39 groups agree, with complete response verification recorded separately. Its 33 documentation batches have Rust/Pele render-time geometric mean **0.53938** and parse-time mean **0.50958**. That input set differs from the primary 167-sample target and cannot replace it.
 
-- Measure full parsing, layout, and SVG generation, with no parsed-model or output-cache reuse.
-- Use identical inputs within each row. Values are milliseconds for the **entire batch**, not per diagram.
-- Run five warm-up batches, calibrate each timed segment to at least 10 ms, then collect at least nine samples and 300 ms per group.
-- Run three independent processes per engine, alternating engine order. Take the lower median within each run, then the median of the three runs.
-- Exclude process/browser startup, imports, font warm-up, validation, IPC, and disk output. Mermaid DOM cleanup and mermaid-rs-renderer's owned-options clone remain inside their loops.
-- Request Arial 16. Rust/Pele use the same Arial metrics and CSS output; Mermaid uses browser measurements and a dark theme; mermaid-rs-renderer uses its default native font measurement with `fast_text_metrics=false`. Authored directives remain active. The clock is fixed to 2026-10-19 00:00 UTC where supported.
+The [original Pele protocol](BENCHMARK-PELE-PROTOCOL.zh-CN.md) was also rerun directly: all five workloads, 118 inputs, complete SVG strings and dimensions equal. This single-run protocol has its own warm-up and median rules; it is kept separate from the three-process comparison.
 
-These are steady-state rendering measurements. Layout and font behavior differ between engines, so timings are not a claim of identical work or pixel equivalence across all four engines. Compare values within a row; batch sizes and diagram complexity differ across rows.
+[Current release footprint](CODE-SIZE-OPTIMIZATION.md) reports shipping CLI, FFI dynamic library and static archive file/text bytes separately. The upgrade and built-in math add code and font data; this is a feature addition with a measured size increase. Allocation, RSS and CPU profiling were not repeated in this alignment run. Historical resource and four-engine results remain in their original evidence directories and do not describe the current implementation.
 
-## Coverage
-
-| Renderer | Returned SVG / 167 | Passed type and SVG checks / 167 |
-| --- | ---: | ---: |
-| Mermaid.js | 167 | 167 |
-| Pele | 167 | 167 |
-| zebra-mermaid | 167 | 167 |
-| mermaid-rs-renderer | 156 | 110 |
-
-The common set contains **110/167 samples across 22 diagram types**. A dash means no shared eligible input, not a zero rendering cost. The complete success, failure, and exclusion records are retained.
-
-SVG validation requires valid XML and positive finite dimensions. The native comparison renderer must also report the expected diagram kind: inputs misidentified as flowcharts are recorded as returned SVG but excluded from eligible success and timing. Mermaid HTML output is serialized through the DOM outside timing; its Info output uses the browser viewport when no viewBox is present.
-
-Rust/Pele SVG bytes and dimensions match on **167/167 samples**. The other engines are checked for renderability and type; this does not establish full semantic or visual equivalence.
-
-## Results
-
-| Diagram | Shared / total samples | Mermaid.js (ms) | Pele (ms) | zebra-mermaid (ms) | mermaid-rs-renderer (ms) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 / 6 | 86.60000 | 0.31484 | 0.18502 | 88.55150 |
-| block | 6 / 6 | 78.60000 | 0.09479 | 0.06939 | 0.14286 |
-| c4 | 6 / 6 | 90.60000 | 0.48374 | 0.29732 | 1.11649 |
-| class | 5 / 6 | 116.90000 | 0.20197 | 0.12678 | 0.36417 |
-| er | 6 / 6 | 80.20000 | 0.21059 | 0.14145 | 6.17748 |
-| eventmodeling | 0 / 6 | — | — | — | — |
-| gantt | 6 / 6 | 15.80000 | 0.24204 | 0.13596 | 0.38672 |
-| git | 6 / 6 | 102.40000 | 0.40969 | 0.21082 | 0.61003 |
-| info | 0 / 2 | — | — | — | — |
-| journey | 1 / 1 | 2.82500 | 0.01590 | 0.00787 | 0.03905 |
-| kanban | 3 / 3 | 26.60000 | 0.05190 | 0.03607 | 0.12334 |
-| mindmap | 6 / 6 | 83.20000 | 0.09296 | 0.04421 | 0.34948 |
-| packet | 4 / 4 | 6.30000 | 0.05930 | 0.02701 | 2.34660 |
-| pie | 3 / 3 | 4.35000 | 0.03304 | 0.01796 | 0.07270 |
-| quadrant | 3 / 3 | 9.05000 | 0.05254 | 0.03177 | 0.08469 |
-| requirement | 6 / 6 | 79.50000 | 0.23206 | 0.13648 | 1.79999 |
-| sankey | 6 / 6 | 29.80000 | 0.30879 | 0.10423 | 0.42104 |
-| sequence | 4 / 6 | 22.60000 | 0.09024 | 0.05183 | 0.70259 |
-| state | 6 / 6 | 113.00000 | 0.32780 | 0.19200 | 5.22392 |
-| timeline | 6 / 6 | 28.40000 | 0.19777 | 0.08577 | 0.36958 |
-| xychart | 6 / 6 | 24.10000 | 0.11460 | 0.06924 | 0.20871 |
-| agentflow | 0 / 6 | — | — | — | — |
-| architecture | 6 / 6 | 66.30000 | 0.21183 | 0.08379 | 0.25317 |
-| cynefin | 0 / 3 | — | — | — | — |
-| ishikawa | 0 / 1 | — | — | — | — |
-| radar | 3 / 3 | 5.75000 | 0.07161 | 0.02921 | 0.08851 |
-| railroad | 0 / 6 | — | — | — | — |
-| swimlane | 0 / 6 | — | — | — | — |
-| treemap | 6 / 6 | 13.60000 | 0.14480 | 0.06266 | 0.24859 |
-| treeview | 0 / 6 | — | — | — | — |
-| usecase | 0 / 6 | — | — | — | — |
-| venn | 0 / 6 | — | — | — | — |
-| wardley | 0 / 6 | — | — | — | — |
-
-## Per-engine coverage
-
-| Diagram | Samples | Mermaid.js | Pele | zebra-mermaid | mermaid-rs-renderer |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| flowchart | 6 | 6 | 6 | 6 | 6 |
-| block | 6 | 6 | 6 | 6 | 6 |
-| c4 | 6 | 6 | 6 | 6 | 6 |
-| class | 6 | 6 | 6 | 6 | 5 |
-| er | 6 | 6 | 6 | 6 | 6 |
-| eventmodeling | 6 | 6 | 6 | 6 | 0 |
-| gantt | 6 | 6 | 6 | 6 | 6 |
-| git | 6 | 6 | 6 | 6 | 6 |
-| info | 2 | 2 | 2 | 2 | 0 |
-| journey | 1 | 1 | 1 | 1 | 1 |
-| kanban | 3 | 3 | 3 | 3 | 3 |
-| mindmap | 6 | 6 | 6 | 6 | 6 |
-| packet | 4 | 4 | 4 | 4 | 4 |
-| pie | 3 | 3 | 3 | 3 | 3 |
-| quadrant | 3 | 3 | 3 | 3 | 3 |
-| requirement | 6 | 6 | 6 | 6 | 6 |
-| sankey | 6 | 6 | 6 | 6 | 6 |
-| sequence | 6 | 6 | 6 | 6 | 4 |
-| state | 6 | 6 | 6 | 6 | 6 |
-| timeline | 6 | 6 | 6 | 6 | 6 |
-| xychart | 6 | 6 | 6 | 6 | 6 |
-| agentflow | 6 | 6 | 6 | 6 | 0 |
-| architecture | 6 | 6 | 6 | 6 | 6 |
-| cynefin | 3 | 3 | 3 | 3 | 0 |
-| ishikawa | 1 | 1 | 1 | 1 | 0 |
-| radar | 3 | 3 | 3 | 3 | 3 |
-| railroad | 6 | 6 | 6 | 6 | 0 |
-| swimlane | 6 | 6 | 6 | 6 | 0 |
-| treemap | 6 | 6 | 6 | 6 | 6 |
-| treeview | 6 | 6 | 6 | 6 | 0 |
-| usecase | 6 | 6 | 6 | 6 | 0 |
-| venn | 6 | 6 | 6 | 6 | 0 |
-| wardley | 6 | 6 | 6 | 6 | 0 |
-
-## Reproduce
-
-Use the reference revisions listed above, the locked website dependencies, and Playwright with Chromium installed. From the repository root:
-
-```sh
-cargo build --release --locked --manifest-path tools/cross-bench/Cargo.toml --target-dir target/cross-bench-build
-python3 tools/bench/run-cross.py
-BENCH_REPORT_SUFFIX=-pele-1-7-0 python3 tools/bench/publish-cross.py
-```
-
-`PLAYWRIGHT_MODULE` and `PLAYWRIGHT_BROWSERS_PATH` can point to a separate browser installation. Publishing requires a fresh report suffix to preserve existing measurement evidence.
-
-[Summary and versions](research/four-engine-benchmark-2026-10-21-lazy-token-state/comparison.json) · [Per-input outcomes](research/four-engine-benchmark-2026-10-21-lazy-token-state/verification.json) · [Shared inputs](research/four-engine-benchmark-2026-10-21-lazy-token-state/common.json) · [All inputs](research/four-engine-benchmark-2026-10-21-lazy-token-state/cases.json) · [Source and binary fingerprints](research/four-engine-benchmark-2026-10-21-lazy-token-state/metadata.json)
-
-The same directory contains twelve compressed raw timing reports, SVG output, and Rust/Pele equality records. Benchmark success is separate from [original-test acceptance](UPSTREAM-TEST-PARITY.md).
+[Current verification evidence](research/pele-1.9.0-alignment-2026-10-23/validation.json) records the remaining limits. Original-test acceptance is **2,808/6,971**, with 7 preserved skips and 4,156 unmapped tests; complete acceptance is unfinished.
