@@ -2,7 +2,7 @@
 use super::{
     db::resolve,
     json::parse_ordered_json,
-    lexer::{line_column, tokenize, Source, Token},
+    lexer::{line_column, location_text, tokenize, Source, Token},
     tokens::*,
     types::*,
 };
@@ -182,7 +182,7 @@ impl Parser {
         let t = &self.t[self.p];
         let (line, column) = line_column(&self.src, t.start);
         let mut e = Error::new(
-            format!("Error parsing usecase diagram: {detail} at line {line}, column {column} [{},{})", t.start, t.end),
+            format!("Error parsing usecase diagram: {detail} at {}", location_text(&self.src, t.start, t.end)),
             ErrorCode::Syntax,
         )
         .with_type(DiagramType::Usecase);
@@ -820,7 +820,19 @@ impl Parser {
     }
 }
 pub fn parse(source: &str, title: Option<&str>) -> Result<UsecaseModel, Error> {
-    let src = Source::new(source);
+    parse_source(source, title, Source::new(source))
+}
+
+pub(super) fn parse_in_source(
+    source: &str,
+    title: Option<&str>,
+    written: &str,
+    map: &crate::preprocess::source_map::SourceMap,
+) -> Result<UsecaseModel, Error> {
+    parse_source(source, title, Source::new(source).with_origin(written, map))
+}
+
+fn parse_source(source: &str, title: Option<&str>, src: Source) -> Result<UsecaseModel, Error> {
     let tokens = tokenize(&src)?;
     let mut p = Parser {
         src,

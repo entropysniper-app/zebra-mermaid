@@ -160,15 +160,17 @@ impl<'a> VennLexer<'a> {
                 return T::Eof;
             }
             let c = b[i];
-            // A comment runs to the end of the line. It also takes the character before it along,
-            // whatever that is: a line break, or the last letter of a word. The code unit after a
-            // character outside the Basic Multilingual Plane is its low surrogate, never `%`.
-            let width = char_at(src, i).map_or(1, char::len_utf8);
-            if (c == b'%' && b.get(i + 1) == Some(&b'%') && b.get(i + 2) != Some(&b'{'))
-                || (c != b'}' && width < 4 && b.get(i + width) == Some(&b'%') && b.get(i + width + 1) == Some(&b'%'))
-            {
-                // `lineEnd(i + 2)`: from the second `%`.
-                self.at = self.line_end(i + width + 1);
+            if c == b'%' && b.get(i + 1) == Some(&b'%') && b.get(i + 2) != Some(&b'{') {
+                self.at = self.line_end(i + 2);
+                continue;
+            }
+            let after_break = src[..i].trim_end_matches([' ', '\t']).ends_with('\n');
+            if self.line_start && self.word(i, "title") && after_break && js::trim(&src[i + 5..self.line_end(i + 5)]).is_empty() {
+                let mut j = self.line_end(i + 5);
+                while matches!(b.get(j), Some(b'\n' | b'\r')) {
+                    j += 1;
+                }
+                self.at = j;
                 continue;
             }
             if self.line_start {
@@ -215,7 +217,7 @@ impl<'a> VennLexer<'a> {
 
             if c.is_ascii_alphabetic() || c == b'_' {
                 if self.word(i, "title") {
-                    if let Some(space) = self.space_at(i + 5) {
+                    if let Some(space) = self.space_at(i + 5).filter(|_| !matches!(b.get(i + 5), Some(b'\n' | b'\r'))) {
                         let first = i + 5 + space;
                         let mut end = first;
                         while end < n {

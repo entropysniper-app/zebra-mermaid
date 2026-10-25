@@ -45,3 +45,6 @@ mod utilities;
 mod break_hints;
 #[path = "upstream/layered.rs"]
 mod layered;
+
+#[path = "upstream/release_1_10.rs"]
+mod release_1_10;

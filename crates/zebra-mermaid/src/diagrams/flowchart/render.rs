@@ -426,7 +426,7 @@ fn draw(db: &FlowchartModel, config: &Config, ctx: &RenderCtx, swimlane: bool, t
         let mut text = svg_format!(label_svg(&v.label, 0.0, v.dy, &label_attrs, icons));
         if internal {
             let name = decode_entities(node.label.as_deref().unwrap());
-            let allowed = link_url(&sanitize_url(&name), options).is_some();
+            let allowed = internal_link(&name, options);
             let target = esc(&name);
             text = svg_format!(
                 "<a class=\"internal-link\"",

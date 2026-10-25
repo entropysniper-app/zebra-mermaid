@@ -6,7 +6,7 @@
 //! parser does; the security policy is the code here.
 
 use crate::options::RenderOptions;
-use crate::svg::builder::esc;
+use crate::svg::builder::{esc, is_invalid_xml};
 use crate::text::entities::decode_entities;
 use crate::util::chars::is_space;
 use crate::util::js;
@@ -83,7 +83,7 @@ fn decode(uri: &str) -> String {
 /// `[\u0000-\u001F\u007F-\u009F -‍﻿]`
 fn is_ctrl(c: char) -> bool {
     let c = c as u32;
-    c <= 0x1f || (0x7f..=0x9f).contains(&c) || (0x2000..=0x200d).contains(&c) || c == 0xfeff
+    c <= 0x1f || (0x7f..=0x9f).contains(&c) || (0x2000..=0x200d).contains(&c) || matches!(c, 0xfeff | 0xfffe | 0xffff)
 }
 
 fn strip_ctrl(s: &str) -> String {
@@ -117,7 +117,7 @@ fn replace_html_entities(s: &str) -> String {
         out.push(units[i]);
         i += 1;
     }
-    String::from_utf16_lossy(&out)
+    char::decode_utf16(out).filter_map(Result::ok).collect()
 }
 
 fn find_ci(hay: &str, needle: &str) -> Option<usize> {
@@ -330,6 +330,16 @@ pub fn link_url(url: &str, options: &RenderOptions) -> Option<String> {
         Some(list) => allow(url, list),
         None => allow(url, &LINK_SCHEMES),
     }
+}
+
+/// Checks a note name both after sanitizing and as the browser reads its original href.
+pub fn internal_link(name: &str, options: &RenderOptions) -> bool {
+    let url = sanitize_url(name);
+    if url == BLANK || link_url(&url, options).is_none() {
+        return false;
+    }
+    let seen: String = name.chars().filter(|&c| !is_invalid_xml(c) && !matches!(c, '\t' | '\n' | '\r')).collect();
+    link_url(seen.trim_start_matches(|c: char| c <= '\u{20}'), options).is_some()
 }
 
 pub fn image_url(url: &str, options: &RenderOptions) -> Option<String> {

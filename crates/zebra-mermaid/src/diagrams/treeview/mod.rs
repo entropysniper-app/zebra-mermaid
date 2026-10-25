@@ -121,23 +121,31 @@ pub fn read_tree_view(source: &str) -> Result<TreeViewAst, Error> {
         error.offset = Some(offset);
         error
     })?;
-    let error = match parse_tree_view(&pre.text) {
+    let mut error = match parse_tree_view(&pre.text) {
         Ok(ast) => return Ok(ast),
         Err(error) => error,
     };
-    if pre.line_map.is_empty() {
+    if pre.text == source {
         return Err(error);
     }
-    let message = match error.message.find('\n') {
-        None => box_drawing::remap_error_lines(&error.message, &pre),
-        Some(head) => box_drawing::remap_error_lines(&error.message[..head], &pre) + &error.message[head..],
-    };
-    let line = pre.original(error.line).unwrap_or(error.line);
-    let mut remapped = Error::new(message, error.code).with_location(line, error.column, error.snippet.clone());
-    remapped.diagram_type = error.diagram_type;
-    // The offset was in the rewritten text; the error points at the start of its original line.
-    remapped.offset = Some(line_start(source, line));
-    Err(remapped)
+    let Some(line) = pre.original(error.line) else { return Err(error) };
+    let start = line_start(source, line);
+    let original = source[start..].split('\n').next().unwrap_or("");
+    let mut column = error.column.saturating_sub(1);
+    if let Some(Some((prefix, indent))) = error.line.checked_sub(1).and_then(|i| pre.columns.get(i)) {
+        let expanded = prefix + column.saturating_sub(*indent);
+        let mut width = 0;
+        column = 0;
+        for ch in original.chars() {
+            if width >= expanded {
+                break;
+            }
+            width += if ch == '\t' { 4 } else { ch.len_utf16() };
+            column += ch.len_utf16();
+        }
+    }
+    error.relocate(source, start + js::byte_at16(original, column));
+    Err(error)
 }
 
 /// The byte offset where 1-based `line` of `text` starts.

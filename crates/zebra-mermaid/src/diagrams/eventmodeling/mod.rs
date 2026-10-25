@@ -196,6 +196,7 @@ pub fn build_event_model(ast: EventModelAst, source: &str, title: Option<&str>) 
             let mut e = Error::semantic(format!("Duplicate event modeling frame ID \"{}\" on line {}", frame.name, line))
                 .with_type(DiagramType::Eventmodeling);
             e.line = line;
+            e.offset = Some(frame.offset);
             return Err(e);
         }
     }

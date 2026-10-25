@@ -234,18 +234,6 @@ pub fn tokenize(src: &str) -> Tokens {
             p = line_end(p + 2);
             continue;
         }
-        // Mermaid's second comment rule takes any character before `%%` with it, a line break
-        // included. The code unit after a character outside the Basic Multilingual Plane is its
-        // low surrogate, never `%`.
-        if c != b'}' {
-            if let Some(ch) = char_at(src, p) {
-                let at = p + ch.len_utf8();
-                if (ch as u32) <= 0xffff && byte(at) == Some(b'%') && byte(at + 1) == Some(b'%') {
-                    p = line_end(at + 2);
-                    continue;
-                }
-            }
-        }
         if c == 10 || c == 13 {
             let mut e = p + 1;
             while matches!(byte(e), Some(10) | Some(13)) {
@@ -474,8 +462,8 @@ mod tests {
     }
 
     #[test]
-    fn comments_take_the_character_before() {
-        assert_eq!(kinds("quadrantChart\né%% x\n"), vec![QUADRANT, NEWLINE, NEWLINE, EOF, END]);
+    fn comments_preserve_the_character_before() {
+        assert_eq!(kinds("quadrantChart\né%% x\n"), vec![QUADRANT, NEWLINE, UNICODE_TEXT, NEWLINE, EOF, END]);
         assert_eq!(kinds("quadrantChart\n😀%% x\n"), vec![QUADRANT, NEWLINE, UNICODE_TEXT, NEWLINE, EOF, END]);
     }
 }

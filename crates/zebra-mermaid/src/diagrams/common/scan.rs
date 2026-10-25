@@ -26,8 +26,7 @@ fn byte(src: &str, p: usize) -> Option<u8> {
 }
 
 /// Skips comments and white space. Stops at a line break that starts a token, which is a
-/// NEWLINE. Jison compiles `\%%` to a single `%`, so one percent sign starts a comment, and the
-/// second comment rule takes any character before `%%` with it, a line break included.
+/// NEWLINE. Jison compiles `\%%` to a single `%`, so one percent sign starts a comment.
 pub fn skip_trivia(src: &str, from: usize) -> usize {
     let n = src.len();
     let mut p = from;
@@ -35,8 +34,6 @@ pub fn skip_trivia(src: &str, from: usize) -> usize {
         let c = src.as_bytes()[p];
         if c == b'%' && byte(src, p + 1) != Some(b'{') {
             p = line_end(src, p);
-        } else if let Some(after) = percent_pair_after(src, p) {
-            p = line_end(src, after);
         } else if c == b'\n' {
             return p;
         } else if char_at(src, p).is_some_and(is_space) {
@@ -53,18 +50,6 @@ pub fn skip_trivia(src: &str, from: usize) -> usize {
         }
     }
     p
-}
-
-/// `[^}]%%` at `p`, with the character before the percent signs one UTF-16 unit: where it
-/// ends, else `None`. A character outside the BMP is two units in JavaScript, so `%%` after it
-/// is not one unit later and this rule does not apply.
-fn percent_pair_after(src: &str, p: usize) -> Option<usize> {
-    let c = char_at(src, p)?;
-    if c == '}' || c.len_utf16() != 1 {
-        return None;
-    }
-    let q = p + c.len_utf8();
-    (byte(src, q) == Some(b'%') && byte(src, q + 1) == Some(b'%')).then_some(q + 2)
 }
 
 fn skip_space(src: &str, from: usize) -> usize {

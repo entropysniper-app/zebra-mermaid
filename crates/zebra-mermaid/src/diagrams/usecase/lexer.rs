@@ -4,10 +4,26 @@ use crate::{DiagramType, Error, ErrorCode};
 #[derive(Clone, Debug)]
 pub struct Source {
     pub units: Vec<u16>,
+    text: String,
+    origin: Option<Box<(String, crate::preprocess::source_map::SourceMap)>>,
 }
 impl Source {
     pub fn new(s: &str) -> Self {
-        Self { units: s.encode_utf16().collect() }
+        Self { units: s.encode_utf16().collect(), text: s.to_owned(), origin: None }
+    }
+    pub fn with_origin(mut self, source: &str, map: &crate::preprocess::source_map::SourceMap) -> Self {
+        self.origin = Some(Box::new((source.to_owned(), map.clone())));
+        self
+    }
+    fn written(&self, offset: usize) -> Option<(String, usize)> {
+        let (source, map) = self.origin.as_deref()?;
+        let byte = map.to_input_offset(crate::util::js::byte_at16(&self.text, offset));
+        let written = source.replace("\r\n", "\n").replace('\r', "\n") + "\n";
+        let head = source[..byte.min(source.len())].replace("\r\n", "\n").replace('\r', "\n");
+        Some((written, crate::util::js::len16(&head) + byte.saturating_sub(source.len())))
+    }
+    fn written_offset(&self, offset: usize) -> usize {
+        self.written(offset).map_or(offset, |(_, at)| at)
     }
     pub fn len(&self) -> usize {
         self.units.len()
@@ -174,6 +190,9 @@ fn keyword(s: &Source, at: usize, c: u16) -> u8 {
     }
 }
 pub fn line_column(s: &Source, offset: usize) -> (usize, usize) {
+    if let Some((written, offset)) = s.written(offset) {
+        return line_column(&Source::new(&written), offset);
+    }
     let mut line = 1;
     let mut start = 0;
     let mut i = 0;
@@ -192,6 +211,7 @@ pub fn line_column(s: &Source, offset: usize) -> (usize, usize) {
 }
 pub fn location_text(s: &Source, start: usize, end: usize) -> String {
     let (l, c) = line_column(s, start);
+    let (start, end) = (s.written_offset(start), s.written_offset(end));
     format!("line {l}, column {c} [{start},{end})")
 }
 fn string_end(s: &Source, at: usize, q: u16) -> Option<usize> {
@@ -215,7 +235,8 @@ fn starts_token(s: &Source, at: usize) -> bool {
 }
 fn error(s: &Source, at: usize, n: usize) -> Error {
     let (line, column) = line_column(s, at);
-    let mut e=Error::new(format!("Error lexing usecase diagram: unexpected character: ->{}<- at offset: {at}, skipped {n} characters. at line {line}, column {column} [{at},{})",s.slice(at,at+1),at+n),ErrorCode::Syntax).with_type(DiagramType::Usecase);
+    let (from, to) = (s.written_offset(at), s.written_offset(at + n));
+    let mut e=Error::new(format!("Error lexing usecase diagram: unexpected character: ->{}<- at offset: {from}, skipped {} characters. at line {line}, column {column} [{from},{to})",s.slice(at,at+1),to-from),ErrorCode::Syntax).with_type(DiagramType::Usecase);
     e.line = line;
     e.column = column;
     e

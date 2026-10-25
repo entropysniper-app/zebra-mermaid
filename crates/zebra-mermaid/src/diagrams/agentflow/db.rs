@@ -333,12 +333,8 @@ impl AgentflowModel {
                     format!("L_{start}_{end}_{}", if existing == 0 { 0 } else { existing + 1 })
                 };
                 if self.max_edges.is_some_and(|max| self.edges.len() >= max) {
-                    return Err(Error::limit(format!(
-                        "Edge limit exceeded. {} edges found, but the limit is {}.",
-                        self.edges.len(),
-                        self.max_edges.unwrap()
-                    ))
-                    .with_type(DiagramType::Agentflow));
+                    return Err(Error::limit(format!("Edge limit exceeded. The limit is {}.", self.max_edges.unwrap()))
+                        .with_type(DiagramType::Agentflow));
                 }
                 self.edges.push(Edge {
                     start: start.clone(),

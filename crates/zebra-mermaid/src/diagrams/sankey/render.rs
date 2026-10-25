@@ -73,8 +73,8 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
     let chart_height = number_option(conf, "height", 400.0, 1.0, 10000.0);
     let node_width = js::min(number_option(conf, "nodeWidth", 10.0, 1.0, 200.0), chart_width);
     let show_values = conf.get("showValues") != Some(&ConfigValue::Bool(false));
-    let prefix = text_option(conf, "prefix");
-    let suffix = text_option(conf, "suffix");
+    let prefix = decode_entities(&text_option(conf, "prefix"));
+    let suffix = decode_entities(&text_option(conf, "suffix"));
     let outlined = conf.get("labelStyle").and_then(ConfigValue::as_str) == Some("outlined");
     let alignment = match conf.get("nodeAlignment").and_then(ConfigValue::as_str) {
         Some("left") => Alignment::Left,
@@ -371,9 +371,9 @@ fn draw(model: &SankeyModel, conf: &ConfigMap, ctx: &RenderCtx, chart_width: f64
             " → ",
             to,
             ": ",
-            esc_text(&prefix),
+            esc(&prefix),
             js::number_text(rounded(link.value)),
-            esc_text(&suffix),
+            esc(&suffix),
             "</title></path>"
         )
         .unwrap();

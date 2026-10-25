@@ -536,7 +536,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         ));
         let display = decode_entities(if node.alias.is_empty() { &node.label } else { &node.alias });
         if classes.split_whitespace().any(|c| c == "internal-link") && !name.is_empty() && ctx.options.links != Some(false) {
-            let safe = link_url(&sanitize_url(&display), ctx.options).is_some();
+            let safe = internal_link(&display, ctx.options);
             let target = esc(&display);
             name = svg_format!(
                 "<a class=\"internal-link\"",

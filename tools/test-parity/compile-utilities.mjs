@@ -25,14 +25,14 @@ for(const file of sources){
  let calls=[];
  const actual=(op,source)=>({op,source});
  const expect=value=>({toBe:expected=>record('toBe',value,expected),toEqual:expected=>record('toEqual',value,expected)});
- function record(matcher,value,expected){if(!value||!['url','yaml','entities'].includes(value.op)||typeof value.source!=='string')throw Error('Unsupported actual expression');calls.push({...value,matcher,expected})}
+ function record(matcher,value,expected){if(!value||!['url','yaml','entities','internal-link'].includes(value.op)||typeof value.source!=='string')throw Error('Unsupported actual expression');calls.push({...value,matcher,expected})}
  const ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  let executable=source;for(const s of [...ast.statements].reverse())if(ts.isImportDeclaration(s))executable=executable.slice(0,s.getStart(ast))+executable.slice(s.end);
  const corpus=readFileSync(resolve(root,'tests/upstream/source/tests/support/corpus.ts'),'utf8');
  const ca=ts.createSourceFile('corpus.ts',corpus,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  const rng=ca.statements.find(s=>ts.isFunctionDeclaration(s)&&s.name.text==='random').getText(ca).replace('export ','');
  executable=ts.transpileModule(rng+'\n'+executable,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
- vm.runInNewContext(executable,{describe,it,expect,reference,load,JSON_SCHEMA,sanitizeUrl:s=>actual('url',s),parseYaml:s=>actual('yaml',s),encodeEntities:s=>actual('entities',s)},{filename:file,timeout:10000});
+ vm.runInNewContext(executable,{describe,it,expect,reference,load,JSON_SCHEMA,sanitizeUrl:s=>actual('url',s),internalLink:(s,options)=>({...actual('internal-link',s),options}),parseYaml:s=>actual('yaml',s),encodeEntities:s=>actual('entities',s)},{filename:file,timeout:10000});
  if(registered.length!==original.length)throw Error('Different registration count');
  for(let index=0;index<registered.length;index++){
   const test=registered[index],item=original[index];if(test.name!==item.fullName)throw Error('Different identity');
@@ -51,7 +51,7 @@ for(const r of records.filter(r=>!r.file.includes('preprocess'))){const kind=r.f
 artifacts.push(['crates/zebra-mermaid/tests/upstream/utilities_generated.rs',formatRust(rust)]);
 const pp='tests/upstream/ports.json',ports=JSON.parse(readFileSync(resolve(root,pp),'utf8'));
 const owned=new Set(records.map(r=>r.id)),previous=ports.ports.filter(p=>owned.has(p.upstreamId));ports.ports=ports.ports.filter(p=>!owned.has(p.upstreamId));
-for(const r of records){const preprocess=r.file.includes('preprocess'),kind=r.file.includes('yaml')?'yaml':'url';ports.ports.push({upstreamId:r.id,sourceSha256:inventory.files.find(f=>f.path===r.file).sha256,target:{kind:'rust',binary:preprocess?'lib':'upstream_parity',file:preprocess?'crates/zebra-mermaid/tests/upstream/preprocess.rs':'crates/zebra-mermaid/tests/upstream/utilities_generated.rs',test:preprocess?`preprocess::upstream_tests::entities_${r.index}`:`utilities::${kind}_${String(r.index).padStart(2,'0')}`,features:[]},assertionReview:'Original callback and parameter rows execute during translation with symbolic actual values. Expected values come only from the independent reference explicitly invoked by the original assertion. Every captured assertion runs against the Rust function. Entity random inputs retain seed 11, all 20000 iterations and RNG call order; Rust independently checks the generated sequence. No Pele or Rust outputs become expectations.'})}
+for(const r of records){const preprocess=r.file.includes('preprocess'),kind=r.file.includes('yaml')?'yaml':'url';ports.ports.push({upstreamId:r.id,sourceSha256:inventory.files.find(f=>f.path===r.file).sha256,target:{kind:'rust',binary:preprocess?'lib':'upstream_parity',file:preprocess?'crates/zebra-mermaid/tests/upstream/preprocess.rs':'crates/zebra-mermaid/tests/upstream/utilities_generated.rs',test:preprocess?`preprocess::upstream_tests::entities_${r.index}`:`utilities::${kind}_${String(r.index).padStart(2,'0')}`,features:[]},assertionReview:'Original callback and parameter rows execute during translation with symbolic actual values. Expected values come from the independent reference explicitly invoked by the original assertion or the original literal booleans for internal-link policy. Every captured assertion runs against the Rust function. Entity random inputs retain seed 11, all 20000 iterations and RNG call order; Rust independently checks the generated sequence. No Pele or Rust outputs become expectations.'})}
 const sort=a=>[...a].sort((a,b)=>a.upstreamId.localeCompare(b.upstreamId));
 if(process.argv.includes('--check')){for(const[p,s]of artifacts)if(readFileSync(resolve(root,p),'utf8')!==s)throw Error(`Generated artifact changed: ${p}`);if(JSON.stringify(sort(previous))!==JSON.stringify(sort(ports.ports.filter(p=>owned.has(p.upstreamId)))))throw Error('Mapping changed')}
 else{for(const[p,s]of artifacts)writeFileSync(resolve(root,p),s);writeFileSync(resolve(root,pp),JSON.stringify(ports,null,2)+'\n')}

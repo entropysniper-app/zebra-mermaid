@@ -15,6 +15,11 @@ fn needs_esc(b: u8) -> bool {
     matches!(b, b'&' | b'<' | b'>' | b'"' | 0x00..=0x08 | 0x0b | 0x0c | 0x0e..=0x1f | 0x7f)
 }
 
+/// Characters dropped by XML escaping, including DEL as in Pele.
+pub fn is_invalid_xml(c: char) -> bool {
+    matches!(c, '\u{0}'..='\u{8}' | '\u{b}' | '\u{c}' | '\u{e}'..='\u{1f}' | '\u{7f}' | '\u{fffe}' | '\u{ffff}')
+}
+
 /// `prefix` followed by `extra`: the attributes of an element and what a style adds to them.
 /// The prefix is borrowed when there is nothing to add.
 pub fn joined<'a>(prefix: &'a str, extra: &str) -> Cow<'a, str> {
@@ -28,9 +33,9 @@ pub fn joined<'a>(prefix: &'a str, extra: &str) -> Cow<'a, str> {
     }
 }
 
-/// Escapes text for XML and drops the control characters XML does not allow.
+/// Escapes text for XML and drops invalid XML characters and DEL.
 pub fn esc(text: &str) -> Cow<'_, str> {
-    if !text.bytes().any(needs_esc) {
+    if !text.bytes().any(needs_esc) && !text.contains(['\u{fffe}', '\u{ffff}']) {
         return Cow::Borrowed(text);
     }
     let mut out = String::with_capacity(text.len() + 16);
@@ -46,19 +51,19 @@ pub fn push_esc(out: &mut String, text: &str) {
 /// Writes `text` escaped as [`esc`] escapes it.
 pub fn write_esc<W: fmt::Write + ?Sized>(out: &mut W, text: &str) -> fmt::Result {
     let mut last = 0;
-    for (i, b) in text.bytes().enumerate() {
-        if !needs_esc(b) {
+    for (i, c) in text.char_indices() {
+        if !is_invalid_xml(c) && !matches!(c, '&' | '<' | '>' | '"') {
             continue;
         }
         out.write_str(&text[last..i])?;
-        match b {
-            b'&' => out.write_str("&amp;")?,
-            b'<' => out.write_str("&lt;")?,
-            b'>' => out.write_str("&gt;")?,
-            b'"' => out.write_str("&quot;")?,
+        match c {
+            '&' => out.write_str("&amp;")?,
+            '<' => out.write_str("&lt;")?,
+            '>' => out.write_str("&gt;")?,
+            '"' => out.write_str("&quot;")?,
             _ => {}
         }
-        last = i + 1;
+        last = i + c.len_utf8();
     }
     out.write_str(&text[last..])
 }

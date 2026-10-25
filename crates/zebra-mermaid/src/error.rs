@@ -1,9 +1,9 @@
 //! Errors. Ported from Pele `src/errors.ts`.
 //!
 //! An error keeps Pele's four codes and its line, column and snippet, which are counted in the
-//! text the diagram's parser reads (after front matter, directives and comment lines are
-//! taken out), with the column in UTF-16 code units as JavaScript counts it. The engine adds
-//! the byte span in the source the caller gave, which stays exact through preprocessing.
+//! original source, with the column in UTF-16 code units as JavaScript counts it. Direct
+//! parser calls locate errors in their input; the engine maps preprocessing edits back to
+//! the caller's source and adds its byte span.
 
 use std::fmt;
 use std::ops::Range;
@@ -53,7 +53,7 @@ pub struct Error {
     pub diagram_type: Option<DiagramType>,
     /// Mermaid's type name, once the engine has detected the diagram.
     pub mermaid_type: Option<MermaidType>,
-    /// 1-based line in the parsed text, or 0 when the error has no position.
+    /// 1-based line in the original source, or 0 when the error has no position.
     pub line: usize,
     /// 1-based column in UTF-16 code units, or 0 when the error has no position.
     pub column: usize,
@@ -101,7 +101,47 @@ impl Error {
     pub(crate) fn tag(mut self, found: Detected) -> Self {
         self.diagram_type.get_or_insert(found.diagram_type);
         self.mermaid_type.get_or_insert(found.mermaid_type);
+        if let std::borrow::Cow::Owned(message) = crate::text::entities::written_codes(&self.message) {
+            self.message = message;
+        }
+        if let std::borrow::Cow::Owned(snippet) = crate::text::entities::written_codes(&self.snippet) {
+            self.snippet = snippet;
+        }
         self
+    }
+
+    /// Relocates a parser diagnostic after a text rewrite, keeping its original detail.
+    pub(crate) fn relocate(&mut self, source: &str, offset: usize) {
+        let loc = locate(source, offset);
+        if !self.snippet.is_empty() {
+            self.message = self.message.replacen(&self.snippet, &loc.snippet, 1);
+            self.snippet = loc.snippet;
+        }
+        for prefix in ["Parse error on line ", "Lexical error on line ", "Line ", "line "] {
+            let before = format!("{prefix}{}", self.line);
+            if self.message.starts_with(&before) {
+                self.message.replace_range(..before.len(), &format!("{prefix}{}", loc.line));
+                break;
+            }
+        }
+        if self.message.starts_with("Metadata of ") {
+            let tail = format!(" ({}:{})", self.line, self.column);
+            if self.message.ends_with(&tail) {
+                self.message.truncate(self.message.len() - tail.len());
+                self.message.push_str(&format!(" ({}:{})", loc.line, loc.column));
+            }
+        } else if self.message.starts_with("Duplicate event modeling frame ID ") {
+            let tail = format!(" on line {}", self.line);
+            if self.message.ends_with(&tail) {
+                self.message.truncate(self.message.len() - tail.len());
+                self.message.push_str(&format!(" on line {}", loc.line));
+            }
+        }
+        self.line = loc.line;
+        if self.column > 0 {
+            self.column = loc.column;
+        }
+        self.offset = Some(offset.min(source.len()));
     }
 
     /// Sets the position from a byte offset into `src`, the text the parser read.

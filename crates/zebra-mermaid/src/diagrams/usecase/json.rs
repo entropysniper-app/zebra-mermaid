@@ -304,5 +304,16 @@ impl Reader {
     }
 }
 pub fn parse_ordered_json(text: &str, origin: (usize, usize)) -> Result<OrderedJson, Error> {
-    Reader { source: Source::new(text), at: 0, origin, out: OrderedJson::default(), created: vec![] }.parse()
+    let result = Reader { source: Source::new(text), at: 0, origin, out: OrderedJson::default(), created: vec![] }.parse();
+    match result {
+        Err(error) => match crate::text::entities::written_codes(text) {
+            std::borrow::Cow::Owned(shown) => {
+                Reader { source: Source::new(&shown), at: 0, origin, out: OrderedJson::default(), created: vec![] }
+                    .parse()
+                    .map_or_else(Err, |_| Err(error))
+            }
+            _ => Err(error),
+        },
+        ok => ok,
+    }
 }

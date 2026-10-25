@@ -100,6 +100,7 @@ describe('radar rendering', () => {
     const model = parse('radar-beta\n axis A, B, C\n curve c{ C: 3, A: 1, B: 2 }');
     if (model.type === 'radar') expect(model.curves[0].entries).toEqual([1, 2, 3]);
     expect(() => render('radar-beta\n axis A["Alpha"], B\n curve c{ B: 2 }', options)).toThrow('Missing entry for axis Alpha');
+    expect(() => render('radar-beta\n axis a["#35;x &amp;y"], b\n curve c{ b: 1 }', options)).toThrow('Missing entry for axis #35;x &amp;y');
     expect(() => render('radar-beta\n curve c{ B: 2 }', options)).toThrow(
       'Axes must be populated before curves for reference entries'
     );
@@ -127,6 +128,13 @@ describe('radar rendering', () => {
     );
     expect(svg).toContain(`viewBox="0 0 ${width} ${height}"`);
     expect(width).toBeGreaterThan(320 + 2 * 200);
+  });
+
+  it('scales values near the largest double like small ones', () => {
+    const huge = ['1' + '0'.repeat(308), '5' + '0'.repeat(307), '25' + '0'.repeat(306)].join(',');
+    const curve = (values: string): string | undefined =>
+      render(`radar-beta\n axis A, B, C\n curve c{${values}}\n graticule polygon`, options).svg.match(/<polygon class="pele-curve"[^>]* points="([^"]*)"/)?.[1];
+    expect(curve(huge)).toBe(curve('4,2,1'));
   });
 
   it('copes with no axes, no curves, one axis, and degenerate ranges', () => {

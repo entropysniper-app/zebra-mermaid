@@ -344,6 +344,16 @@ pub(super) fn tokenize(src: &str) -> Tokens {
                     }
                 }
                 if c == Some(b't') {
+                    if src[p..].starts_with("title") {
+                        let mut e = p + 5;
+                        while let Some(ch) = char_at(src, e).filter(|&ch| ch != '\r' && ch != '\n' && is_space(ch)) {
+                            e += ch.len_utf8();
+                        }
+                        if e == n || matches!(b.get(e), Some(b'\r' | b'\n')) {
+                            p = skip_ws(src, e);
+                            continue;
+                        }
+                    }
                     if let Some(e) = statement(src, p, "title") {
                         p = emit(&mut tk, TITLE, p, e);
                         continue;

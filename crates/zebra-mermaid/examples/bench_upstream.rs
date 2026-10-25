@@ -5,12 +5,16 @@ use std::{hint::black_box, time::Instant};
 use zebra_mermaid::{render, type_enabled, DiagramType, RenderOptions};
 fn main() {
     let args: Vec<_> = std::env::args().collect();
+    let verify_only = args.iter().any(|a| a == "--verify-only");
     let cases: Vec<Value> = serde_json::from_str(&std::fs::read_to_string(&args[1]).unwrap()).unwrap();
     let options = RenderOptions::default();
     let mut out = vec![];
     for c in &cases {
         let inputs: Vec<_> = c["inputs"].as_array().unwrap().iter().map(|s| s.as_str().unwrap()).collect();
         let run = || inputs.iter().filter(|s| black_box(render(black_box(s), &options)).is_ok()).count();
+        if verify_only {
+            continue;
+        }
         let done = run();
         let mut budget = 300.0;
         let mut samples = vec![];

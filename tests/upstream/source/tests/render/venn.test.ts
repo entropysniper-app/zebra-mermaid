@@ -255,6 +255,20 @@ describe('venn diagram rendering', () => {
     expect(both).not.toContain('Front');
   });
 
+  it('keeps the character before a comment', () => {
+    const model = parse('venn-beta\nset A%% note\nset B:5%% note\nunion A,B%% note');
+    if (model.type !== 'venn') throw new Error('wrong type');
+    expect(model.subsets.map((s) => s.sets)).toEqual([['A'], ['B'], ['A', 'B']]);
+    expect(model.subsets[1].size).toBe(5);
+  });
+
+  it('treats a bare title as no title', () => {
+    const model = parse('venn-beta\ntitle\nset A\nset title\ntitle Kept\nset B');
+    if (model.type !== 'venn') throw new Error('wrong type');
+    expect(model.title).toBe('Kept');
+    expect(model.subsets.map((s) => s.sets)).toEqual([['A'], ['title'], ['B']]);
+  });
+
   it('uses the last statement about a set or an overlap', () => {
     const svg = svgOf('set A["first"]:10\nset B:10\nset A["second"]:40');
     const circles = circlesOf(svg);
@@ -292,6 +306,8 @@ describe('venn diagram rendering', () => {
     };
     expect(message('venn-beta\nunion A')).toBe('union requires multiple identifiers');
     expect(message('venn-beta\nset A\nunion A,B')).toBe('unknown set identifier: B');
+    expect(message('venn-beta\nset A\nunion A,"B#35;x"')).toBe('unknown set identifier: B#35;x');
+    expect(message('venn-beta\nset "B#x"\nset A\nunion A,"B#35;x"')).toBe('unknown set identifier: B#35;x');
     expect(message('venn-beta\nset A,B')).toMatch(/^Parse error on line 2:\nset A,B\n-----\^\nExpecting 'EOF', 'NEWLINE', 'TITLE', 'SET', 'UNION', 'TEXT', 'INDENT_TEXT', 'STYLE', got 'COMMA'$/);
     expect(message('venn-beta\nset A $')).toMatch(/^Lexical error on line 2\. Unrecognized text\./);
   });

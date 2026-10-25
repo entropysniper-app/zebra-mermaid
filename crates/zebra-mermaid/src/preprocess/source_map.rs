@@ -56,6 +56,14 @@ impl StepMap {
             m.src
         }
     }
+
+    fn to_input_offset(&self, out: usize) -> usize {
+        if out >= self.out_len {
+            self.src_len + (out - self.out_len)
+        } else {
+            self.to_src(out)
+        }
+    }
 }
 
 /// Builds the output of a step together with its map.
@@ -147,6 +155,11 @@ impl SourceMap {
             at = step.to_src(at);
         }
         at
+    }
+
+    /// Preserves offsets past the input end, including the newline appended for parsing.
+    pub(crate) fn to_input_offset(&self, offset: usize) -> usize {
+        self.steps.iter().rev().fold(offset, |at, step| step.to_input_offset(at))
     }
 }
 

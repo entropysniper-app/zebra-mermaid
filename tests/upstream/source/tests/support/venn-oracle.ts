@@ -6,6 +6,16 @@ import { createOracle, recordingYy, type Outcome, type Pair } from './oracle.js'
 
 export const oracle = createOracle(resolve('tests/compat/venn/upstream/venn.jison'));
 
+// Match Pele: keep titles on one line.
+const titleRules = (oracle.parser.lexer as unknown as { rules: RegExp[] }).rules;
+const titleMatches = titleRules.filter((rule) => rule.source === '^(?:title\\s[^#\\n;]+)');
+if (titleMatches.length !== 1) throw new Error('Expected one Venn title rule');
+const titleRule = titleMatches[0];
+titleRules[titleRules.indexOf(titleRule)] = new RegExp(
+  titleRule.source.replace('title\\s', 'title[^\\S\\r\\n]'),
+  titleRule.flags
+);
+
 // The lexer asks the model whether an indented `text` belongs to the set before it. With `indent`
 // given the answer is fixed, to compare the lexers alone; without it the recorder answers the way
 // Mermaid's DB does, from the statements the parser has reported.
@@ -53,4 +63,26 @@ export function peleParse(src: string): Outcome {
   } catch (e) {
     return { ok: false, calls, error: String((e as Error).message) };
   }
+}
+
+// Match Pele: comments leave the preceding character intact.
+{
+  const rules = (oracle.parser.lexer as unknown as { rules: RegExp[] }).rules;
+  const comments = rules.filter((rule) => rule.source === String.raw`^(?:[^\}]%%[^\n]*)`);
+  if (comments.length !== 1) throw new Error('Expected one Venn preceding-character comment rule');
+  rules[rules.indexOf(comments[0])] = /(?!)/;
+}
+
+// Match Pele: skip bare titles like comments.
+{
+  const lexer = oracle.parser.lexer as unknown as { next(): unknown; _input: string; matched: string };
+  const next = lexer.next;
+  lexer.next = function (this: typeof lexer) {
+    const bare = /^title[^\S\n]*(?:\n[\n\r]*|$)/i.exec(this._input);
+    if (bare && /\n[ \t]*$/.test(this.matched)) {
+      this._input = this._input.slice(bare[0].length);
+      this.matched += bare[0];
+    }
+    return next.call(this);
+  };
 }

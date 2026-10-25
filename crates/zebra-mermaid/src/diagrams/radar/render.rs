@@ -35,7 +35,12 @@ fn option(config: &Config, key: &str, fallback: f64, min: f64, max: f64) -> f64 
 
 pub fn relative_radius(value: f64, min: f64, max: f64, radius: f64) -> f64 {
     let clipped = js::min(js::max(value, min), max);
-    (radius * (clipped - min)) / (max - min)
+    let scaled = radius * (clipped - min);
+    if scaled.is_finite() {
+        scaled / (max - min)
+    } else {
+        radius * ((clipped - min) / (max - min))
+    }
 }
 
 /// A closed Catmull-Rom spline through the points, as cubic Bézier segments.

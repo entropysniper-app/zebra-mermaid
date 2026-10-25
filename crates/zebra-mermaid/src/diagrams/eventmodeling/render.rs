@@ -32,12 +32,12 @@ fn hard_wrap(text: &str, columns: usize) -> Vec<String> {
     let text = decode_entities(text);
     let mut out = vec![];
     for line in text.split('\n') {
-        let len = js::len16(line);
-        if len <= columns {
+        if line.chars().count() <= columns {
             out.push(line.to_owned());
         } else {
-            for i in (0..len).step_by(columns) {
-                out.push(js::slice16(line, i, (i + columns).min(len)).to_owned());
+            let chars: Vec<_> = line.chars().collect();
+            for chunk in chars.chunks(columns) {
+                out.push(chunk.iter().collect());
             }
         }
     }

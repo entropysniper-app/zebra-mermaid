@@ -230,12 +230,9 @@ impl FlowchartModel {
         for (si, start) in starts.iter().enumerate() {
             for (ei, end) in ends.iter().enumerate() {
                 if self.edges.len() >= self.max_edges {
-                    return Err(Error::limit(format!(
-                        "Edge limit exceeded. {} edges found, but the limit is {}.",
-                        self.edges.len(),
-                        self.max_edges
-                    ))
-                    .with_type(DiagramType::Flowchart));
+                    return Err(
+                        Error::limit(format!("Edge limit exceeded. The limit is {}.", self.max_edges)).with_type(DiagramType::Flowchart)
+                    );
                 }
                 let candidate = if si + 1 == starts.len() && ei == 0 { link.id.as_ref().map(|s| s.replacen('@', "", 1)) } else { None };
                 let user_id = candidate.as_ref().is_some_and(|s| !s.is_empty() && !self.edge_by_id.contains_key(s));

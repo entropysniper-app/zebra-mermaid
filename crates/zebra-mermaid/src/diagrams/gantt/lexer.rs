@@ -213,6 +213,9 @@ fn keyword_rule(src: &str, p: usize, c: u8) -> Option<(u8, usize)> {
         _ => &[],
     };
     for &(word, stops, kind) in rules {
+        if kind == t::TITLE && matches!(char_at(src, p + word.len()), Some('\r' | '\n')) {
+            continue;
+        }
         let end = match stops {
             None => word_boundary(src, p, word),
             Some(stops) => word_rest(src, p, word, stops),
@@ -270,10 +273,6 @@ pub(crate) fn tokenize(src: &str) -> Vec<Token> {
                     } else {
                         p = until(b'\n', p + 2);
                     }
-                } else if c != b'}' && d == Some(b'%') {
-                    // Any character but `}` followed by `%` starts a comment that runs to the end
-                    // of the line.
-                    p = until(b'\n', after + 1);
                 } else if c == b'\n' {
                     let mut e = p + 1;
                     while b.get(e) == Some(&b'\n') {
@@ -283,6 +282,19 @@ pub(crate) fn tokenize(src: &str) -> Vec<Token> {
                     p = e;
                 } else if is_space(ch) {
                     p = spaces(src, p);
+                } else if word_at(src, p, "title") && {
+                    let mut e = p + 5;
+                    while let Some(c) = char_at(src, e).filter(|&c| c != '\r' && c != '\n' && is_space(c)) {
+                        e += c.len_utf8();
+                    }
+                    if e == n || matches!(b.get(e), Some(b'\r' | b'\n')) {
+                        p = e;
+                        true
+                    } else {
+                        false
+                    }
+                } {
+                    continue;
                 } else if let Some((kind, e, next)) = keyword(src, p, c) {
                     if let Some(kind) = kind {
                         out.push(Token { kind, start: p, end: e });
@@ -461,8 +473,8 @@ mod tests {
         assert_eq!(kinds("axisFormat\nx\n")[0], (t::AXIS_FORMAT, "axisFormat\nx"));
         // A single `%` comments out the rest of the line and the line breaks after it.
         assert_eq!(kinds("% x\n\nA")[0], (t::TASK_TXT, "A"));
-        // Any character but `}` before `%` starts a comment.
-        assert_eq!(kinds("a% x\nb")[0], (t::NL, "\n"));
+        // Pele 1.10.0 keeps the character before a percent sign in a task label.
+        assert_eq!(kinds("a% x\nb")[0], (t::TASK_TXT, "a% x"));
         assert_eq!(kinds("WEEKDAY  Friday")[0], (t::WEEKDAY_MONDAY + 4, "WEEKDAY  Friday"));
         assert_eq!(kinds("weekend fridays")[0].0, t::TASK_TXT);
         assert_eq!(kinds("click a href \"u\"")[..3].iter().map(|k| k.0).collect::<Vec<_>>(), vec![t::CLICK, t::HREF, t::EOF]);

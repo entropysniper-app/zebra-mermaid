@@ -127,8 +127,8 @@ fn json_errors_with_positions() {
     assert_eq!(v["error"]["code"], "syntax");
     assert_eq!(v["error"]["diagramType"], "pie");
     assert_eq!(v["error"]["mermaidType"], "pie");
-    // Pele counts lines after the front matter; the source position counts them all.
-    assert_eq!(v["error"]["line"], 2);
+    // Pele 1.10.0 reports the source as written, including front matter.
+    assert_eq!(v["error"]["line"], 5);
     assert_eq!(v["error"]["source"]["line"], 5);
     let byte = v["error"]["byteSpan"][0].as_u64().unwrap() as usize;
     assert_eq!(&src[byte..byte + 1], "1");

@@ -10,6 +10,19 @@ fn check(id: &str) {
         let source = assertion["source"].as_str().unwrap();
         match assertion["op"].as_str().unwrap() {
             "url" => assert_eq!(zebra_mermaid::util::url::sanitize_url(source), assertion["expected"].as_str().unwrap(), "{source:?}"),
+            "internal-link" => {
+                let options = zebra_mermaid::RenderOptions {
+                    link_schemes: assertion["options"]["linkSchemes"]
+                        .as_array()
+                        .map(|items| items.iter().map(|v| v.as_str().unwrap().to_owned()).collect()),
+                    ..Default::default()
+                };
+                assert_eq!(
+                    zebra_mermaid::util::url::internal_link(source, &options),
+                    assertion["expected"].as_bool().unwrap(),
+                    "{source:?}"
+                );
+            }
             "yaml" => assert_eq!(parse_yaml(source).unwrap(), parse_json(&assertion["expected"].to_string()).unwrap(), "{source:?}"),
             other => panic!("Unsupported utility assertion {other}"),
         }

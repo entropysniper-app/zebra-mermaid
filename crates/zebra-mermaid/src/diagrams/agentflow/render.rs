@@ -26,7 +26,7 @@ use crate::text::{entities::decode_entities, layout_render_label as layout_label
 use crate::theme::Role;
 use crate::util::{
     js,
-    url::{link_url, linked, rel_attr, sanitize_url, LinkInfo},
+    url::{internal_link, linked, rel_attr, LinkInfo},
 };
 use crate::{Config, ConfigValue, Error};
 use indexmap::IndexMap;
@@ -445,7 +445,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
             && ctx.options.links != Some(false)
         {
             let name = decode_entities(n.label.as_ref().unwrap());
-            let safe = link_url(&sanitize_url(&name), ctx.options).is_some();
+            let safe = internal_link(&name, ctx.options);
             let target = esc(&name);
             text = svg_format!(
                 "<a class=\"internal-link\"",

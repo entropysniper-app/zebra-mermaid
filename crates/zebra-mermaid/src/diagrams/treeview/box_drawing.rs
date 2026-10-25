@@ -3,8 +3,11 @@
 
 use crate::detect::DiagramType;
 use crate::error::Error;
-use crate::util::chars::{is_space, is_word};
+use crate::util::chars::is_space;
+#[cfg(test)]
+use crate::util::chars::is_word;
 use crate::util::js;
+#[cfg(test)]
 use std::fmt::Write as _;
 
 /// `/[─━│┃└┗├┣]/`
@@ -62,6 +65,8 @@ pub struct PreprocessResult {
     pub text: String,
     /// Output line number to original line number, both from 1. Empty when the text is unchanged.
     pub line_map: Vec<usize>,
+    /// Expanded prefix and rewritten indentation lengths in UTF-16 units, per output line.
+    pub columns: Vec<Option<(usize, usize)>>,
 }
 
 impl PreprocessResult {
@@ -90,6 +95,7 @@ fn infer_segment_width(content_lines: &[String]) -> usize {
 
 /// `message.replace(/\bline\s+(\d+)\b/gi, ...)`: each line number that the map knows becomes the
 /// original one, written `line N` in lower case.
+#[cfg(test)]
 pub fn remap_error_lines(message: &str, result: &PreprocessResult) -> String {
     let b = message.as_bytes();
     let mut out = String::with_capacity(message.len());
@@ -132,7 +138,7 @@ fn fail(line: usize, message: &str) -> Error {
 /// Rewrites box-drawing input as indented lines. A failure names the line of `input`, and its
 /// byte offset there.
 pub fn preprocess_box_drawing(input: &str) -> Result<PreprocessResult, (Error, usize)> {
-    let unchanged = || PreprocessResult { text: input.to_string(), line_map: Vec::new() };
+    let unchanged = || PreprocessResult { text: input.to_string(), line_map: Vec::new(), columns: Vec::new() };
     if !has_box_char(input) {
         return Ok(unchanged());
     }
@@ -164,17 +170,19 @@ pub fn preprocess_box_drawing(input: &str) -> Result<PreprocessResult, (Error, u
     let segment_width = infer_segment_width(&content_lines);
     let mut out: Vec<String> = Vec::new();
     let mut line_map: Vec<usize> = Vec::new();
-    let mut keep = |text: String, index: usize| {
+    let mut columns = Vec::new();
+    let mut keep = |text: String, index: usize, column| {
         out.push(text);
         line_map.push(index + 1);
+        columns.push(column);
     };
 
     for (i, line) in lines.iter().enumerate().take(keyword_idx + 1) {
-        keep(line.to_string(), i);
+        keep(line.to_string(), i, None);
     }
     for (i, &line) in lines.iter().enumerate().skip(keyword_idx + 1) {
         if passes(line) {
-            keep(line.to_string(), i);
+            keep(line.to_string(), i, None);
             continue;
         }
         if is_decoration_only(line) {
@@ -195,13 +203,13 @@ pub fn preprocess_box_drawing(input: &str) -> Result<PreprocessResult, (Error, u
             if content.is_empty() {
                 return Err((fail(i + 1, "Empty node — expected a filename or directory name after the box-drawing prefix"), starts[i]));
             }
-            keep(format!("{}{}", INDENT_UNIT.repeat(depth), content), i);
+            keep(format!("{}{}", INDENT_UNIT.repeat(depth), content), i, Some((js::len16(&normalized[..pos]), depth * INDENT_UNIT.len())));
         } else if is_box_only(&normalized) {
             continue;
         } else if has_box_char(&normalized) {
             // A name that happens to contain a box character, such as "Section ─ A.txt", is a
             // root item.
-            keep(line.to_string(), i);
+            keep(line.to_string(), i, None);
         } else if normalized.chars().next().is_some_and(is_space) {
             return Err((
                 fail(
@@ -211,10 +219,10 @@ pub fn preprocess_box_drawing(input: &str) -> Result<PreprocessResult, (Error, u
                 starts[i],
             ));
         } else {
-            keep(line.to_string(), i);
+            keep(line.to_string(), i, None);
         }
     }
-    Ok(PreprocessResult { text: out.join("\n"), line_map })
+    Ok(PreprocessResult { text: out.join("\n"), line_map, columns })
 }
 
 #[cfg(test)]
@@ -237,7 +245,7 @@ mod tests {
 
     #[test]
     fn remaps_line_numbers() {
-        let r = PreprocessResult { text: String::new(), line_map: vec![1, 2, 5] };
+        let r = PreprocessResult { text: String::new(), line_map: vec![1, 2, 5], columns: Vec::new() };
         assert_eq!(remap_error_lines("Parse error on line 3:", &r), "Parse error on line 5:");
         assert_eq!(remap_error_lines("Line 3: x, line 9, line 3a, inline 3", &r), "line 5: x, line 9, line 3a, inline 3");
     }

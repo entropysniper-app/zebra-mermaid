@@ -163,13 +163,10 @@ pub(crate) fn render(model: &XyChartModel, config: &Config, ctx: &RenderCtx) -> 
     // The value range: as written, or taken from the data, where bars stand on zero and the
     // range grows to whole steps.
     let bars = plots.iter().filter(|plot| plot.kind == PlotType::Bar).count();
-    let mut lo = model.y_axis.min;
-    let mut hi = model.y_axis.max;
+    let mut lo = finite(Some(model.y_axis.min)).unwrap_or(f64::INFINITY);
+    let mut hi = finite(Some(model.y_axis.max)).unwrap_or(f64::NEG_INFINITY);
     let exact = model.has_set_y_axis && lo.is_finite() && hi.is_finite() && lo != hi;
-    if exact {
-        lo = js::min(js::max(lo, -LIMIT), LIMIT);
-        hi = js::min(js::max(hi, -LIMIT), LIMIT);
-    } else {
+    if !exact {
         lo = f64::INFINITY;
         hi = f64::NEG_INFINITY;
         for plot in plots {

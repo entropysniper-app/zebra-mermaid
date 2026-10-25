@@ -41,6 +41,7 @@ fn time(f: impl Fn(&str) -> bool, inputs: &[String]) -> Value {
     json!({"ms":q(0.5),"p10":q(0.1),"p90":q(0.9),"done":done,"samples":samples,"repeats":repeats})
 }
 fn main() {
+    let verify_only = std::env::args().any(|a| a == "--verify-only");
     let cases: Vec<Value> =
         serde_json::from_str(&std::fs::read_to_string("target/bench/cases.json").expect("generate cases first")).unwrap();
     let options = RenderOptions { now: Some(1792368000000.0), ..Default::default() };
@@ -50,17 +51,25 @@ fn main() {
         let verification: Vec<_> = inputs
             .iter()
             .map(|s| match render(s, &options) {
+                Ok(r) if verify_only => json!({"ok":true,"svg":r.svg,"width":r.width,"height":r.height}),
                 Ok(r) => json!({"ok":true,"svgHash":hash(&r.svg),"width":r.width,"height":r.height}),
                 Err(e) => json!({"ok":false,"code":e.code.as_str(),"message":e.message,"line":e.line,"column":e.column}),
             })
             .collect();
         let valid: Vec<_> = inputs.iter().zip(&verification).filter(|(_, v)| v["ok"] == true).map(|(s, _)| s.clone()).collect();
         let invalid: Vec<_> = inputs.iter().zip(&verification).filter(|(_, v)| v["ok"] == false).map(|(s, _)| s.clone()).collect();
-        let p =
-            if valid.is_empty() { Value::Null } else { time(|s| black_box(parse(black_box(s), &ParseOptions::default())).is_ok(), &valid) };
-        let r = if valid.is_empty() { Value::Null } else { time(|s| black_box(render(black_box(s), &options)).is_ok(), &valid) };
-        let rejection =
-            if invalid.is_empty() { Value::Null } else { time(|s| black_box(render(black_box(s), &options)).is_err(), &invalid) };
+        let p = if verify_only || valid.is_empty() {
+            Value::Null
+        } else {
+            time(|s| black_box(parse(black_box(s), &ParseOptions::default())).is_ok(), &valid)
+        };
+        let r =
+            if verify_only || valid.is_empty() { Value::Null } else { time(|s| black_box(render(black_box(s), &options)).is_ok(), &valid) };
+        let rejection = if verify_only || invalid.is_empty() {
+            Value::Null
+        } else {
+            time(|s| black_box(render(black_box(s), &options)).is_err(), &invalid)
+        };
         out.push(json!({"name":c["name"],"diagrams":inputs.len(),"verification":verification,"renderInputs":valid.len(),"rejectInputs":invalid.len(),"render":r,"parse":p,"rejection":rejection}));
     }
     let enabled: Vec<_> = DiagramType::ALL.into_iter().filter(|t| type_enabled(*t)).map(|t| t.as_str()).collect();

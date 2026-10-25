@@ -10,7 +10,7 @@ use zebra_mermaid::util::js;
 use zebra_mermaid::{ConfigMap, ConfigValue};
 
 pub fn fixtures() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/pele-1.9.0")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/pele-1.10.0")
 }
 
 pub fn read_jsonl(rel: &str) -> Vec<Value> {
@@ -46,6 +46,7 @@ pub fn read_jsonl_path(path: &std::path::Path) -> Vec<Value> {
                         let manifests = [
                             include_str!("../../../../tests/fixtures/unrepresentable-inputs.json"),
                             include_str!("../../../../tests/fixtures/pele-1.9.0/unrepresentable-inputs.json"),
+                            include_str!("../../../../tests/fixtures/pele-1.10.0/unrepresentable-inputs.json"),
                         ];
                         manifests
                             .into_iter()

@@ -57,6 +57,33 @@ fn code_point(n: f64) -> Option<char> {
 pub(crate) const OPEN: &str = "\u{fb02}\u{b0}";
 pub(crate) const CLOSE: &str = "\u{b6}\u{df}";
 
+/// Restores Mermaid entity codes as written, without decoding their values in diagnostics.
+pub fn written_codes(text: &str) -> Cow<'_, str> {
+    if !text.contains(CLOSE) {
+        return Cow::Borrowed(text);
+    }
+    let mut out = String::new();
+    let mut rest = text;
+    while let Some(at) = rest.find(OPEN) {
+        out.push_str(&rest[..at]);
+        let start = at + OPEN.len();
+        let body_start = start + if rest[start..].starts_with('°') { '°'.len_utf8() } else { 0 };
+        let body_len = rest[body_start..].bytes().take_while(|&b| crate::util::chars::is_word_byte(b)).count();
+        let end = body_start + body_len;
+        if body_len > 0 && rest[end..].starts_with(CLOSE) {
+            out.push('#');
+            out.push_str(&rest[body_start..end]);
+            out.push(';');
+            rest = &rest[end + CLOSE.len()..];
+        } else {
+            out.push_str(OPEN);
+            rest = &rest[start..];
+        }
+    }
+    out.push_str(rest);
+    Cow::Owned(out)
+}
+
 /// Mermaid's placeholders run from `ﬂ°` to `¶ß`, with a second `°` marking a numeric code.
 fn restore_placeholders(text: &str) -> String {
     let mut out = String::new();

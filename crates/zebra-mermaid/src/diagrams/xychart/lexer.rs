@@ -146,7 +146,7 @@ pub fn tokenize(src: &str) -> Tokens {
     let keyword = |p: usize, word: &str| -> bool { word_at(src, p, word) && !b.get(p + word.len()).is_some_and(|&c| is_word_byte(c)) };
 
     while p < n {
-        let (c, next, next_at) = unit_and_next(src, p);
+        let (c, next, _) = unit_and_next(src, p);
 
         if state == STRING {
             if c == 34 {
@@ -177,12 +177,6 @@ pub fn tokenize(src: &str) -> Tokens {
 
         if c == 37 && next == Some(37) {
             p = line_end(p + 2);
-            continue;
-        }
-        // Mermaid's second comment rule takes any character before `%%` with it, a line break
-        // included.
-        if c != 125 && next == Some(37) && b.get(next_at + 1) == Some(&b'%') {
-            p = line_end(next_at + 2);
             continue;
         }
         if c == 10 || c == 13 {
@@ -397,9 +391,8 @@ mod tests {
     }
 
     #[test]
-    fn comments_take_the_character_before() {
-        // "é%%" is a comment; "😀%%" is not, as the character is two code units.
-        assert_eq!(kinds("xychart\né%% x\n"), vec![XYCHART, NEWLINE, NEWLINE, EOF, END]);
+    fn comments_preserve_the_character_before() {
+        assert_eq!(kinds("xychart\né%% x\n"), vec![XYCHART, NEWLINE, ERROR]);
         let t = tokenize("xychart\n😀%%\n");
         assert_eq!(t.types, vec![XYCHART, NEWLINE, ERROR]);
         assert_eq!(t.starts[2], 8);

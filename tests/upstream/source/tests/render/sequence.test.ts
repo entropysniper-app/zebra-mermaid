@@ -473,6 +473,15 @@ describe('sequence rendering', () => {
     expect(render('sequenceDiagram\n  title My title\n  A->>B: x', options).height).toBeGreaterThan(render('sequenceDiagram\n  A->>B: x', options).height);
   });
 
+  it('treats a bare title as no title', () => {
+    for (const src of ['sequenceDiagram\ntitle\nA->>B: Hi\nB->>A: Bye', 'sequenceDiagram\ntitle: \nA->>B: Hi\nB->>A: Bye']) {
+      const m = model(src);
+      expect(m.title, src).toBeUndefined();
+      expect(m.messages.map((x) => x.message), src).toEqual(['Hi', 'Bye']);
+    }
+    expect(model('sequenceDiagram\n  title My title\n  A->>B: x').title).toBe('My title');
+  });
+
   it('writes accessible title and description', () => {
     const svg = svgOf('sequenceDiagram\n  accTitle: A title\n  accDescr: A description\n  A->>B: x');
     expect(svg).toContain('<title id="pele-title">A title</title>');
@@ -536,6 +545,11 @@ describe('sequence rendering', () => {
     expect([...m.actors.keys()]).toEqual(['Alice', 'BOB']);
     expect(m.actors.get('Alice')?.description).toBe('A');
     expect(m.messages.map((x) => x.type)).toEqual([LINETYPE.SOLID, LINETYPE.NOTE, LINETYPE.LOOP_START, LINETYPE.SOLID, LINETYPE.LOOP_END]);
+  });
+
+  it('keeps the character before a comment', () => {
+    expect(model('sequenceDiagram\n  A->>B:%% comment').messages.map((m) => m.message)).toEqual(['%% comment']);
+    expect(() => model('sequenceDiagram\n  autonumber 5%% comment')).toThrow(PeleError);
   });
 
   it('throws structured errors', () => {

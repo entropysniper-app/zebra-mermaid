@@ -46,6 +46,8 @@ fn style_token(t: u8) -> bool {
 }
 struct Parser<'a> {
     src: &'a str,
+    source: &'a str,
+    source_map: crate::preprocess::source_map::StepMap,
     types: Vec<u8>,
     texts: Vec<String>,
     starts: Vec<usize>,
@@ -85,11 +87,17 @@ impl Parser<'_> {
     }
     fn fail(&self, expected: &str) -> Error {
         let t = self.kind();
-        let at = js::byte_at16(self.src, self.starts.get(self.i).copied().unwrap_or(js::len16(self.src)));
+        let at = self.source_map.to_src(js::byte_at16(self.src, self.starts.get(self.i).copied().unwrap_or(js::len16(self.src))));
         if t == ERROR {
-            syntax_error(DiagramType::Agentflow, self.src, at, "", true)
+            syntax_error(DiagramType::Agentflow, self.source, at, "", true)
         } else {
-            syntax_error(DiagramType::Agentflow, self.src, at, &format!("Expecting {expected}, got '{}'", TOKEN_NAMES[t as usize]), false)
+            syntax_error(
+                DiagramType::Agentflow,
+                self.source,
+                at,
+                &format!("Expecting {expected}, got '{}'", TOKEN_NAMES[t as usize]),
+                false,
+            )
         }
     }
     fn expect(&mut self, kind: u8, also: &str) -> Result<String, Error> {
@@ -636,8 +644,8 @@ fn clean_description(value: &str) -> String {
     crate::util::chars::normalize_accessibility_description(value)
 }
 
-fn brace_trailing(source: &str) -> String {
-    let mut out = String::with_capacity(source.len());
+fn brace_trailing(source: &str) -> (String, crate::preprocess::source_map::StepMap) {
+    let mut out = crate::preprocess::source_map::Builder::new(source);
     let mut from = 0;
     for (at, c) in source.char_indices() {
         if at < from || c != '}' {
@@ -654,19 +662,22 @@ fn brace_trailing(source: &str) -> String {
             }
         }
         if let Some(end) = last {
-            out.push_str(&source[from..at + 1]);
-            out.push('\n');
+            out.copy(from, at + 1);
+            out.write("\n", at + 1);
             from = end;
         }
     }
-    out.push_str(&source[from..]);
-    out
+    out.copy(from, source.len());
+    out.finish()
 }
 pub fn parse(source: &str, db: &mut AgentflowModel, raw: bool) -> Result<(), Error> {
-    let src = if raw { source.to_owned() } else { brace_trailing(source) };
+    let (src, source_map) =
+        if raw { (source.to_owned(), crate::preprocess::source_map::StepMap::identity(source.len())) } else { brace_trailing(source) };
     let t = tokenize(&src);
     let mut p = Parser {
         src: &src,
+        source,
+        source_map,
         types: t.types,
         texts: t.texts,
         locs: t.locs,
@@ -677,6 +688,19 @@ pub fn parse(source: &str, db: &mut AgentflowModel, raw: bool) -> Result<(), Err
         db,
         pending: None,
     };
+    let line_offset = p.db.line_offset;
+    parse_document(&mut p).map_err(|mut error| {
+        if error.offset.is_none() && error.line > line_offset && error.column > 0 {
+            let line = error.line - line_offset;
+            let start = if line <= 1 { 0 } else { source.match_indices('\n').nth(line - 2).map_or(0, |(at, _)| at + 1) };
+            let at = start + js::byte_at16(&source[start..], error.column - 1);
+            error.relocate(source, at);
+        }
+        error
+    })
+}
+
+fn parse_document(p: &mut Parser<'_>) -> Result<(), Error> {
     while matches!(p.kind(), SPACE | NEWLINE | COMMENT) {
         p.i += 1;
     }

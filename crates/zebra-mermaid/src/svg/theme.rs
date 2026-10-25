@@ -257,7 +257,7 @@ pub fn resolve_style<S: AsRef<str>>(declarations: &[S]) -> ResolvedStyle {
             continue;
         }
         let value = strip_important(&decl[at + 1..]);
-        if value.is_empty() || is_unsafe_style(&value) {
+        if value.is_empty() || is_unsafe_style(&value) || value.chars().any(crate::svg::builder::is_invalid_xml) {
             continue;
         }
         match (shape_index, text_index) {

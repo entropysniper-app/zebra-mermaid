@@ -111,10 +111,21 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
         line_offset,
         limits: ParseLimits { max_edges: options.max_edges.unwrap_or(DEFAULT_MAX_EDGES) },
     };
-    let model = diagrams::parse(diagram_type, &input).map_err(|mut e| {
+    let model = match diagram_type {
+        #[cfg(feature = "usecase")]
+        DiagramType::Usecase => diagrams::usecase::parse_in_source(&input, source, &map).map(DiagramModel::Usecase),
+        _ => diagrams::parse(diagram_type, &input),
+    }
+    .map_err(|mut e| {
         if let Some(offset) = e.offset {
             let at = map.to_source(offset).min(source.len());
             e.span = Some(at..at);
+            let normalized = source.replace("\r\n", "\n").replace('\r', "\n") + "\n";
+            let written_at = map.to_input_offset(offset);
+            let normalized_at = source[..written_at.min(source.len())].replace("\r\n", "\n").replace('\r', "\n").len()
+                + written_at.saturating_sub(source.len());
+            e.relocate(&normalized, normalized_at);
+            e.offset = Some(offset);
         }
         e.tag(found)
     })?;

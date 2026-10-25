@@ -104,10 +104,16 @@ fn tokenize_into<'s, T: From<&'s str> + Default>(src: &'s str) -> Tokens<T> {
             emit(&mut out, src, &mut p, JOURNEY, e);
             continue;
         }
-        // `\s` after a keyword also takes a line break, so `title` alone on a line takes the
-        // next line as its text.
         if keyword_at(src, p, "title") {
-            if let Some(len) = space_at(src, p + 5) {
+            let mut e = p + 5;
+            while let Some(ch) = char_at(src, e).filter(|&ch| ch != '\n' && is_space(ch)) {
+                e += ch.len_utf8();
+            }
+            if e == n || src.as_bytes().get(e) == Some(&b'\n') {
+                p = e;
+                continue;
+            }
+            if let Some(len) = space_at(src, p + 5).filter(|_| !matches!(char_at(src, p + 5), Some('\r' | '\n'))) {
                 let from = p + 5 + len;
                 let e = text_end(src, from, false);
                 if e > from {
@@ -176,10 +182,11 @@ mod tests {
         let t = tokenize("journey\nsection\u{3000}A:\n");
         assert_eq!(t.types[2], SECTION);
         assert_eq!(t.texts[2], "section\u{3000}A");
-        // `title` alone on a line takes the next line.
+        // A bare title leaves the following task name on its own line.
         let t = tokenize("journey\ntitle\nfoo\n");
-        assert_eq!(t.types[2], TITLE);
-        assert_eq!(t.texts[2], "title\nfoo");
+        assert_eq!(t.types[2], NEWLINE);
+        assert_eq!(t.types[3], TASK_NAME);
+        assert_eq!(t.texts[3], "foo");
         // An unclosed accDescr block at the end is followed by no EOF.
         let t = tokenize("journey\naccDescr {\nabc");
         assert_eq!(t.types[t.types.len() - 2], ACC_DESCR_MULTILINE_VALUE);

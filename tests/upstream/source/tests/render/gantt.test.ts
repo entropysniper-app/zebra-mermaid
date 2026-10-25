@@ -223,6 +223,13 @@ describe('gantt rendering', () => {
     expect(render('---\ntitle: From front matter\n---\n' + src.replace('gantt\n', 'gantt\n title Own\n'), options).svg).toContain('>Own<');
   });
 
+  it('treats a bare title as no title and keeps a title after a tab', () => {
+    const model = parse('gantt\ntitle\nsection Work\nTask :2026-01-01, 1d') as GanttModel;
+    expect(model.title).toBeUndefined();
+    expect(model.getTasks(NOW).map((task) => [task.task, task.section])).toEqual([['Task ', 'Work']]);
+    expect((parse('gantt\ntitle\tPlan\n') as GanttModel).title).toBe('Plan');
+  });
+
   it('writes accessible names', () => {
     const { svg } = render('gantt\n accTitle: Plan\n accDescr: Tasks for Q4\n dateFormat YYYY-MM-DD\n A :a, 2014-01-07, 3d\n', options);
     expect(svg).toContain('<title id="pele-title">Plan</title>');
@@ -341,6 +348,10 @@ describe('gantt scheduling', () => {
     expect(a).toMatchObject({ id: 'a', task: 'A ', section: 'S', crit: true, done: true, active: false, order: 0 });
     expect(b).toMatchObject({ id: 'task1', milestone: true, order: 1 });
     expect(v).toMatchObject({ id: 'v', vert: true, order: -1 });
+  });
+
+  it('keeps a task whose name runs into %%', () => {
+    expect(tasksOf('gantt\ndateFormat YYYY-MM-DD\nA%% label : 2026-10-24, 1d').map((task) => task.task)).toEqual(['A%% label ']);
   });
 
   it('treats ids that are Object.prototype names as ordinary ids', () => {

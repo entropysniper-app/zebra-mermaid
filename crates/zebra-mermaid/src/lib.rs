@@ -1,7 +1,7 @@
 //! A pure Rust Mermaid to SVG renderer, ported from [Pele](https://github.com/obsidianmd/pele).
 //!
 //! The library parses Mermaid text, lays it out and writes SVG without a JavaScript engine,
-//! browser or external layout program. Output follows Pele 1.9.0 (commit `e7f092a`), which
+//! browser or external layout program. Output follows Pele 1.10.0 (commit `4eff76f`), which
 //! targets Mermaid 12.1.0 syntax.
 //!
 //! ```
@@ -52,6 +52,6 @@ pub use theme::{CanvasBackground, ColorMode, MermaidPalette, MermaidThemeMode, P
 pub use util::url::LinkInfo;
 
 /// The upstream this library follows.
-pub const PELE_VERSION: &str = "1.9.0";
-pub const PELE_COMMIT: &str = "e7f092a4de147cc32210913c20e36eaa5fcd0ef1";
+pub const PELE_VERSION: &str = "1.10.0";
+pub const PELE_COMMIT: &str = "4eff76f98c73b6817800a05773517f35832e4e92";
 pub const MERMAID_SYNTAX_VERSION: &str = "12.1.0";

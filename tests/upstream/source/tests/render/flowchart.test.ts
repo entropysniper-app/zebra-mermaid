@@ -420,6 +420,23 @@ describe('public api', () => {
     expect(() => render('flowchart TD\n  A --> B', { limit: 5 })).toThrow(/limit/);
   });
 
+  it('shows entity codes in errors as they were written', () => {
+    expect(() => render('flowchart TD\nA[a#35;b] --> -->')).toThrow(/^Parse error on line 2:\nA\[a#35;b\] --> -->\n/);
+    expect(() => render('flowchart TD\na@{shape: "#35;x"}')).toThrow(
+      expect.objectContaining({ code: 'semantic', message: 'No such shape: #35;x.' })
+    );
+  });
+
+  it('reports lines and columns in the source as written', () => {
+    expect(() => render('flowchart TD\nA[a#35;b] --> -->')).toThrow(
+      expect.objectContaining({ line: 2, column: 15, snippet: 'A[a#35;b] --> -->\n--------------^' })
+    );
+    expect(() => render('---\ntitle: T\n---\n\n%% A comment\nflowchart TD\n  A --> B\n  C --> --> D')).toThrow(
+      expect.objectContaining({ line: 8, column: 9, message: expect.stringMatching(/^Parse error on line 8:\n  C --> --> D\n--------\^\n/) })
+    );
+    expect(() => render('flowchart TD\n  A{a}  \n\n  C --> --> D')).toThrow(expect.objectContaining({ line: 4, column: 9 }));
+  });
+
   it('parses without rendering', () => {
     const model = parse('flowchart LR\n  A[Start] --> B{Choice}');
     expect(model.type).toBe('flowchart');

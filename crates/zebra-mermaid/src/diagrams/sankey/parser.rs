@@ -241,14 +241,17 @@ pub fn prepare_text_for_parsing(text: &str) -> String {
 }
 
 /// Prepares and parses the rows of `source` into `model`. A syntax error is located in the
-/// prepared text, as Pele locates it; its byte offset is mapped back to `source`.
+/// original text, before blank lines were collapsed.
 pub fn parse_sankey(source: &str, model: &mut SankeyModel) -> Result<(), Error> {
     let src = prepare_text_for_parsing(source);
     parse_rows(&src, model).map_err(|mut e| {
         if let Some(offset) = e.offset {
             let mut map = Vec::new();
             prepare(source, Some(&mut map));
-            e.offset = map.get(offset).copied().or(e.offset);
+            let at = if offset > 0 && offset >= src.len() { map.get(src.len() - 1).map(|at| at + 1) } else { map.get(offset).copied() };
+            if let Some(at) = at {
+                e.relocate(source, at);
+            }
         }
         e
     })
@@ -340,10 +343,14 @@ fn parse_rows(src: &str, model: &mut SankeyModel) -> Result<(), Error> {
         p.expect(T::Comma, ", 'NEWLINE', 'EOF'")?;
         let to = p.name()?;
         p.expect(T::Comma, ", 'NEWLINE', 'EOF'")?;
-        let amount = p.field()?;
+        let start = p.tokens[p.i].start;
+        let value = js::parse_float(p.field()?);
+        if !value.is_finite() {
+            return Err(syntax_error(DiagramType::Sankey, p.src, start, "Expecting a number", false));
+        }
         let source = find_or_create(model, from);
         let target = find_or_create(model, to);
-        model.links.push(SankeyLink { source, target, value: js::parse_float(js::trim(amount)) });
+        model.links.push(SankeyLink { source, target, value });
         if p.kind() != T::Newline {
             break;
         }
@@ -394,11 +401,11 @@ mod tests {
 
     #[test]
     fn error_offsets_point_into_the_source() {
-        // Pele locates the error in the prepared text; the offset is mapped back to the source.
+        // Pele 1.10.0 locates the error before blank lines are collapsed.
         let source = "sankey\n\n\n  a,b\n";
         let mut model = SankeyModel::default();
         let e = parse_sankey(source, &mut model).unwrap_err();
-        assert_eq!(e.message, "Parse error on line 2:\n  a,b\n-----^\nExpecting 'COMMA', 'NEWLINE', 'EOF', got 'EOF'");
+        assert_eq!(e.message, "Parse error on line 4:\n  a,b\n-----^\nExpecting 'COMMA', 'NEWLINE', 'EOF', got 'EOF'");
         assert_eq!(e.offset, Some(14));
         let source = "\t sankey\r\n\r\nx,y,1\n\n\u{e9},z,2\n";
         // Pele 1.9.0 accepts Unicode CSV names at the same original input.

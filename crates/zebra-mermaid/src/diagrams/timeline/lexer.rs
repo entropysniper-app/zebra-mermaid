@@ -106,10 +106,16 @@ fn tokenize_into<'s, T: From<&'s str> + Default>(src: &'s str) -> Tokens<T> {
                 continue;
             }
         }
-        // `\s` after a keyword also takes a line break, so `title` alone on a line takes the
-        // next line as its text.
         if keyword_at(src, p, "title") {
-            if let Some(len) = space_at(src, p + 5) {
+            let mut e = p + 5;
+            while let Some(ch) = char_at(src, e).filter(|&ch| ch != '\n' && is_space(ch)) {
+                e += ch.len_utf8();
+            }
+            if e == n || b.get(e) == Some(&b'\n') {
+                p = e;
+                continue;
+            }
+            if let Some(len) = space_at(src, p + 5).filter(|_| !matches!(char_at(src, p + 5), Some('\r' | '\n'))) {
                 let q = p + 5 + len;
                 if q < n && b[q] != b'\n' {
                     let e = line_end(src, q);
@@ -204,10 +210,11 @@ mod tests {
     }
 
     #[test]
-    fn title_alone_takes_the_next_line() {
+    fn title_alone_preserves_the_next_line() {
         let t = tokenize("timeline\ntitle\nNext\n");
-        assert_eq!(t.types[2], TITLE);
-        assert_eq!(t.texts[2], "title\nNext");
+        assert_eq!(t.types[2], NEWLINE);
+        assert_eq!(t.types[3], PERIOD);
+        assert_eq!(t.texts[3], "Next");
     }
 
     #[test]

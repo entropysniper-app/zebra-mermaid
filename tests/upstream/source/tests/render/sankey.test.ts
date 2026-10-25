@@ -86,6 +86,9 @@ describe('sankey rendering', () => {
     const money = render(configured('prefix: "$"\nsuffix: " M"'), options).svg;
     expect(money).toContain('>$8 M</tspan>');
     expect(money).toContain('<title>a → b: $5 M</title>');
+    const coded = render(configured('prefix: "&euro;"\nsuffix: " &amp;lt;"\nlabelStyle: outlined'), options).svg;
+    expect(coded).toContain('>€8 &amp;lt;</tspan>');
+    expect(coded).toContain('<title>a → b: €5 &amp;lt;</title>');
     const hidden = render(configured('showValues: false'), options).svg;
     expect(hidden).not.toContain('pele-sankey-value');
     expect(hidden).toContain('>a</text>');
@@ -386,8 +389,20 @@ Upgraded to Pro,Stayed on Pro,284`;
     expect(() => render('sankey\na,b\n', options)).toThrow(/Expecting 'COMMA', 'NEWLINE', 'EOF', got 'EOF'|Expecting 'COMMA'/);
   });
 
-  it('draws values that are not usable numbers as empty flows', () => {
-    const { svg } = render('sankey\na,b,abc\na,c,-3\nb,d,0\nc,d,2\n', options);
+  it('reads values that start with a number, and refuses the rest', () => {
+    expect(render('sankey\na,b,50%\nb,c, 2e1 kWh\n', options).svg).toContain('<title>b → c: 20</title>');
+    for (const value of ['abc', '', 'Infinity', '1e400', '-']) {
+      expect(() => render(`sankey\na,b,1\nb,c,${value}\n`, options), value).toThrow(expect.objectContaining({ code: 'syntax', line: 3, column: 5 }));
+    }
+  });
+
+  it('reports the line of an error after blank lines', () => {
+    expect(() => parse('sankey\n\na,b,1\n\nb,c,abc')).toThrow(expect.objectContaining({ line: 5, column: 5 }));
+    expect(() => parse('sankey\n\na,b,1\n\nb,c,abc')).toThrow(/^Parse error on line 5:\nb,c,abc\n/);
+  });
+
+  it('draws non-positive values as empty flows', () => {
+    const { svg } = render('sankey\na,b,0\na,c,-3\nb,d,0\nc,d,2\n', options);
     expect(svg).not.toContain('NaN');
     expect(count(svg, /class="pele-sankey-link"/g)).toBe(4);
     expect(svg).toContain('<title>a → b: 0</title>');

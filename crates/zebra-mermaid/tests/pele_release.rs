@@ -6,11 +6,12 @@ use zebra_mermaid::{render, type_enabled, DiagramType};
 
 #[test]
 fn current_release_corpus_matches_svg_geometry_links_and_error_metadata() {
-    let metadata: serde_json::Value = serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.9.0.metadata.json")).unwrap();
+    let metadata: serde_json::Value = serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.10.0.metadata.json")).unwrap();
     assert_eq!(metadata["version"], zebra_mermaid::PELE_VERSION);
     assert_eq!(metadata["commit"], zebra_mermaid::PELE_COMMIT);
     let mut checked = 0;
-    for row in common::read_jsonl("pele-1.9.0.jsonl.gz") {
+    let mut failures = common::Failures::default();
+    for row in common::read_jsonl("pele-1.10.0.jsonl.gz") {
         let expected = &row["expect"];
         let diagram_type = expected["type"].as_str().or(expected["error"]["type"].as_str());
         if diagram_type.and_then(|t| t.parse::<DiagramType>().ok()).is_some_and(|t| !type_enabled(t)) {
@@ -24,11 +25,39 @@ fn current_release_corpus_matches_svg_geometry_links_and_error_metadata() {
             Err(e) => json!({"ok":false,"error":{"code":e.code,"message":e.message,"line":e.line,"column":e.column,
                 "snippet":e.snippet,"type":e.diagram_type,"mermaidType":e.mermaid_type}}),
         };
-        common::json_eq(&actual, expected, row["id"].as_str().unwrap()).unwrap();
+        failures.check(common::json_eq(&actual, expected, row["id"].as_str().unwrap()), || row["id"].to_string());
         checked += 1;
     }
     if DiagramType::ALL.into_iter().all(type_enabled) {
         assert_eq!(checked, metadata["cases"].as_u64().unwrap() as usize);
     }
     eprintln!("Pele {}: {checked} complete render responses identical", zebra_mermaid::PELE_VERSION);
+    failures.assert_none("current release complete responses");
+}
+
+#[test]
+fn release_regressions_match_complete_responses() {
+    let metadata: serde_json::Value =
+        serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.10.0/release-regressions.metadata.json")).unwrap();
+    assert_eq!(metadata["version"], zebra_mermaid::PELE_VERSION);
+    assert_eq!(metadata["commit"], zebra_mermaid::PELE_COMMIT);
+    let mut failures = common::Failures::default();
+    for row in common::read_jsonl("release-regressions.jsonl") {
+        let expected = &row["expect"];
+        let diagram_type = expected["type"].as_str().or(expected["error"]["type"].as_str());
+        if diagram_type.and_then(|t| t.parse::<DiagramType>().ok()).is_some_and(|t| !type_enabled(t)) {
+            continue;
+        }
+        let actual = match render(row["source"].as_str().unwrap(), &common::render_options(&row["options"], &row["icons"])) {
+            Ok(r) => json!({"ok":true,"type":r.diagram_type,"mermaidType":r.mermaid_type,"width":r.width,"height":r.height,
+                "svg":r.svg,"links":r.links.iter().map(|l| json!({"id":l.id,"href":l.href,"internal":l.internal})).collect::<Vec<_>>()}),
+            Err(e) => json!({"ok":false,"error":{"code":e.code,"message":e.message,"line":e.line,"column":e.column,
+                "snippet":e.snippet,"type":e.diagram_type,"mermaidType":e.mermaid_type}}),
+        };
+        failures.check(common::json_eq(&actual, expected, row["id"].as_str().unwrap()), || row["id"].to_string());
+    }
+    if DiagramType::ALL.into_iter().all(type_enabled) {
+        assert_eq!(failures.checked, metadata["cases"].as_u64().unwrap() as usize);
+    }
+    failures.assert_none("release regression responses");
 }

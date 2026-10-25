@@ -417,7 +417,15 @@ impl<T: TokenText> Lexer<'_, T> {
         if legacy {
             q += 1;
         }
-        if !is_space(self.at(q)) || q + 1 >= self.n || !self.has(q + 1, C_LINE) {
+        let mut e = q;
+        while e < self.n && self.at(e) != 10 && is_space(self.at(e)) {
+            e += 1;
+        }
+        if e == self.n || self.at(e) == 10 {
+            self.p = e;
+            return true;
+        }
+        if !is_space(self.at(q)) || self.at(q) == 13 || !self.has(q + 1, C_LINE) {
             return false;
         }
         let end = self.line_run(q + 1);
@@ -506,10 +514,6 @@ impl<T: TokenText> Lexer<'_, T> {
             return;
         }
         if c == 35 || (c == 37 && self.at(p + 1) != 123) {
-            self.p = self.eol(p);
-            return;
-        }
-        if c != 125 && self.at(p + 1) == 37 && self.at(p + 2) == 37 {
             self.p = self.eol(p);
             return;
         }
@@ -802,10 +806,9 @@ mod tests {
         assert_eq!(t[0], (ACTOR, "a-b-c".to_string()));
         assert_eq!(t[1].0, SOLID_ARROW);
         assert_eq!(t[2], (ACTOR, "中文😀 x".to_string()));
-        // A comment marker after a non-ASCII character starts a comment, as it does in Pele,
-        // which looks one code unit ahead.
+        // Pele 1.10.0 preserves the name before a comment marker.
         let t = kinds("é%% c\n");
-        assert_eq!(t[0].0, NEWLINE);
+        assert_eq!(t[0], (ACTOR, "é%% c".to_string()));
     }
 
     #[test]
