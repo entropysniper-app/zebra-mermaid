@@ -1,8 +1,10 @@
 # Compiled code size
 
-Current verified source: `2f2c3b097dcaa1e9d15a448f9cda0822049301a3`, aligned with Pele 1.9.0 and using RaTeX 0.1.15 by default. All 33 types and built-in math remain enabled. Continuous optimization remains stopped at the user's request; this is a finite measurement after the version upgrade. The **2× API-return performance target remains unmet**. Size has no user-assigned numeric threshold.
+Latest published measurement (2026-10-23), verified source: `2f2c3b097dcaa1e9d15a448f9cda0822049301a3`, aligned with Pele 1.9.0 and using RaTeX 0.1.15 by default. All 33 types and built-in math remain enabled. Continuous optimization remains stopped at the user's request; this is a finite measurement after the version upgrade. The **2× API-return performance target remains unmet**. Size has no user-assigned numeric threshold.
 
-## Current shipping artifacts
+The subsequent Pele 1.10.0 source update has not been measured for code size. The recorded figures below retain their original revisions.
+
+## Recorded shipping artifacts
 
 Release/thin LTO/one codegen unit, locked dependencies, rustc 1.96.1; no stripping. Section reader: LLVM 21.0.0 `llvm-size`. Source checkout paths are remapped consistently. This describes the recorded build and does not claim a cross-platform footprint.
 

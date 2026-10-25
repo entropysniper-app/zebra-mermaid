@@ -1,64 +1,57 @@
 # Pele 全量测试 1:1 移植与验收
 
-2026-10-19 用户新增硬性要求：**Pele 中所有测试都要 1:1 平移，并通过。** 原来的输入采集与 SVG 差分仍是补充验证，不能代替原始测试。
+2026-10-19 用户新增硬性要求：**Pele 中所有测试都要 1:1 平移，并通过。** 输入采集与 SVG 差分是补充验证，不能代替原始测试。
 
 ## 完整参照
 
-- 固定版本：Pele 1.9.0，`e7f092a4de147cc32210913c20e36eaa5fcd0ef1`（按用户 2026-10-23 要求升级；原版本的证据保留）。
-- 逐项清单：[`tests/upstream/inventory.json`](../tests/upstream/inventory.json)。保存文件、SHA-256、完整测试名称、位置、文件内序号、执行模式、原始 Vitest 超时值和稳定 ID。
-- 完整原始测试及辅助文件：`tests/upstream/source/tests/`，保留上游版权注释，许可证在 `tests/upstream/source/LICENSE` 与 `THIRD_PARTY_NOTICES.md`。
-- 参数化测试展开为独立项；重复名称通过文件内序号区分。
-- 测试范围是全部 `tests/**/*.{test,spec}.{ts,js}`，包含 `tests/website/`、mount、zoom、browser、字体加载与入口打包测试。不能沿用 `npm test` 排除 website 的范围。
+- 固定版本：Pele 1.10.0，`4eff76f98c73b6817800a05773517f35832e4e92`（按用户 2026-10-25 要求升级；此前版本的证据保留）。
+- 逐项清单：[`tests/upstream/inventory.json`](../tests/upstream/inventory.json)，保存文件、SHA-256、完整名称、位置、文件内序号、执行模式、原始 Vitest 超时和稳定 ID。参数化行分别展开，重复名称由文件内序号区分。
+- 完整原始测试和辅助文件：`tests/upstream/source/tests/`，保留上游版权和许可证。
+- 范围包含全部 `tests/**/*.{test,spec}.{ts,js}`，包括网站、mount、zoom、browser、字体加载与入口打包测试，不沿用 `npm test` 排除 website 的范围。
 
-完整上游复跑结果：**295 个文件，6,971 个测试项；6,866 通过、103 跳过、2 todo**。这是 TypeScript 参照基线，不是 Rust 结果。网站依赖按其现有锁文件安装，未改动测试或实现源文件。
+上游全套复跑：**295 个文件、6,993 项；6,888 passed、103 skipped、2 todo**。这是 TypeScript 参照基线，不是 Rust 的通过数。
 
 ## 1:1 的含义
 
-每个测试的原始输入、参数值、预期值、断言关系、顺序、循环次数、随机数生成算法及调用顺序、性能阈值和失败行为都要保留。Rust 的 Result/静态类型可对应 JS 的异常类型/运行时类型断言，必须在映射记录中解释。
+每项输入、参数值、预期值、断言关系、顺序、循环次数、随机算法和调用顺序、性能阈值和失败行为都要保留。Rust Result、Option、枚举和字段断言对应 JS 异常、undefined、类型名和对象字段，逐项在映射中解释。
 
-原本调用第三方解析器作参照的测试，仍须使用该独立参照产生的预期结果，并保留原断言；不能用被测 Rust 实现生成自己的期望值。原始 DOM/浏览器行为需要相应宿主适配测试，未实现时保持未移植状态，不能改成仅检查 SVG 字符串。
-
-不得通过减少样本、放宽时间或数值阈值、修改期望值、增加 ignore、吞掉 panic、提前返回成功来通过。已知差异和采集工具排除清单不自动豁免本要求。原本的 skip/todo 单独登记，不能宣称为通过；当前严格门禁对它们也不会给出“全部完成”。
+第三方参照继续独立生成原断言需要的预期结果，不能用 Rust 输出生成自己的期望值。DOM/浏览器行为需要宿主适配测试，不能改成仅检查 SVG。禁止删减断言、减少样本、放宽门槛、增加跳过或生成空 TODO 测试凑通过数。原始 skip/todo 保留来源且单独计数；Rust 实际执行成功也不把原 skip 算成验收通过。
 
 ## 可执行验收
 
 ```sh
-# 从固定参照运行全部测试并重新生成清单（需先安装 Pele 与 website 的锁定依赖）
+# 固定参照的全部测试与清单（Pele 和 website 的依赖均按锁文件安装）
 node tools/test-parity/inventory.mjs
 
-# 执行已映射的真实 Rust 测试；报告仍明确显示未完成数量
+# 已映射子集；成功不等于完整验收
 node tools/test-parity/check.mjs --run
 
-# 原时限审计：每个测试在独立进程运行，强制执行原始超时
+# 每项独立进程、执行原 Vitest 超时，启动时间计入时限
 node tools/test-parity/check.mjs --run --isolate
 
-# 最终完整门禁：包含原时限审计；未移植、未运行、失败或跳过都使其非零退出
+# 未映射、失败、待验证或跳过均使完整门禁非零退出
 node tools/test-parity/check.mjs --require-complete
 ```
 
-映射保存在 [`tests/upstream/ports.json`](../tests/upstream/ports.json)，Rust 入口是 [`upstream_parity.rs`](../crates/zebra-mermaid/tests/upstream_parity.rs)。审计工具检查：
-
-1. 冻结源文件哈希、测试总数及唯一 ID。
-2. 上游测试与目标测试严格一一对应，禁止多个上游项合并为一个目标测试。
-3. 映射中的目标确实出现在编译后的 libtest 列表中，不能因 feature 未开启而消失。
-4. 实际执行结果；测试源码和测试二进制 SHA-256 一同写入报告。完整门禁为每个用例启动独立进程，使用参照运行记录的原始超时值；启动时间计入时限，不添加宽限。
-5. 有未移植项时，子集测试即使全部通过，报告 `complete` 仍为 `false`。
-
-报告及日志在 `target/test-parity/`。该目录是运行产物；映射本身不缓存“已通过”状态，必须实际运行才能记为 passed。
+[`ports.json`](../tests/upstream/ports.json) 严格一项对应一个实际测试；审计校验源哈希、目标唯一性、编译后的真实测试列表和实际结果。八类转换器的源与断言校验必须通过，补充 golden fixture 不接受为原测试映射。报告和本地日志在 `target/test-parity/`，映射不缓存“已通过”状态。
 
 ## 当前移植结果
 
-2026-10-23 的逐项独立进程原超时审计：2,808 通过、0 失败、7 保留原 skip、4,156 未映射、0 待验证。完整门禁仍非零退出；[执行证据](research/pele-1.9.0-alignment-2026-10-23/validation.json)与[完整原始报告](research/pele-1.9.0-alignment-2026-10-23/upstream-report.json.gz)单独保存。
+2026-10-25 原超时独立进程审计：**2,840 passed、0 failed、7 保留原 skip、4,146 未映射、0 待验证**，通过率 **40.61%**。`complete: false`，完整门禁退出码为 1。
 
-用户明确要求默认使用 RaTeX 并移除数学回调。这是有意的宿主 API 差异；上游数学回调用例完整保留，不以默认 RaTeX 的补充测试替代或计入等价移植通过。
+本次完整移植所有 22 项新增原测试、9 项修改过的已有回调和 1 项改名的 Sankey 用例，共增加 32 项独立映射。原超时、参数行、输入、断言和失败行为保留。边数压力测试仍有两组 2,000 × 2,000 组合及各自 2,000 ms 门槛，并执行原来的 5,000/5,001/11 条链。内部链接的两个原始回调通过符号转换保留所有原始布尔断言；其他用例逐项手写移植。
+
+[验证汇总](research/pele-1.10.0-alignment-2026-10-25/validation.json) · [逐项报告](research/pele-1.10.0-alignment-2026-10-25/upstream-report.json.gz) · [源码与测试增量](research/pele-1.10.0-alignment-2026-10-25/source-delta.json)。316 个新补充完整响应、761 个文档响应、167 个样本和 39 组负载单独报告，不计作原测试映射。
+
+用户指定的默认 RaTeX 与移除数学回调属于有意的宿主 API 差异。上游回调测试完整保留且未映射，默认数学补充测试不冒充等价移植。Sankey 的独立 Jison oracle 测试仍未映射；网站、宿主和打包行为也继续在全套验收内。
 
 | 原文件 | 已映射项数 | Rust 验收通过 | 保留上游跳过 |
 | --- | ---: | ---: | ---: |
 | `tests/agentflow/stress.test.ts` | 69 | 69 | 0 |
 | `tests/class/stress.test.ts` | 56 | 56 | 0 |
-| `tests/compat/class/classDiagram.spec.ts`（原文件 384 项） | 382 | 381 | 1 |
+| `tests/compat/class/classDiagram.spec.ts` | 382 | 381 | 1 |
 | `tests/compat/class/classTypes.spec.ts` | 93 | 93 | 0 |
-| `tests/compat/er/erDiagram.spec.js`（原文件 634 项） | 632 | 631 | 1 |
+| `tests/compat/er/erDiagram.spec.js` | 632 | 631 | 1 |
 | `tests/compat/flowchart/flow-arrows.spec.js` | 14 | 14 | 0 |
 | `tests/compat/flowchart/flow-comments.spec.js` | 9 | 9 | 0 |
 | `tests/compat/flowchart/flow-direction.spec.js` | 4 | 4 | 0 |
@@ -68,47 +61,57 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/compat/flowchart/flow-md-string.spec.js` | 2 | 2 | 0 |
 | `tests/compat/flowchart/flow-node-data.spec.js` | 31 | 30 | 1 |
 | `tests/compat/flowchart/flow-singlenode.spec.js` | 148 | 148 | 0 |
-| `tests/compat/flowchart/flow-style.spec.js`（原文件 25 项） | 24 | 24 | 0 |
+| `tests/compat/flowchart/flow-style.spec.js` | 24 | 24 | 0 |
 | `tests/compat/flowchart/flow-text.spec.js` | 342 | 342 | 0 |
 | `tests/compat/flowchart/flow-vertice-chaining.spec.js` | 7 | 7 | 0 |
 | `tests/compat/flowchart/flow.spec.js` | 26 | 25 | 1 |
-| `tests/compat/flowchart/flowDb.spec.ts`（原文件 32 项） | 31 | 31 | 0 |
+| `tests/compat/flowchart/flowDb.spec.ts` | 31 | 31 | 0 |
 | `tests/compat/flowchart/subgraph.spec.js` | 24 | 23 | 1 |
 | `tests/compat/info/info.spec.ts` | 4 | 2 | 2 |
 | `tests/compat/info/info.test.ts` | 12 | 12 | 0 |
-| `tests/compat/sequence/sequenceDiagram.spec.js`（原文件 157 项） | 125 | 125 | 0 |
+| `tests/compat/sequence/sequenceDiagram.spec.js` | 125 | 125 | 0 |
 | `tests/er/stress.test.ts` | 47 | 47 | 0 |
 | `tests/flowchart/parser.test.ts` | 6 | 6 | 0 |
 | `tests/gantt/dates.test.ts` | 90 | 90 | 0 |
 | `tests/info/stress.test.ts` | 13 | 13 | 0 |
 | `tests/layout/compound.test.ts` | 27 | 27 | 0 |
-| `tests/layout/layered.test.ts` | 1 | 1 | 0 |
-| `tests/render/break-hints.test.ts` | 11 | 11 | 0 |
 | `tests/layout/lanes.test.ts` | 24 | 24 | 0 |
-| `tests/render/edges.test.ts` | 6 | 6 | 0 |
-| `tests/render/fonts.test.ts`（原文件 7 项） | 6 | 6 | 0 |
-| `tests/render/info.test.ts` | 5 | 5 | 0 |
-| `tests/render/mermaid-type.test.ts` | 16 | 16 | 0 |
+| `tests/layout/layered.test.ts` | 1 | 1 | 0 |
+| `tests/render/agentflow.test.ts` | 1 | 1 | 0 |
+| `tests/render/break-hints.test.ts` | 11 | 11 | 0 |
+| `tests/render/c4.test.ts` | 1 | 1 | 0 |
 | `tests/render/cjk-wrap.test.ts` | 6 | 6 | 0 |
+| `tests/render/edges.test.ts` | 6 | 6 | 0 |
+| `tests/render/eventmodeling.test.ts` | 1 | 1 | 0 |
+| `tests/render/flowchart.test.ts` | 2 | 2 | 0 |
+| `tests/render/fonts.test.ts` | 6 | 6 | 0 |
+| `tests/render/gantt.test.ts` | 2 | 2 | 0 |
+| `tests/render/info.test.ts` | 5 | 5 | 0 |
+| `tests/render/journey.test.ts` | 2 | 2 | 0 |
+| `tests/render/mermaid-type.test.ts` | 16 | 16 | 0 |
+| `tests/render/pie.test.ts` | 1 | 1 | 0 |
+| `tests/render/quadrant.test.ts` | 1 | 1 | 0 |
+| `tests/render/radar.test.ts` | 2 | 2 | 0 |
+| `tests/render/sankey.test.ts` | 4 | 4 | 0 |
+| `tests/render/security.test.ts` | 1 | 1 | 0 |
+| `tests/render/sequence.test.ts` | 2 | 2 | 0 |
+| `tests/render/timeline.test.ts` | 2 | 2 | 0 |
+| `tests/render/treeview.test.ts` | 1 | 1 | 0 |
+| `tests/render/usecase.test.ts` | 1 | 1 | 0 |
+| `tests/render/venn.test.ts` | 3 | 3 | 0 |
+| `tests/render/xychart.test.ts` | 2 | 2 | 0 |
 | `tests/requirement/stress.test.ts` | 36 | 36 | 0 |
 | `tests/sequence/stress.test.ts` | 47 | 47 | 0 |
 | `tests/state/stress.test.ts` | 53 | 53 | 0 |
+| `tests/stress.test.ts` | 1 | 1 | 0 |
 | `tests/util/preprocess.test.ts` | 9 | 9 | 0 |
-| `tests/util/url.test.ts` | 30 | 30 | 0 |
+| `tests/util/url.test.ts` | 32 | 32 | 0 |
 | `tests/util/yaml.test.ts` | 29 | 29 | 0 |
-| **合计** | **2,815** | **2,808** | **7** |
+| **合计** | **2,847** | **2,840** | **7** |
 
-未映射项按范围分为 **Rust 核心 4,090 项、宿主/打包 56 项、网站 10 项**，三个范围均保留在目标内。
+未映射分为 Rust 核心 **4,080**、宿主/打包 **56**、网站 **10**。未映射不等于实现一定失败，也不能算作验收通过。未执行的 UTF-16 孤立代理项等既有差异不构成完整验收豁免。
 
-还有 **4,156 项未建立逐项移植映射**；未映射不代表实现一定失败，但不能计为满足本验收要求。按全部 6,971 项计算，当前可计入验收的 1:1 通过率约 **40.28%**，与 33/33 的图表覆盖率、39/39 基准一致性是不同指标；本批已重新完成 39/39 组验证与计时，详见 [扩展报告](BENCHMARK.zh-CN.md)，仍不替代原测试逐项验收。
-
-ER 文件共有 634 项。其中 632 项通过机械转换保留解析调用、字段访问、全部断言与异常检查；生成过程中模型观察值保持符号形式，未拿原版或 Rust 输出生成期望值。转换流分别在原版 Pele 和真实 Rust 原始解析器上运行通过。原先跳过的 Unicode 名称测试已启用并实际执行通过，但仍按原 skip 标记计入跳过，不计入正式验收通过数；class 前导换行测试同理。其余两项虽然在上游显示 passed，但函数体只有 `/* TODO */`，没有输入、断言或受测调用，当前保持未移植，不生成空测试凑数。
-
-相关工具：`tools/test-parity/compile-er.mjs`（生成/校验逐项转换）、`tools/test-parity/verify-er-reference.mjs`（用原始 Pele 解析器验证同一断言流）。不支持的测试语法会记为未转换；审计运行前重新生成比对 IR 与测试映射，防止期望值被手动改成 Rust 输出。
-
-首批测试暴露 `info` 默认版本文本与上游不同。库默认输出跟随固定参照，当前升级至 1.9.0 后为 `Pele v1.9.0`，原始断言不变；调用方仍可显式设置 `info_text`。CLI 自身版本继续使用项目版本。此前采集差分显式传入版本文本，不能证明默认行为一致。
-
-33 类解析与渲染已接通；后续继续补齐原始测试逐项映射、宿主适配、网站和打包测试。全量完成前不宣布“完整替代 Pele”。
+以下保留此前迁移批次的历史结果，不能累计成当前通过数。当前清单与结果以前述固定版本和逐项报告为准。
 
 ## 新增迁移批次：公共模块、日期和 class
 

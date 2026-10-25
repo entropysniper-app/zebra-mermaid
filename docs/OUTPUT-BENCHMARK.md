@@ -1,6 +1,8 @@
 # Rust/Pele output contracts
 
-Current implementations on **167 unchanged samples across all 33 diagram types**. Pele 1.9.0, commit `e7f092a4de147cc32210913c20e36eaa5fcd0ef1`; v26.3.0; rustc 1.96.1 (31fca3adb 2026-06-26).
+Latest published measurement (2026-10-23) on **167 unchanged samples across all 33 diagram types**. Pele 1.9.0, commit `e7f092a4de147cc32210913c20e36eaa5fcd0ef1`; v26.3.0; rustc 1.96.1 (31fca3adb 2026-06-26).
+
+This measurement retains its original source revisions. The subsequent 1.10.0 update has correctness verification only; continuous optimization remains stopped.
 
 Two endpoints are measured separately:
 

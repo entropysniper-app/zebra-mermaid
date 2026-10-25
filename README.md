@@ -1,6 +1,6 @@
 # zebra-mermaid
 
-A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/e7f092a4de147cc32210913c20e36eaa5fcd0ef1) and aligned with **1.9.0**, targeting **Mermaid 12.1.0** syntax.
+A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/4eff76f98c73b6817800a05773517f35832e4e92) and aligned with **1.10.0**, targeting **Mermaid 12.1.0** syntax.
 
 - **33 diagram types** enabled by default, with Cargo features for smaller builds.
 - **Native rendering** with no JavaScript, browser, or external layout process at runtime.
@@ -16,7 +16,7 @@ Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from G
 
 ```sh
 cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
-  --rev 2f2c3b097dcaa1e9d15a448f9cda0822049301a3 \
+  --rev 2950c70ffb28700d1484ef9f7b2afd729f98884a \
   --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
@@ -88,12 +88,12 @@ The table shows the first sample of each diagram type. Click a preview to open i
 The comparison uses complete parsing, layout, and SVG generation on the same sources. Each engine runs in three independent processes with alternating order; validation and builds run outside timing. The full table covers every diagram type.
 
 <!-- output-contract-benchmark:start -->
-Across all **167 samples and 33 types**, the equal-weight geometric mean Rust/Pele speedup is **1.76× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the complete table and method.
+The latest published benchmark, measured on **2026-10-23** across all **167 samples and 33 types**, reports an equal-weight geometric mean Rust/Pele speedup of **1.76× at API return** and **1.89× when the output must be ready as contiguous UTF-8 bytes**. The latter includes Node's encoding and Buffer allocation; Rust already returns UTF-8. See the [output-contract benchmark](docs/OUTPUT-BENCHMARK.md) for the measured source revisions, complete table and method. This source update has not been timed again.
 <!-- output-contract-benchmark:end -->
 
-Continuous optimization remains stopped. This release receives a finite verification run; complete upstream-test acceptance remains unfinished.
+Continuous optimization remains stopped. This update receives correctness verification; complete upstream-test acceptance remains unfinished.
 
-Compiled code size is also an optimization target, alongside the full 33-type 2× performance target. Current full-feature release sizes (unstripped, thin LTO, one codegen unit):
+Compiled code size is also an optimization target, alongside the full 33-type 2× performance target. The latest published full-feature release sizes, measured on **2026-10-23** (unstripped, thin LTO, one codegen unit):
 
 | Artifact | File bytes | Instruction text bytes |
 | --- | ---: | ---: |
@@ -101,7 +101,7 @@ Compiled code size is also an optimization target, alongside the full 33-type 2�
 | FFI dynamic library | 8,811,776 | 5,326,912 |
 | FFI static archive | 62,027,464 | 6,400,400 |
 
-Built-in math adds parser, layout, SVG generation, and bundled font data to these artifacts. The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These are the current [release-size results](docs/CODE-SIZE-OPTIMIZATION.md), with paired comparisons, fingerprints and section totals. Size, speed, allocations and RSS are reported separately; all diagram types and correctness requirements remain enabled.
+Built-in math adds parser, layout, SVG generation, and bundled font data to these artifacts. The static archive includes LLVM bitcode and unselected object code; its size is not the final host application's link increment. These [published release-size results](docs/CODE-SIZE-OPTIMIZATION.md) retain their measured revisions, paired comparisons, fingerprints and section totals. Size, speed, allocations and RSS are reported separately; all diagram types and correctness requirements remain enabled.
 
 ## Library API
 
@@ -109,7 +109,7 @@ Add the library to your application's `Cargo.toml`. Both installation examples p
 
 ```toml
 [dependencies]
-zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "2f2c3b097dcaa1e9d15a448f9cda0822049301a3" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "2950c70ffb28700d1484ef9f7b2afd729f98884a" }
 ```
 
 ```rust
@@ -162,10 +162,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,271 passed**, 0 failed, 5 ignored |
-| Original-test acceptance | **2,808/6,971 passed** (40.28%); 7 preserved skips, 4,156 unmapped |
+| Workspace tests | **3,304 passed**, 0 failed, 5 ignored |
+| Original-test acceptance | **2,840/6,993 passed** (40.61%); 7 preserved skips, 4,146 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.9.0-alignment-2026-10-23/validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.10.0-alignment-2026-10-25/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1
