@@ -107,6 +107,43 @@ describe('ER diagram rendering', () => {
     }
   });
 
+  it('measures attribute types, names and keys in the monospace font when monospace lists attributes', () => {
+    const src = 'erDiagram\n  CAR {\n    string registrationNumber PK "The plate number, as issued by the registration office of the country"\n    int wheels FK, UK\n  }';
+    const plain = svgOf(src);
+    const mono = render(src, { ...options, monospace: ['attributes'] }).svg;
+    const comment = (svg: string): string => /<text class="pele-er-comment".*?<\/text>/.exec(svg)![0];
+    for (const cls of ['pele-er-type', 'pele-er-name', 'pele-er-keys']) {
+      expect(mono).toMatch(new RegExp(`<text class="${cls}"[^>]* font-family="var\\(--_fm\\)"`));
+    }
+    expect(plain).not.toContain('font-family="var(--_fm)"');
+    expect(comment(mono)).not.toContain('font-family');
+    expect(comment(mono).replace(/ x="[-\d.]+"/g, '')).toBe(comment(plain).replace(/ x="[-\d.]+"/g, ''));
+    expect(count(comment(mono), '<tspan')).toBe(2);
+    expect(box(mono, 'CAR').w).toBeGreaterThan(box(plain, 'CAR').w);
+    for (const name of ['`a  b`', '`<code>a  b</code>`']) {
+      const spaced = render(`erDiagram\n  A {\n    string ${name}\n  }`, { ...options, monospace: ['attributes'] }).svg;
+      expect(spaced).toMatch(/<text class="pele-er-name" font-family="var\(--_fm\)" xml:space="preserve"><tspan[^>]*>a {2}b<\/tspan>/);
+    }
+  });
+
+  it('ignores monospace values that do not list attributes', () => {
+    const src = 'erDiagram\n  CAR {\n    string registrationNumber PK "The plate"\n  }';
+    const plain = svgOf(src);
+    for (const monospace of [[], ['attribute'], ['members'], 'attributes', { attributes: true }, true, null]) {
+      expect(render(src, { ...options, monospace } as object).svg).toBe(plain);
+    }
+  });
+
+  it("keeps an entity's own font-family on its attributes when monospace lists them", () => {
+    for (const rule of ['style A color:black,font-family:serif', 'classDef serif color:black,font-family:serif\n  class A serif']) {
+      const src = `erDiagram\n  A {\n    string name PK\n  }\n  B {\n    string name PK\n  }\n  ${rule}`;
+      const attributes = (svg: string): string => /data-id="A".*?(<g class="pele-er-attributes".*?<\/g>)/.exec(svg)![1];
+      const svg = render(src, { ...options, monospace: ['attributes'] }).svg;
+      expect(attributes(svg)).toBe(attributes(svgOf(src)));
+      expect(/data-id="B".*$/.exec(svg)![0]).toContain('font-family="var(--_fm)"');
+    }
+  });
+
   it('shades alternate rows and rounds the last one with the box', () => {
     const three = svgOf('erDiagram\n  A {\n int a\n int b\n int c\n }');
     const stripes = /<g class="pele-er-stripes" fill="var\(--_bg\)">(.*?)<\/g>/.exec(three)![1];
@@ -250,7 +287,25 @@ describe('ER diagram rendering', () => {
     expect(svg).toMatch(/data-id="C"[^>]*><rect[^>]* style="rx:var\(--_r\);stroke-width:2px;fill:#bbf;"/);
     expect(svg).toMatch(/<text class="pele-label" style="fill:#fff;"[^>]*>C<\/text>/);
     // Shading over a chosen fill is a tint of it rather than the page background.
-    expect(svg).toContain('<g class="pele-er-stripes" fill="var(--_bg)" opacity="0.6">');
+    expect(svg).toContain('<g class="pele-er-stripes" fill="var(--pele-fg-on-dark,#fff)" opacity="0.6">');
+  });
+
+  it('picks a contrasting text color on fills a style sets', () => {
+    const svg = svgOf(
+      'erDiagram\n A { int id PK "key" }\n B { int id }\n C { int id }\n D { int id }\n subgraph G\n  E\n end\n style A fill:navy\n style B fill:#BBDEFB\n style C fill:#BBDEFB,color:#333\n style G fill:#FFF9C4'
+    );
+    const entity = (id: string): string => new RegExp(`data-id="${id}"[^>]*>(.*?)</g></g>`).exec(svg)![1];
+    expect(entity('A')).toContain('<g class="pele-er-stripes" fill="var(--pele-fg-on-light,#1f1f1f)" opacity="0.6">');
+    for (const cell of ['pele-label', 'pele-er-type', 'pele-er-name', 'pele-er-keys', 'pele-er-comment']) {
+      expect(entity('A')).toMatch(new RegExp(`<text class="${cell}"[^>]* fill="var\\(--pele-fg-on-dark,#fff\\)"`));
+    }
+    expect(entity('B')).toContain('<text class="pele-label" fill="var(--pele-fg-on-light,#1f1f1f)"');
+    expect(entity('B')).toContain('<g class="pele-er-stripes" fill="var(--pele-fg-on-dark,#fff)" opacity="0.6">');
+    expect(entity('C')).not.toContain('--pele-fg-on-light');
+    expect(entity('C')).toContain('<text class="pele-er-type" fill="var(--_m)" style="fill:#333;"');
+    expect(entity('D')).toContain('<g class="pele-er-stripes" fill="var(--_bg)">');
+    expect(entity('D')).not.toContain('--pele-fg-on');
+    expect(svg).toMatch(/data-id="G">.*?<text class="pele-cluster-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
   });
 
   it('formats markdown and keeps unicode in names, attributes and labels', () => {
@@ -292,6 +347,28 @@ describe('ER diagram rendering', () => {
     const b = box(svg, 'B');
     expect(b.x).toBeGreaterThan(inner[0]);
     expect(b.x).toBeLessThan(inner[0] + inner[2]);
+  });
+
+  it('draws a subgraph fill the author sets at full opacity', () => {
+    const { svg } = render('erDiagram\n subgraph g\n  A\n end\n subgraph h\n  B\n end\n style g fill:#fee', options);
+    expect(svg).toMatch(/data-id="g"><rect [^>]*fill="var\(--_a\)" stroke=/);
+    expect(svg).toMatch(/data-id="h"><rect [^>]*fill-opacity="0.5"/);
+  });
+
+  it('cases relationships that cross a subgraph fill a style sets and inks those inside it', () => {
+    const src = 'erDiagram\n subgraph g\n  A ||--o{ B : has\n end\n B ||--|| C : is\n C ||--|| D : of\n C ||--o{ C : self\n style g fill:#BBDEFB';
+    const { svg } = render(src, options);
+    const casings = /<g class="pele-casings"[^>]*>(.*?)<\/g>/.exec(svg)![1];
+    const edges = [...svg.matchAll(/class="pele-edge [^"]*" data-id="[^"]+"[^>]*><path d="([^"]+)"/g)].map((m) => m[1]);
+    expect(edges.map((d) => casings.includes(`<path d="${d}"/>`))).toEqual([false, true, false, false]);
+    // A --> B lies inside the subgraph, so it takes the fill's ink instead.
+    expect(svg).toMatch(/class="pele-edge [^"]*" data-id="[^"]+" stroke="var\(--pele-fg-on-light,#1f1f1f\)"><path d="[^"]+"/);
+    expect(svg.match(/stroke="var\(--pele-fg-on/g)).toHaveLength(1);
+    // A hollow ring keeps the fill's color inside it.
+    const ring = svgOf('erDiagram\n subgraph S\n  A ||--o{ B : has\n end\n style S fill:black');
+    expect(ring).toMatch(/<circle class="pele-marker"[^>]* fill="black"\/>/);
+    expect(casings).not.toContain('pele-marker');
+    expect(render(src.replace('\n style g fill:#BBDEFB', ''), options).svg).not.toMatch(/pele-casings|stroke="var\(--pele-fg-on/);
   });
 
   it('connects a relationship written before its subgraph to that subgraph', () => {

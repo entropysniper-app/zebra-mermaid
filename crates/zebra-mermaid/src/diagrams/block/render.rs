@@ -21,6 +21,13 @@ use crate::text::{layout_render_label as layout_label, style, RenderLabel as Lab
 use crate::theme::Role;
 use crate::util::{js, math};
 
+#[path = "label_layout.rs"]
+mod label_layout;
+use crate::svg::edges::{casings_svg, edge_casing, over_fills, Fill};
+use crate::svg::ink::{ink_fill, paints};
+use crate::svg::theme::sets_fill;
+use label_layout::shape_at;
+
 const GAP: f64 = 12.0;
 const WRAP: f64 = 200.0;
 const CORNER: f64 = 8.0;
@@ -334,7 +341,7 @@ fn trace(p: &[f64], mut start_trim: f64, mut end_trim: f64) -> EdgePath {
         .unwrap();
     }
     write!(d, "L{},{}", num(ex - bx * end_trim), num(ey - by * end_trim)).unwrap();
-    EdgePath { d, sx, sy, sdx: -ax, sdy: -ay, ex, ey, edx: bx, edy: by }
+    EdgePath { tokens: None, d, sx, sy, sdx: -ax, sdy: -ay, ex, ey, edx: bx, edy: by }
 }
 
 /// A self-loop is an arc around the top right corner of the block, or around the matching point
@@ -379,6 +386,7 @@ fn loop_path(v: &Shape, k: usize, start_trim: f64, end_trim: f64) -> EdgePath {
     let sl = math::hypot(sx - x1, sy - y1);
     let el = math::hypot(ex - x2, ey - y2);
     EdgePath {
+        tokens: None,
         d: svg_format!(
             "M",
             num(x1),
@@ -539,6 +547,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     root_cell.nw = 0.0;
     root_cell.nh = 0.0;
     let mut cells = vec![root_cell];
+    let mut parents = vec![None];
     let mut order = vec![root_view];
     let mut by_id: HashMap<&str, usize> = HashMap::new();
     let mut i = 0;
@@ -552,43 +561,15 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     by_id.insert(model.blocks[child].id.as_deref().unwrap_or(""), index);
                 }
                 cells.push(cell);
+                parents.push(Some(i));
                 order.push(v);
             }
         }
         i += 1;
     }
 
-    let (content_width, content_height) = layout(&mut cells, gap)?;
-
-    let mut obstacles: Vec<(usize, Shape)> = Vec::new();
-    for (k, v) in order.iter_mut().enumerate() {
-        let c = &cells[k];
-        if v.kind == Kind::Leaf && fixed(v.shape) {
-            v.bw = c.nw;
-            v.bh = c.nh;
-        } else if v.kind == Kind::Arrow {
-            v.bw = if c.span > 1.0 { c.w } else { c.nw };
-            v.bh = c.nh;
-        } else {
-            v.bw = c.w;
-            v.bh = if v.kind == Kind::Leaf && wide(v.shape) { c.nh } else { c.h };
-        }
-        if v.kind == Kind::Leaf && v.shape == "cyl" {
-            v.dy = js::min(12.0, js::max(6.0, v.bw / 14.0)) / 2.0;
-        }
-        if v.kind == Kind::Leaf || v.kind == Kind::Arrow {
-            obstacles.push((k, Shape { x: c.x, y: c.y, bw: v.bw, bh: v.bh, kind: v.kind, shape: v.shape, mask: v.mask }));
-        }
-    }
-    let shape = |cells: &[Cell], k: usize| Shape {
-        x: cells[k].x,
-        y: cells[k].y,
-        bw: order[k].bw,
-        bh: order[k].bh,
-        kind: order[k].kind,
-        shape: order[k].shape,
-        mask: order[k].mask,
-    };
+    let widths: Vec<_> = cells.iter().map(|c| c.nw).collect();
+    let mut placement = label_layout::place(&mut cells, &mut order, &widths, gap)?;
 
     // Edges between the same two blocks are spread apart instead of drawn on top of each other.
     let n_views = order.len();
@@ -609,60 +590,45 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         ends.push((s, t));
         drawn.push(edge);
     }
-    let check: Option<&[(usize, Shape)]> = if drawn.len() * obstacles.len() <= OBSTACLE_BUDGET { Some(&obstacles) } else { None };
-    let mut seen: HashMap<usize, usize> = HashMap::new();
-    let mut routes: Vec<Route> = Vec::new();
-    let mut min_x = 0.0;
-    let mut min_y = 0.0;
-    let mut max_x = content_width;
-    let mut max_y = content_height;
-    let mut grow = |x: f64, y: f64, w: f64, h: f64| {
-        if x - w / 2.0 < min_x {
-            min_x = x - w / 2.0;
-        }
-        if x + w / 2.0 > max_x {
-            max_x = x + w / 2.0;
-        }
-        if y - h / 2.0 < min_y {
-            min_y = y - h / 2.0;
-        }
-        if y + h / 2.0 > max_y {
-            max_y = y + h / 2.0;
-        }
+    let routing = label_layout::Routing {
+        model,
+        measure: &m,
+        drawn: &drawn,
+        ends: &ends,
+        pairs: &pairs,
+        labelled: &labelled,
+        parents: &parents,
+        edge_size,
+        tight,
+        check: drawn.len() * placement.obstacles.len() <= OBSTACLE_BUDGET,
     };
-    for (i, &edge) in drawn.iter().enumerate() {
-        let (s, t) = ends[i];
-        let key = order[s].index.min(order[t].index) * n_views + order[s].index.max(order[t].index);
-        let total = pairs.get(&key).copied().unwrap_or(1);
-        let k = seen.get(&key).copied().unwrap_or(0);
-        seen.insert(key, k + 1);
-        let label = layout_label(model.blocks[edge].label.as_deref(), false, &m, edge_size, WRAP, 0);
-        let points: Vec<f64>;
-        let lx: f64;
-        let ly: f64;
-        if s == t {
-            let (px, py, r, _, _) = loop_arc(&shape(&cells, s), k + 1);
-            points = Vec::new();
-            grow(px, py, 2.0 * r + 2.0, 2.0 * r + 2.0);
-            lx = px + r + 6.0 + label.width / 2.0;
-            ly = py - r / 2.0;
-        } else {
-            let step = if labelled.contains(&key) { js::round(edge_size * 1.5) + 2.0 } else { 14.0 };
-            points = route_edge(s, t, &shape(&cells, s), &shape(&cells, t), (k as f64 - (total as f64 - 1.0) / 2.0) * step, check);
-            let n = points.len();
-            // The label goes on the longer leg.
-            let first_leg = (points[2] - points[0]).abs() + (points[3] - points[1]).abs();
-            let last_leg = (points[n - 2] - points[n - 4]).abs() + (points[n - 1] - points[n - 3]).abs();
-            let at = if n == 6 && last_leg > first_leg { 2 } else { 0 };
-            let spot = if label.width > 0.0 { label_spot(&points, at, label.width + 8.0, label.height, s, t, check) } else { 0.5 };
-            lx = points[at] + (points[at + 2] - points[at]) * spot;
-            ly = points[at + 1] + (points[at + 3] - points[at + 1]) * spot;
+    let (mut routes, mut grown) = routing.settle(&mut cells, &order, &placement, drawn.len() * drawn.len() <= OBSTACLE_BUDGET);
+    if grown {
+        let before = label_layout::overlap(&routes);
+        let bounds = label_layout::bound(&placement, &cells, &order, &routes, &ends);
+        let narrow = bounds[2] - bounds[0];
+        for round in 0..3 {
+            if !grown {
+                break;
+            }
+            placement = label_layout::place(&mut cells, &mut order, &widths, gap)?;
+            let next = routing.settle(&mut cells, &order, &placement, round < 2);
+            routes = next.0;
+            grown = next.1;
         }
-        if label.width > 0.0 {
-            grow(lx, ly, label.width + 8.0, label.height);
+        let bounds = label_layout::bound(&placement, &cells, &order, &routes, &ends);
+        let wide = bounds[2] - bounds[0];
+        let room = options.max_width.filter(|w| *w > 0.0).unwrap_or(f64::INFINITY);
+        if label_layout::overlap(&routes) > before - 1.0 || (wide > narrow && (wide + 2.0 * pad).ceil() > room) {
+            for c in &mut cells {
+                c.row_gaps.clear();
+                c.col_gaps.clear();
+            }
+            placement = label_layout::place(&mut cells, &mut order, &widths, gap)?;
+            routes = routing.settle(&mut cells, &order, &placement, false).0;
         }
-        routes.push(Route { edge, points, loop_k: if s == t { k + 1 } else { 0 }, label, lx, ly });
     }
+    let [min_x, min_y, max_x, max_y] = label_layout::bound(&placement, &cells, &order, &routes, &ends);
 
     let title =
         layout_label(model.title.as_deref(), false, &m.without_math(), size, if tight { title_room(options) } else { 4000.0 }, style::BOLD);
@@ -678,6 +644,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     let height = (max_y - min_y + title_height + 2.0 * pad).ceil();
 
     let mut clusters = String::new();
+    let mut fills = Vec::<Fill>::new();
     let mut nodes = String::new();
     for i in 1..order.len() {
         let v = &order[i];
@@ -690,6 +657,9 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         let id = esc_text(block.id.as_deref().unwrap_or(""));
         if v.kind == Kind::Composite {
             let top = c.y - c.h / 2.0;
+            if paints(&v.style.shape) {
+                fills.push(Fill { bounds: [c.x - c.w / 2.0, top, c.x + c.w / 2.0, top + c.h], shape: v.style.shape.clone() });
+            }
             svg_write!(
                 clusters,
                 "<g class=\"pele-cluster",
@@ -708,7 +678,9 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 crate::svg::theme::rounded(&svg_format!(
                     " fill=\"",
                     ctx.paint(Role::GroupFill, "var(--_a)"),
-                    "\" fill-opacity=\"0.5\" stroke=\"",
+                    "\"",
+                    if sets_fill(&v.style.shape) { "" } else { " fill-opacity=\"0.5\"" },
+                    " stroke=\"",
                     ctx.paint(Role::GroupStroke, "var(--_b)"),
                     "\"",
                     v.style.shape
@@ -718,7 +690,11 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     &v.label,
                     c.x,
                     top + (c.head + gap) / 2.0 + 2.0,
-                    &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text),
+                    &svg_format!(
+                        " class=\"pele-cluster-label\"",
+                        ink_fill(&v.style, Some(ctx.paint(Role::SecondaryText, "var(--_m)"))),
+                        v.style.text
+                    ),
                     icons
                 ),
                 "</g>"
@@ -752,7 +728,17 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             num(c.y),
             ")\">",
             drawn_shape,
-            label_svg(&v.label, v.dx, v.dy, &svg_format!(" class=\"pele-label\"", v.style.text), icons),
+            label_svg(
+                &v.label,
+                v.dx,
+                v.dy,
+                &svg_format!(
+                    " class=\"pele-label\"",
+                    if arrow || crate::svg::shapes::shape_filled(v.shape) { ink_fill(&v.style, None) } else { String::new() },
+                    v.style.text
+                ),
+                icons
+            ),
             "</g>"
         )
         .unwrap();
@@ -761,13 +747,14 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     let arrow_color = ctx.paint(Role::Arrow, "var(--_l)");
     let patch = ctx.paint(Role::Background, "var(--_bg)");
     let mut edges = String::new();
+    let mut casings = String::new();
     let mut labels = String::new();
     for (i, route) in routes.iter_mut().enumerate() {
         let edge = &model.blocks[route.edge];
         let start_type = edge.arrow_type_start.as_deref().unwrap_or("");
         let end_type = edge.arrow_type_end.as_deref().unwrap_or("");
         let path = if route.loop_k > 0 {
-            loop_path(&shape(&cells, ends[i].0), route.loop_k, marker_trim(start_type), marker_trim(end_type))
+            loop_path(&shape_at(&cells, &order, ends[i].0), route.loop_k, marker_trim(start_type), marker_trim(end_type))
         } else {
             let mut k = 0;
             while k + 1 < route.points.len() {
@@ -777,19 +764,26 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             }
             trace(&route.points, marker_trim(start_type), marker_trim(end_type))
         };
+        let over = over_fills(&path.d, &[path.sx, path.sy, path.ex, path.ey], &fills, "", None);
+        if over == Some("") {
+            casings.push_str(&edge_casing(&path, start_type, end_type, "", edge.thickness.as_deref() == Some("thick")));
+        }
+        let color = over.filter(|s| !s.is_empty()).unwrap_or(arrow_color);
         let id = esc_text(edge.id.as_deref().unwrap_or(""));
         svg_write!(
             edges,
             "<g class=\"pele-edge\" data-id=\"",
             id,
-            "\"><path d=\"",
+            "\"",
+            over.filter(|s| !s.is_empty()).map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
+            "><path d=\"",
             path.d,
             "\"",
             if edge.thickness.as_deref() == Some("thick") { " stroke-width=\"2.5\"" } else { "" },
             if edge.pattern.as_deref() == Some("dotted") { " stroke-dasharray=\"3 4\"" } else { "" },
             "/>",
-            marker(start_type, path.sx, path.sy, path.sdx, path.sdy, arrow_color),
-            marker(end_type, path.ex, path.ey, path.edx, path.edy, arrow_color),
+            marker(start_type, path.sx, path.sy, path.sdx, path.sdy, color),
+            marker(end_type, path.ex, path.ey, path.edx, path.edy, color),
             "</g>"
         )
         .unwrap();
@@ -805,6 +799,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
+    content.push_str(&casings_svg(&casings));
     if !edges.is_empty() {
         svg_write!(
             content,

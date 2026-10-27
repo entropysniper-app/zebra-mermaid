@@ -1240,6 +1240,10 @@ pub fn shape_has_label(shape: &str) -> bool {
     !matches!(shape, "sm-circ" | "f-circ" | "fr-circ" | "fork" | "hourglass" | "cross-circ" | "bolt")
 }
 
+pub fn shape_filled(shape: &str) -> bool {
+    !matches!(known(shape), "text" | "brace" | "brace-r" | "braces")
+}
+
 /// The side of a node's layout box (center `cx`, `cy`, size `cw` by `ch`) that a route end
 /// lies on: 0 top, 1 right, 2 bottom, 3 left, or -1 for none.
 pub fn end_side(route: &[f64], at: usize, cx: f64, cy: f64, cw: f64, ch: f64) -> i32 {

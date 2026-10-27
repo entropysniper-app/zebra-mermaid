@@ -10,7 +10,7 @@ use zebra_mermaid::util::js;
 use zebra_mermaid::{ConfigMap, ConfigValue};
 
 pub fn fixtures() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/pele-1.10.0")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/pele-1.12.0")
 }
 
 pub fn read_jsonl(rel: &str) -> Vec<Value> {
@@ -47,6 +47,7 @@ pub fn read_jsonl_path(path: &std::path::Path) -> Vec<Value> {
                             include_str!("../../../../tests/fixtures/unrepresentable-inputs.json"),
                             include_str!("../../../../tests/fixtures/pele-1.9.0/unrepresentable-inputs.json"),
                             include_str!("../../../../tests/fixtures/pele-1.10.0/unrepresentable-inputs.json"),
+                            include_str!("../../../../tests/fixtures/pele-1.12.0/unrepresentable-inputs.json"),
                         ];
                         manifests
                             .into_iter()
@@ -112,6 +113,18 @@ pub fn render_options(o: &Value, icons: &Value) -> zebra_mermaid::RenderOptions 
     let mut r = zebra_mermaid::RenderOptions {
         font_family: o["fontFamily"].as_str().map(str::to_string),
         font_family_mono: o["fontFamilyMono"].as_str().map(str::to_string),
+        monospace: o["monospace"].as_array().map(|parts| {
+            parts
+                .iter()
+                .filter_map(|p| match p.as_str()? {
+                    "members" => Some(zebra_mermaid::MonospacePart::Members),
+                    "attributes" => Some(zebra_mermaid::MonospacePart::Attributes),
+                    "files" => Some(zebra_mermaid::MonospacePart::Files),
+                    "messages" => Some(zebra_mermaid::MonospacePart::Messages),
+                    _ => None,
+                })
+                .collect()
+        }),
         font_size: o["fontSize"].as_f64(),
         id_prefix: o["idPrefix"].as_str().map(str::to_string),
         responsive: o["responsive"].as_bool(),
@@ -184,6 +197,27 @@ pub fn map_to_json(m: &ConfigMap) -> Value {
 /// Compares two JSON values, keys in order and numbers by value.
 pub fn json_eq(actual: &Value, expected: &Value, path: &str) -> Result<(), String> {
     match (actual, expected) {
+        (Value::String(a), Value::String(b)) if path.ends_with(".svg") && a != b => {
+            let at = a.bytes().zip(b.bytes()).position(|(x, y)| x != y).unwrap_or(a.len().min(b.len()));
+            let context = |s: &str| {
+                let mut lo = at.saturating_sub(50).min(s.len());
+                while !s.is_char_boundary(lo) {
+                    lo -= 1;
+                }
+                let mut hi = (at + 100).min(s.len());
+                while !s.is_char_boundary(hi) {
+                    hi -= 1;
+                }
+                s[lo..hi].to_owned()
+            };
+            Err(format!(
+                "{path}: SVG differs at byte {at} ({} vs {} bytes); actual {:?}; expected {:?}",
+                a.len(),
+                b.len(),
+                context(a),
+                context(b)
+            ))
+        }
         (Value::Number(a), Value::Number(b)) => {
             let (a, b) = (a.as_f64().unwrap(), b.as_f64().unwrap());
             if a == b {

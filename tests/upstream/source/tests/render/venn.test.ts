@@ -229,6 +229,24 @@ describe('venn diagram rendering', () => {
     expect(svg).not.toContain('pele-venn-overlap');
   });
 
+  it('picks a contrasting text color on an overlap a style fills', () => {
+    const svg = svgOf('set A\nset B\nset C\nunion A,B["ab"]\n  text T["note"]\nunion B,C["bc"]\nstyle A,B fill:#1f3a5f\nstyle A fill:navy\nstyle B,C fill:#1f3a5f,color:#eee');
+    expect(svg).toMatch(/<text class="pele-label" font-size="\d+" fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>ab</);
+    expect(svg).toMatch(/<text class="pele-venn-text" data-id="T" font-size="\d+" fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>note</);
+    expect(svg).toMatch(/<text class="pele-label" font-size="\d+" style="fill:#eee;"[^>]*>bc</);
+    // A set's own fill is drawn faint, so its label keeps the theme's color.
+    expect(svg).toMatch(/<text class="pele-label" x=[^>]*>A</);
+  });
+
+  it('reads the fill under the text from what is drawn last there', () => {
+    const covered = svgOf(
+      'set A: 100\nset B: 100\nset C: 100\nunion A,B,C["triple"]: 50\nunion A,B["ab"]: 70\nunion A,C["ac"]: 70\nunion B,C["bc"]: 70\nstyle A,B,C fill:black\nstyle A,B fill:white'
+    );
+    expect(covered).toMatch(/fill="var\(--pele-fg-on-light,#1f1f1f\)"[^>]*>triple</);
+    expect(svgOf('set A\nstyle A fill:black,fill-opacity:1')).toMatch(/fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>A</);
+    expect(svgOf('set A: 100\nset B: 100\nunion A,B["x"]: 5\nstyle A,B fill:black')).toMatch(/fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>x</);
+  });
+
   it('draws an overlap that is given a fill as the shape the circles share', () => {
     const svg = svgOf('set A\nset B\nset C\nunion A,B["ab"]\nunion A,B,C["abc"]\nstyle A,B fill:gold\nstyle A,B,C fill:#333');
     const circles = [...circlesOf(svg).values()];
@@ -267,6 +285,16 @@ describe('venn diagram rendering', () => {
     if (model.type !== 'venn') throw new Error('wrong type');
     expect(model.title).toBe('Kept');
     expect(model.subsets.map((s) => s.sets)).toEqual([['A'], ['title'], ['B']]);
+  });
+
+  it('reads a name that starts with a keyword and a hyphen', () => {
+    const model = parse(
+      'venn-beta\nset set-theory\nset union-x\nunion set-theory,union-x["both"]\n  text-5\ntext set-theory text-books\nstyle set-theory fill:red,x:style-y'
+    );
+    if (model.type !== 'venn') throw new Error('wrong type');
+    expect(model.subsets.map((s) => s.sets)).toEqual([['set-theory'], ['union-x'], ['set-theory', 'union-x']]);
+    expect(model.textNodes.map((t) => t.id)).toEqual(['-5', 'text-books']);
+    expect(model.styles[0].styles.get('x')).toBe('style-y');
   });
 
   it('uses the last statement about a set or an overlap', () => {

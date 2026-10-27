@@ -161,6 +161,44 @@ describe('state diagram rendering', () => {
     expect(svg.indexOf('data-id="A"')).toBeLessThan(svg.indexOf('data-id="B"'));
   });
 
+  it('draws a composite fill the author sets at full opacity', () => {
+    const src = 'stateDiagram-v2\n  state Busy {\n    a\n  }\n  state Idle {\n    b\n  }\n  classDef warm fill:#FFF9C4\n  class Busy warm';
+    const { svg } = render(src, options);
+    const rects = [...svg.matchAll(/<rect [^>]*fill="var\(--_a\)"[^>]*>/g)].map((m) => m[0]);
+    expect(rects.filter((r) => r.includes('fill:#FFF9C4'))).toHaveLength(1);
+    expect(rects.find((r) => r.includes('fill:#FFF9C4'))).not.toContain('fill-opacity');
+    expect(rects.filter((r) => r.includes('fill-opacity="0.5"'))).toHaveLength(1);
+  });
+
+  it('picks a contrasting label color on fills a style sets', () => {
+    const svg = draw(
+      'direction TB\n classDef notMoving fill:white\n classDef badBadEvent fill:#f00,color:white,font-weight:bold\n [*] --> Still\n Still --> Moving\n Moving --> Crash\n class Still notMoving\n class Crash badBadEvent\n' +
+        ' state "Described" as d : first line\n style d fill:#14201a\n state Busy {\n b\n }\n style Busy fill:#FFF9C4'
+    );
+    expect(svg).toMatch(/data-id="Still"[^>]*><rect[^>]*\/><text class="pele-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(svg).toMatch(/data-id="Crash"[^>]*><rect[^>]*\/><text class="pele-label" style="fill:white;font-weight:bold;"/);
+    expect(svg).toMatch(/data-id="Moving"[^>]*><rect[^>]*\/><text class="pele-label" x=/);
+    expect(svg).toMatch(/data-id="d"[^>]*><rect[^>]*\/><path[^>]*\/><text class="pele-label" fill="var\(--pele-fg-on-dark,#fff\)"/);
+    expect(svg).toMatch(/<text class="pele-state-description" font-size="\d+" fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>first line</);
+    expect(svg).toMatch(/data-id="Busy">.*?<text class="pele-cluster-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"[^>]*>Busy</);
+  });
+
+  it('cases transitions that cross a composite fill a style sets and inks those inside it', () => {
+    const src = 'state Busy {\n  a --> b\n}\nstate Idle {\n  c --> d\n}\nb --> e\ne --> c\nstyle Busy fill:#FFF9C4';
+    const svg = draw(src);
+    const casings = /<g class="pele-casings"[^>]*>(.*?)<\/g>/.exec(svg)![1];
+    const group = (id: string): string => new RegExp(`<g class="pele-edge[^"]*"[^>]* data-id="${id}">.*?</g>`).exec(svg)![0];
+    const edge = (id: string): string => /<path d="([^"]+)"/.exec(group(id))![1];
+    // a --> b inside the composite, b --> e out of it.
+    expect(group('edge0')).toContain('class="pele-edge pele-transition" stroke="var(--pele-fg-on-light,#1f1f1f)"');
+    expect(group('edge0')).toContain('fill="var(--pele-fg-on-light,#1f1f1f)"');
+    expect(casings).not.toContain(edge('edge0'));
+    expect(casings).toContain(`<path d="${edge('edge2')}"/>`);
+    expect(group('edge2')).not.toContain('--pele-fg-on');
+    expect(casings).not.toContain(edge('edge3'));
+    expect(draw(src.replace('\nstyle Busy fill:#FFF9C4', ''))).not.toMatch(/pele-casings|stroke="var\(--pele-fg-on/);
+  });
+
   it('gives each composite its own direction', () => {
     const svg = draw('state A {\n direction LR\n a1 --> a2\n }\n state B {\n b1 --> b2\n }\n A --> B');
     expect(place(svg, 'a1').y).toBe(place(svg, 'a2').y);

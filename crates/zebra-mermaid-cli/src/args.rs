@@ -4,7 +4,7 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use zebra_mermaid::{CanvasBackground, ColorMode, MermaidThemeMode};
+use zebra_mermaid::{CanvasBackground, ColorMode, MermaidThemeMode, MonospacePart};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Format {
@@ -27,6 +27,7 @@ pub struct RenderArgs {
     pub canvas_background: Option<CanvasBackground>,
     pub font_family: Option<String>,
     pub font_family_mono: Option<String>,
+    pub monospace: Option<Vec<MonospacePart>>,
     pub font_size: Option<f64>,
     pub max_width: Option<f64>,
     pub auto_direction: Option<bool>,
@@ -59,6 +60,7 @@ impl Default for RenderArgs {
             canvas_background: None,
             font_family: None,
             font_family_mono: None,
+            monospace: None,
             font_size: None,
             max_width: None,
             auto_direction: None,
@@ -121,6 +123,7 @@ COLOR OPTIONS:
 
 LAYOUT AND TEXT:
     --font-family <LIST>  --font-family-mono <LIST>  --font-size <PX>
+    --monospace <members,attributes,files,messages>
     --max-width <PX>  --no-auto-direction  --direction-breakpoint <PX>  --padding <PX>
     --responsive | --fixed-size        Scale with the container, or keep the drawn size
     --id-prefix <ID>
@@ -334,6 +337,21 @@ pub fn parse(args: Vec<OsString>) -> Result<Command, UsageError> {
             "--zebra" => render.zebra = true,
             "--font-family" => render.font_family = Some(value(&flag)?),
             "--font-family-mono" => render.font_family_mono = Some(value(&flag)?),
+            "--monospace" => {
+                let parts = value(&flag)?;
+                render.monospace = Some(
+                    parts
+                        .split(',')
+                        .map(|s| match s {
+                            "members" => Ok(MonospacePart::Members),
+                            "attributes" => Ok(MonospacePart::Attributes),
+                            "files" => Ok(MonospacePart::Files),
+                            "messages" => Ok(MonospacePart::Messages),
+                            _ => Err(UsageError(format!("--monospace expects members, attributes, files or messages, got {s:?}"))),
+                        })
+                        .collect::<Result<Vec<_>, _>>()?,
+                );
+            }
             "--font-size" => {
                 let v = parse_number(&flag, &value(&flag)?)?;
                 if v <= 0.0 {

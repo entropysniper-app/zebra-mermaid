@@ -146,6 +146,7 @@ impl Error {
 
     /// Sets the position from a byte offset into `src`, the text the parser read.
     pub fn at(mut self, src: &str, offset: usize) -> Self {
+        let offset = content_offset(src, offset);
         let loc = locate(src, offset);
         self.line = loc.line;
         self.column = loc.column;
@@ -205,7 +206,7 @@ pub struct Location {
 
 /// The line, UTF-16 column and snippet of byte `offset` in `src`, as Pele's `locate` gives them.
 pub fn locate(src: &str, offset: usize) -> Location {
-    let mut offset = offset.min(src.len());
+    let mut offset = content_offset(src, offset).min(src.len());
     while !src.is_char_boundary(offset) {
         offset -= 1;
     }
@@ -220,6 +221,7 @@ pub fn locate(src: &str, offset: usize) -> Location {
 
 /// A syntax error at byte `offset` of `src`, worded as Mermaid's parsers word them.
 pub fn syntax_error(diagram: DiagramType, src: &str, offset: usize, detail: &str, lexical: bool) -> Error {
+    let offset = content_offset(src, offset);
     let loc = locate(src, offset);
     let message = if lexical {
         format!("Lexical error on line {}. Unrecognized text.\n{}", loc.line, loc.snippet)
@@ -232,6 +234,16 @@ pub fn syntax_error(diagram: DiagramType, src: &str, offset: usize, detail: &str
     e.snippet = loc.snippet;
     e.offset = Some(offset.min(src.len()));
     e
+}
+
+/// EOF belongs to the last content line, before trailing line breaks.
+fn content_offset(src: &str, offset: usize) -> usize {
+    let end = js::trim_end(src).len();
+    if end > 0 && offset >= end {
+        end
+    } else {
+        offset
+    }
 }
 
 #[cfg(test)]

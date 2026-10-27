@@ -14,6 +14,7 @@ use crate::layout::{
 };
 use crate::svg::cluster::render_struck_title as struck_title;
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::ink::{declaration, ink_fill};
 use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg},
     cluster::*,
@@ -251,7 +252,16 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             let line = |member: &Member| {
                 let text = js::trim(&decode_entities(&member.display())).to_owned();
                 Line {
-                    width: m.width(&text, member_size, if member.classifier == "*" { style::ITALIC } else { 0 }),
+                    width: m.width(
+                        &text,
+                        member_size,
+                        (if member.classifier == "*" { style::ITALIC } else { 0 })
+                            | if ctx.options.monospaced(crate::MonospacePart::Members) && declaration(&st.text, "font-family").is_none() {
+                                style::MONO
+                            } else {
+                                0
+                            },
+                    ),
                     text,
                     classifier: member.classifier.clone(),
                 }
@@ -746,6 +756,7 @@ fn draw(db: &ClassModel, config: &Config, ctx: &RenderCtx, turned: bool, tight: 
             let spread = js::min(v.h / 2.0 - 4.0, 8.0 + k * 6.0);
             let reach = 26.0 + k * 8.0;
             EdgePath {
+                tokens: None,
                 d: svg_format!(
                     "M",
                     num(x + st),
@@ -916,6 +927,8 @@ fn class_svg(
         )),
         "/>"
     );
+    let ink = ink_fill(st, None);
+    let muted = ink_fill(st, Some(ctx.paint(Role::SecondaryText, "var(--_m)")));
     let first = top + v.title_h;
     let second = first + v.attributes_h;
     if v.h > v.title_h {
@@ -952,13 +965,7 @@ fn class_svg(
                     math,
                     0.0,
                     y + h / 2.0,
-                    &svg_format!(
-                        " class=\"pele-annotation\" font-size=\"",
-                        js::number_text(tiny),
-                        "\" fill=\"",
-                        ctx.paint(Role::SecondaryText, "var(--_m)"),
-                        "\""
-                    ),
+                    &svg_format!(" class=\"pele-annotation\" font-size=\"", js::number_text(tiny), "\"", muted),
                     ctx.icons()
                 )
             )
@@ -972,9 +979,9 @@ fn class_svg(
             num(y + tiny_h / 2.0 + tiny * 0.35),
             "\" text-anchor=\"middle\" font-size=\"",
             js::number_text(tiny),
-            "\" fill=\"",
-            ctx.paint(Role::SecondaryText, "var(--_m)"),
-            "\">",
+            "\"",
+            muted,
+            ">",
             esc(annotation),
             "</text>"
         )
@@ -988,7 +995,7 @@ fn class_svg(
             &v.label,
             0.0,
             (y + first - 8.0) / 2.0,
-            &svg_format!(" class=\"pele-label\"", title_size, " font-weight=\"var(--_hw)\"", st.text),
+            &svg_format!(" class=\"pele-label\"", title_size, " font-weight=\"var(--_hw)\"", ink, st.text),
             ctx.icons(),
         )
     )
@@ -1034,7 +1041,14 @@ fn class_svg(
             body,
             "<g class=\"pele-members\" font-size=\"",
             js::number_text(member_size),
-            "\">",
+            "\"",
+            ink,
+            if ctx.options.monospaced(crate::MonospacePart::Members) && declaration(&st.text, "font-family").is_none() {
+                format!(" font-family=\"{}\"", crate::svg::theme::FONT_MONO)
+            } else {
+                String::new()
+            },
+            ">",
             lines(&v.attributes, "attribute", first),
             lines(&v.methods, "method", second),
             "</g>"

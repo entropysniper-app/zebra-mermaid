@@ -1,7 +1,9 @@
 //! `railroad-abnf-beta`: ABNF as in RFC 5234, with each rule closed by a semicolon. Ported
 //! from Pele `src/diagrams/railroad/abnf.ts`.
 
-use super::common::{hidden_tokens, literal, parse_grammar, slice_inner, to_rules, Nodes, ACC_DESCR, ACC_TITLE, DIGITS, LETTERS, TITLE};
+use super::common::{
+    hidden_tokens, literal, parse_grammar, slice_inner, to_rules, Nodes, ACC_DESCR, ACC_TITLE, DIGITS, LETTERS, TITLE_ABNF,
+};
 use super::{Meta, NodeId, RailroadNode, RailroadRule};
 use crate::diagrams::common::parse_tokens::{Grammar, Reader};
 use crate::diagrams::common::tokens::{keyword_at, line_rest, TokenType};
@@ -120,7 +122,7 @@ pub(super) static ABNF_TOKENS: [TokenType; 21] = [
     literal(")"),
     literal("["),
     literal("]"),
-    TITLE,
+    TITLE_ABNF,
     ACC_TITLE,
     ACC_DESCR,
     TokenType::func("ABNF_RULENAME", match_name, Some(LETTERS)),

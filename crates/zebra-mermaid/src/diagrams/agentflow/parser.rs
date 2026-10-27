@@ -87,7 +87,16 @@ impl Parser<'_> {
     }
     fn fail(&self, expected: &str) -> Error {
         let t = self.kind();
-        let at = self.source_map.to_src(js::byte_at16(self.src, self.starts.get(self.i).copied().unwrap_or(js::len16(self.src))));
+        let mut from = js::byte_at16(self.src, self.starts.get(self.i).copied().unwrap_or(js::len16(self.src)));
+        if matches!(t, EOF | END) {
+            let mut k = self.i;
+            while k > 0 && matches!(self.types[k - 1], COMMENT | NEWLINE | SPACE | EOF) {
+                k -= 1;
+            }
+            let start = js::byte_at16(self.src, self.starts.get(k).copied().unwrap_or(js::len16(self.src)));
+            from = js::trim_end(&self.src[..start]).len();
+        }
+        let at = self.source_map.to_src(from);
         if t == ERROR {
             syntax_error(DiagramType::Agentflow, self.source, at, "", true)
         } else {

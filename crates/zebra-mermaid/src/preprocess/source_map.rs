@@ -12,6 +12,37 @@ struct Mark {
     exact: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Entity {
+    out: usize,
+    src: usize,
+    len: usize,
+    numeric: bool,
+}
+
+impl Entity {
+    fn input(self, at: usize) -> Option<usize> {
+        let prefix = if self.numeric { 7 } else { 5 };
+        let body = self.len - 2;
+        let rel = at.checked_sub(self.out)?;
+        if rel >= prefix + body + 4 {
+            return None;
+        }
+        let units = if rel < 3 {
+            0
+        } else if rel < 5 {
+            1
+        } else if self.numeric && rel < 7 {
+            2
+        } else if rel < prefix + body {
+            prefix / 2 + rel - prefix
+        } else {
+            prefix / 2 + body + (rel - prefix - body) / 2
+        };
+        Some(self.src + units.min(self.len - 1))
+    }
+}
+
 /// The map of one step, from its output back to its input.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct StepMap {
@@ -21,21 +52,34 @@ pub struct StepMap {
     rest: Vec<Mark>,
     out_len: usize,
     src_len: usize,
+    entities: Vec<Entity>,
 }
 
 impl StepMap {
     /// A step that kept the text as it was.
     pub fn identity(len: usize) -> Self {
-        StepMap { first: Some(Mark { out: 0, src: 0, exact: true }), rest: Vec::new(), out_len: len, src_len: len }
+        StepMap { first: Some(Mark { out: 0, src: 0, exact: true }), rest: Vec::new(), out_len: len, src_len: len, entities: Vec::new() }
     }
 
     /// A step that kept the text from byte `start` of its `len` bytes: what a [`Builder`] that
     /// copies that one run produces.
     pub fn suffix(len: usize, start: usize) -> Self {
         if start >= len {
-            return StepMap { first: Some(Mark { out: 0, src: 0, exact: false }), rest: Vec::new(), out_len: 0, src_len: len };
+            return StepMap {
+                first: Some(Mark { out: 0, src: 0, exact: false }),
+                rest: Vec::new(),
+                out_len: 0,
+                src_len: len,
+                entities: Vec::new(),
+            };
         }
-        StepMap { first: Some(Mark { out: 0, src: start, exact: true }), rest: Vec::new(), out_len: len - start, src_len: len }
+        StepMap {
+            first: Some(Mark { out: 0, src: start, exact: true }),
+            rest: Vec::new(),
+            out_len: len - start,
+            src_len: len,
+            entities: Vec::new(),
+        }
     }
 
     pub fn to_src(&self, out: usize) -> usize {
@@ -58,6 +102,12 @@ impl StepMap {
     }
 
     fn to_input_offset(&self, out: usize) -> usize {
+        let i = self.entities.partition_point(|e| e.out <= out);
+        if i > 0 {
+            if let Some(at) = self.entities[i - 1].input(out) {
+                return at;
+            }
+        }
         if out >= self.out_len {
             self.src_len + (out - self.out_len)
         } else {
@@ -72,11 +122,12 @@ pub struct Builder<'a> {
     out: String,
     first: Option<Mark>,
     rest: Vec<Mark>,
+    entities: Vec<Entity>,
 }
 
 impl<'a> Builder<'a> {
     pub fn new(src: &'a str) -> Self {
-        Builder { src, out: String::with_capacity(src.len()), first: None, rest: Vec::new() }
+        Builder { src, out: String::with_capacity(src.len()), first: None, rest: Vec::new(), entities: Vec::new() }
     }
 
     fn mark(&mut self, src: usize, exact: bool) {
@@ -117,10 +168,16 @@ impl<'a> Builder<'a> {
         self.out.push_str(text);
     }
 
+    /// Keep historical byte spans while mapping diagnostic positions through UTF-16 placeholders.
+    pub fn write_entity(&mut self, text: &str, at: usize, len: usize, numeric: bool) {
+        self.entities.push(Entity { out: self.out.len(), src: at, len, numeric });
+        self.write(text, at);
+    }
+
     pub fn finish(self) -> (String, StepMap) {
         let out_len = self.out.len();
         let first = self.first.or(Some(Mark { out: 0, src: 0, exact: false }));
-        (self.out, StepMap { first, rest: self.rest, out_len, src_len: self.src.len() })
+        (self.out, StepMap { first, rest: self.rest, out_len, src_len: self.src.len(), entities: self.entities })
     }
 }
 

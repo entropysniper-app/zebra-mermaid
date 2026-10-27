@@ -76,6 +76,8 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     let options = ctx.options;
     let size = ctx.font_size();
     let m = ctx.measure();
+    let mono = options.monospaced(crate::MonospacePart::Files);
+    let family = if mono { format!(" font-family=\"{}\"", crate::svg::theme::FONT_MONO) } else { String::new() };
     let pad = ctx.padding();
     let icons = icon_config(config);
     let nodes = &model.nodes;
@@ -130,7 +132,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
     while let Some((index, depth, slot)) = pending.pop() {
         let node = &nodes[index];
         let directory = node.node_type == NodeType::Directory;
-        let weight = if directory { style::BOLD } else { 0 };
+        let weight = (if directory { style::BOLD } else { 0 }) | if mono { style::MONO } else { 0 };
         let x = depth * step;
         let text = decode_entities(&node.name);
         let label_x = x + if slot { icon_size + ICON_GAP } else { 0.0 };
@@ -264,7 +266,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 label,
                 inset + row.label_x,
                 top + row.top + padding_y,
-                &svg_format!(" class=\"pele-label\"", weight),
+                &svg_format!(" class=\"pele-label\"", weight, family),
             );
         } else if !row.text.is_empty() {
             svg_write!(
@@ -275,6 +277,7 @@ fn draw(model: &TreeViewModel, config: &Config, ctx: &RenderCtx, tight: bool) ->
                 num(cy + baseline),
                 "\"",
                 weight,
+                family,
                 " xml:space=\"preserve\">",
                 esc(&row.text),
                 "</text>"

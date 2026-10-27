@@ -8,10 +8,15 @@ use crate::util::hash::IndexedMap;
 use crate::util::{js, math};
 use std::fmt;
 
+#[path = "edges_fills.rs"]
+mod fills;
+pub use fills::{casing, casings_svg, edge_casing, edge_ink, fill_under, hollow_on, over_fills, Fill, FillUnder};
+
 pub const ARROW: f64 = 8.0;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EdgePath {
+    pub tokens: Option<Vec<f64>>,
     pub d: String,
     pub sx: f64,
     pub sy: f64,
@@ -200,6 +205,7 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
         last += 1;
     }
 
+    let mut tokens = vec![77.0, 2.0, written(xs[0]), written(ys[0])];
     let mut d = String::with_capacity(16 + 24 * last);
     d.push('M');
     push_num(&mut d, xs[0]);
@@ -207,10 +213,11 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
     push_num(&mut d, ys[0]);
     let mut at_x = xs[0];
     let mut at_y = ys[0];
-    let line_to = |d: &mut String, at_x: &mut f64, at_y: &mut f64, x: f64, y: f64| {
+    let line_to = |d: &mut String, tokens: &mut Vec<f64>, at_x: &mut f64, at_y: &mut f64, x: f64, y: f64| {
         if near(x, y, *at_x, *at_y) {
             return;
         }
+        tokens.extend([76.0, 2.0, written(x), written(y)]);
         d.push('L');
         push_num(d, x);
         d.push(',');
@@ -219,7 +226,9 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
         *at_y = y;
     };
     // `C` and `Q` segments: pairs of coordinates, the first with the command letter.
-    let curve_to = |d: &mut String, command: char, points: &[f64]| {
+    let curve_to = |d: &mut String, tokens: &mut Vec<f64>, command: char, points: &[f64]| {
+        tokens.extend([command as u8 as f64, points.len() as f64]);
+        tokens.extend(points.iter().map(|&v| written(v)));
         d.push(command);
         for (i, &p) in points.iter().enumerate() {
             if i > 0 {
@@ -237,7 +246,7 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
             let k = along_d.abs() * ease(if down { x - at_x } else { y - at_y }, along_d);
             let ux = if down { 0.0 } else { js::sign(along_d) * k };
             let uy = if down { js::sign(along_d) * k } else { 0.0 };
-            curve_to(&mut d, 'C', &[at_x + ux, at_y + uy, x - ux, y - uy, x, y]);
+            curve_to(&mut d, &mut tokens, 'C', &[at_x + ux, at_y + uy, x - ux, y - uy, x, y]);
             at_x = x;
             at_y = y;
             continue;
@@ -251,7 +260,7 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
             {
                 continue;
             }
-            line_to(&mut d, &mut at_x, &mut at_y, x, y);
+            line_to(&mut d, &mut tokens, &mut at_x, &mut at_y, x, y);
             continue;
         }
         // How much of the leg before the turn and of the leg after it the turn takes: all of
@@ -266,14 +275,15 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
         }
         let (ux, uy) = unit(&xs, &ys, i - 1, i, axes[i]);
         let (vx, vy) = unit(&xs, &ys, i, i + 1, axes[i + 1]);
-        line_to(&mut d, &mut at_x, &mut at_y, x - ux * before, y - uy * before);
+        line_to(&mut d, &mut tokens, &mut at_x, &mut at_y, x - ux * before, y - uy * before);
         at_x = x + vx * after;
         at_y = y + vy * after;
         if stepped {
-            curve_to(&mut d, 'Q', &[x, y, at_x, at_y]);
+            curve_to(&mut d, &mut tokens, 'Q', &[x, y, at_x, at_y]);
         } else {
             curve_to(
                 &mut d,
+                &mut tokens,
                 'C',
                 &[
                     x - ux * before * (1.0 - HANDLE),
@@ -286,7 +296,16 @@ pub fn route_path(route: &[f64], curve: Option<&str>, start_trim: f64, end_trim:
             );
         }
     }
-    EdgePath { d, sx, sy, sdx: -sdx, sdy: -sdy, ex, ey, edx, edy }
+    EdgePath { tokens: Some(tokens), d, sx, sy, sdx: -sdx, sdy: -sdy, ex, ey, edx, edy }
+}
+
+fn written(v: f64) -> f64 {
+    let n = js::round(v * 100.0);
+    if n == 0.0 {
+        0.0
+    } else {
+        n / 100.0
+    }
 }
 
 /// `Math.sign(v) || 1`
@@ -571,6 +590,7 @@ pub fn loop_path(cx: f64, cy: f64, w: f64, h: f64, k: f64, sideways: bool, base:
         e.label_y = cy;
     }
     EdgePath {
+        tokens: None,
         d: svg_format!("M", at(0.0, -spread), "C", at(reach, -spread * 2.0), " ", at(reach, spread * 2.0), " ", at(tx, spread + ty)),
         sx: if sideways { cx - spread } else { cx + w / 2.0 },
         sy: if sideways { cy + h / 2.0 } else { cy - spread },

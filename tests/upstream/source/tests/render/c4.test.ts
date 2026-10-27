@@ -416,6 +416,49 @@ UpdateElementStyle(nobody, "red")`);
     expect(svg).toMatch(/class="pele-cluster-label"[^>]*style="fill:green;"/);
   });
 
+  it('picks a contrasting text color on fills a style sets', () => {
+    const { svg } = draw(`C4Context
+Boundary(b, "B", "Kind") {
+  System(c, "C", "about c")
+}
+System(d, "D", "about d")
+System(e, "E")
+UpdateElementStyle(b, $bgColor="lightyellow")
+UpdateElementStyle(c, $bgColor="navy")
+UpdateElementStyle(d, $bgColor="navy", $fontColor="#ddd")`);
+    const group = (id: string): string => new RegExp(`data-id="${id}"[^>]*>(.*?)</g>`).exec(svg)![1];
+    expect(count(group('c'), 'fill="var(--pele-fg-on-dark,#fff)"')).toBe(3);
+    expect(group('b')).toContain('<text class="pele-cluster-label" font-weight="var(--_hw)" fill="var(--pele-fg-on-light,#1f1f1f)"');
+    expect(group('b')).toMatch(/class="pele-c4-type"[^>]* fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(group('d')).not.toContain('--pele-fg-on');
+    expect(group('e')).not.toContain('--pele-fg-on');
+  });
+
+  it('cases relations that cross a boundary fill a style sets and inks those inside it', () => {
+    const src = `C4Context
+Boundary(b, "B") {
+  System(x, "X")
+  System(y, "Y")
+}
+System(z, "Z")
+System(w, "W")
+Rel(x, y, "in")
+Rel(y, z, "out")
+Rel(z, w, "away")
+UpdateElementStyle(b, $bgColor="lightyellow")`;
+    const { svg } = draw(src);
+    const casings = /<g class="pele-casings"[^>]*>(.*?)<\/g>/.exec(svg)![1];
+    const edge = (id: string): string => new RegExp(`data-id="${id}"[^>]*><path d="([^"]+)"`).exec(svg)![1];
+    // x --> y lies inside the boundary and takes its ink; y --> z crosses out of it.
+    expect(casings).not.toContain(`<path d="${edge('x-y')}"/>`);
+    expect(svg).toMatch(/data-id="x-y" stroke="var\(--pele-fg-on-light,#1f1f1f\)"><path [^>]*\/><path class="pele-marker"[^>]* fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(casings).toContain(`<path d="${edge('y-z')}"/>`);
+    expect(casings).not.toContain(`<path d="${edge('z-w')}"/>`);
+    expect(draw(src.replace('UpdateElementStyle(b, $bgColor="lightyellow")', '')).svg).not.toMatch(/pele-casings|stroke="var\(--pele-fg-on/);
+    const loop = draw('C4Context\nBoundary(S, "S") {\n  System(A, "A")\n}\nRel(A, A, "self")\nUpdateElementStyle(S, $bgColor="white")').svg;
+    expect(loop).toMatch(/data-id="A-A" stroke="var\(--pele-fg-on-light,#1f1f1f\)"/);
+  });
+
   it('applies UpdateRelStyle colours and offsets', () => {
     const base = 'C4Context\nUpdateLayoutConfig("1", "1")\nSystem(a, "A")\nSystem(b, "B")\nRel(a, b, "x")\n';
     const plain = draw(base).svg;

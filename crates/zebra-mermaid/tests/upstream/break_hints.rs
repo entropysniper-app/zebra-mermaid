@@ -87,5 +87,5 @@ fn narrow_sequence_message_splits_at_hints() {
         }
         from = next + 1;
     }
-    assert_eq!(labels, ["RRCConnection", "Reconfiguration", "Complete"]);
+    assert_eq!(labels, ["RRCConnectionReconfiguration", "Complete"]);
 }

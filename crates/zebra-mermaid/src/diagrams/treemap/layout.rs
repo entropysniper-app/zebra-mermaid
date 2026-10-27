@@ -3,6 +3,10 @@
 use super::TreemapNode;
 use crate::util::js;
 
+#[cfg(test)]
+#[path = "../../../tests/upstream/treemap_layout_1_12.rs"]
+mod upstream_1_12;
+
 #[derive(Debug, Clone)]
 pub struct Box {
     /// The node, by index into the model's nodes.
@@ -14,6 +18,8 @@ pub struct Box {
     /// A leaf's own value, or the sum of the leaves under a section.
     pub value: f64,
     pub children: Vec<usize>,
+    pub headed: bool,
+    pub header: f64,
     pub x: f64,
     pub y: f64,
     pub w: f64,
@@ -24,6 +30,7 @@ pub struct Insets {
     pub gap: f64,
     /// Space a section keeps for its header, and around its children on the other three sides.
     pub header: f64,
+    pub short: f64,
     pub side: f64,
 }
 
@@ -33,7 +40,7 @@ fn make_box(nodes: &[TreemapNode], node: usize, parent: Option<usize>, series: u
         (true, Some(v)) if v.is_finite() && v > 0.0 => v,
         _ => 0.0,
     };
-    Box { node, parent, series, value, children: Vec::new(), x: 0.0, y: 0.0, w: 0.0, h: 0.0 }
+    Box { node, parent, series, value, children: Vec::new(), headed: false, header: 0.0, x: 0.0, y: 0.0, w: 0.0, h: 0.0 }
 }
 
 /// Lays out the boxes as one squarified treemap: rows are added along the shorter side, and a
@@ -68,12 +75,14 @@ fn squarify(all: &mut [Box], boxes: &[usize], total: f64, mut x: f64, mut y: f64
             let length = if i == to - 1 { side - offset } else { (b.value * scale) / thickness };
             let bx = if w >= h { x } else { x + offset };
             let by = if w >= h { y + offset } else { y };
-            let x0 = js::round(bx + gap / 2.0);
-            let y0 = js::round(by + gap / 2.0);
-            b.x = x0;
-            b.y = y0;
-            b.w = js::round(bx + (if w >= h { thickness } else { length }) - gap / 2.0) - x0;
-            b.h = js::round(by + (if w >= h { length } else { thickness }) - gap / 2.0) - y0;
+            let bw = if w >= h { thickness } else { length };
+            let bh = if w >= h { length } else { thickness };
+            let gx = if js::round(bx + bw - gap / 2.0) > js::round(bx + gap / 2.0) { gap / 2.0 } else { 0.0 };
+            let gy = if js::round(by + bh - gap / 2.0) > js::round(by + gap / 2.0) { gap / 2.0 } else { 0.0 };
+            b.x = js::round(bx + gx);
+            b.y = js::round(by + gy);
+            b.w = js::round(bx + bw - gx) - b.x;
+            b.h = js::round(by + bh - gy) - b.y;
             offset += length;
             rest -= b.value;
         }
@@ -114,12 +123,9 @@ pub fn layout_treemap(nodes: &[TreemapNode], roots: &[usize], width: f64, height
         }
     }
 
-    let Insets { gap, header, side } = *insets;
+    let Insets { gap, header, short, side } = *insets;
     let mut placed: Vec<usize> = Vec::new();
     let place = |all: &mut Vec<Box>, placed: &mut Vec<usize>, children: &[usize], x: f64, y: f64, w: f64, h: f64| {
-        if w <= 0.0 || h <= 0.0 {
-            return;
-        }
         let mut shown: Vec<usize> = children.iter().copied().filter(|&b| all[b].value > 0.0).collect();
         // A value that is not finite makes the total not finite, and nothing is placed. Leaving
         // early keeps the sort below to finite values, where it is a total order.
@@ -135,11 +141,21 @@ pub fn layout_treemap(nodes: &[TreemapNode], roots: &[usize], width: f64, height
         if shown.is_empty() || !total.is_finite() {
             return;
         }
-        squarify(all, &shown, total, x - gap / 2.0, y - gap / 2.0, w + gap, h + gap, gap);
+        let w = js::max(0.0, w);
+        let h = js::max(0.0, h);
+        if w > 0.0 && h > 0.0 {
+            squarify(all, &shown, total, x - gap / 2.0, y - gap / 2.0, w + gap, h + gap, gap);
+        }
         for &b in &shown {
-            if all[b].w > 0.0 && all[b].h > 0.0 {
-                placed.push(b);
-            }
+            let clamp = |v: f64, low: f64, high: f64| if v >= low { js::min(v, high) } else { low };
+            let bx = &mut all[b];
+            let x0 = clamp(bx.x, x, x + w);
+            let y0 = clamp(bx.y, y, y + h);
+            bx.w = clamp(bx.x + bx.w, x0, x + w) - x0;
+            bx.h = clamp(bx.y + bx.h, y0, y + h) - y0;
+            bx.x = x0;
+            bx.y = y0;
+            placed.push(b);
         }
     };
 
@@ -150,7 +166,14 @@ pub fn layout_treemap(nodes: &[TreemapNode], roots: &[usize], width: f64, height
         if !all[b].children.is_empty() {
             let children = all[b].children.clone();
             let (bx, by, bw, bh) = (all[b].x, all[b].y, all[b].w, all[b].h);
-            place(&mut all, &mut placed, &children, bx + side, by + header, bw - 2.0 * side, bh - header - side);
+            let top = if bh - header - side >= 12.0 { header } else { short };
+            all[b].headed = bw > js::max(24.0, 2.0 * side) && bh - top - side >= 8.0;
+            all[b].header = if all[b].headed { top } else { 0.0 };
+            if all[b].headed {
+                place(&mut all, &mut placed, &children, bx + side, by + top, bw - 2.0 * side, bh - top - side);
+            } else {
+                place(&mut all, &mut placed, &children, bx, by, bw, bh);
+            }
         }
         i += 1;
     }

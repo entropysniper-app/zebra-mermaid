@@ -261,7 +261,8 @@ pub fn svg_document(kind: &str, width: f64, height: f64, font_size: f64, ctx: &R
             if theming.canvas == CanvasBackground::Opaque {
                 out.push_str(&canvas(theming.resolved.color(Role::Background)));
             }
-            out.push_str(&super::resolve::finish_resolved(content, mono));
+            let fills = super::resolve::finish_fills(content, theming.resolved.color(Role::Background));
+            out.push_str(&super::resolve::finish_resolved(&fills, mono));
         }
     }
     out.push_str("</svg>");

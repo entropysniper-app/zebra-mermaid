@@ -15,6 +15,10 @@ const read = p => readFileSync(join(root,p),'utf8');
 const hash = s => createHash('sha256').update(s).digest('hex');
 const inventory = JSON.parse(read('tests/upstream/inventory.json'));
 const { ports } = JSON.parse(read('tests/upstream/ports.json'));
+if(ports.some(p=>p.target.file.endsWith('/ink_generated.rs'))){
+  const verify=spawnSync(process.execPath,['tools/test-parity/compile-ink.mjs','--check'],{cwd:root,encoding:'utf8'});
+  if(verify.error||verify.status!==0)throw new Error(`Ink callback translation verification failed: ${verify.stderr}`);
+}
 if(ports.some(p=>p.target.file.endsWith('_stress_generated.rs'))){
   const verify=spawnSync(process.execPath,['tools/test-parity/compile-stress.mjs','--check'],{cwd:root,encoding:'utf8'});
   if(verify.error||verify.status!==0)throw new Error(`Stress input/threshold translation verification failed: ${verify.stderr}`);

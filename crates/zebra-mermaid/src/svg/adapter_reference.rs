@@ -41,7 +41,7 @@ pub(crate) fn label(value: &Value) -> Label {
 #[test]
 fn direct_label_parts_match_independent_node_svg() {
     let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../../tests/fixtures/pele-1.10.0/unit/render-label-reference.json.gz")[..],
+        &include_bytes!("../../../../tests/fixtures/pele-1.12.0/unit/render-label-reference.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);

@@ -9,6 +9,9 @@ use crate::layout::{
     layered::LayeredOptions,
 };
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::edges::{casings_svg, edge_casing, over_fills, Fill};
+use crate::svg::ink::{ink_fill, paints};
+use crate::svg::theme::sets_fill;
 use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg},
     edges::{marker, marker_trim, render_edge_label_svg as edge_label_svg, route_path, side_reach, EdgePath},
@@ -537,6 +540,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         q += 1;
     }
     let mut clusters = String::new();
+    let mut fills = Vec::<Fill>::new();
     let mut dividers = String::new();
     let mut nodes_out = String::new();
     let mut notes_out = String::new();
@@ -556,12 +560,16 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         }
         let c = &nodes[i];
         let (x, y, w, h) = (c.x + pad, c.y + pad, v.w, v.h);
-        let label_attrs = svg_format!(" class=\"pele-label\"", st.text);
+        let ink = ink_fill(st, None);
+        let label_attrs = svg_format!(" class=\"pele-label\"", ink, st.text);
         let mut body;
         match v.kind {
             K::Composite => {
                 let left = x - c.w / 2.0;
                 let top = y - c.h / 2.0;
+                if paints(&st.shape) {
+                    fills.push(Fill { bounds: [left, top, left + c.w, top + c.h], shape: st.shape.clone() });
+                }
                 body = rect(
                     left,
                     top,
@@ -571,7 +579,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                         " rx=\"10\" fill=\"",
                         ctx.paint(Role::GroupFill, "var(--_a)"),
                         "\"",
-                        if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                        if ctx.resolved() || sets_fill(&st.shape) { "" } else { " fill-opacity=\"0.5\"" },
                         " stroke=\"",
                         ctx.paint(Role::GroupStroke, "var(--_b)"),
                         "\"",
@@ -587,7 +595,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                             &v.label,
                             title_x(c, v.label.width, &crossings) + pad,
                             top + v.title_h / 2.0,
-                            &svg_format!(" class=\"pele-cluster-label\"", st.text),
+                            &svg_format!(" class=\"pele-cluster-label\"", ink, st.text),
                             icons,
                         )
                     )
@@ -707,7 +715,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
                                 l,
                                 0.0,
                                 at + l.height / 2.0,
-                                &svg_format!(" class=\"pele-state-description\" font-size=\"", js::number_text(small), "\"", st.text),
+                                &svg_format!(" class=\"pele-state-description\" font-size=\"", js::number_text(small), "\"", ink, st.text),
                                 icons,
                             )
                         )
@@ -753,6 +761,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
         reach.add(e.dst as i64, side(&e.route, e.route.len() - 3, &nodes[e.dst]), "arrow_point");
     }
     let mut edges_out = String::new();
+    let mut casings = String::new();
     let mut labels_out = String::new();
     let mut loop_seen = vec![0usize; states];
     let mut loop_text = vec![0.0; states];
@@ -779,6 +788,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             let py = |dx: f64, dy: f64| a.y + pad + if side { dy } else { out + dx };
             let at = |dx, dy| format!("{},{}", num(px(dx, dy)), num(py(dx, dy)));
             let mut p = EdgePath {
+                tokens: None,
                 d: svg_format!(
                     "M",
                     at(0.0, -spread),
@@ -839,8 +849,18 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             }
             path = route_path(&route, curve, 0.0, marker_trim(end_type), leaves, arrives);
         }
+        let over = over_fills(&path.d, &[path.ex, path.ey], &fills, "", path.tokens.as_deref());
+        if over == Some("") {
+            casings.push_str(&edge_casing(&path, "none", end_type, "", false));
+        }
         let class = if note {
-            svg_format!("pele-note-edge\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\" stroke-dasharray=\"3 4")
+            svg_format!(
+                "pele-note-edge\" stroke=\"",
+                over.filter(|s| !s.is_empty()).unwrap_or(ctx.paint(Role::NodeStroke, "var(--_b)")),
+                "\" stroke-dasharray=\"3 4"
+            )
+        } else if let Some(color) = over.filter(|s| !s.is_empty()) {
+            format!("pele-transition\" stroke=\"{color}")
         } else {
             "pele-transition".into()
         };
@@ -853,7 +873,14 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
             "\"><path d=\"",
             path.d,
             "\"/>",
-            marker(end_type, path.ex, path.ey, path.edx, path.edy, ctx.paint(Role::Arrow, "var(--_l)")),
+            marker(
+                end_type,
+                path.ex,
+                path.ey,
+                path.edx,
+                path.edy,
+                over.filter(|s| !s.is_empty()).unwrap_or(ctx.paint(Role::Arrow, "var(--_l)"))
+            ),
             "</g>"
         )
         .unwrap();
@@ -868,6 +895,7 @@ fn draw(db: &StateModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Resu
     if !dividers.is_empty() {
         svg_write!(content, "<g class=\"pele-dividers\" stroke-dasharray=\"4 4\"", rule, ">", dividers, "</g>").unwrap();
     }
+    content.push_str(&casings_svg(&casings));
     if !edges_out.is_empty() {
         svg_write!(content, "<g class=\"pele-edges\" fill=\"none\" stroke=\"", line, "\" stroke-linecap=\"round\">", edges_out, "</g>")
             .unwrap();

@@ -13,6 +13,21 @@ use crate::svg::concat::svg_format;
 /// Pele's default corner radius, written as an attribute.
 const RADIUS: &str = "4";
 
+pub(crate) fn finish_fills<'a>(content: &'a str, background: &str) -> std::borrow::Cow<'a, str> {
+    if !content.contains("var(--pele-fg-on-") && !content.contains("stroke=\"var(--_bg)\"") && !content.contains("fill=\"var(--_bg)\"") {
+        return std::borrow::Cow::Borrowed(content);
+    }
+    let mut out = content.to_owned();
+    for attr in ["fill", "stroke"] {
+        for (css, color) in
+            [("var(--pele-fg-on-light,#1f1f1f)", "#1F1F1F"), ("var(--pele-fg-on-dark,#fff)", "#FFFFFF"), ("var(--_bg)", background)]
+        {
+            out = out.replace(&format!(" {attr}=\"{css}\""), &format!(" {attr}=\"{color}\""));
+        }
+    }
+    std::borrow::Cow::Owned(out)
+}
+
 pub(crate) fn finish_resolved(content: &str, mono_family: &str) -> String {
     let mono = format!("\"{}\"", esc(mono_family));
     resolve_radius(content)

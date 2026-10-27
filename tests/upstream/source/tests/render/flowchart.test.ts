@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PeleError, detectType, parse, render, supports } from '../../src/index.js';
+import { overFills } from '../../src/svg/edges.js';
 import { resolveStyle } from '../../src/svg/theme.js';
 import { metricsMeasurer } from '../../src/text/measurer.js';
 import { loadCorpus } from '../support/corpus.js';
@@ -195,6 +196,93 @@ describe('flowchart rendering', () => {
     expect(svg).toContain('fill="#f00"');
   });
 
+  it('draws a subgraph fill the author sets at full opacity', () => {
+    const src = 'flowchart LR\n  subgraph S\n    A\n  end\n  subgraph T\n    B\n  end\n  style S fill:#BBDEFB';
+    const { svg } = render(src, options);
+    expect(svg).toMatch(/data-id="S"><rect [^>]*fill="var\(--_a\)" stroke="var\(--_b\)" style="[^"]*fill:#BBDEFB;/);
+    expect(svg).toMatch(/data-id="T"><rect [^>]*fill="var\(--_a\)" fill-opacity="0.5"/);
+  });
+
+  it('picks a contrasting label color on fills a style sets', () => {
+    const src =
+      'flowchart LR\n  subgraph S["Cluster"]\n    A[Start] -- Launch --> B[Worker]\n  end\n  C[Output]\n  D[Dark]\n  E[Own]\n  F[Plain]\n  G[Words]\n  B --> C\n' +
+      '  style S fill:#BBDEFB\n  style C fill:#BBDEFB\n  classDef dark fill:navy\n  class D dark\n  style E fill:#BBDEFB,color:#333\n  style G fill:#000\n  G@{ shape: text }';
+    const { svg } = render(src, options);
+    expect(svg).toMatch(/data-id="S">.*?<text class="pele-cluster-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"[^>]*>Cluster</);
+    expect(svg).toMatch(/data-id="C"[^>]*>.*?<text class="pele-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"[^>]*>Output</);
+    expect(svg).toMatch(/data-id="D"[^>]*>.*?<text class="pele-label" fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>Dark</);
+    expect(svg).toMatch(/data-id="E"[^>]*>.*?<text class="pele-label" style="fill:#333;"[^>]*>Own</);
+    expect(svg).toMatch(/data-id="F"[^>]*>.*?<text class="pele-label" x=[^>]*>Plain</);
+    expect(svg).toMatch(/data-id="G"[^>]*>.*?<text class="pele-label" x=[^>]*>Words</);
+    expect(svg).toMatch(/data-id="A"[^>]*>.*?<text class="pele-label" x=[^>]*>Start</);
+    expect(svg).toMatch(/class="pele-edge-label"[^>]*><rect [^>]*\/><text x=[^>]*>Launch</);
+  });
+
+  it('cases edges that cross into a subgraph fill a style sets and inks edges inside it', () => {
+    const src =
+      'flowchart LR\n  subgraph S["Cluster"]\n    A[Start] -- Launch --> B[Worker]\n    subgraph N\n      G --> H\n    end\n  end\n  subgraph T\n    D --> E\n  end\n  C[Output]\n  B --> C\n  C ==> D\n  B --> B\n  F --> C\n  B --> G\n  A --> H\n  style S fill:#BBDEFB\n  style N fill:navy\n  style C fill:#BBDEFB';
+    const { svg } = render(src, options);
+    const casings = /<g class="pele-casings" fill="none" stroke="var\(--_bg\)" stroke-width="5"[^>]* pointer-events="none">(.*?)<\/g>/.exec(svg)![1];
+    const group = (id: string): string => new RegExp(`<g class="pele-edge[^"]*" data-id="${id}"[^>]*>.*?</g>`).exec(svg)![0];
+    const edge = (id: string): string => new RegExp(`data-id="${id}"[^>]*><path d="([^"]+)"`).exec(svg)![1];
+    const cased = (id: string): boolean => casings.includes(`<path d="${edge(id)}"/>`);
+    const light = 'var(--pele-fg-on-light,#1f1f1f)';
+    // Inside one fill: that fill's ink, on the line and its arrowhead.
+    for (const id of ['L_A_B_0', 'L_B_B_0']) {
+      expect(cased(id)).toBe(false);
+      expect(group(id)).toContain(` stroke="${light}"`);
+      expect(group(id)).toContain(`class="pele-marker"`);
+      expect(group(id)).toMatch(new RegExp(`class="pele-marker"[^>]* fill="${light.replace(/[()]/g, '\\$&')}"`));
+    }
+    expect(group('L_G_H_0')).toContain(' stroke="var(--pele-fg-on-dark,#fff)"');
+    // Across a fill's border, including into a nested fill: a casing and the theme's line.
+    for (const id of ['L_B_C_0', 'L_B_G_0', 'L_A_H_0']) {
+      expect(cased(id)).toBe(true);
+      expect(group(id)).not.toContain('--pele-fg-on');
+    }
+    for (const id of ['L_C_D_0', 'L_D_E_0', 'L_F_C_0']) {
+      expect(cased(id)).toBe(false);
+      expect(group(id)).not.toContain('--pele-fg-on');
+    }
+    expect(casings).toMatch(/Z" fill="var\(--_bg\)" stroke="var\(--_bg\)"\/>/);
+    expect(casings).not.toContain('pele-marker');
+    expect(svg.indexOf('class="pele-casings"')).toBeLessThan(svg.indexOf('class="pele-edges"'));
+    expect(render(src.replace(/\n  style [SN] fill:\S+/g, ''), options).svg).not.toMatch(/pele-casings|--pele-fg-on-[a-z]+,#[0-9a-f]+\)" stroke|class="pele-edge[^>]*--pele-fg-on/);
+  });
+
+  it('cases an edge whose marker alone reaches into a nested fill', () => {
+    const fills = [
+      { box: [-20, -20, 100, 100], shape: ' style="fill:white;"' },
+      { box: [10, 0, 50, 50], shape: ' style="fill:navy;"' },
+    ];
+    expect(overFills('M0,10L8,10', [15, 10], fills)).toBe('');
+    expect(overFills('M0,10L8,10', [9, 10], fills)).toBe('var(--pele-fg-on-light,#1f1f1f)');
+    // A path that starts on a border and stays inside is held by that fill.
+    expect(overFills('M-20,10L8,10', [9, 10], fills)).toBe('var(--pele-fg-on-light,#1f1f1f)');
+  });
+
+  it('cases an edge whose curve runs into a filled subgraph', () => {
+    const { svg } = render('flowchart LR\nsubgraph S\n  A\n  B\nend\nD\nE --> A\nD --> F\nF --> C\nB --> C\nstyle S fill:white', options);
+    const casings = /<g class="pele-casings"[^>]*>(.*)<\/g><g class="pele-edges"/.exec(svg)![1];
+    const edge = (id: string): string => new RegExp(`data-id="${id}"><path d="([^"]+)"`).exec(svg)![1];
+    expect(casings).toContain(`<path d="${edge('L_F_C_0')}"/>`);
+    expect(casings).not.toContain(`<path d="${edge('L_D_F_0')}"/>`);
+  });
+
+  it('cases an edge as wide and as faint as its line style makes it', () => {
+    const casings = (link: string, fill = 'white'): string =>
+      /<g class="pele-casings"[^>]*>(.*)<\/g><g class="pele-edges"/.exec(render(`flowchart TB\nsubgraph S\n  A\nend\nA --x B\nstyle S fill:${fill}\n${link}`, options).svg)?.[1] ?? '';
+    expect(casings('linkStyle 0 stroke-width:10px')).toMatch(/^<g stroke-width="14"><path [^>]*\/><path d="[^"]+"\/><\/g>$/);
+    expect(casings('linkStyle 0 stroke-width:1em')).toMatch(/^<g style="stroke-width:calc\(1em \+ 4px\);">/);
+    expect(casings('linkStyle 0 opacity:0,stroke-opacity:0.5')).toMatch(/^<g style="opacity:0;stroke-opacity:0.5;">/);
+    expect(casings('linkStyle 0 stroke:none')).toBe('');
+    expect(casings('', 'none')).toBe('');
+    expect(casings('', 'transparent')).toBe('');
+    expect(casings('', '#0000')).toBe('');
+    const faded = render('flowchart TB\nsubgraph S\n  A --> B\nend\nstyle S fill:black,opacity:0', options).svg;
+    expect(faded).not.toMatch(/pele-casings|--pele-fg-on/);
+  });
+
   it('drops style values that could load resources or break out of the attribute', () => {
     expect(resolveStyle(['fill:url(http://example.com/x.png)', 'stroke:red']).shape).toBe(' style="stroke:red;"');
     expect(resolveStyle(['fill:red;background:blue', 'color:expression(alert(1))']).shape).toBe('');
@@ -225,6 +313,21 @@ describe('flowchart rendering', () => {
     expect(svg).toMatch(/<g class="pele-cluster" data-id="one">/);
     expect(svg).toContain('First group');
     expect(svg.indexOf('pele-clusters')).toBeLessThan(svg.indexOf('pele-nodes'));
+  });
+
+  it("ignores a subgraph's direction when its nodes link outside it", () => {
+    const groups = 'flowchart LR\n  subgraph S\n    direction TB\n    s1\n    s2\n  end\n  subgraph P\n    direction TB\n    p1\n    p2\n  end\n';
+    const edges = '  s1 --> p2\n  s2 --> p1\n';
+    expect(render(groups + edges, options).svg).toBe(render(groups.replace(/ *direction TB\n/g, '') + edges, options).svg);
+
+    const { svg } = render(
+      'flowchart LR\n  subgraph one\n    direction TB\n    a1 --> a2\n  end\n  subgraph two\n    direction TB\n    b1 --> b2\n  end\n  subgraph outer\n    direction TB\n    subgraph inner\n      direction TB\n      c1 --> c2\n    end\n    c3\n  end\n  x --> one\n  x --> b1\n  c3 --> x',
+      options
+    );
+    const at = (id: string): number[] => svg.match(new RegExp(`data-id="${id}" transform="translate\\(([-\\d.]+),([-\\d.]+)`))!.slice(1).map(Number);
+    expect(at('a1')[0]).toBe(at('a2')[0]);
+    expect(at('b1')[1]).toBe(at('b2')[1]);
+    expect(at('c1')[0]).toBe(at('c2')[0]);
   });
 
   it('gives edges arrowheads without marker definitions', () => {
@@ -435,6 +538,9 @@ describe('public api', () => {
       expect.objectContaining({ line: 8, column: 9, message: expect.stringMatching(/^Parse error on line 8:\n  C --> --> D\n--------\^\n/) })
     );
     expect(() => render('flowchart TD\n  A{a}  \n\n  C --> --> D')).toThrow(expect.objectContaining({ line: 4, column: 9 }));
+    for (const end of ['', '\n', '\n%% A comment\n\n']) {
+      expect(() => render(`flowchart LR\n  A -->${end}`), JSON.stringify(end)).toThrow(expect.objectContaining({ line: 2, column: 8 }));
+    }
   });
 
   it('parses without rendering', () => {

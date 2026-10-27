@@ -233,7 +233,7 @@ impl<'a> VennLexer<'a> {
                     }
                 }
                 for (word, kind) in KEYWORDS {
-                    if self.keyword(i, word) {
+                    if self.keyword(i, word) && b.get(i + word.len()) != Some(&b'-') {
                         return self.token(kind, i + word.len());
                     }
                 }

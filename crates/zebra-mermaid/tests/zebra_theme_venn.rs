@@ -100,7 +100,14 @@ fn a_strong_tint_turns_the_label_to_the_canvas_color() {
     p.background = "#101010".into();
     p.text = "#F0F0F0".into();
     p.series = Some(["#FFFFFF"; 6].map(String::from));
-    let r = render(STYLED, &resolved_options(Some(p.clone()))).unwrap();
+    // Pele 1.12 gives the authored opaque dark overlap priority over the circle tints.
+    let authored = render(STYLED, &resolved_options(Some(p.clone()))).unwrap();
+    let all = element(&authored.svg, "<g class=\"pele-venn-region\" data-id=\"A|B|C\"><text");
+    assert!(all.contains("fill=\"#FFFFFF\""), "{all}");
+    assert_no_css_runtime(&authored.svg);
+    // Without an authored fill, retain the original Zebra contrast assertions in full.
+    let unfilled = STYLED.replace("fill: #123456, ", "");
+    let r = render(&unfilled, &resolved_options(Some(p.clone()))).unwrap();
     let all = element(&r.svg, "<g class=\"pele-venn-region\" data-id=\"A|B|C\"><text");
     assert!(all.contains(&format!("class=\"pele-label\" font-size=\"14\" fill=\"{}\"", p.background)), "{all}");
     let one = element(&r.svg, "<g class=\"pele-venn-region\" data-id=\"B\"><text");

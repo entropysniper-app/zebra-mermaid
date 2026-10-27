@@ -16,6 +16,17 @@ pub const DEFAULT_OUTPUT_LIMIT: usize = 4_000_000;
 /// source ask for millions of edges.
 pub const DEFAULT_MAX_EDGES: usize = 5000;
 
+/// Diagram parts measured and drawn with the configured monospace font.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
+pub enum MonospacePart {
+    Members,
+    Attributes,
+    Files,
+    Messages,
+}
+
 /// Options read when the text is parsed. Rendering a [`crate::ParsedDiagram`] does not read
 /// them again.
 #[derive(Clone, Default)]
@@ -36,6 +47,7 @@ pub struct RenderOptions {
     /// The fonts labels are measured in, and drawn in where the page sets no `--pele-font`.
     pub font_family: Option<String>,
     pub font_family_mono: Option<String>,
+    pub monospace: Option<Vec<MonospacePart>>,
     /// Defaults to 16.
     pub font_size: Option<f64>,
     /// Prefix of the ids in the SVG. Defaults to `pele`.
@@ -98,6 +110,7 @@ impl fmt::Debug for RenderOptions {
             .field("measurer", &self.measurer.as_ref().map(|_| "custom"))
             .field("font_family", &self.font_family)
             .field("font_family_mono", &self.font_family_mono)
+            .field("monospace", &self.monospace)
             .field("font_size", &self.font_size)
             .field("id_prefix", &self.id_prefix)
             .field("responsive", &self.responsive)
@@ -137,6 +150,9 @@ impl fmt::Debug for ParseOptions {
 }
 
 impl RenderOptions {
+    pub fn monospaced(&self, part: MonospacePart) -> bool {
+        self.monospace.as_ref().is_some_and(|list| list.contains(&part))
+    }
     /// The options that are read at parse time.
     pub fn parse_options(&self) -> ParseOptions {
         ParseOptions { limit: self.limit, max_edges: self.max_edges, config: self.config.clone() }
@@ -163,7 +179,7 @@ impl RenderOptions {
         let u = |v: Option<usize>| v.map_or("-".to_string(), |n| n.to_string());
         let list = |v: &Option<Vec<String>>| v.as_ref().map_or("-".to_string(), |l| format!("{:?}", l));
         format!(
-            "v1|color={}|theme={}|palette={}|canvas={}|font={}|mono={}|size={}|id={}|responsive={}|maxw={}|auto={}|break={}|pad={}|limit={}|out={}|edges={}|links={}:{}|images={}:{}|rel={}|config={}|now={}|tz={}|info={}|measurer={}|icons={}",
+            "v2|color={}|theme={}|palette={}|canvas={}|font={}|mono={}|size={}|id={}|responsive={}|maxw={}|auto={}|break={}|pad={}|limit={}|out={}|edges={}|links={}:{}|images={}:{}|rel={}|config={}|now={}|tz={}|info={}|measurer={}|icons={}|monospace={:?}|pele={}",
             self.color_mode.as_str(),
             self.theme.as_str(),
             self.palette.as_ref().map_or("-".to_string(), MermaidPalette::to_json),
@@ -191,6 +207,8 @@ impl RenderOptions {
             s(&self.info_text),
             if self.measurer.is_some() { "custom" } else { "metrics" },
             if self.icons.is_some() { "custom" } else { "-" },
+            self.monospace,
+            crate::PELE_COMMIT,
         )
     }
 

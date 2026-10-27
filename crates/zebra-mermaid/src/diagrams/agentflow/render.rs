@@ -14,6 +14,8 @@ use crate::layout::{
     layered::LayeredOptions,
 };
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::edges::{casings_svg, edge_casing, over_fills, Fill};
+use crate::svg::ink::{ink_fill, paints};
 use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg},
     cluster::{cluster_title_x, mark_crossings, Crossings},
@@ -96,7 +98,18 @@ fn inset(route: &mut [f64], at: usize, v: &View, c: &CNode) {
 fn dot(x: f64, y: f64) -> String {
     svg_format!("M", num(x - 1.75), ",", num(y), "a1.75,1.75 0 1 0 3.5,0a1.75,1.75 0 1 0 -3.5,0Z")
 }
-fn put(edge: &Edge, label: &Label, path: &EdgePath, x: f64, y: f64, ctx: &RenderCtx, edges: &mut String, labels: &mut String) {
+fn put(
+    edge: &Edge,
+    label: &Label,
+    path: &EdgePath,
+    x: f64,
+    y: f64,
+    ctx: &RenderCtx,
+    edges: &mut String,
+    labels: &mut String,
+    fills: &[Fill],
+    casings: &mut String,
+) {
     let st = if !edge.styles.is_empty() || !edge.compiled.is_empty() {
         let mut all = edge.compiled.clone();
         all.extend(edge.styles.iter().cloned());
@@ -104,11 +117,16 @@ fn put(edge: &Edge, label: &Label, path: &EdgePath, x: f64, y: f64, ctx: &Render
     } else {
         None
     };
-    let color = st
-        .as_ref()
-        .and_then(|s| s.stroke.as_ref())
-        .filter(|s| !s.is_empty())
-        .map_or_else(|| ctx.paint(Role::Arrow, "var(--_l)").to_owned(), |s| esc(s).into_owned());
+    let over = over_fills(&path.d, &[path.ex, path.ey], fills, st.as_ref().map_or("", |s| s.line.as_str()), path.tokens.as_deref());
+    if over == Some("") {
+        casings.push_str(&edge_casing(path, "none", &edge.head, st.as_ref().map_or("", |s| s.line.as_str()), false));
+    }
+    let color = over.filter(|s| !s.is_empty()).map(str::to_owned).unwrap_or_else(|| {
+        st.as_ref()
+            .and_then(|s| s.stroke.as_ref())
+            .filter(|s| !s.is_empty())
+            .map_or_else(|| ctx.paint(Role::Arrow, "var(--_l)").to_owned(), |s| esc(s).into_owned())
+    });
     let kind = if edge.thickness.as_deref() == Some("dotted") {
         "reference"
     } else if edge.head == "arrow_cross" {
@@ -126,6 +144,7 @@ fn put(edge: &Edge, label: &Label, path: &EdgePath, x: f64, y: f64, ctx: &Render
         "\" data-id=\"",
         esc_text(&edge.id),
         "\"",
+        over.filter(|s| !s.is_empty()).map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
         st.as_ref().map_or("", |s| s.line.as_str()),
         "><path d=\"",
         path.d,
@@ -210,6 +229,10 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
     for (i, n) in graph.nodes.iter().enumerate() {
         nodes[i].parent = n.parent.as_ref().and_then(|id| index.get(id)).map_or(-1, |&i| i as isize);
     }
+    crate::layout::compound::inherit_crossed_directions(
+        &mut nodes,
+        graph.edges.iter().map(|e| (index.get(&e.start).map_or(-1, |&i| i as isize), index.get(&e.end).map_or(-1, |&i| i as isize))),
+    );
     let root = if turned { Dir::TB } else { direction(db.direction.as_deref()) };
     let flow: Vec<_> = (0..nodes.len()).map(|i| flow_of(i, &nodes, root)).collect();
     let sideways: Vec<_> = flow.iter().map(|d| matches!(d, Dir::LR | Dir::RL)).collect();
@@ -352,6 +375,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         }
     }
     let mut clusters = String::new();
+    let mut fills = Vec::<Fill>::new();
     let mut nodes_out = String::new();
     for (i, v) in views.iter().enumerate() {
         let c = &nodes[i];
@@ -360,6 +384,9 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         let classes = class_names(n.classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&n.classes));
         let id = esc_text(&n.id);
         if c.is_group {
+            if paints(&v.style.shape) {
+                fills.push(Fill { bounds: [x - c.w / 2.0, y - c.h / 2.0, x + c.w / 2.0, y + c.h / 2.0], shape: v.style.shape.clone() });
+            }
             let tx = cluster_title_x(c.x, c.y, c.w, c.h, v.label.width, &crossings, 20.0);
             svg_write!(
                 clusters,
@@ -382,7 +409,11 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                     &v.label,
                     tx,
                     y - c.h / 2.0 + 8.0 + v.label.height / 2.0,
-                    &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text),
+                    &svg_format!(
+                        " class=\"pele-cluster-label\"",
+                        ink_fill(&v.style, Some(ctx.paint(Role::SecondaryText, "var(--_m)"))),
+                        v.style.text
+                    ),
                     icons
                 ),
                 "</g>"
@@ -439,7 +470,9 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
                 ctx.theming,
             );
         }
-        let mut text = svg_format!(label_svg(&v.label, 0.0, v.dy, &svg_format!(" class=\"pele-label\"", v.style.text), icons));
+        let ink =
+            if v.shape == "collapsed" || crate::svg::shapes::shape_filled(&v.shape) { ink_fill(&v.style, None) } else { String::new() };
+        let mut text = svg_format!(label_svg(&v.label, 0.0, v.dy, &svg_format!(" class=\"pele-label\"", ink, v.style.text), icons));
         if classes.split(' ').any(|s| s == "internal-link")
             && n.label.as_ref().is_some_and(|s| !s.is_empty())
             && ctx.options.links != Some(false)
@@ -491,6 +524,7 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
         .unwrap();
     }
     let mut edges_out = String::new();
+    let mut casings = String::new();
     let mut labels_out = String::new();
     let mut loop_seen = IndexMap::<usize, usize>::new();
     for (i, ce) in edges.iter_mut().enumerate() {
@@ -513,16 +547,17 @@ fn draw(db: &AgentflowModel, config: &Config, ctx: &RenderCtx, turned: bool) -> 
             inset(&mut route, last, &views[ce.dst], &nodes[ce.dst]);
             path = route_path(&route, e.curve.as_ref().and_then(ConfigValue::as_str), 0.0, trim, 0.0, default_reach(trim));
         }
-        put(e, label, &path, ce.label_x, ce.label_y, ctx, &mut edges_out, &mut labels_out);
+        put(e, label, &path, ce.label_x, ce.label_y, ctx, &mut edges_out, &mut labels_out, &fills, &mut casings);
     }
     for (i, (e, label, _, _)) in held.iter().enumerate() {
-        put(e, label, &held_paths[i], held_labels[i].0, held_labels[i].1, ctx, &mut edges_out, &mut labels_out);
+        put(e, label, &held_paths[i], held_labels[i].0, held_labels[i].1, ctx, &mut edges_out, &mut labels_out, &fills, &mut casings);
     }
     let mut content =
         svg_format!(label_svg(&title, width / 2.0, pad + title.height / 2.0, " class=\"pele-title\" font-weight=\"var(--_tw)\"", None));
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
+    content.push_str(&casings_svg(&casings));
     if !edges_out.is_empty() {
         svg_write!(
             content,

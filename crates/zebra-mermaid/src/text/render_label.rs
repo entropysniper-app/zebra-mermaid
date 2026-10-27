@@ -277,7 +277,7 @@ mod tests {
 
     fn fixture() -> Value {
         let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../tests/fixtures/pele-1.10.0/unit/render-label-reference.json.gz")[..],
+            &include_bytes!("../../../../tests/fixtures/pele-1.12.0/unit/render-label-reference.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);
@@ -382,7 +382,7 @@ mod tests {
     fn restyling_matches_the_pinned_internal_node_function() {
         let data = fixture();
         let cases = data["cases"].as_array().unwrap();
-        assert_eq!(data["restyleSourceSha256"], "5a625011eab2fc9c45f165e877a397e4466cb472bc8e32a8a96d1b2331ca5519");
+        assert_eq!(data["restyleSourceSha256"], "3aac0b377edc84389d407d0817bb51e5a13e9b586e6c3e2feb3d5224d684dfb7");
         let mut count = 0;
         for (index, case) in cases.iter().enumerate() {
             for styled in case["restyled"].as_array().unwrap() {

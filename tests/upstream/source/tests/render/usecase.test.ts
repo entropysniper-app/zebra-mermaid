@@ -205,6 +205,44 @@ describe('use case diagram rendering', () => {
     expect(at(svg, 'User').x).toBeLessThan(box.x);
   });
 
+  it('draws a boundary fill the author sets at full opacity', () => {
+    const svg = svgOf('systemBoundary S\n  U\nend\nsystemBoundary T\n  V\nend\nstyle S fill:#fee');
+    const body = (id: string) => svg.slice(svg.indexOf(`data-id="${id}">`)).match(/<rect [^>]*>/g)!.find((r) => r.includes('fill="var(--_a)"'))!;
+    expect(body('S')).not.toContain('fill-opacity');
+    expect(body('T')).toContain('fill-opacity="0.5"');
+  });
+
+  it('picks a contrasting text color on fills a style sets', () => {
+    const svg = svgOf(
+      'actor A <<Human>>\nU(Use) <<Core>>\nW(Own)\nX(Plain)\njson J@{ "k": "v" }\nsystemBoundary S\n  V\nend\nstyle U fill:#1f3a5f\nstyle A fill:#1f3a5f\nstyle W fill:#1f3a5f,color:#eee\nstyle J fill:navy\nstyle S fill:#FFF9C4'
+    );
+    const node = (id: string): string => new RegExp(`data-id="${id}"[^>]*>(.*?)</g>(?:<g|</g>)`).exec(svg)![1];
+    expect(node('U')).toMatch(/<text class="pele-stereotype"[^>]* fill="var\(--pele-fg-on-dark,#fff\)"/);
+    expect(node('U')).toMatch(/<text class="pele-label" fill="var\(--pele-fg-on-dark,#fff\)"[^>]*>Use</);
+    expect(svg).toMatch(/data-id="A"[^>]*>.*?<text class="pele-stereotype"[^>]* fill="var\(--_m\)"/);
+    expect(svg).toMatch(/data-id="A"[^>]*>.*?<text class="pele-label" x=[^>]*>A</);
+    expect(node('W')).not.toContain('--pele-fg-on');
+    expect(node('J')).toMatch(/<text class="pele-json-key" fill="var\(--pele-fg-on-dark,#fff\)"/);
+    expect(node('J')).toMatch(/<text class="pele-json-value" fill="var\(--pele-fg-on-dark,#fff\)"/);
+    expect(svg).toMatch(/data-id="S">.*?<text class="pele-cluster-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(node('X')).not.toContain('--pele-fg-on');
+  });
+
+  it('cases edges that cross a boundary fill a style sets and inks those inside it', () => {
+    const src = 'actor User\nsystemBoundary S\n  Pay\n  Ship\nend\nPay --> Ship\nUser --> Pay\nUser --> Other\nstyle S fill:#BBDEFB';
+    const svg = svgOf(src);
+    const casings = /<g class="pele-casings"[^>]*>(.*?)<\/g>/.exec(svg)![1];
+    const edges = [...svg.matchAll(/class="pele-edge [^"]*" data-id="[^"]+"([^>]*)><path d="([^"]+)"/g)].map((m) => [m[1], m[2]]);
+    expect(edges).toHaveLength(3);
+    // Pay --> Ship lies inside the boundary and takes its ink; User --> Pay crosses into it.
+    expect(edges.map(([, d]) => casings.includes(`<path d="${d}"/>`))).toEqual([false, true, false]);
+    expect(edges.map(([attrs]) => attrs)).toEqual([' stroke="var(--pele-fg-on-light,#1f1f1f)"', '', '']);
+    expect(svgOf(src.replace('\nstyle S fill:#BBDEFB', ''))).not.toMatch(/pele-casings|stroke="var\(--pele-fg-on/);
+    // A hollow triangle keeps the fill's color inside it.
+    const hollow = svgOf('systemBoundary S\n  Pay\n  Ship\nend\nPay --|> Ship\nstyle S fill:black');
+    expect(hollow).toMatch(/class="pele-marker"[^>]* fill="black" stroke="var\(--pele-fg-on-dark,#fff\)"/);
+  });
+
   it('puts an actor that is pointed at on the far side of the boundary', () => {
     const svg = svgOf('actor User\nactor Bank\nsystemBoundary Shop\n  Pay\nend\nUser --> Pay\nPay --> Bank');
     const [box] = boundary(svg, 'Shop');

@@ -25,6 +25,8 @@ pub enum Pattern {
     Literal(&'static str),
     /// A function answering as the original sticky expression does.
     Fn(MatchFn),
+    /// A matcher that also reads the last visible token's type, or EOF at the start.
+    Context(fn(&str, usize, usize) -> Option<usize>),
     /// A factory for a stateful matcher, for a pattern that would rescan the text.
     Scanner(fn() -> Scanner),
 }
@@ -139,6 +141,7 @@ fn fingerprint(types: &[TokenType]) -> u64 {
         mix(match t.pattern {
             Pattern::Literal(s) => s.as_ptr() as usize,
             Pattern::Fn(f) => f as usize,
+            Pattern::Context(f) => f as usize,
             Pattern::Scanner(f) => f as usize,
         });
         mix(t.hidden as usize);
@@ -183,7 +186,7 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
     let b = src.as_bytes();
     let n = b.len();
 
-    let mut matcher = |k: usize, p: usize, dead: &mut Vec<bool>| -> Option<usize> {
+    let mut matcher = |k: usize, p: usize, previous: usize, dead: &mut Vec<bool>| -> Option<usize> {
         if dead.get(k).copied().unwrap_or(false) {
             return None;
         }
@@ -191,6 +194,7 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
         let end = match t.pattern {
             Pattern::Literal(s) => src[p..].starts_with(s).then(|| p + s.len()),
             Pattern::Fn(f) => f(src, p),
+            Pattern::Context(f) => f(src, p, previous),
             Pattern::Scanner(make) => {
                 if scanners.is_empty() {
                     scanners.resize_with(types.len(), || None);
@@ -213,17 +217,18 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
     };
 
     let mut p = 0;
+    let mut previous = EOF;
     'scan: while p < n {
         let c = b[p];
         let list = if c < 128 { &starting[c as usize] } else { every };
         for &k in list {
-            let Some(mut end) = matcher(k, p, &mut dead) else { continue };
+            let Some(mut end) = matcher(k, p, previous, &mut dead) else { continue };
             if end <= p {
                 continue;
             }
             let mut kind = k;
             for &alt in types[k].longer {
-                if let Some(alt_end) = matcher(alt, p, &mut dead) {
+                if let Some(alt_end) = matcher(alt, p, previous, &mut dead) {
                     if alt_end > end {
                         kind = alt;
                         end = alt_end;
@@ -233,6 +238,7 @@ pub(super) fn tokenize_into<'a, T: TokenSink<'a>>(
             }
             if !types[kind].hidden {
                 out.push(kind, p, end);
+                previous = kind;
             }
             p = end;
             continue 'scan;
@@ -353,6 +359,44 @@ pub fn match_title(src: &str, p: usize) -> Option<usize> {
     }
 }
 
+fn title_before(src: &str, p: usize, suffix: fn(&str) -> bool) -> Option<usize> {
+    let end = match_title(src, p)?;
+    let bare = blanks(src, p) + 5;
+    (end != bare || !suffix(&src[bare..])).then_some(end)
+}
+
+fn title_word(src: &str, p: usize) -> Option<usize> {
+    title_before(src, p, |s| s.as_bytes().first().is_some_and(|&b| crate::util::chars::is_word_byte(b)))
+}
+
+pub fn name_rest(s: &str) -> bool {
+    s.bytes().take_while(|&b| b == b'-' || crate::util::chars::is_word_byte(b)).any(crate::util::chars::is_word_byte)
+}
+
+fn title_dash_word(src: &str, p: usize) -> Option<usize> {
+    title_before(src, p, name_rest)
+}
+
+fn title_git(src: &str, p: usize) -> Option<usize> {
+    title_before(src, p, |s| {
+        s.bytes()
+            .take_while(|&b| matches!(b, b'-' | b'.' | b'/') || crate::util::chars::is_word_byte(b))
+            .any(|b| b == b'-' || crate::util::chars::is_word_byte(b))
+    })
+}
+
+fn title_tree(src: &str, p: usize) -> Option<usize> {
+    title_before(src, p, |s| !s.starts_with("%%") && s.chars().next().is_some_and(|c| c != '\r' && c != '\n'))
+}
+
+fn title_name(src: &str, p: usize) -> Option<usize> {
+    title_before(src, p, |s| s.as_bytes().first().is_some_and(|&b| b == b'-' || crate::util::chars::is_word_byte(b)))
+}
+
+fn title_abnf(src: &str, p: usize) -> Option<usize> {
+    title_before(src, p, |s| s.as_bytes().first().is_some_and(|&b| b == b'-' || b.is_ascii_alphanumeric()))
+}
+
 /// `/"([^"\\]|\\.)*"|'([^'\\]|\\.)*'/y`
 pub fn match_string(src: &str, p: usize) -> Option<usize> {
     let b = src.as_bytes();
@@ -443,6 +487,12 @@ pub fn match_comment(src: &str, p: usize) -> Option<usize> {
 pub const ACC_DESCR: TokenType = TokenType::func("ACC_DESCR", match_acc_descr, Some("\t a"));
 pub const ACC_TITLE: TokenType = TokenType::func("ACC_TITLE", match_acc_title, Some("\t a"));
 pub const TITLE: TokenType = TokenType::func("TITLE", match_title, Some("\t t"));
+pub const TITLE_WORD: TokenType = TokenType::func("TITLE", title_word, Some("\t t"));
+pub const TITLE_DASH_WORD: TokenType = TokenType::func("TITLE", title_dash_word, Some("\t t"));
+pub const TITLE_GIT: TokenType = TokenType::func("TITLE", title_git, Some("\t t"));
+pub const TITLE_TREE: TokenType = TokenType::func("TITLE", title_tree, Some("\t t"));
+pub const TITLE_NAME: TokenType = TokenType::func("TITLE", title_name, Some("t"));
+pub const TITLE_ABNF: TokenType = TokenType::func("TITLE", title_abnf, Some("t"));
 pub const STRING: TokenType = TokenType::func("STRING", match_string, Some("\"'"));
 pub const NEWLINE: TokenType = TokenType::func("NEWLINE", match_newline, Some("\r\n"));
 pub const WHITESPACE: TokenType = TokenType::func("WHITESPACE", match_whitespace, Some("\t ")).hidden();
@@ -701,13 +751,17 @@ impl<'a, 't> Reader<'a, 't> {
 
     pub fn fail(&self, expected: &str) -> Error {
         let found = if self.kind() == EOF { "end of input".to_string() } else { format!("`{}`", self.text()) };
-        syntax_error(
-            self.diagram,
-            self.tokens.src,
-            self.tokens.starts[self.i],
-            &format!("Expecting {} but found {}.", expected, found),
-            false,
-        )
+        let mut at = self.tokens.starts[self.i];
+        if self.kind() == EOF {
+            let mut k = self.i;
+            while k > 0 && js::trim(&self.tokens.src[self.tokens.starts[k - 1]..self.tokens.ends[k - 1]]).is_empty() {
+                k -= 1;
+            }
+            if k > 0 {
+                at = self.tokens.ends[k - 1];
+            }
+        }
+        syntax_error(self.diagram, self.tokens.src, at, &format!("Expecting {} but found {}.", expected, found), false)
     }
 }
 

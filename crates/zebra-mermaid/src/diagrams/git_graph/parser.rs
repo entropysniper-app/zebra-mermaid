@@ -7,7 +7,7 @@ use std::sync::LazyLock;
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
     acc_descr_value, acc_title_value, blanks, spaces, string_value, title_value, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE,
-    SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    SINGLE_LINE_COMMENT, STRING, TITLE_GIT, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::keyword_token;
@@ -127,7 +127,7 @@ pub static GIT_TOKENS: LazyLock<Vec<TokenType>> = LazyLock::new(|| {
         TokenType::literal(":", ":"),
         ACC_DESCR.with_opener(acc_descr_opener),
         ACC_TITLE,
-        TITLE,
+        TITLE_GIT,
         TokenType::func("INT", match_int, Some("0123456789")),
         STRING,
         NEWLINE,

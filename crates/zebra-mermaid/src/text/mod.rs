@@ -28,6 +28,9 @@ pub struct Measure<'a> {
 }
 
 impl<'a> Measure<'a> {
+    pub(crate) fn with_measurer<'b>(&'b self, measurer: &'b dyn TextMeasurer) -> Measure<'b> {
+        Measure { measurer, icons: self.icons, math: self.math, math_enabled: self.math_enabled }
+    }
     pub fn new(measurer: &'a dyn TextMeasurer, icons: &'a Icons) -> Self {
         Measure { measurer, icons, math: None, math_enabled: true }
     }

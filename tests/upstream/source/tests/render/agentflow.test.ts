@@ -210,10 +210,16 @@ describe('agentflow rendering', () => {
   });
 
   it('lays a flow out in its own direction', () => {
-    const svg = svgOf('agentflow-beta TB\n  flow f["F"]\n    direction LR\n    a --> b\n  end\n  b --> c');
+    const svg = svgOf('agentflow-beta TB\n  flow f["F"]\n    direction LR\n    a --> b\n  end\n  f --> c');
     expect(node(svg, 'b').x).toBeGreaterThan(node(svg, 'a').x);
     expect(Math.abs(node(svg, 'a').y - node(svg, 'b').y)).toBeLessThan(1);
     expect(node(svg, 'c').y).toBeGreaterThan(node(svg, 'b').y);
+  });
+
+  it("ignores a flow's direction when its nodes link outside it", () => {
+    const flows = 'agentflow-beta LR\nflow S\n direction TB\n s1\n s2\nend\nflow P\n direction TB\n p1\n p2\nend\n';
+    const links = 's1 --> p2\ns2 --> p1\n';
+    expect(svgOf(flows + links)).toBe(svgOf(flows.replace(/ direction TB\n/g, '') + links));
   });
 
   it('keeps a global node out of the flows that mention it', () => {
@@ -310,6 +316,32 @@ describe('agentflow rendering', () => {
     expect(node(svg, 'b').body).toContain('fill-opacity="0.14"');
     expect(node(svg, 'b').body).toContain('style="stroke-width:3px;"');
     expect(svg).toMatch(/<g class="pele-edge pele-edge-sequence" data-id="L_a_b_0" style="stroke:#0a0;">/);
+  });
+
+  it('picks a contrasting label color on fills a style sets', () => {
+    const svg = svgOf(
+      'agentflow-beta TB\n  flow f["Flow"]\n    a["A"] --> b["B"]\n  end\n  flow p["Packed"]\n    c["C"]\n  end\n  p@{ view: "collapsed" }\n  b --> d["D"]\n  style f fill:#FFF9C4\n  style a fill:#1f3a5f\n  style b fill:#1f3a5f,color:#eee\n  style p fill:navy'
+    );
+    expect(svg).toMatch(/data-id="f">.*?<text class="pele-cluster-label" fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(node(svg, 'a').body).toContain('<text class="pele-label" fill="var(--pele-fg-on-dark,#fff)"');
+    expect(node(svg, 'b').body).not.toContain('--pele-fg-on');
+    expect(node(svg, 'p').body).toContain('<text class="pele-label" fill="var(--pele-fg-on-dark,#fff)"');
+    expect(node(svg, 'd').body).not.toContain('--pele-fg-on');
+  });
+
+  it('cases edges that cross a flow fill a style sets and inks those inside it', () => {
+    const src = 'agentflow-beta TB\n  flow f["Flow"]\n    a["A"] --> b["B"]\n  end\n  b --> c["C"]\n  c --> d["D"]\n  style f fill:#FFF9C4';
+    const svg = svgOf(src);
+    const casings = /<g class="pele-casings"[^>]*>(.*?)<\/g>/.exec(svg)![1];
+    const edges = [...svg.matchAll(/class="pele-edge [^"]*" data-id="[^"]+"([^>]*)><path d="([^"]+)"/g)].map((m) => [m[1], m[2]]);
+    expect(edges).toHaveLength(3);
+    expect(edges.map(([, d]) => casings.includes(`<path d="${d}"/>`))).toEqual([false, true, false]);
+    expect(edges.map(([attrs]) => attrs)).toEqual([' stroke="var(--pele-fg-on-light,#1f1f1f)"', '', '']);
+    expect(svgOf(src.replace('\n  style f fill:#FFF9C4', ''))).not.toMatch(/pele-casings|stroke="var\(--pele-fg-on/);
+    // An edge from a flow to a node inside it starts on the flow's border and stays on its fill.
+    const held = svgOf('agentflow-beta TB\n  flow f[Flow]\n    a[A]\n  end\n  f --> a\n  style f fill:white');
+    expect(held).toMatch(/data-id="L_f_a_0" stroke="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(held).not.toContain('pele-casings');
   });
 
   it('links a clicked node and never writes a callback', () => {
@@ -418,6 +450,7 @@ describe('agentflow rendering', () => {
       throw new Error('expected a failure');
     };
     const open = fails('agentflow-beta TB\n  flow orphan["Orphan"]\n    a --> b');
+    expect(fails('agentflow-beta TB\n  flow f["F"]\n    a --> b\n\n%% trailing\n')).toMatchObject({ line: 3, column: 12 });
     expect(open.code).toBe('syntax');
     expect(open.message).toMatch(/^Parse error on line \d+:/);
     expect(open.message).toContain("Expecting 'end', got '$end'");

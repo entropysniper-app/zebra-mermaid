@@ -1,0 +1,6799 @@
+{
+  "file": "tests/render/ink.test.ts",
+  "sourceSha256": "3c30ec71dbe3fd848584f07804571f2da84e7c12a0f6763b60cf30d468a900ab",
+  "method": "Original callbacks and loops evaluated with symbolic actual values. Slots retain call order and reuse, including one expected hex call and two named calls per each of 148 rows. Literal expectations and assertion relations are retained; no Pele or Rust engine outputs become expectations.",
+  "records": [
+    {
+      "id": "16045da721c64defb9883d46",
+      "index": 0,
+      "name": "label ink > reads hex fills",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:#fff"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:#BBDEFB"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 2,
+          "declarations": [
+            "fill:#000"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 2
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 3,
+          "declarations": [
+            "fill:#1F3A5F"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 3
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 4,
+          "declarations": [
+            "fill:#000c"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 4
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 5,
+          "declarations": [
+            "fill:#ffffff80"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 5
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        }
+      ]
+    },
+    {
+      "id": "82f26ed939f2c27ca0a837ea",
+      "index": 1,
+      "name": "label ink > picks the ink with the higher contrast near the middle",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:#f00"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:#808000"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        }
+      ]
+    },
+    {
+      "id": "66a24c003f3581dd3df48b92",
+      "index": 2,
+      "name": "label ink > reads rgb() in comma and space syntax",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:rgb(191, 223, 255)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:rgba(0,0,0,0.6)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 2,
+          "declarations": [
+            "fill:RGB(100%, 100%, 100%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 2
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 3,
+          "declarations": [
+            "fill:rgb(0% 0% 0% / .9)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 3
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 4,
+          "declarations": [
+            "fill:rgba(255 255 255 / 75%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 4
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 5,
+          "declarations": [
+            "fill:rgb(none 0 0)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 5
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        }
+      ]
+    },
+    {
+      "id": "ae2b9c7e10804b053c6f0c44",
+      "index": 3,
+      "name": "label ink > reads hsl()",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:hsl(210, 100%, 87%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:hsl(0 0% 10%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 2,
+          "declarations": [
+            "fill:hsla(120deg, 50%, 20%, 0.8)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 2
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 3,
+          "declarations": [
+            "fill:hsl(0.5turn 100% 90%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 3
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 4,
+          "declarations": [
+            "fill:hsl(-120, 100%, 30%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 4
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 5,
+          "declarations": [
+            "fill:hsl(0 0 95)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 5
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        },
+        {
+          "op": "ink",
+          "slot": 6,
+          "declarations": [
+            "fill:hsl(none 0% 0%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 6
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        }
+      ]
+    },
+    {
+      "id": "77d283fdc3f4123c3e72b77f",
+      "index": 4,
+      "name": "label ink > reads all 148 named colors, in any case",
+      "actions": [
+        {
+          "op": "length",
+          "actual": [
+            "aliceblue",
+            "antiquewhite",
+            "aqua",
+            "aquamarine",
+            "azure",
+            "beige",
+            "bisque",
+            "black",
+            "blanchedalmond",
+            "blue",
+            "blueviolet",
+            "brown",
+            "burlywood",
+            "cadetblue",
+            "chartreuse",
+            "chocolate",
+            "coral",
+            "cornflowerblue",
+            "cornsilk",
+            "crimson",
+            "cyan",
+            "darkblue",
+            "darkcyan",
+            "darkgoldenrod",
+            "darkgray",
+            "darkgreen",
+            "darkgrey",
+            "darkkhaki",
+            "darkmagenta",
+            "darkolivegreen",
+            "darkorange",
+            "darkorchid",
+            "darkred",
+            "darksalmon",
+            "darkseagreen",
+            "darkslateblue",
+            "darkslategray",
+            "darkslategrey",
+            "darkturquoise",
+            "darkviolet",
+            "deeppink",
+            "deepskyblue",
+            "dimgray",
+            "dimgrey",
+            "dodgerblue",
+            "firebrick",
+            "floralwhite",
+            "forestgreen",
+            "fuchsia",
+            "gainsboro",
+            "ghostwhite",
+            "gold",
+            "goldenrod",
+            "gray",
+            "green",
+            "greenyellow",
+            "grey",
+            "honeydew",
+            "hotpink",
+            "indianred",
+            "indigo",
+            "ivory",
+            "khaki",
+            "lavender",
+            "lavenderblush",
+            "lawngreen",
+            "lemonchiffon",
+            "lightblue",
+            "lightcoral",
+            "lightcyan",
+            "lightgoldenrodyellow",
+            "lightgray",
+            "lightgreen",
+            "lightgrey",
+            "lightpink",
+            "lightsalmon",
+            "lightseagreen",
+            "lightskyblue",
+            "lightslategray",
+            "lightslategrey",
+            "lightsteelblue",
+            "lightyellow",
+            "lime",
+            "limegreen",
+            "linen",
+            "magenta",
+            "maroon",
+            "mediumaquamarine",
+            "mediumblue",
+            "mediumorchid",
+            "mediumpurple",
+            "mediumseagreen",
+            "mediumslateblue",
+            "mediumspringgreen",
+            "mediumturquoise",
+            "mediumvioletred",
+            "midnightblue",
+            "mintcream",
+            "mistyrose",
+            "moccasin",
+            "navajowhite",
+            "navy",
+            "oldlace",
+            "olive",
+            "olivedrab",
+            "orange",
+            "orangered",
+            "orchid",
+            "palegoldenrod",
+            "palegreen",
+            "paleturquoise",
+            "palevioletred",
+            "papayawhip",
+            "peachpuff",
+            "peru",
+            "pink",
+            "plum",
+            "powderblue",
+            "purple",
+            "rebeccapurple",
+            "red",
+            "rosybrown",
+            "royalblue",
+            "saddlebrown",
+            "salmon",
+            "sandybrown",
+            "seagreen",
+            "seashell",
+            "sienna",
+            "silver",
+            "skyblue",
+            "slateblue",
+            "slategray",
+            "slategrey",
+            "snow",
+            "springgreen",
+            "steelblue",
+            "tan",
+            "teal",
+            "thistle",
+            "tomato",
+            "turquoise",
+            "violet",
+            "wheat",
+            "white",
+            "whitesmoke",
+            "yellow",
+            "yellowgreen"
+          ],
+          "expected": 148
+        },
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:#f0f8ff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:aliceblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": {
+            "$ink": 0
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 2,
+          "declarations": [
+            "fill:ALICEBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 2
+          },
+          "expected": {
+            "$ink": 0
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 3,
+          "declarations": [
+            "fill:#faebd7"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 4,
+          "declarations": [
+            "fill:antiquewhite"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 4
+          },
+          "expected": {
+            "$ink": 3
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 5,
+          "declarations": [
+            "fill:ANTIQUEWHITE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 5
+          },
+          "expected": {
+            "$ink": 3
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 6,
+          "declarations": [
+            "fill:#00ffff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 7,
+          "declarations": [
+            "fill:aqua"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 7
+          },
+          "expected": {
+            "$ink": 6
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 8,
+          "declarations": [
+            "fill:AQUA"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 8
+          },
+          "expected": {
+            "$ink": 6
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 9,
+          "declarations": [
+            "fill:#7fffd4"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 10,
+          "declarations": [
+            "fill:aquamarine"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 10
+          },
+          "expected": {
+            "$ink": 9
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 11,
+          "declarations": [
+            "fill:AQUAMARINE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 11
+          },
+          "expected": {
+            "$ink": 9
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 12,
+          "declarations": [
+            "fill:#f0ffff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 13,
+          "declarations": [
+            "fill:azure"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 13
+          },
+          "expected": {
+            "$ink": 12
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 14,
+          "declarations": [
+            "fill:AZURE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 14
+          },
+          "expected": {
+            "$ink": 12
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 15,
+          "declarations": [
+            "fill:#f5f5dc"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 16,
+          "declarations": [
+            "fill:beige"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 16
+          },
+          "expected": {
+            "$ink": 15
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 17,
+          "declarations": [
+            "fill:BEIGE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 17
+          },
+          "expected": {
+            "$ink": 15
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 18,
+          "declarations": [
+            "fill:#ffe4c4"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 19,
+          "declarations": [
+            "fill:bisque"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 19
+          },
+          "expected": {
+            "$ink": 18
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 20,
+          "declarations": [
+            "fill:BISQUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 20
+          },
+          "expected": {
+            "$ink": 18
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 21,
+          "declarations": [
+            "fill:#000000"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 22,
+          "declarations": [
+            "fill:black"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 22
+          },
+          "expected": {
+            "$ink": 21
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 23,
+          "declarations": [
+            "fill:BLACK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 23
+          },
+          "expected": {
+            "$ink": 21
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 24,
+          "declarations": [
+            "fill:#ffebcd"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 25,
+          "declarations": [
+            "fill:blanchedalmond"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 25
+          },
+          "expected": {
+            "$ink": 24
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 26,
+          "declarations": [
+            "fill:BLANCHEDALMOND"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 26
+          },
+          "expected": {
+            "$ink": 24
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 27,
+          "declarations": [
+            "fill:#0000ff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 28,
+          "declarations": [
+            "fill:blue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 28
+          },
+          "expected": {
+            "$ink": 27
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 29,
+          "declarations": [
+            "fill:BLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 29
+          },
+          "expected": {
+            "$ink": 27
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 30,
+          "declarations": [
+            "fill:#8a2be2"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 31,
+          "declarations": [
+            "fill:blueviolet"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 31
+          },
+          "expected": {
+            "$ink": 30
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 32,
+          "declarations": [
+            "fill:BLUEVIOLET"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 32
+          },
+          "expected": {
+            "$ink": 30
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 33,
+          "declarations": [
+            "fill:#a52a2a"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 34,
+          "declarations": [
+            "fill:brown"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 34
+          },
+          "expected": {
+            "$ink": 33
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 35,
+          "declarations": [
+            "fill:BROWN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 35
+          },
+          "expected": {
+            "$ink": 33
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 36,
+          "declarations": [
+            "fill:#deb887"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 37,
+          "declarations": [
+            "fill:burlywood"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 37
+          },
+          "expected": {
+            "$ink": 36
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 38,
+          "declarations": [
+            "fill:BURLYWOOD"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 38
+          },
+          "expected": {
+            "$ink": 36
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 39,
+          "declarations": [
+            "fill:#5f9ea0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 40,
+          "declarations": [
+            "fill:cadetblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 40
+          },
+          "expected": {
+            "$ink": 39
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 41,
+          "declarations": [
+            "fill:CADETBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 41
+          },
+          "expected": {
+            "$ink": 39
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 42,
+          "declarations": [
+            "fill:#7fff00"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 43,
+          "declarations": [
+            "fill:chartreuse"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 43
+          },
+          "expected": {
+            "$ink": 42
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 44,
+          "declarations": [
+            "fill:CHARTREUSE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 44
+          },
+          "expected": {
+            "$ink": 42
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 45,
+          "declarations": [
+            "fill:#d2691e"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 46,
+          "declarations": [
+            "fill:chocolate"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 46
+          },
+          "expected": {
+            "$ink": 45
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 47,
+          "declarations": [
+            "fill:CHOCOLATE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 47
+          },
+          "expected": {
+            "$ink": 45
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 48,
+          "declarations": [
+            "fill:#ff7f50"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 49,
+          "declarations": [
+            "fill:coral"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 49
+          },
+          "expected": {
+            "$ink": 48
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 50,
+          "declarations": [
+            "fill:CORAL"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 50
+          },
+          "expected": {
+            "$ink": 48
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 51,
+          "declarations": [
+            "fill:#6495ed"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 52,
+          "declarations": [
+            "fill:cornflowerblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 52
+          },
+          "expected": {
+            "$ink": 51
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 53,
+          "declarations": [
+            "fill:CORNFLOWERBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 53
+          },
+          "expected": {
+            "$ink": 51
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 54,
+          "declarations": [
+            "fill:#fff8dc"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 55,
+          "declarations": [
+            "fill:cornsilk"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 55
+          },
+          "expected": {
+            "$ink": 54
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 56,
+          "declarations": [
+            "fill:CORNSILK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 56
+          },
+          "expected": {
+            "$ink": 54
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 57,
+          "declarations": [
+            "fill:#dc143c"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 58,
+          "declarations": [
+            "fill:crimson"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 58
+          },
+          "expected": {
+            "$ink": 57
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 59,
+          "declarations": [
+            "fill:CRIMSON"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 59
+          },
+          "expected": {
+            "$ink": 57
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 60,
+          "declarations": [
+            "fill:#00ffff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 61,
+          "declarations": [
+            "fill:cyan"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 61
+          },
+          "expected": {
+            "$ink": 60
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 62,
+          "declarations": [
+            "fill:CYAN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 62
+          },
+          "expected": {
+            "$ink": 60
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 63,
+          "declarations": [
+            "fill:#00008b"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 64,
+          "declarations": [
+            "fill:darkblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 64
+          },
+          "expected": {
+            "$ink": 63
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 65,
+          "declarations": [
+            "fill:DARKBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 65
+          },
+          "expected": {
+            "$ink": 63
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 66,
+          "declarations": [
+            "fill:#008b8b"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 67,
+          "declarations": [
+            "fill:darkcyan"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 67
+          },
+          "expected": {
+            "$ink": 66
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 68,
+          "declarations": [
+            "fill:DARKCYAN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 68
+          },
+          "expected": {
+            "$ink": 66
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 69,
+          "declarations": [
+            "fill:#b8860b"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 70,
+          "declarations": [
+            "fill:darkgoldenrod"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 70
+          },
+          "expected": {
+            "$ink": 69
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 71,
+          "declarations": [
+            "fill:DARKGOLDENROD"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 71
+          },
+          "expected": {
+            "$ink": 69
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 72,
+          "declarations": [
+            "fill:#a9a9a9"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 73,
+          "declarations": [
+            "fill:darkgray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 73
+          },
+          "expected": {
+            "$ink": 72
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 74,
+          "declarations": [
+            "fill:DARKGRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 74
+          },
+          "expected": {
+            "$ink": 72
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 75,
+          "declarations": [
+            "fill:#006400"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 76,
+          "declarations": [
+            "fill:darkgreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 76
+          },
+          "expected": {
+            "$ink": 75
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 77,
+          "declarations": [
+            "fill:DARKGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 77
+          },
+          "expected": {
+            "$ink": 75
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 78,
+          "declarations": [
+            "fill:#a9a9a9"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 79,
+          "declarations": [
+            "fill:darkgrey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 79
+          },
+          "expected": {
+            "$ink": 78
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 80,
+          "declarations": [
+            "fill:DARKGREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 80
+          },
+          "expected": {
+            "$ink": 78
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 81,
+          "declarations": [
+            "fill:#bdb76b"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 82,
+          "declarations": [
+            "fill:darkkhaki"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 82
+          },
+          "expected": {
+            "$ink": 81
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 83,
+          "declarations": [
+            "fill:DARKKHAKI"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 83
+          },
+          "expected": {
+            "$ink": 81
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 84,
+          "declarations": [
+            "fill:#8b008b"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 85,
+          "declarations": [
+            "fill:darkmagenta"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 85
+          },
+          "expected": {
+            "$ink": 84
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 86,
+          "declarations": [
+            "fill:DARKMAGENTA"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 86
+          },
+          "expected": {
+            "$ink": 84
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 87,
+          "declarations": [
+            "fill:#556b2f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 88,
+          "declarations": [
+            "fill:darkolivegreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 88
+          },
+          "expected": {
+            "$ink": 87
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 89,
+          "declarations": [
+            "fill:DARKOLIVEGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 89
+          },
+          "expected": {
+            "$ink": 87
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 90,
+          "declarations": [
+            "fill:#ff8c00"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 91,
+          "declarations": [
+            "fill:darkorange"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 91
+          },
+          "expected": {
+            "$ink": 90
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 92,
+          "declarations": [
+            "fill:DARKORANGE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 92
+          },
+          "expected": {
+            "$ink": 90
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 93,
+          "declarations": [
+            "fill:#9932cc"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 94,
+          "declarations": [
+            "fill:darkorchid"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 94
+          },
+          "expected": {
+            "$ink": 93
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 95,
+          "declarations": [
+            "fill:DARKORCHID"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 95
+          },
+          "expected": {
+            "$ink": 93
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 96,
+          "declarations": [
+            "fill:#8b0000"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 97,
+          "declarations": [
+            "fill:darkred"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 97
+          },
+          "expected": {
+            "$ink": 96
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 98,
+          "declarations": [
+            "fill:DARKRED"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 98
+          },
+          "expected": {
+            "$ink": 96
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 99,
+          "declarations": [
+            "fill:#e9967a"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 100,
+          "declarations": [
+            "fill:darksalmon"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 100
+          },
+          "expected": {
+            "$ink": 99
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 101,
+          "declarations": [
+            "fill:DARKSALMON"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 101
+          },
+          "expected": {
+            "$ink": 99
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 102,
+          "declarations": [
+            "fill:#8fbc8f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 103,
+          "declarations": [
+            "fill:darkseagreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 103
+          },
+          "expected": {
+            "$ink": 102
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 104,
+          "declarations": [
+            "fill:DARKSEAGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 104
+          },
+          "expected": {
+            "$ink": 102
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 105,
+          "declarations": [
+            "fill:#483d8b"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 106,
+          "declarations": [
+            "fill:darkslateblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 106
+          },
+          "expected": {
+            "$ink": 105
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 107,
+          "declarations": [
+            "fill:DARKSLATEBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 107
+          },
+          "expected": {
+            "$ink": 105
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 108,
+          "declarations": [
+            "fill:#2f4f4f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 109,
+          "declarations": [
+            "fill:darkslategray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 109
+          },
+          "expected": {
+            "$ink": 108
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 110,
+          "declarations": [
+            "fill:DARKSLATEGRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 110
+          },
+          "expected": {
+            "$ink": 108
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 111,
+          "declarations": [
+            "fill:#2f4f4f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 112,
+          "declarations": [
+            "fill:darkslategrey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 112
+          },
+          "expected": {
+            "$ink": 111
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 113,
+          "declarations": [
+            "fill:DARKSLATEGREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 113
+          },
+          "expected": {
+            "$ink": 111
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 114,
+          "declarations": [
+            "fill:#00ced1"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 115,
+          "declarations": [
+            "fill:darkturquoise"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 115
+          },
+          "expected": {
+            "$ink": 114
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 116,
+          "declarations": [
+            "fill:DARKTURQUOISE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 116
+          },
+          "expected": {
+            "$ink": 114
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 117,
+          "declarations": [
+            "fill:#9400d3"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 118,
+          "declarations": [
+            "fill:darkviolet"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 118
+          },
+          "expected": {
+            "$ink": 117
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 119,
+          "declarations": [
+            "fill:DARKVIOLET"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 119
+          },
+          "expected": {
+            "$ink": 117
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 120,
+          "declarations": [
+            "fill:#ff1493"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 121,
+          "declarations": [
+            "fill:deeppink"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 121
+          },
+          "expected": {
+            "$ink": 120
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 122,
+          "declarations": [
+            "fill:DEEPPINK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 122
+          },
+          "expected": {
+            "$ink": 120
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 123,
+          "declarations": [
+            "fill:#00bfff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 124,
+          "declarations": [
+            "fill:deepskyblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 124
+          },
+          "expected": {
+            "$ink": 123
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 125,
+          "declarations": [
+            "fill:DEEPSKYBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 125
+          },
+          "expected": {
+            "$ink": 123
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 126,
+          "declarations": [
+            "fill:#696969"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 127,
+          "declarations": [
+            "fill:dimgray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 127
+          },
+          "expected": {
+            "$ink": 126
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 128,
+          "declarations": [
+            "fill:DIMGRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 128
+          },
+          "expected": {
+            "$ink": 126
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 129,
+          "declarations": [
+            "fill:#696969"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 130,
+          "declarations": [
+            "fill:dimgrey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 130
+          },
+          "expected": {
+            "$ink": 129
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 131,
+          "declarations": [
+            "fill:DIMGREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 131
+          },
+          "expected": {
+            "$ink": 129
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 132,
+          "declarations": [
+            "fill:#1e90ff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 133,
+          "declarations": [
+            "fill:dodgerblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 133
+          },
+          "expected": {
+            "$ink": 132
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 134,
+          "declarations": [
+            "fill:DODGERBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 134
+          },
+          "expected": {
+            "$ink": 132
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 135,
+          "declarations": [
+            "fill:#b22222"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 136,
+          "declarations": [
+            "fill:firebrick"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 136
+          },
+          "expected": {
+            "$ink": 135
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 137,
+          "declarations": [
+            "fill:FIREBRICK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 137
+          },
+          "expected": {
+            "$ink": 135
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 138,
+          "declarations": [
+            "fill:#fffaf0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 139,
+          "declarations": [
+            "fill:floralwhite"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 139
+          },
+          "expected": {
+            "$ink": 138
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 140,
+          "declarations": [
+            "fill:FLORALWHITE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 140
+          },
+          "expected": {
+            "$ink": 138
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 141,
+          "declarations": [
+            "fill:#228b22"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 142,
+          "declarations": [
+            "fill:forestgreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 142
+          },
+          "expected": {
+            "$ink": 141
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 143,
+          "declarations": [
+            "fill:FORESTGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 143
+          },
+          "expected": {
+            "$ink": 141
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 144,
+          "declarations": [
+            "fill:#ff00ff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 145,
+          "declarations": [
+            "fill:fuchsia"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 145
+          },
+          "expected": {
+            "$ink": 144
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 146,
+          "declarations": [
+            "fill:FUCHSIA"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 146
+          },
+          "expected": {
+            "$ink": 144
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 147,
+          "declarations": [
+            "fill:#dcdcdc"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 148,
+          "declarations": [
+            "fill:gainsboro"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 148
+          },
+          "expected": {
+            "$ink": 147
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 149,
+          "declarations": [
+            "fill:GAINSBORO"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 149
+          },
+          "expected": {
+            "$ink": 147
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 150,
+          "declarations": [
+            "fill:#f8f8ff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 151,
+          "declarations": [
+            "fill:ghostwhite"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 151
+          },
+          "expected": {
+            "$ink": 150
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 152,
+          "declarations": [
+            "fill:GHOSTWHITE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 152
+          },
+          "expected": {
+            "$ink": 150
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 153,
+          "declarations": [
+            "fill:#ffd700"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 154,
+          "declarations": [
+            "fill:gold"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 154
+          },
+          "expected": {
+            "$ink": 153
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 155,
+          "declarations": [
+            "fill:GOLD"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 155
+          },
+          "expected": {
+            "$ink": 153
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 156,
+          "declarations": [
+            "fill:#daa520"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 157,
+          "declarations": [
+            "fill:goldenrod"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 157
+          },
+          "expected": {
+            "$ink": 156
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 158,
+          "declarations": [
+            "fill:GOLDENROD"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 158
+          },
+          "expected": {
+            "$ink": 156
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 159,
+          "declarations": [
+            "fill:#808080"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 160,
+          "declarations": [
+            "fill:gray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 160
+          },
+          "expected": {
+            "$ink": 159
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 161,
+          "declarations": [
+            "fill:GRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 161
+          },
+          "expected": {
+            "$ink": 159
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 162,
+          "declarations": [
+            "fill:#008000"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 163,
+          "declarations": [
+            "fill:green"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 163
+          },
+          "expected": {
+            "$ink": 162
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 164,
+          "declarations": [
+            "fill:GREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 164
+          },
+          "expected": {
+            "$ink": 162
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 165,
+          "declarations": [
+            "fill:#adff2f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 166,
+          "declarations": [
+            "fill:greenyellow"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 166
+          },
+          "expected": {
+            "$ink": 165
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 167,
+          "declarations": [
+            "fill:GREENYELLOW"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 167
+          },
+          "expected": {
+            "$ink": 165
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 168,
+          "declarations": [
+            "fill:#808080"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 169,
+          "declarations": [
+            "fill:grey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 169
+          },
+          "expected": {
+            "$ink": 168
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 170,
+          "declarations": [
+            "fill:GREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 170
+          },
+          "expected": {
+            "$ink": 168
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 171,
+          "declarations": [
+            "fill:#f0fff0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 172,
+          "declarations": [
+            "fill:honeydew"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 172
+          },
+          "expected": {
+            "$ink": 171
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 173,
+          "declarations": [
+            "fill:HONEYDEW"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 173
+          },
+          "expected": {
+            "$ink": 171
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 174,
+          "declarations": [
+            "fill:#ff69b4"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 175,
+          "declarations": [
+            "fill:hotpink"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 175
+          },
+          "expected": {
+            "$ink": 174
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 176,
+          "declarations": [
+            "fill:HOTPINK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 176
+          },
+          "expected": {
+            "$ink": 174
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 177,
+          "declarations": [
+            "fill:#cd5c5c"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 178,
+          "declarations": [
+            "fill:indianred"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 178
+          },
+          "expected": {
+            "$ink": 177
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 179,
+          "declarations": [
+            "fill:INDIANRED"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 179
+          },
+          "expected": {
+            "$ink": 177
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 180,
+          "declarations": [
+            "fill:#4b0082"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 181,
+          "declarations": [
+            "fill:indigo"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 181
+          },
+          "expected": {
+            "$ink": 180
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 182,
+          "declarations": [
+            "fill:INDIGO"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 182
+          },
+          "expected": {
+            "$ink": 180
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 183,
+          "declarations": [
+            "fill:#fffff0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 184,
+          "declarations": [
+            "fill:ivory"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 184
+          },
+          "expected": {
+            "$ink": 183
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 185,
+          "declarations": [
+            "fill:IVORY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 185
+          },
+          "expected": {
+            "$ink": 183
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 186,
+          "declarations": [
+            "fill:#f0e68c"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 187,
+          "declarations": [
+            "fill:khaki"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 187
+          },
+          "expected": {
+            "$ink": 186
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 188,
+          "declarations": [
+            "fill:KHAKI"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 188
+          },
+          "expected": {
+            "$ink": 186
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 189,
+          "declarations": [
+            "fill:#e6e6fa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 190,
+          "declarations": [
+            "fill:lavender"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 190
+          },
+          "expected": {
+            "$ink": 189
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 191,
+          "declarations": [
+            "fill:LAVENDER"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 191
+          },
+          "expected": {
+            "$ink": 189
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 192,
+          "declarations": [
+            "fill:#fff0f5"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 193,
+          "declarations": [
+            "fill:lavenderblush"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 193
+          },
+          "expected": {
+            "$ink": 192
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 194,
+          "declarations": [
+            "fill:LAVENDERBLUSH"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 194
+          },
+          "expected": {
+            "$ink": 192
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 195,
+          "declarations": [
+            "fill:#7cfc00"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 196,
+          "declarations": [
+            "fill:lawngreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 196
+          },
+          "expected": {
+            "$ink": 195
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 197,
+          "declarations": [
+            "fill:LAWNGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 197
+          },
+          "expected": {
+            "$ink": 195
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 198,
+          "declarations": [
+            "fill:#fffacd"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 199,
+          "declarations": [
+            "fill:lemonchiffon"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 199
+          },
+          "expected": {
+            "$ink": 198
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 200,
+          "declarations": [
+            "fill:LEMONCHIFFON"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 200
+          },
+          "expected": {
+            "$ink": 198
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 201,
+          "declarations": [
+            "fill:#add8e6"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 202,
+          "declarations": [
+            "fill:lightblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 202
+          },
+          "expected": {
+            "$ink": 201
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 203,
+          "declarations": [
+            "fill:LIGHTBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 203
+          },
+          "expected": {
+            "$ink": 201
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 204,
+          "declarations": [
+            "fill:#f08080"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 205,
+          "declarations": [
+            "fill:lightcoral"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 205
+          },
+          "expected": {
+            "$ink": 204
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 206,
+          "declarations": [
+            "fill:LIGHTCORAL"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 206
+          },
+          "expected": {
+            "$ink": 204
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 207,
+          "declarations": [
+            "fill:#e0ffff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 208,
+          "declarations": [
+            "fill:lightcyan"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 208
+          },
+          "expected": {
+            "$ink": 207
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 209,
+          "declarations": [
+            "fill:LIGHTCYAN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 209
+          },
+          "expected": {
+            "$ink": 207
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 210,
+          "declarations": [
+            "fill:#fafad2"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 211,
+          "declarations": [
+            "fill:lightgoldenrodyellow"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 211
+          },
+          "expected": {
+            "$ink": 210
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 212,
+          "declarations": [
+            "fill:LIGHTGOLDENRODYELLOW"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 212
+          },
+          "expected": {
+            "$ink": 210
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 213,
+          "declarations": [
+            "fill:#d3d3d3"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 214,
+          "declarations": [
+            "fill:lightgray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 214
+          },
+          "expected": {
+            "$ink": 213
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 215,
+          "declarations": [
+            "fill:LIGHTGRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 215
+          },
+          "expected": {
+            "$ink": 213
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 216,
+          "declarations": [
+            "fill:#90ee90"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 217,
+          "declarations": [
+            "fill:lightgreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 217
+          },
+          "expected": {
+            "$ink": 216
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 218,
+          "declarations": [
+            "fill:LIGHTGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 218
+          },
+          "expected": {
+            "$ink": 216
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 219,
+          "declarations": [
+            "fill:#d3d3d3"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 220,
+          "declarations": [
+            "fill:lightgrey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 220
+          },
+          "expected": {
+            "$ink": 219
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 221,
+          "declarations": [
+            "fill:LIGHTGREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 221
+          },
+          "expected": {
+            "$ink": 219
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 222,
+          "declarations": [
+            "fill:#ffb6c1"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 223,
+          "declarations": [
+            "fill:lightpink"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 223
+          },
+          "expected": {
+            "$ink": 222
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 224,
+          "declarations": [
+            "fill:LIGHTPINK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 224
+          },
+          "expected": {
+            "$ink": 222
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 225,
+          "declarations": [
+            "fill:#ffa07a"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 226,
+          "declarations": [
+            "fill:lightsalmon"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 226
+          },
+          "expected": {
+            "$ink": 225
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 227,
+          "declarations": [
+            "fill:LIGHTSALMON"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 227
+          },
+          "expected": {
+            "$ink": 225
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 228,
+          "declarations": [
+            "fill:#20b2aa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 229,
+          "declarations": [
+            "fill:lightseagreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 229
+          },
+          "expected": {
+            "$ink": 228
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 230,
+          "declarations": [
+            "fill:LIGHTSEAGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 230
+          },
+          "expected": {
+            "$ink": 228
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 231,
+          "declarations": [
+            "fill:#87cefa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 232,
+          "declarations": [
+            "fill:lightskyblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 232
+          },
+          "expected": {
+            "$ink": 231
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 233,
+          "declarations": [
+            "fill:LIGHTSKYBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 233
+          },
+          "expected": {
+            "$ink": 231
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 234,
+          "declarations": [
+            "fill:#778899"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 235,
+          "declarations": [
+            "fill:lightslategray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 235
+          },
+          "expected": {
+            "$ink": 234
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 236,
+          "declarations": [
+            "fill:LIGHTSLATEGRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 236
+          },
+          "expected": {
+            "$ink": 234
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 237,
+          "declarations": [
+            "fill:#778899"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 238,
+          "declarations": [
+            "fill:lightslategrey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 238
+          },
+          "expected": {
+            "$ink": 237
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 239,
+          "declarations": [
+            "fill:LIGHTSLATEGREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 239
+          },
+          "expected": {
+            "$ink": 237
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 240,
+          "declarations": [
+            "fill:#b0c4de"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 241,
+          "declarations": [
+            "fill:lightsteelblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 241
+          },
+          "expected": {
+            "$ink": 240
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 242,
+          "declarations": [
+            "fill:LIGHTSTEELBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 242
+          },
+          "expected": {
+            "$ink": 240
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 243,
+          "declarations": [
+            "fill:#ffffe0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 244,
+          "declarations": [
+            "fill:lightyellow"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 244
+          },
+          "expected": {
+            "$ink": 243
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 245,
+          "declarations": [
+            "fill:LIGHTYELLOW"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 245
+          },
+          "expected": {
+            "$ink": 243
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 246,
+          "declarations": [
+            "fill:#00ff00"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 247,
+          "declarations": [
+            "fill:lime"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 247
+          },
+          "expected": {
+            "$ink": 246
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 248,
+          "declarations": [
+            "fill:LIME"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 248
+          },
+          "expected": {
+            "$ink": 246
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 249,
+          "declarations": [
+            "fill:#32cd32"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 250,
+          "declarations": [
+            "fill:limegreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 250
+          },
+          "expected": {
+            "$ink": 249
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 251,
+          "declarations": [
+            "fill:LIMEGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 251
+          },
+          "expected": {
+            "$ink": 249
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 252,
+          "declarations": [
+            "fill:#faf0e6"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 253,
+          "declarations": [
+            "fill:linen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 253
+          },
+          "expected": {
+            "$ink": 252
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 254,
+          "declarations": [
+            "fill:LINEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 254
+          },
+          "expected": {
+            "$ink": 252
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 255,
+          "declarations": [
+            "fill:#ff00ff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 256,
+          "declarations": [
+            "fill:magenta"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 256
+          },
+          "expected": {
+            "$ink": 255
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 257,
+          "declarations": [
+            "fill:MAGENTA"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 257
+          },
+          "expected": {
+            "$ink": 255
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 258,
+          "declarations": [
+            "fill:#800000"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 259,
+          "declarations": [
+            "fill:maroon"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 259
+          },
+          "expected": {
+            "$ink": 258
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 260,
+          "declarations": [
+            "fill:MAROON"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 260
+          },
+          "expected": {
+            "$ink": 258
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 261,
+          "declarations": [
+            "fill:#66cdaa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 262,
+          "declarations": [
+            "fill:mediumaquamarine"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 262
+          },
+          "expected": {
+            "$ink": 261
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 263,
+          "declarations": [
+            "fill:MEDIUMAQUAMARINE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 263
+          },
+          "expected": {
+            "$ink": 261
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 264,
+          "declarations": [
+            "fill:#0000cd"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 265,
+          "declarations": [
+            "fill:mediumblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 265
+          },
+          "expected": {
+            "$ink": 264
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 266,
+          "declarations": [
+            "fill:MEDIUMBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 266
+          },
+          "expected": {
+            "$ink": 264
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 267,
+          "declarations": [
+            "fill:#ba55d3"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 268,
+          "declarations": [
+            "fill:mediumorchid"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 268
+          },
+          "expected": {
+            "$ink": 267
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 269,
+          "declarations": [
+            "fill:MEDIUMORCHID"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 269
+          },
+          "expected": {
+            "$ink": 267
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 270,
+          "declarations": [
+            "fill:#9370db"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 271,
+          "declarations": [
+            "fill:mediumpurple"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 271
+          },
+          "expected": {
+            "$ink": 270
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 272,
+          "declarations": [
+            "fill:MEDIUMPURPLE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 272
+          },
+          "expected": {
+            "$ink": 270
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 273,
+          "declarations": [
+            "fill:#3cb371"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 274,
+          "declarations": [
+            "fill:mediumseagreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 274
+          },
+          "expected": {
+            "$ink": 273
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 275,
+          "declarations": [
+            "fill:MEDIUMSEAGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 275
+          },
+          "expected": {
+            "$ink": 273
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 276,
+          "declarations": [
+            "fill:#7b68ee"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 277,
+          "declarations": [
+            "fill:mediumslateblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 277
+          },
+          "expected": {
+            "$ink": 276
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 278,
+          "declarations": [
+            "fill:MEDIUMSLATEBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 278
+          },
+          "expected": {
+            "$ink": 276
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 279,
+          "declarations": [
+            "fill:#00fa9a"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 280,
+          "declarations": [
+            "fill:mediumspringgreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 280
+          },
+          "expected": {
+            "$ink": 279
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 281,
+          "declarations": [
+            "fill:MEDIUMSPRINGGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 281
+          },
+          "expected": {
+            "$ink": 279
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 282,
+          "declarations": [
+            "fill:#48d1cc"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 283,
+          "declarations": [
+            "fill:mediumturquoise"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 283
+          },
+          "expected": {
+            "$ink": 282
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 284,
+          "declarations": [
+            "fill:MEDIUMTURQUOISE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 284
+          },
+          "expected": {
+            "$ink": 282
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 285,
+          "declarations": [
+            "fill:#c71585"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 286,
+          "declarations": [
+            "fill:mediumvioletred"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 286
+          },
+          "expected": {
+            "$ink": 285
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 287,
+          "declarations": [
+            "fill:MEDIUMVIOLETRED"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 287
+          },
+          "expected": {
+            "$ink": 285
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 288,
+          "declarations": [
+            "fill:#191970"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 289,
+          "declarations": [
+            "fill:midnightblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 289
+          },
+          "expected": {
+            "$ink": 288
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 290,
+          "declarations": [
+            "fill:MIDNIGHTBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 290
+          },
+          "expected": {
+            "$ink": 288
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 291,
+          "declarations": [
+            "fill:#f5fffa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 292,
+          "declarations": [
+            "fill:mintcream"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 292
+          },
+          "expected": {
+            "$ink": 291
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 293,
+          "declarations": [
+            "fill:MINTCREAM"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 293
+          },
+          "expected": {
+            "$ink": 291
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 294,
+          "declarations": [
+            "fill:#ffe4e1"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 295,
+          "declarations": [
+            "fill:mistyrose"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 295
+          },
+          "expected": {
+            "$ink": 294
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 296,
+          "declarations": [
+            "fill:MISTYROSE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 296
+          },
+          "expected": {
+            "$ink": 294
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 297,
+          "declarations": [
+            "fill:#ffe4b5"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 298,
+          "declarations": [
+            "fill:moccasin"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 298
+          },
+          "expected": {
+            "$ink": 297
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 299,
+          "declarations": [
+            "fill:MOCCASIN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 299
+          },
+          "expected": {
+            "$ink": 297
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 300,
+          "declarations": [
+            "fill:#ffdead"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 301,
+          "declarations": [
+            "fill:navajowhite"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 301
+          },
+          "expected": {
+            "$ink": 300
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 302,
+          "declarations": [
+            "fill:NAVAJOWHITE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 302
+          },
+          "expected": {
+            "$ink": 300
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 303,
+          "declarations": [
+            "fill:#000080"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 304,
+          "declarations": [
+            "fill:navy"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 304
+          },
+          "expected": {
+            "$ink": 303
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 305,
+          "declarations": [
+            "fill:NAVY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 305
+          },
+          "expected": {
+            "$ink": 303
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 306,
+          "declarations": [
+            "fill:#fdf5e6"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 307,
+          "declarations": [
+            "fill:oldlace"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 307
+          },
+          "expected": {
+            "$ink": 306
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 308,
+          "declarations": [
+            "fill:OLDLACE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 308
+          },
+          "expected": {
+            "$ink": 306
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 309,
+          "declarations": [
+            "fill:#808000"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 310,
+          "declarations": [
+            "fill:olive"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 310
+          },
+          "expected": {
+            "$ink": 309
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 311,
+          "declarations": [
+            "fill:OLIVE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 311
+          },
+          "expected": {
+            "$ink": 309
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 312,
+          "declarations": [
+            "fill:#6b8e23"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 313,
+          "declarations": [
+            "fill:olivedrab"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 313
+          },
+          "expected": {
+            "$ink": 312
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 314,
+          "declarations": [
+            "fill:OLIVEDRAB"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 314
+          },
+          "expected": {
+            "$ink": 312
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 315,
+          "declarations": [
+            "fill:#ffa500"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 316,
+          "declarations": [
+            "fill:orange"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 316
+          },
+          "expected": {
+            "$ink": 315
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 317,
+          "declarations": [
+            "fill:ORANGE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 317
+          },
+          "expected": {
+            "$ink": 315
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 318,
+          "declarations": [
+            "fill:#ff4500"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 319,
+          "declarations": [
+            "fill:orangered"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 319
+          },
+          "expected": {
+            "$ink": 318
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 320,
+          "declarations": [
+            "fill:ORANGERED"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 320
+          },
+          "expected": {
+            "$ink": 318
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 321,
+          "declarations": [
+            "fill:#da70d6"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 322,
+          "declarations": [
+            "fill:orchid"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 322
+          },
+          "expected": {
+            "$ink": 321
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 323,
+          "declarations": [
+            "fill:ORCHID"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 323
+          },
+          "expected": {
+            "$ink": 321
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 324,
+          "declarations": [
+            "fill:#eee8aa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 325,
+          "declarations": [
+            "fill:palegoldenrod"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 325
+          },
+          "expected": {
+            "$ink": 324
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 326,
+          "declarations": [
+            "fill:PALEGOLDENROD"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 326
+          },
+          "expected": {
+            "$ink": 324
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 327,
+          "declarations": [
+            "fill:#98fb98"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 328,
+          "declarations": [
+            "fill:palegreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 328
+          },
+          "expected": {
+            "$ink": 327
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 329,
+          "declarations": [
+            "fill:PALEGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 329
+          },
+          "expected": {
+            "$ink": 327
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 330,
+          "declarations": [
+            "fill:#afeeee"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 331,
+          "declarations": [
+            "fill:paleturquoise"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 331
+          },
+          "expected": {
+            "$ink": 330
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 332,
+          "declarations": [
+            "fill:PALETURQUOISE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 332
+          },
+          "expected": {
+            "$ink": 330
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 333,
+          "declarations": [
+            "fill:#db7093"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 334,
+          "declarations": [
+            "fill:palevioletred"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 334
+          },
+          "expected": {
+            "$ink": 333
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 335,
+          "declarations": [
+            "fill:PALEVIOLETRED"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 335
+          },
+          "expected": {
+            "$ink": 333
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 336,
+          "declarations": [
+            "fill:#ffefd5"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 337,
+          "declarations": [
+            "fill:papayawhip"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 337
+          },
+          "expected": {
+            "$ink": 336
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 338,
+          "declarations": [
+            "fill:PAPAYAWHIP"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 338
+          },
+          "expected": {
+            "$ink": 336
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 339,
+          "declarations": [
+            "fill:#ffdab9"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 340,
+          "declarations": [
+            "fill:peachpuff"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 340
+          },
+          "expected": {
+            "$ink": 339
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 341,
+          "declarations": [
+            "fill:PEACHPUFF"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 341
+          },
+          "expected": {
+            "$ink": 339
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 342,
+          "declarations": [
+            "fill:#cd853f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 343,
+          "declarations": [
+            "fill:peru"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 343
+          },
+          "expected": {
+            "$ink": 342
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 344,
+          "declarations": [
+            "fill:PERU"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 344
+          },
+          "expected": {
+            "$ink": 342
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 345,
+          "declarations": [
+            "fill:#ffc0cb"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 346,
+          "declarations": [
+            "fill:pink"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 346
+          },
+          "expected": {
+            "$ink": 345
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 347,
+          "declarations": [
+            "fill:PINK"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 347
+          },
+          "expected": {
+            "$ink": 345
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 348,
+          "declarations": [
+            "fill:#dda0dd"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 349,
+          "declarations": [
+            "fill:plum"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 349
+          },
+          "expected": {
+            "$ink": 348
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 350,
+          "declarations": [
+            "fill:PLUM"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 350
+          },
+          "expected": {
+            "$ink": 348
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 351,
+          "declarations": [
+            "fill:#b0e0e6"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 352,
+          "declarations": [
+            "fill:powderblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 352
+          },
+          "expected": {
+            "$ink": 351
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 353,
+          "declarations": [
+            "fill:POWDERBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 353
+          },
+          "expected": {
+            "$ink": 351
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 354,
+          "declarations": [
+            "fill:#800080"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 355,
+          "declarations": [
+            "fill:purple"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 355
+          },
+          "expected": {
+            "$ink": 354
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 356,
+          "declarations": [
+            "fill:PURPLE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 356
+          },
+          "expected": {
+            "$ink": 354
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 357,
+          "declarations": [
+            "fill:#663399"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 358,
+          "declarations": [
+            "fill:rebeccapurple"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 358
+          },
+          "expected": {
+            "$ink": 357
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 359,
+          "declarations": [
+            "fill:REBECCAPURPLE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 359
+          },
+          "expected": {
+            "$ink": 357
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 360,
+          "declarations": [
+            "fill:#ff0000"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 361,
+          "declarations": [
+            "fill:red"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 361
+          },
+          "expected": {
+            "$ink": 360
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 362,
+          "declarations": [
+            "fill:RED"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 362
+          },
+          "expected": {
+            "$ink": 360
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 363,
+          "declarations": [
+            "fill:#bc8f8f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 364,
+          "declarations": [
+            "fill:rosybrown"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 364
+          },
+          "expected": {
+            "$ink": 363
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 365,
+          "declarations": [
+            "fill:ROSYBROWN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 365
+          },
+          "expected": {
+            "$ink": 363
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 366,
+          "declarations": [
+            "fill:#4169e1"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 367,
+          "declarations": [
+            "fill:royalblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 367
+          },
+          "expected": {
+            "$ink": 366
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 368,
+          "declarations": [
+            "fill:ROYALBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 368
+          },
+          "expected": {
+            "$ink": 366
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 369,
+          "declarations": [
+            "fill:#8b4513"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 370,
+          "declarations": [
+            "fill:saddlebrown"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 370
+          },
+          "expected": {
+            "$ink": 369
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 371,
+          "declarations": [
+            "fill:SADDLEBROWN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 371
+          },
+          "expected": {
+            "$ink": 369
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 372,
+          "declarations": [
+            "fill:#fa8072"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 373,
+          "declarations": [
+            "fill:salmon"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 373
+          },
+          "expected": {
+            "$ink": 372
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 374,
+          "declarations": [
+            "fill:SALMON"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 374
+          },
+          "expected": {
+            "$ink": 372
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 375,
+          "declarations": [
+            "fill:#f4a460"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 376,
+          "declarations": [
+            "fill:sandybrown"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 376
+          },
+          "expected": {
+            "$ink": 375
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 377,
+          "declarations": [
+            "fill:SANDYBROWN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 377
+          },
+          "expected": {
+            "$ink": 375
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 378,
+          "declarations": [
+            "fill:#2e8b57"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 379,
+          "declarations": [
+            "fill:seagreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 379
+          },
+          "expected": {
+            "$ink": 378
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 380,
+          "declarations": [
+            "fill:SEAGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 380
+          },
+          "expected": {
+            "$ink": 378
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 381,
+          "declarations": [
+            "fill:#fff5ee"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 382,
+          "declarations": [
+            "fill:seashell"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 382
+          },
+          "expected": {
+            "$ink": 381
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 383,
+          "declarations": [
+            "fill:SEASHELL"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 383
+          },
+          "expected": {
+            "$ink": 381
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 384,
+          "declarations": [
+            "fill:#a0522d"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 385,
+          "declarations": [
+            "fill:sienna"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 385
+          },
+          "expected": {
+            "$ink": 384
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 386,
+          "declarations": [
+            "fill:SIENNA"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 386
+          },
+          "expected": {
+            "$ink": 384
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 387,
+          "declarations": [
+            "fill:#c0c0c0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 388,
+          "declarations": [
+            "fill:silver"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 388
+          },
+          "expected": {
+            "$ink": 387
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 389,
+          "declarations": [
+            "fill:SILVER"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 389
+          },
+          "expected": {
+            "$ink": 387
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 390,
+          "declarations": [
+            "fill:#87ceeb"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 391,
+          "declarations": [
+            "fill:skyblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 391
+          },
+          "expected": {
+            "$ink": 390
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 392,
+          "declarations": [
+            "fill:SKYBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 392
+          },
+          "expected": {
+            "$ink": 390
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 393,
+          "declarations": [
+            "fill:#6a5acd"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 394,
+          "declarations": [
+            "fill:slateblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 394
+          },
+          "expected": {
+            "$ink": 393
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 395,
+          "declarations": [
+            "fill:SLATEBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 395
+          },
+          "expected": {
+            "$ink": 393
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 396,
+          "declarations": [
+            "fill:#708090"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 397,
+          "declarations": [
+            "fill:slategray"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 397
+          },
+          "expected": {
+            "$ink": 396
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 398,
+          "declarations": [
+            "fill:SLATEGRAY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 398
+          },
+          "expected": {
+            "$ink": 396
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 399,
+          "declarations": [
+            "fill:#708090"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 400,
+          "declarations": [
+            "fill:slategrey"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 400
+          },
+          "expected": {
+            "$ink": 399
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 401,
+          "declarations": [
+            "fill:SLATEGREY"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 401
+          },
+          "expected": {
+            "$ink": 399
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 402,
+          "declarations": [
+            "fill:#fffafa"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 403,
+          "declarations": [
+            "fill:snow"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 403
+          },
+          "expected": {
+            "$ink": 402
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 404,
+          "declarations": [
+            "fill:SNOW"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 404
+          },
+          "expected": {
+            "$ink": 402
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 405,
+          "declarations": [
+            "fill:#00ff7f"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 406,
+          "declarations": [
+            "fill:springgreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 406
+          },
+          "expected": {
+            "$ink": 405
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 407,
+          "declarations": [
+            "fill:SPRINGGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 407
+          },
+          "expected": {
+            "$ink": 405
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 408,
+          "declarations": [
+            "fill:#4682b4"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 409,
+          "declarations": [
+            "fill:steelblue"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 409
+          },
+          "expected": {
+            "$ink": 408
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 410,
+          "declarations": [
+            "fill:STEELBLUE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 410
+          },
+          "expected": {
+            "$ink": 408
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 411,
+          "declarations": [
+            "fill:#d2b48c"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 412,
+          "declarations": [
+            "fill:tan"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 412
+          },
+          "expected": {
+            "$ink": 411
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 413,
+          "declarations": [
+            "fill:TAN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 413
+          },
+          "expected": {
+            "$ink": 411
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 414,
+          "declarations": [
+            "fill:#008080"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 415,
+          "declarations": [
+            "fill:teal"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 415
+          },
+          "expected": {
+            "$ink": 414
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 416,
+          "declarations": [
+            "fill:TEAL"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 416
+          },
+          "expected": {
+            "$ink": 414
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 417,
+          "declarations": [
+            "fill:#d8bfd8"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 418,
+          "declarations": [
+            "fill:thistle"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 418
+          },
+          "expected": {
+            "$ink": 417
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 419,
+          "declarations": [
+            "fill:THISTLE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 419
+          },
+          "expected": {
+            "$ink": 417
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 420,
+          "declarations": [
+            "fill:#ff6347"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 421,
+          "declarations": [
+            "fill:tomato"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 421
+          },
+          "expected": {
+            "$ink": 420
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 422,
+          "declarations": [
+            "fill:TOMATO"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 422
+          },
+          "expected": {
+            "$ink": 420
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 423,
+          "declarations": [
+            "fill:#40e0d0"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 424,
+          "declarations": [
+            "fill:turquoise"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 424
+          },
+          "expected": {
+            "$ink": 423
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 425,
+          "declarations": [
+            "fill:TURQUOISE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 425
+          },
+          "expected": {
+            "$ink": 423
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 426,
+          "declarations": [
+            "fill:#ee82ee"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 427,
+          "declarations": [
+            "fill:violet"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 427
+          },
+          "expected": {
+            "$ink": 426
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 428,
+          "declarations": [
+            "fill:VIOLET"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 428
+          },
+          "expected": {
+            "$ink": 426
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 429,
+          "declarations": [
+            "fill:#f5deb3"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 430,
+          "declarations": [
+            "fill:wheat"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 430
+          },
+          "expected": {
+            "$ink": 429
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 431,
+          "declarations": [
+            "fill:WHEAT"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 431
+          },
+          "expected": {
+            "$ink": 429
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 432,
+          "declarations": [
+            "fill:#ffffff"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 433,
+          "declarations": [
+            "fill:white"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 433
+          },
+          "expected": {
+            "$ink": 432
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 434,
+          "declarations": [
+            "fill:WHITE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 434
+          },
+          "expected": {
+            "$ink": 432
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 435,
+          "declarations": [
+            "fill:#f5f5f5"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 436,
+          "declarations": [
+            "fill:whitesmoke"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 436
+          },
+          "expected": {
+            "$ink": 435
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 437,
+          "declarations": [
+            "fill:WHITESMOKE"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 437
+          },
+          "expected": {
+            "$ink": 435
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 438,
+          "declarations": [
+            "fill:#ffff00"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 439,
+          "declarations": [
+            "fill:yellow"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 439
+          },
+          "expected": {
+            "$ink": 438
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 440,
+          "declarations": [
+            "fill:YELLOW"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 440
+          },
+          "expected": {
+            "$ink": 438
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 441,
+          "declarations": [
+            "fill:#9acd32"
+          ]
+        },
+        {
+          "op": "ink",
+          "slot": 442,
+          "declarations": [
+            "fill:yellowgreen"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 442
+          },
+          "expected": {
+            "$ink": 441
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 443,
+          "declarations": [
+            "fill:YELLOWGREEN"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 443
+          },
+          "expected": {
+            "$ink": 441
+          }
+        }
+      ]
+    },
+    {
+      "id": "56dd1c34709be14a90c7bea5",
+      "index": 5,
+      "name": "label ink > leaves labels alone on fills it cannot read",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:var(--x)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:currentColor"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 2,
+          "declarations": [
+            "fill:none"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 2
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 3,
+          "declarations": [
+            "fill:transparent"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 3
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 4,
+          "declarations": [
+            "fill:blu"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 4
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 5,
+          "declarations": [
+            "fill:#ggg"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 5
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 6,
+          "declarations": [
+            "fill:#12345"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 6
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 7,
+          "declarations": [
+            "fill:rgb(1,2)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 7
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 8,
+          "declarations": [
+            "fill:rgb(1, 2 3)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 8
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 9,
+          "declarations": [
+            "fill:rgb(1 2 3 / 4 / 5)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 9
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 10,
+          "declarations": [
+            "fill:rgb(1, 2, 3 / 1)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 10
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 11,
+          "declarations": [
+            "fill:rgb(1 2 3 4)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 11
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 12,
+          "declarations": [
+            "fill:hsl(10%, 50%, 50%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 12
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 13,
+          "declarations": [
+            "fill:rgb(10deg, 2, 3)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 13
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 14,
+          "declarations": [
+            "fill:rgb(0%,0,0)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 14
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 15,
+          "declarations": [
+            "fill:hsl(0,0,0)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 15
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 16,
+          "declarations": [
+            "fill:rgb(0. 0 0)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 16
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 17,
+          "declarations": [
+            "fill:rgb(none,0,0)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 17
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 18,
+          "declarations": [
+            "stroke:#000"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 18
+          },
+          "expected": {
+            "$undefined": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "9155638122060a2b70275a53",
+      "index": 6,
+      "name": "label ink > leaves labels alone on fills under half opaque",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:#0007"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:#0000007f"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 2,
+          "declarations": [
+            "fill:rgb(191 223 255 / 40%)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 2
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 3,
+          "declarations": [
+            "fill:#000",
+            "fill-opacity:0.4"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 3
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 4,
+          "declarations": [
+            "fill:#000",
+            "fill-opacity:60%"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 4
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        },
+        {
+          "op": "ink",
+          "slot": 5,
+          "declarations": [
+            "fill:#0009",
+            "fill-opacity:0.8"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 5
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 6,
+          "declarations": [
+            "fill:#000",
+            "fill-opacity:calc(0.1)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 6
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 7,
+          "declarations": [
+            "fill:#000",
+            "fill-opacity:var(--fade)"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 7
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 8,
+          "declarations": [
+            "fill:#000",
+            "opacity:0.4"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 8
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 9,
+          "declarations": [
+            "fill:#000",
+            "opacity:0.8",
+            "fill-opacity:0.6"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 9
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 10,
+          "declarations": [
+            "fill:#000",
+            "opacity:0.8"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 10
+          },
+          "expected": "var(--pele-fg-on-dark,#fff)"
+        }
+      ]
+    },
+    {
+      "id": "662eb59bc5107b2ae2e8fe78",
+      "index": 7,
+      "name": "label ink > leaves a color the style sets",
+      "actions": [
+        {
+          "op": "ink",
+          "slot": 0,
+          "declarations": [
+            "fill:#fff",
+            "color:#fff"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 0
+          },
+          "expected": {
+            "$undefined": true
+          }
+        },
+        {
+          "op": "ink",
+          "slot": 1,
+          "declarations": [
+            "fill:white"
+          ]
+        },
+        {
+          "op": "equal",
+          "actual": {
+            "$ink": 1
+          },
+          "expected": "var(--pele-fg-on-light,#1f1f1f)"
+        }
+      ]
+    }
+  ]
+}

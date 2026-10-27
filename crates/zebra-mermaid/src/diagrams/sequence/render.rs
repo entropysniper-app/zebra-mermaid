@@ -19,11 +19,13 @@ use crate::diagrams::{RenderCtx, Rendered};
 use crate::error::Error;
 use crate::svg::builder::{esc, esc_text, num, render_label_svg as label_svg, render_push_label_svg as push_label_svg};
 use crate::svg::edges::{marker, push_marker, ARROW};
+use crate::svg::ink::InkCache;
 use crate::svg::root::{svg_document, Accessible};
 use crate::svg::theme::{class_names, resolve_style};
 use crate::text::{layout_render_label as layout_label, style, Measure, RenderLabel as Label};
 use crate::theme::Role;
 use crate::util::js;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Head {
@@ -202,6 +204,31 @@ struct BoxRun {
     grow: f64,
 }
 
+fn fill_under<'a>(
+    active: &[usize],
+    frames: &'a [Frame],
+    runs: &[BoxRun],
+    cols: &[Column<'_>],
+    boxes: &'a [super::SeqBox],
+    box_pad: f64,
+    l: f64,
+    r: f64,
+) -> Option<&'a str> {
+    for &i in active.iter().rev() {
+        if frames[i].kind == "rect" {
+            return Some(&frames[i].fill);
+        }
+    }
+    for run in runs {
+        let x0 = cols[run.first].x - cols[run.first].size.w / 2.0 - box_pad - run.grow;
+        let x1 = cols[run.last].x + cols[run.last].size.w / 2.0 + box_pad + run.grow;
+        if l >= x0 && r <= x1 {
+            return Some(&boxes[run.box_index].fill);
+        }
+    }
+    None
+}
+
 /// A number from `sequence` configuration within 0..=2000, else the fallback.
 fn option(conf: Option<&crate::config::ConfigMap>, key: &str, fallback: f64) -> f64 {
     match conf.and_then(|c| c.get(key)) {
@@ -295,6 +322,9 @@ pub(crate) fn render(model: &SequenceModel, config: &Config, ctx: &RenderCtx) ->
 }
 
 fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Rendered {
+    draw_with_hold(db, config, ctx, tight, 0.0, true)
+}
+fn draw_with_hold(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool, hold: f64, by_need: bool) -> Rendered {
     let options = ctx.options;
     let conf = config.section("sequence");
     let size = ctx.font_size();
@@ -344,6 +374,20 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         }
     };
 
+    let mono = options.monospaced(crate::MonospacePart::Messages);
+    let by = m.measurer();
+    let mono_by = |t: &str, size: f64, bits: u8| by.width(t, size, bits | style::MONO);
+    let mono_m = m.with_measurer(&mono_by);
+    let message_text = |raw: Option<&str>, wrap: bool, width: f64| -> Label {
+        let by = if mono { &mono_m } else { &m };
+        let label = layout_label(raw, false, by, small, if tight || wrap { width } else { f64::INFINITY }, 0);
+        if tight {
+            break_label(&label, by, js::max(120.0, width))
+        } else {
+            label
+        }
+    };
+
     // Colors.
     let resolved = ctx.resolved();
     let line_color = ctx.paint(Role::Line, "var(--_l)");
@@ -355,9 +399,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     let patch = ctx.paint(Role::Background, "var(--_bg)");
     let badge_fill = ctx.paint(Role::Accent, "var(--_l)");
     let badge_text = ctx.theming.text_on(ctx.theming.resolved.color(Role::Accent), "var(--_bg)");
-    let frame_text = ctx.paint(Role::SecondaryText, "var(--_m)");
     let frame_kind_text = ctx.paint(Role::Text, "var(--_m)");
-    let frame_label_attrs = svg_format!(" class=\"pele-frame-label\" fill=\"", frame_text, "\" stroke=\"none\"");
 
     let used: Option<Vec<Option<&str>>> = if matches!(flag("hideUnusedParticipants"), Some(ConfigValue::Bool(true))) {
         let mut set: Vec<Option<&str>> = Vec::new();
@@ -467,7 +509,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             }
             views[i] = Some(View { kind: V::Note, a, b, label, x: 0.0, w });
         } else if is_line_message(msg.kind) {
-            let label = text(Some(body), small, msg.wrap, wrap_w, 0);
+            let label = message_text(Some(body), msg.wrap, wrap_w);
             let badge = badge_width(i);
             if a == b {
                 need(ai, ai + 1, SELF_W + 8.0 + label.width + 16.0 + ACT_W + badge);
@@ -551,10 +593,6 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             gaps[run.last] += run.grow;
         }
     }
-    place(&mut cols, &gaps);
-
-    let mut min_x = f64::INFINITY;
-    let mut max_x = f64::NEG_INFINITY;
     let extend = |min_x: &mut f64, max_x: &mut f64, x0: f64, x1: f64| {
         if x0 < *min_x {
             *min_x = x0;
@@ -563,143 +601,231 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             *max_x = x1;
         }
     };
-    for col in &cols {
-        extend(&mut min_x, &mut max_x, col.x - col.size.w / 2.0, col.x + col.size.w / 2.0);
-    }
-    for run in &runs {
-        extend(
-            &mut min_x,
-            &mut max_x,
-            cols[run.first].x - cols[run.first].size.w / 2.0 - box_pad - run.grow,
-            cols[run.last].x + cols[run.last].size.w / 2.0 + box_pad + run.grow,
-        );
-    }
 
-    // Horizontal extents of every block, from what it holds.
-    let mut frames: Vec<Frame> = Vec::new();
-    let mut frame_at: Vec<Option<usize>> = vec![None; count];
-    let mut open: Vec<usize> = Vec::new();
-    let span_all = || -> (f64, f64) {
-        if last < 0 {
-            (0.0, 120.0)
-        } else {
-            (cols[0].x - frame_pad, cols[last as usize].x + frame_pad)
+    let mut sized: Vec<Option<HashMap<u64, Label>>> = (0..count).map(|_| None).collect();
+    let mut horizontal = |cols: &mut Vec<Column>, views: &mut Vec<Option<View>>, gaps: &[f64]| {
+        place(cols, gaps);
+
+        let mut min_x = f64::INFINITY;
+        let mut max_x = f64::NEG_INFINITY;
+        for col in cols.iter() {
+            extend(&mut min_x, &mut max_x, col.x - col.size.w / 2.0, col.x + col.size.w / 2.0);
         }
-    };
-    for i in 0..count {
-        let msg = &messages[i];
-        let kind = msg.kind;
-        if let Some(fk) = frame_kind(kind) {
-            let fill = match (&msg.message, fk) {
-                (SeqContent::Text(t), "rect") => t.clone(),
-                _ => String::new(),
-            };
-            frames.push(Frame {
-                kind: fk,
-                x0: f64::INFINITY,
-                x1: f64::NEG_INFINITY,
-                top: 0.0,
-                title: Label::empty(),
-                tab_w: 0.0,
-                fill,
-                dividers: vec![i],
-                divider_y: Vec::new(),
-                divider_labels: Vec::new(),
-            });
-            frame_at[i] = Some(frames.len() - 1);
-            open.push(frames.len() - 1);
-        } else if kind == lt::ALT_ELSE || kind == lt::PAR_AND || kind == lt::CRITICAL_OPTION {
-            if let Some(&f) = open.last() {
-                frames[f].dividers.push(i);
-            }
-        } else if matches!(kind, lt::LOOP_END | lt::ALT_END | lt::OPT_END | lt::PAR_END | lt::CRITICAL_END | lt::BREAK_END | lt::RECT_END) {
-            let Some(f) = open.pop() else { continue };
-            frame_at[i] = Some(f);
-            if frames[f].x0 > frames[f].x1 {
-                let (x0, x1) = span_all();
-                frames[f].x0 = x0;
-                frames[f].x1 = x1;
-            }
-            if frames[f].kind != "rect" {
-                let frame = &mut frames[f];
-                frame.tab_w = m.width(frame.kind, tiny, style::BOLD) + 14.0;
-                // A block grows to the right to give its texts up to FRAME_TEXT of width before
-                // they wrap.
-                for k in 0..frame.dividers.len() {
-                    let raw = messages[frame.dividers[k]].message.text().unwrap_or("");
-                    let tab = if k == 0 { frame.tab_w + 8.0 } else { 0.0 };
-                    let room = frame.x1 - frame.x0 - 16.0 - tab;
-                    let label = if !raw.is_empty() {
-                        let wrap_to = js::max(room, if tight { js::min(FRAME_TEXT, wrap_w) } else { FRAME_TEXT });
-                        text(Some(&format!("[{}]", raw)), small, true, wrap_to, 0)
-                    } else {
-                        Label::empty()
-                    };
-                    if label.width > room {
-                        frame.x1 += label.width - room;
-                    }
-                    if k == 0 {
-                        frame.title = label;
-                    } else {
-                        frame.divider_labels.push(label);
-                    }
-                }
-            }
-            let (fx0, fx1) = (frames[f].x0, frames[f].x1);
-            extend(&mut min_x, &mut max_x, fx0, fx1);
-            if let Some(&parent) = open.last() {
-                frames[parent].x0 = js::min(frames[parent].x0, fx0 - frame_nest);
-                frames[parent].x1 = js::max(frames[parent].x1, fx1 + frame_nest);
-            }
-        } else if let Some(view) = views[i].as_mut() {
-            let a = &cols[view.a];
-            let b = &cols[view.b];
-            let x0: f64;
-            let x1: f64;
-            if view.kind == V::Note {
-                if msg.placement == Some(placement::LEFT_OF) {
-                    view.x = a.x - NOTE_GAP - view.w;
-                } else if msg.placement == Some(placement::RIGHT_OF) {
-                    view.x = a.x + NOTE_GAP;
-                } else if view.a == view.b {
-                    view.x = a.x - view.w / 2.0;
-                } else {
-                    let lo = js::min(a.x, b.x) - note_over;
-                    let hi = js::max(a.x, b.x) + note_over;
-                    if tight || msg.wrap {
-                        view.label = text(msg.message.text(), small, true, js::max(wrap_w, hi - lo - 2.0 * note_pad), 0);
-                    }
-                    view.w = js::max(hi - lo, view.label.width + 2.0 * note_pad);
-                    view.x = (lo + hi - view.w) / 2.0;
-                }
-                x0 = view.x;
-                x1 = view.x + view.w;
-            } else if view.kind == V::SelfLoop {
-                x0 = a.x;
-                x1 = a.x + ACT_W + SELF_W + 8.0 + view.label.width + badge_width(i);
+        for run in &runs {
+            extend(
+                &mut min_x,
+                &mut max_x,
+                cols[run.first].x - cols[run.first].size.w / 2.0 - box_pad - run.grow,
+                cols[run.last].x + cols[run.last].size.w / 2.0 + box_pad + run.grow,
+            );
+        }
+
+        // Horizontal extents of every block, from what it holds.
+        let mut frames: Vec<Frame> = Vec::new();
+        let mut frame_at: Vec<Option<usize>> = vec![None; count];
+        let mut open: Vec<usize> = Vec::new();
+        let span_all = || -> (f64, f64) {
+            if last < 0 {
+                (0.0, 120.0)
             } else {
-                let mut lo = js::min(a.x, b.x);
-                let mut hi = js::max(a.x, b.x);
-                if tight || msg.wrap {
-                    view.label = text(msg.message.text(), small, true, js::max(wrap_w, hi - lo - 2.0 * msg_pad - ACT_W), 0);
+                (cols[0].x - frame_pad, cols[last as usize].x + frame_pad)
+            }
+        };
+        for i in 0..count {
+            let msg = &messages[i];
+            let kind = msg.kind;
+            if let Some(fk) = frame_kind(kind) {
+                let fill = match (&msg.message, fk) {
+                    (SeqContent::Text(t), "rect") => t.clone(),
+                    _ => String::new(),
+                };
+                frames.push(Frame {
+                    kind: fk,
+                    x0: f64::INFINITY,
+                    x1: f64::NEG_INFINITY,
+                    top: 0.0,
+                    title: Label::empty(),
+                    tab_w: 0.0,
+                    fill,
+                    dividers: vec![i],
+                    divider_y: Vec::new(),
+                    divider_labels: Vec::new(),
+                });
+                frame_at[i] = Some(frames.len() - 1);
+                open.push(frames.len() - 1);
+            } else if kind == lt::ALT_ELSE || kind == lt::PAR_AND || kind == lt::CRITICAL_OPTION {
+                if let Some(&f) = open.last() {
+                    frames[f].dividers.push(i);
                 }
-                if b.create_at == i as i64 {
-                    if b.x > a.x {
-                        hi += b.size.w / 2.0;
-                    } else {
-                        lo -= b.size.w / 2.0;
+            } else if matches!(
+                kind,
+                lt::LOOP_END | lt::ALT_END | lt::OPT_END | lt::PAR_END | lt::CRITICAL_END | lt::BREAK_END | lt::RECT_END
+            ) {
+                let Some(f) = open.pop() else { continue };
+                frame_at[i] = Some(f);
+                if frames[f].x0 > frames[f].x1 {
+                    let (x0, x1) = span_all();
+                    frames[f].x0 = x0;
+                    frames[f].x1 = x1;
+                }
+                if frames[f].kind != "rect" {
+                    let frame = &mut frames[f];
+                    frame.tab_w = m.width(frame.kind, tiny, style::BOLD) + 14.0;
+                    // A block grows to the right to give its texts up to FRAME_TEXT of width before
+                    // they wrap.
+                    for k in 0..frame.dividers.len() {
+                        let raw = messages[frame.dividers[k]].message.text().unwrap_or("");
+                        let tab = if k == 0 { frame.tab_w + 8.0 } else { 0.0 };
+                        let room = frame.x1 - frame.x0 - 16.0 - tab;
+                        let label = if !raw.is_empty() {
+                            let wrap_to = js::max(room, if tight { js::min(FRAME_TEXT, wrap_w) } else { FRAME_TEXT });
+                            text(Some(&format!("[{}]", raw)), small, true, wrap_to, 0)
+                        } else {
+                            Label::empty()
+                        };
+                        if label.width > room {
+                            frame.x1 += label.width - room;
+                        }
+                        if k == 0 {
+                            frame.title = label;
+                        } else {
+                            frame.divider_labels.push(label);
+                        }
                     }
                 }
-                x0 = lo;
-                x1 = hi;
+                let (fx0, fx1) = (frames[f].x0, frames[f].x1);
+                extend(&mut min_x, &mut max_x, fx0, fx1);
+                if let Some(&parent) = open.last() {
+                    frames[parent].x0 = js::min(frames[parent].x0, fx0 - frame_nest);
+                    frames[parent].x1 = js::max(frames[parent].x1, fx1 + frame_nest);
+                }
+            } else if let Some(view) = views[i].as_mut() {
+                let a = &cols[view.a];
+                let b = &cols[view.b];
+                let x0: f64;
+                let x1: f64;
+                if view.kind == V::Note {
+                    if msg.placement == Some(placement::LEFT_OF) {
+                        view.x = a.x - NOTE_GAP - view.w;
+                    } else if msg.placement == Some(placement::RIGHT_OF) {
+                        view.x = a.x + NOTE_GAP;
+                    } else if view.a == view.b {
+                        view.x = a.x - view.w / 2.0;
+                    } else {
+                        let lo = js::min(a.x, b.x) - note_over;
+                        let hi = js::max(a.x, b.x) + note_over;
+                        if tight || msg.wrap {
+                            view.label = text(msg.message.text(), small, true, js::max(wrap_w, hi - lo - 2.0 * note_pad), 0);
+                        }
+                        view.w = js::max(hi - lo, view.label.width + 2.0 * note_pad);
+                        view.x = (lo + hi - view.w) / 2.0;
+                    }
+                    x0 = view.x;
+                    x1 = view.x + view.w;
+                } else if view.kind == V::SelfLoop {
+                    x0 = a.x;
+                    x1 = a.x + ACT_W + SELF_W + 8.0 + view.label.width + badge_width(i);
+                } else {
+                    let mut lo = js::min(a.x, b.x);
+                    let mut hi = js::max(a.x, b.x);
+                    if tight || msg.wrap {
+                        let room = js::max(wrap_w, hi - lo - 2.0 * msg_pad - ACT_W);
+                        view.label = if let Some(known) = &mut sized[i] {
+                            known.entry(room.to_bits()).or_insert_with(|| message_text(msg.message.text(), true, room)).clone()
+                        } else if room == wrap_w {
+                            view.label.clone()
+                        } else {
+                            let mut known = HashMap::new();
+                            known.insert(wrap_w.to_bits(), view.label.clone());
+                            let label = message_text(msg.message.text(), true, room);
+                            known.insert(room.to_bits(), label.clone());
+                            sized[i] = Some(known);
+                            label
+                        };
+                    }
+                    if b.create_at == i as i64 {
+                        if b.x > a.x {
+                            hi += b.size.w / 2.0;
+                        } else {
+                            lo -= b.size.w / 2.0;
+                        }
+                    }
+                    x0 = lo;
+                    x1 = hi;
+                }
+                extend(&mut min_x, &mut max_x, x0, x1);
+                if let Some(&f) = open.last() {
+                    frames[f].x0 = js::min(frames[f].x0, x0 - frame_pad);
+                    frames[f].x1 = js::max(frames[f].x1, x1 + frame_pad);
+                }
             }
-            extend(&mut min_x, &mut max_x, x0, x1);
-            if let Some(&f) = open.last() {
-                frames[f].x0 = js::min(frames[f].x0, x0 - frame_pad);
-                frames[f].x1 = js::max(frames[f].x1, x1 + frame_pad);
+        }
+
+        (min_x, max_x, frames, frame_at)
+    };
+    let mut geometry = horizontal(&mut cols, &mut views, &gaps);
+    let (mut grown, mut uneven) = (false, false);
+    if tight && options.max_width.is_some() {
+        let spare = options.max_width.unwrap().floor() - (geometry.1 - geometry.0 + 2.0 * pad).ceil() - hold;
+        let mut stretch = vec![0i32; cols.len()];
+        let mut want = vec![0.0; gaps.len()];
+        let mut wrapped = Vec::new();
+        let mut lines = 0;
+        if spare > 0.0 {
+            for (i, v) in views.iter().enumerate() {
+                let Some(v) = v.as_ref().filter(|v| v.kind == V::Line) else { continue };
+                let natural = message_text(messages[i].message.text(), false, f64::INFINITY);
+                if v.label.lines().len() <= natural.lines().len() {
+                    continue;
+                }
+                wrapped.push(i);
+                lines += v.label.lines().len();
+                let lo = v.a.min(v.b);
+                let hi = v.a.max(v.b);
+                stretch[lo] += 1;
+                stretch[hi] -= 1;
+                let short = (natural.width - (cols[hi].x - cols[lo].x - 2.0 * msg_pad - ACT_W)) / (hi - lo) as f64;
+                for g in lo..hi {
+                    want[g] = js::max(want[g], short);
+                }
+            }
+        }
+        let (mut active, mut crossed) = (0i32, 0i32);
+        for i in 0..gaps.len() {
+            active += stretch[i];
+            stretch[i] = i32::from(active > 0);
+            crossed += stretch[i];
+        }
+        if crossed > 0 {
+            let before = gaps.clone();
+            let missing = want.iter().fold(0.0, |a, b| a + b);
+            let ng = gaps.len();
+            let even = |g: usize| stretch[g] as f64 * spare / crossed as f64;
+            let needs = |g: usize| want[g] * (spare - 0.01) / missing;
+            let mut spread = |needed: bool| {
+                for g in 0..ng {
+                    gaps[g] = before[g] + if needed { needs(g) } else { even(g) };
+                }
+                geometry = horizontal(&mut cols, &mut views, &gaps);
+                wrapped.iter().map(|&i| views[i].as_ref().unwrap().label.lines().len()).collect::<Vec<_>>()
+            };
+            let mut counts = spread(false);
+            if by_need && crossed > 1 && missing > 0.0 && (0..ng).any(|g| needs(g) > even(g)) {
+                let first = counts;
+                counts = spread(true);
+                uneven = counts.iter().sum::<usize>() < first.iter().sum::<usize>() && counts.iter().zip(&first).all(|(n, k)| n <= k);
+                if !uneven {
+                    counts = spread(false);
+                }
+            }
+            grown = counts.iter().sum::<usize>() < lines;
+            if !grown {
+                gaps.copy_from_slice(&before);
+                geometry = horizontal(&mut cols, &mut views, &gaps);
             }
         }
     }
+    let (mut min_x, mut max_x, mut frames, frame_at) = geometry;
 
     // Vertical placement, top to bottom, drawing as it goes.
     let mut box_title_h: f64 = 0.0;
@@ -735,30 +861,46 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
         lo < xs.len() && xs[lo] < x1
     };
     // A label, on a patch of the background where a lifeline would strike through it.
-    let push_backed = |out: &mut String, label: &Label, cx: f64, cy: f64, attrs: &str| {
-        if label.width == 0.0 {
-            return;
-        }
-        let l = cx - label.width / 2.0;
-        if crosses(l, l + label.width) {
-            svg_write!(
-                out,
-                "<rect x=\"",
-                num(l - 3.0),
-                "\" y=\"",
-                num(cy - label.height / 2.0 + 2.0),
-                "\" width=\"",
-                num(label.width + 6.0),
-                "\" height=\"",
-                num(label.height - 4.0),
-                "\" rx=\"3\" fill=\"",
-                patch,
-                "\" stroke=\"none\"/>"
-            )
-            .unwrap();
-        }
-        push_label_svg(out, label, cx, cy, attrs, icons);
-    };
+    let inks = InkCache::default();
+    let push_backed =
+        |out: &mut String, label: &Label, cx: f64, cy: f64, frame: bool, active: &[usize], frames: &[Frame], cols: &[Column<'_>]| {
+            if label.width == 0.0 {
+                return;
+            }
+            let l = cx - label.width / 2.0;
+            let plate = crosses(l, l + label.width);
+            if plate {
+                svg_write!(
+                    out,
+                    "<rect x=\"",
+                    num(l - 3.0),
+                    "\" y=\"",
+                    num(cy - label.height / 2.0 + 2.0),
+                    "\" width=\"",
+                    num(label.width + 6.0),
+                    "\" height=\"",
+                    num(label.height - 4.0),
+                    "\" rx=\"3\" fill=\"",
+                    patch,
+                    "\" stroke=\"none\"/>"
+                )
+                .unwrap();
+            }
+            let color = if plate {
+                String::new()
+            } else {
+                inks.attribute(fill_under(active, frames, &runs, cols, &db.boxes, box_pad, l, l + label.width))
+            };
+            let attrs = if frame {
+                format!(
+                    " class=\"pele-frame-label\"{} stroke=\"none\"",
+                    if color.is_empty() { format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")) } else { color }
+                )
+            } else {
+                color
+            };
+            push_label_svg(out, label, cx, cy, &attrs, icons);
+        };
     let note_label_attrs = svg_format!(" class=\"pele-label\" stroke=\"none\" fill=\"", ctx.paint(Role::Text, "var(--_fg)"), "\"");
     let left_edge = |col: &Column, extra: usize| -> f64 {
         if col.activations.len() + extra > 0 {
@@ -850,7 +992,20 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             "\" data-id=\"",
             esc_text(col.id),
             "\">",
-            draw_actor(col.kind, col.x, top, col.size, &col.label, icons, ctx),
+            draw_actor(
+                col.kind,
+                col.x,
+                top,
+                col.size,
+                &col.label,
+                icons,
+                ctx,
+                &if is_figure(col.kind) {
+                    inks.attribute(col.actor.box_index.and_then(|i| db.boxes.get(i)).map(|b| b.fill.as_str()))
+                } else {
+                    String::new()
+                }
+            ),
             "</g>"
         )
     };
@@ -950,7 +1105,16 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     let dy = frame.divider_y[k];
                     let label = &frame.divider_labels[k];
                     svg_write!(inner, "<path d=\"M", x, ",", num(dy), "H", num(frame.x1), "\"", DASH, "/>").unwrap();
-                    push_backed(&mut inner, label, frame.x0 + 8.0 + label.width / 2.0, dy + 2.0 + label.height / 2.0, &frame_label_attrs);
+                    push_backed(
+                        &mut inner,
+                        label,
+                        frame.x0 + 8.0 + label.width / 2.0,
+                        dy + 2.0 + label.height / 2.0,
+                        true,
+                        &stack,
+                        &frames,
+                        &cols,
+                    );
                 }
                 svg_write!(
                     inner,
@@ -987,7 +1151,10 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     &frame.title,
                     frame.x0 + frame.tab_w + 8.0 + frame.title.width / 2.0,
                     frame.top + js::max(TAB_H, frame.title.height) / 2.0,
-                    &frame_label_attrs,
+                    true,
+                    &stack,
+                    &frames,
+                    &cols,
                 );
                 svg_write!(frames_out, "<g class=\"pele-frame pele-frame-", frame.kind, "\">", inner, "</g>").unwrap();
             }
@@ -1053,7 +1220,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             let cc = msg.central_connection.unwrap_or(0);
             let circle_to = cc == lt::CENTRAL_CONNECTION || cc == lt::CENTRAL_CONNECTION_DUAL;
             let circle_from = cc == lt::CENTRAL_CONNECTION_REVERSE || cc == lt::CENTRAL_CONNECTION_DUAL;
-            let circle = |cx: f64, cy: f64| -> String {
+            let circle = |cx: f64, cy: f64, color: &str| -> String {
                 svg_format!(
                     "<circle class=\"pele-central\" cx=\"",
                     num(cx),
@@ -1062,7 +1229,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     "\" r=\"",
                     js::number_text(CENTRAL_R),
                     "\" fill=\"",
-                    paint.arrow,
+                    color,
                     "\" stroke=\"none\"/>"
                 )
             };
@@ -1078,11 +1245,17 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 let mut x0 = if circle_from { a.x + CENTRAL_R } else { right_edge(a, 0) };
                 let mut x1 = if circle_to { a.x + CENTRAL_R } else { right_edge(a, starting) };
                 let out = js::max(x0, x1) + SELF_W + bw / 2.0;
+                let line = inks.get(fill_under(&stack, &frames, &runs, &cols, &db.boxes, box_pad, a.x, out));
+                let message_paint = if let Some(c) = line {
+                    Paint { line: c, arrow: c, head_stroke: if resolved { Some(c) } else { None } }
+                } else {
+                    Paint { line: paint.line, arrow: paint.arrow, head_stroke: paint.head_stroke }
+                };
                 if circle_from {
-                    inner.push_str(&circle(a.x, top));
+                    inner.push_str(&circle(a.x, top, message_paint.arrow));
                 }
                 if circle_to {
-                    inner.push_str(&circle(a.x, bottom));
+                    inner.push_str(&circle(a.x, bottom, message_paint.arrow));
                 }
                 if bw > 0.0 {
                     inner.push_str(&badge(i, if tail_at_end { x1 } else { x0 }, if tail_at_end { bottom } else { top }, bw));
@@ -1094,7 +1267,15 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 }
                 let from = num(x0 + if st.at_start { head_trim } else { 0.0 });
                 let to = num(x1 + if st.at_end { head_trim } else { 0.0 });
-                svg_write!(edges_out, "<g class=\"pele-edge pele-message\" data-id=\"i", msg.id, "\"><path d=\"").unwrap();
+                svg_write!(
+                    edges_out,
+                    "<g class=\"pele-edge pele-message\" data-id=\"i",
+                    msg.id,
+                    "\"",
+                    line.map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
+                    "><path d=\""
+                )
+                .unwrap();
                 if right_angles {
                     svg_write!(edges_out, "M", from, ",", num(top), "H", num(out), "V", num(bottom), "H", to).unwrap();
                 } else {
@@ -1127,10 +1308,10 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 // The loop leaves to the right and comes back heading left, which turns a half
                 // head over.
                 if st.at_start {
-                    push_head(&mut edges_out, st.head, x0, top, -1.0, up, &paint);
+                    push_head(&mut edges_out, st.head, x0, top, -1.0, up, &message_paint);
                 }
                 if st.at_end {
-                    push_head(&mut edges_out, st.head, x1, bottom, -1.0, -up, &paint);
+                    push_head(&mut edges_out, st.head, x1, bottom, -1.0, -up, &message_paint);
                 }
                 edges_out.push_str(&inner);
                 edges_out.push_str("</g>");
@@ -1142,7 +1323,22 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                         "<g class=\"pele-edge-label\" data-id=\"i",
                         msg.id,
                         "\">",
-                        label_svg(label, out + 8.0 + label.width / 2.0, (top + bottom) / 2.0, "", icons),
+                        label_svg(
+                            label,
+                            out + 8.0 + label.width / 2.0,
+                            (top + bottom) / 2.0,
+                            &inks.attribute(fill_under(
+                                &stack,
+                                &frames,
+                                &runs,
+                                &cols,
+                                &db.boxes,
+                                box_pad,
+                                out + 8.0,
+                                out + 8.0 + label.width
+                            )),
+                            icons
+                        ),
                         "</g>"
                     )
                     .unwrap();
@@ -1152,6 +1348,12 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 let (a, b) = (&cols[ai], &cols[bi]);
                 let dir = if b.x > a.x { 1.0 } else { -1.0 };
                 let creating = b.create_at == i as i64;
+                let line = inks.get(fill_under(&stack, &frames, &runs, &cols, &db.boxes, box_pad, js::min(a.x, b.x), js::max(a.x, b.x)));
+                let message_paint = if let Some(c) = line {
+                    Paint { line: c, arrow: c, head_stroke: if resolved { Some(c) } else { None } }
+                } else {
+                    Paint { line: paint.line, arrow: paint.arrow, head_stroke: paint.head_stroke }
+                };
                 line_y = y
                     + msg_gap
                     + js::max(
@@ -1164,11 +1366,11 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     x1 = b.x - dir * if is_figure(b.kind) { 18.0 } else { b.size.w / 2.0 + 1.0 };
                 }
                 if circle_from {
-                    inner.push_str(&circle(a.x, line_y));
+                    inner.push_str(&circle(a.x, line_y, message_paint.arrow));
                     x0 = a.x + dir * CENTRAL_R;
                 }
                 if circle_to {
-                    inner.push_str(&circle(b.x, line_y));
+                    inner.push_str(&circle(b.x, line_y, message_paint.arrow));
                     x1 = b.x - dir * CENTRAL_R;
                 }
                 if bw > 0.0 {
@@ -1190,7 +1392,9 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     edges_out,
                     "<g class=\"pele-edge pele-message\" data-id=\"i",
                     msg.id,
-                    "\"><path d=\"M",
+                    "\"",
+                    line.map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
+                    "><path d=\"M",
                     num(from),
                     ",",
                     num(line_y),
@@ -1202,10 +1406,10 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                 )
                 .unwrap();
                 if st.at_start {
-                    push_head(&mut edges_out, st.head, x0, line_y, -dir, up * dir, &paint);
+                    push_head(&mut edges_out, st.head, x0, line_y, -dir, up * dir, &message_paint);
                 }
                 if st.at_end {
-                    push_head(&mut edges_out, st.head, x1, line_y, dir, up * dir, &paint);
+                    push_head(&mut edges_out, st.head, x1, line_y, dir, up * dir, &message_paint);
                 }
                 edges_out.push_str(&inner);
                 edges_out.push_str("</g>");
@@ -1221,7 +1425,7 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
                     };
                     extend(&mut min_x, &mut max_x, cx - label.width / 2.0, cx + label.width / 2.0);
                     svg_write!(labels_out, "<g class=\"pele-edge-label\" data-id=\"i", msg.id, "\">").unwrap();
-                    push_backed(&mut labels_out, label, cx, line_y - 4.0 - label.height / 2.0, "");
+                    push_backed(&mut labels_out, label, cx, line_y - 4.0 - label.height / 2.0, false, &stack, &frames, &cols);
                     labels_out.push_str("</g>");
                 }
                 if creating {
@@ -1283,9 +1487,15 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     }
 
     let mut boxes_out = String::new();
-    let box_label_attrs = svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"");
     for run in &runs {
         let b = &db.boxes[run.box_index];
+        let box_label_attrs = format!(
+            " class=\"pele-cluster-label\"{}",
+            inks.attribute(Some(&b.fill))
+                .is_empty()
+                .then(|| format!(" fill=\"{}\"", ctx.paint(Role::SecondaryText, "var(--_m)")))
+                .unwrap_or_else(|| inks.attribute(Some(&b.fill)))
+        );
         let x0 = cols[run.first].x - cols[run.first].size.w / 2.0 - box_pad - run.grow;
         let x1 = cols[run.last].x + cols[run.last].size.w / 2.0 + box_pad + run.grow;
         let fill = if b.fill == "transparent" { String::new() } else { resolve_style(&[format!("fill:{}", b.fill)]).shape };
@@ -1341,6 +1551,16 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     }
 
     let width = (max_x - min_x + 2.0 * pad).ceil();
+    if grown && width > options.max_width.unwrap() {
+        let next = if uneven {
+            hold
+        } else if hold > 0.0 {
+            f64::INFINITY
+        } else {
+            width - options.max_width.unwrap().floor()
+        };
+        return draw_with_hold(db, config, ctx, tight, next, false);
+    }
     let height = (bottom - min_y + 2.0 * pad).ceil();
     let small_s = js::number_text(small);
     let mut content = svg_format!("<g transform=\"translate(", num(pad - min_x), ",", num(pad - min_y), ")\">");
@@ -1423,7 +1643,18 @@ fn draw(db: &SequenceModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
     if !labels_out.is_empty() {
         // Message text inherits the text color in Pele; resolved output names it.
         let fill = if resolved { svg_format!(" fill=\"", ctx.paint(Role::Text, ""), "\"") } else { String::new() };
-        svg_write!(content, "<g class=\"pele-edge-labels\" font-size=\"", small_s, "\"", fill, ">", labels_out, "</g>").unwrap();
+        svg_write!(
+            content,
+            "<g class=\"pele-edge-labels\" font-size=\"",
+            small_s,
+            "\"",
+            if mono { format!(" font-family=\"{}\"", crate::svg::theme::FONT_MONO) } else { String::new() },
+            fill,
+            ">",
+            labels_out,
+            "</g>"
+        )
+        .unwrap();
     }
     if !notes_out.is_empty() {
         svg_write!(

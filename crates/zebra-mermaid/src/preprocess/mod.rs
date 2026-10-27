@@ -477,7 +477,7 @@ fn hide_entities(text: &str) -> (String, StepMap) {
                 let inner = &text[i + 1..j];
                 let numeric = inner.bytes().all(|c| c.is_ascii_digit());
                 out.copy(last, i);
-                out.write(&format!("{}{}{}{}", OPEN, if numeric { "\u{b0}" } else { "" }, inner, CLOSE), i);
+                out.write_entity(&format!("{}{}{}{}", OPEN, if numeric { "\u{b0}" } else { "" }, inner, CLOSE), i, j + 1 - i, numeric);
                 last = j + 1;
                 i = j + 1;
                 continue;

@@ -23,6 +23,16 @@ fn check(id: &str) {
                     "{source:?}"
                 );
             }
+            "link-url" => {
+                let options = zebra_mermaid::RenderOptions::default();
+                let sanitized = zebra_mermaid::util::url::sanitize_url(source);
+                let actual = zebra_mermaid::util::url::link_url(&sanitized, &options);
+                if assertion["expected"]["$undefined"] == true {
+                    assert_eq!(actual, None, "{source:?}");
+                } else {
+                    assert_eq!(actual.as_deref(), assertion["expected"].as_str(), "{source:?}");
+                }
+            }
             "yaml" => assert_eq!(parse_yaml(source).unwrap(), parse_json(&assertion["expected"].to_string()).unwrap(), "{source:?}"),
             other => panic!("Unsupported utility assertion {other}"),
         }

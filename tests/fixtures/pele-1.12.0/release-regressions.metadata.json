@@ -1,0 +1,209 @@
+{
+  "version": "1.12.0",
+  "commit": "8aff183be57021b533f319a29341a529be934b08",
+  "runtime": {
+    "node": "v26.3.0"
+  },
+  "cases": 316,
+  "method": "Supplemental full-response and lexer comparisons against pinned upstream only. Original 1:1 tests are mapped separately.",
+  "lexerReferences": [
+    {
+      "diagram": "gantt",
+      "source": "a% x\nb",
+      "tokens": {
+        "types": [
+          35,
+          8,
+          35,
+          38,
+          0
+        ],
+        "texts": [
+          "a% x",
+          "\n",
+          "b",
+          "",
+          ""
+        ],
+        "starts": [
+          0,
+          4,
+          5,
+          6,
+          6
+        ]
+      }
+    },
+    {
+      "diagram": "journey",
+      "source": "journey\ntitle\nfoo\n",
+      "tokens": {
+        "types": [
+          4,
+          3,
+          3,
+          12,
+          3,
+          1,
+          0
+        ],
+        "texts": [
+          "journey",
+          "\n",
+          "\n",
+          "foo",
+          "\n",
+          "",
+          ""
+        ],
+        "starts": [
+          0,
+          7,
+          13,
+          14,
+          17,
+          18,
+          18
+        ]
+      }
+    },
+    {
+      "diagram": "quadrant",
+      "source": "quadrantChart\né%% x\n",
+      "tokens": {
+        "types": [
+          24,
+          2,
+          26,
+          2,
+          41,
+          0
+        ],
+        "texts": [
+          "quadrantChart",
+          "\n",
+          "é",
+          "\n",
+          "",
+          ""
+        ],
+        "starts": [
+          0,
+          13,
+          14,
+          19,
+          20,
+          20
+        ]
+      }
+    },
+    {
+      "diagram": "quadrant",
+      "source": "quadrantChart\n😀%% x\n",
+      "tokens": {
+        "types": [
+          24,
+          2,
+          26,
+          2,
+          41,
+          0
+        ],
+        "texts": [
+          "quadrantChart",
+          "\n",
+          "😀",
+          "\n",
+          "",
+          ""
+        ],
+        "starts": [
+          0,
+          13,
+          14,
+          20,
+          21,
+          21
+        ]
+      }
+    },
+    {
+      "diagram": "sequence",
+      "source": "é%% c\n",
+      "tokens": {
+        "types": [
+          48,
+          3,
+          3,
+          0
+        ],
+        "texts": [
+          "é%% c",
+          "\n",
+          "",
+          ""
+        ],
+        "starts": [
+          0,
+          5,
+          6,
+          6
+        ]
+      }
+    },
+    {
+      "diagram": "timeline",
+      "source": "timeline\ntitle\nNext\n",
+      "tokens": {
+        "types": [
+          4,
+          3,
+          3,
+          14,
+          3,
+          1,
+          0
+        ],
+        "texts": [
+          "timeline",
+          "\n",
+          "\n",
+          "Next",
+          "\n",
+          "",
+          ""
+        ],
+        "starts": [
+          0,
+          8,
+          14,
+          15,
+          19,
+          20,
+          20
+        ]
+      }
+    },
+    {
+      "diagram": "xychart",
+      "source": "xychart\né%% x\n",
+      "tokens": {
+        "types": [
+          9,
+          2,
+          1
+        ],
+        "texts": [
+          "xychart",
+          "\n",
+          ""
+        ],
+        "starts": [
+          0,
+          7,
+          8
+        ]
+      }
+    }
+  ]
+}

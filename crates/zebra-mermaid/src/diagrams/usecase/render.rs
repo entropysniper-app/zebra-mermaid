@@ -12,6 +12,9 @@ use crate::layout::{
     layered::LayeredOptions,
 };
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::edges::{casing, casings_svg, edge_ink, fill_under, hollow_on, Fill, FillUnder};
+use crate::svg::ink::{ink_fill, paints};
+use crate::svg::theme::sets_fill;
 use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg},
     cluster::{mark_crossings, Crossings},
@@ -427,6 +430,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
     }
     attach_ends(&mut edges, &nodes, &views);
     let mut clusters = String::new();
+    let mut fills = Vec::<Fill>::new();
     let mut nodes_out = String::new();
     let surface =
         svg_format!(" fill=\"", ctx.paint(Role::NodeFill, "var(--_s)"), "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"");
@@ -440,22 +444,27 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
         let classes = class_names(n.classes.strip_prefix("default").map(|s| s.strip_prefix(' ').unwrap_or(s)).unwrap_or(&n.classes));
         let id = esc_text(&n.id);
         let text_attrs = &v.style.text;
+        let color = if v.kind == Kind::Actor { String::new() } else { ink_fill(&v.style, None) };
+        let muted_fill = if v.kind == Kind::Actor { svg_format!(" fill=\"", muted, "\"") } else { ink_fill(&v.style, Some(muted)) };
         let shape = &v.style.shape;
         let (w, h) = (v.w, v.h);
         if v.kind == Kind::Boundary {
             let x = c.x - c.w / 2.0;
             let y = c.y - c.h / 2.0;
+            if paints(shape) {
+                fills.push(Fill { bounds: [x, y, x + c.w, y + c.h], shape: shape.clone() });
+            }
             let box_attrs = svg_format!(
                 " fill=\"",
                 ctx.paint(Role::GroupFill, "var(--_a)"),
                 "\"",
-                if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                if ctx.resolved() || sets_fill(shape) { "" } else { " fill-opacity=\"0.5\"" },
                 " stroke=\"",
                 ctx.paint(Role::GroupStroke, "var(--_b)"),
                 "\"",
                 shape
             );
-            let title_attrs = svg_format!(" class=\"pele-cluster-label\" fill=\"", muted, "\"", text_attrs);
+            let title_attrs = svg_format!(" class=\"pele-cluster-label\"", muted_fill, text_attrs);
             let body = if n.boundary_type.as_deref() == Some("package") {
                 let tw = js::min(v.label.width + 2.0 * 6.0 + 8.0, c.w);
                 let th = v.label.height + 2.0 * 6.0;
@@ -518,10 +527,10 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     &v.stereotype,
                     0.0,
                     sy,
-                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(tiny), "\" fill=\"", muted, "\""),
+                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(tiny), "\"", muted_fill),
                     icons
                 ),
-                label_svg(&v.label, 0.0, h / 2.0 - v.label.height / 2.0, &svg_format!(" class=\"pele-label\"", text_attrs), icons)
+                label_svg(&v.label, 0.0, h / 2.0 - v.label.height / 2.0, &svg_format!(" class=\"pele-label\"", color, text_attrs), icons)
             );
         } else if v.kind == Kind::Json {
             kind = "pele-json";
@@ -536,20 +545,14 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                 let rh = js::max(js::max(key.height, value.height), js::round(small * 1.5)) + 8.0;
                 svg_write!(
                     cells,
-                    label_svg(
-                        key,
-                        x0 + 10.0 + key.width / 2.0,
-                        y + rh / 2.0,
-                        &svg_format!(" class=\"pele-json-key\" fill=\"", muted, "\""),
-                        icons,
-                    )
+                    label_svg(key, x0 + 10.0 + key.width / 2.0, y + rh / 2.0, &svg_format!(" class=\"pele-json-key\"", muted_fill), icons,)
                 )
                 .unwrap();
                 cells.push_str(&left_label(
                     value,
                     x0 + v.key_w + 10.0,
                     y + rh / 2.0,
-                    &svg_format!(" class=\"pele-json-value\"", text_attrs),
+                    &svg_format!(" class=\"pele-json-value\"", color, text_attrs),
                     icons,
                 ));
                 y += rh;
@@ -576,7 +579,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     &v.label,
                     0.0,
                     -h / 2.0 + v.head_h / 2.0,
-                    &svg_format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"", text_attrs),
+                    &svg_format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"", color, text_attrs),
                     icons
                 ),
                 "<g font-size=\"",
@@ -676,7 +679,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     &v.stereotype,
                     0.0,
                     -v.label.height / 2.0,
-                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(tiny), "\" fill=\"", muted, "\""),
+                    &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(tiny), "\"", muted_fill),
                     icons
                 ),
                 label_svg(
@@ -686,6 +689,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
                     &svg_format!(
                         " class=\"pele-label\"",
                         if n.shape == "note" { svg_format!(" font-size=\"", js::number_text(small), "\"") } else { String::new() },
+                        color,
                         text_attrs
                     ),
                     icons
@@ -710,6 +714,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
         .unwrap();
     }
     let mut edges_out = String::new();
+    let mut casings = String::new();
     let mut labels_out = String::new();
     let mut loop_seen = IndexMap::<usize, usize>::new();
     for (i, ce) in edges.iter_mut().enumerate() {
@@ -750,6 +755,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             let ex = bx + ux * et;
             let ey = by + uy * et;
             path = EdgePath {
+                tokens: None,
                 d: svg_format!(
                     "M",
                     num(sx),
@@ -787,11 +793,26 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             let (st, et) = (trim(&e.tail), trim(&e.head));
             path = route_path(&ce.route, None, st, et, default_reach(st), default_reach(et));
         }
-        let color = st
-            .as_ref()
-            .and_then(|s| s.stroke.as_ref())
-            .filter(|s| !s.is_empty())
-            .map_or_else(|| ctx.paint(Role::Arrow, "var(--_l)").to_string(), |s| esc(s).into_owned());
+        let under = fill_under(&path.d, &[path.sx, path.sy, path.ex, path.ey], &fills, path.tokens.as_deref());
+        let over = under.as_ref().map(|f| match f {
+            FillUnder::Crossed => "",
+            FillUnder::Inside(f) => edge_ink(f, st.as_ref().map_or("", |s| s.line.as_str())),
+        });
+        if over == Some("") {
+            let marks = format!(
+                "{}{}",
+                mark(&e.tail, path.sx, path.sy, path.sdx, path.sdy, "var(--_bg)", "var(--_bg)"),
+                mark(&e.head, path.ex, path.ey, path.edx, path.edy, "var(--_bg)", "var(--_bg)")
+            )
+            .replace(" stroke=\"none\"", " stroke=\"var(--_bg)\"");
+            casings.push_str(&casing(&path.d, &marks, st.as_ref().map_or("", |s| s.line.as_str()), false));
+        }
+        let color = over.filter(|s| !s.is_empty()).map(str::to_owned).unwrap_or_else(|| {
+            st.as_ref()
+                .and_then(|s| s.stroke.as_ref())
+                .filter(|s| !s.is_empty())
+                .map_or_else(|| ctx.paint(Role::Arrow, "var(--_l)").to_string(), |s| esc(s).into_owned())
+        });
         let dashes = if e.internal {
             "2 3"
         } else if e.dotted {
@@ -806,6 +827,20 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             .strip_prefix("default relationship relationship-")
             .map(|s| s.split_once(' ').map_or("", |(_, rest)| rest))
             .unwrap_or(&e.classes);
+        let marks = format!(
+            "{}{}",
+            mark(&e.tail, path.sx, path.sy, path.sdx, path.sdy, &color, bg),
+            mark(&e.head, path.ex, path.ey, path.edx, path.edy, &color, bg)
+        );
+        let marks = if let Some(FillUnder::Inside(f)) = under {
+            if over.is_some_and(|s| !s.is_empty()) {
+                hollow_on(&marks, f, bg)
+            } else {
+                marks
+            }
+        } else {
+            marks
+        };
         svg_write!(
             edges_out,
             "<g class=\"pele-edge pele-",
@@ -814,14 +849,14 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
             "\" data-id=\"",
             esc_text(&e.id),
             "\"",
+            over.filter(|s| !s.is_empty()).map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
             st.as_ref().map_or("", |s| s.line.as_str()),
             "><path d=\"",
             path.d,
             "\"",
             if dashes.is_empty() { String::new() } else { svg_format!(" stroke-dasharray=\"", dashes, "\"") },
             "/>",
-            mark(&e.tail, path.sx, path.sy, path.sdx, path.sdy, &color, bg),
-            mark(&e.head, path.ex, path.ey, path.edx, path.edy, &color, bg),
+            marks,
             "</g>"
         )
         .unwrap();
@@ -840,6 +875,7 @@ fn draw(model: &UsecaseModel, config: &Config, ctx: &RenderCtx, turned: bool) ->
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
+    content.push_str(&casings_svg(&casings));
     if !edges_out.is_empty() {
         svg_write!(
             content,

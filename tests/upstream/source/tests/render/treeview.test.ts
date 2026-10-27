@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PeleError, parse, render, supports } from '../../src/index.js';
 import { metricsMeasurer } from '../../src/text/measurer.js';
+import type { RenderOptions } from '../../src/types.js';
 
 const options = { measurer: metricsMeasurer };
 const count = (svg: string, re: RegExp): number => svg.match(re)?.length ?? 0;
@@ -70,6 +71,23 @@ describe('treeView rendering', () => {
     expect(xs[0]).toBe(xs[1]);
   });
 
+  it('measures names in the monospace font when monospace lists files', () => {
+    const src = 'treeView-beta\n    src/\n        App.tsx ## main\n';
+    const descX = (svg: string): number => Number(/class="pele-tree-description" x="([\d.]+)"/.exec(svg)![1]);
+    const plain = render(src, options).svg;
+    for (const maxWidth of [undefined, 90]) {
+      const svg = render(src, { ...options, maxWidth, monospace: ['files'] }).svg;
+      expect(count(svg, /<text class="pele-label"[^>]* font-family="var\(--_fm\)"/g)).toBe(maxWidth ? 3 : 2);
+      expect(svg).toMatch(/<text class="pele-label"[^>]* font-weight="var\(--_hw\)"[^>]*>src</);
+      expect(svg).not.toMatch(/<text class="pele-tree-description"[^>]* font-family=/);
+    }
+    expect(plain).not.toContain('font-family="');
+    expect(descX(render(src, { ...options, monospace: ['files'] }).svg)).toBeGreaterThan(descX(plain));
+    for (const monospace of [[], ['file'], ['members'], 'files']) {
+      expect(render(src, { ...options, monospace } as RenderOptions).svg).toBe(plain);
+    }
+  });
+
   it('shows icons only when asked, and offers each icon name to the host', () => {
     expect(render(TREE, options).svg).not.toContain('pele-icon');
     const shown = render('---\nconfig:\n  treeView:\n    showIcons: true\n---\n' + TREE, options).svg;
@@ -106,6 +124,20 @@ describe('treeView rendering', () => {
     expect(svg).toContain('>&lt;T&gt;.ts</text>');
     expect(svg).toContain('>x &lt;br&gt; y</text>');
     expect(svg).toContain('>#hash</text>');
+  });
+
+  it('reads names that start with title', () => {
+    const model = parse('treeView-beta\ntitles/\n  title.txt\n  title-page.md\n');
+    expect(model.type).toBe('treeView');
+    if (model.type === 'treeView') {
+      const [dir] = model.root.children;
+      expect([dir.name, ...dir.children.map((c) => c.name)]).toEqual(['titles', 'title.txt', 'title-page.md']);
+    }
+    const { svg } = render('treeView-beta\ntitles/\n├── title.txt\n└── title-page.md\n', options);
+    expect(svg).toContain('>title.txt</text>');
+    expect(svg).not.toContain('>.txt</text>');
+    const titled = parse('treeView-beta\ntitle%% c\naccTitle: A\nroot\n');
+    expect(titled.type === 'treeView' && [titled.accTitle, titled.root.children.map((c) => c.name)]).toEqual(['A', ['root']]);
   });
 
   it('draws titles and accessible names', () => {

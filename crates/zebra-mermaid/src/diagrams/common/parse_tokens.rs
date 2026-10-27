@@ -138,7 +138,17 @@ impl<'a> Reader<'a, '_> {
     }
     pub fn fail(&self, expected: &str) -> Error {
         let found = if self.kind() == EOF { "end of input".to_string() } else { format!("`{}`", self.text()) };
-        syntax_error(self.diagram, self.tokens.src, self.start(), &format!("Expecting {} but found {}.", expected, found), false)
+        let mut at = self.start();
+        if self.kind() == EOF {
+            let mut k = self.i;
+            while k > 0 && crate::util::js::trim(self.text_at(k - 1)).is_empty() {
+                k -= 1;
+            }
+            if k > 0 {
+                at = self.tokens.span(k - 1).1;
+            }
+        }
+        syntax_error(self.diagram, self.tokens.src, at, &format!("Expecting {} but found {}.", expected, found), false)
     }
 }
 
@@ -172,7 +182,7 @@ pub(crate) mod tests {
 
     pub(crate) fn check_table(name: &str, types: &'static [TokenType], diagram: DiagramType) {
         let fixture: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../../tests/fixtures/pele-1.10.0/unit/token-storage-reference.json.gz")[..],
+            &include_bytes!("../../../../../tests/fixtures/pele-1.12.0/unit/token-storage-reference.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(fixture["upstreamCommit"], crate::PELE_COMMIT);

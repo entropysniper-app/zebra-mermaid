@@ -10,10 +10,12 @@ use crate::layout::{
     layered::LayeredOptions,
 };
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::edges::{casing, casings_svg, edge_ink, fill_under, hollow_on, Fill, FillUnder};
+use crate::svg::ink::{declaration, ink, ink_fill, paints, ON_DARK, ON_LIGHT};
+use crate::svg::theme::sets_fill;
 use crate::svg::{
     builder::{
-        esc, esc_text, joined, num, push_esc, push_num, render_label_svg as label_svg, render_shared_style as shared_style, span_style,
-        text_style,
+        esc, esc_text, num, push_esc, push_num, render_label_svg as label_svg, render_shared_style as shared_style, span_style, text_style,
     },
     cluster::{cluster_title_x, mark_crossings, Crossings},
     edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path},
@@ -62,6 +64,7 @@ struct View {
     cols: Vec<f64>,
     row_size: f64,
     key_size: f64,
+    mono: u8,
     below: bool,
 }
 #[derive(Default)]
@@ -148,7 +151,7 @@ fn cell(raw: &str) -> String {
     }
 }
 /// Appends a label laid out from its left edge at `x`.
-fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &str, icons: Option<&Icons>) {
+fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &str, icons: Option<&Icons>, mono: u8) {
     if label.lines().is_empty() {
         return;
     }
@@ -156,10 +159,11 @@ fn push_text_left(out: &mut String, label: &Label, x: f64, mut y: f64, attrs: &s
         && label.lines()[0].len() == 1
         && label.lines()[0][0].icon.is_none()
         && label.lines()[0][0].math.is_none()
-        && label.lines()[0][0].style == 0
+        && label.lines()[0][0].style == mono
+        && !(mono != 0 && label.lines()[0][0].text.contains("  "))
     {
         out.push_str("<text");
-        out.push_str(attrs);
+        out.push_str(&text_style(attrs, mono));
         out.push_str(" x=\"");
         push_num(out, x);
         out.push_str("\" y=\"");
@@ -335,6 +339,11 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
     for (i, node) in graph.iter().enumerate() {
         let st = resolve_style(&node.styles);
         let base = if st.bold { style::BOLD } else { 0 } | if st.italic { style::ITALIC } else { 0 };
+        let mono = if ctx.options.monospaced(crate::MonospacePart::Attributes) && declaration(&st.text, "font-family").is_none() {
+            style::MONO
+        } else {
+            0
+        };
         let name_size = st.font_size.unwrap_or(size);
         let row_size = st.font_size.unwrap_or(small);
         let key_size = st.font_size.unwrap_or(js::round(size * 0.75));
@@ -359,6 +368,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
             cols: vec![],
             row_size,
             key_size,
+            mono,
             below,
         };
         let mut reach = 0.0;
@@ -390,9 +400,9 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                 let mut widths = [0.0; 4];
                 for attr in &node.attrs {
                     let cells = [
-                        layout_label(Some(&cell(&attr.kind)), true, &m, row_size, 1e6, base),
-                        layout_label(Some(&cell(&attr.name)), true, &m, row_size, 1e6, base),
-                        layout_label(Some(&attr.keys.join(", ")), false, &m, key_size, 1e6, base),
+                        layout_label(Some(&cell(&attr.kind)), true, &m, row_size, 1e6, base | mono),
+                        layout_label(Some(&cell(&attr.name)), true, &m, row_size, 1e6, base | mono),
+                        layout_label(Some(&attr.keys.join(", ")), false, &m, key_size, 1e6, base | mono),
                         layout_label(Some(&cell(&attr.comment)), true, &m, row_size, 260.0, base),
                     ];
                     let mut h = row_line;
@@ -472,6 +482,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         }
     }
     let mut clusters = String::new();
+    let mut fills = Vec::<Fill>::new();
     let mut nodes_out = String::new();
     let box_attrs =
         svg_format!(" fill=\"", ctx.paint(Role::NodeFill, "var(--_s)"), "\" stroke=\"", ctx.paint(Role::NodeStroke, "var(--_b)"), "\"");
@@ -484,6 +495,9 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
             v.h = c.h;
             let x = c.x - c.w / 2.0;
             let y = c.y - c.h / 2.0;
+            if paints(&v.style.shape) {
+                fills.push(Fill { bounds: [x, y, x + c.w, y + c.h], shape: v.style.shape.clone() });
+            }
             let tx = cluster_title_x(c.x, c.y, c.w, c.h, v.label.width, &crossings, 20.0);
             svg_write!(
                 clusters,
@@ -504,7 +518,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                     " fill=\"",
                     ctx.paint(Role::GroupFill, "var(--_a)"),
                     "\"",
-                    if ctx.resolved() { "" } else { " fill-opacity=\"0.5\"" },
+                    if ctx.resolved() || sets_fill(&v.style.shape) { "" } else { " fill-opacity=\"0.5\"" },
                     " stroke=\"",
                     ctx.paint(Role::GroupStroke, "var(--_b)"),
                     "\"",
@@ -515,7 +529,11 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                     &v.label,
                     tx,
                     y + 8.0 + v.label.height / 2.0,
-                    &svg_format!(" class=\"pele-cluster-label\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", v.style.text),
+                    &svg_format!(
+                        " class=\"pele-cluster-label\"",
+                        ink_fill(&v.style, Some(ctx.paint(Role::SecondaryText, "var(--_m)"))),
+                        v.style.text
+                    ),
                     icons
                 ),
                 "</g>"
@@ -526,12 +544,14 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         let x0 = -v.w / 2.0;
         let y0 = -v.h / 2.0;
         let text = &v.style.text;
+        let color = ink_fill(&v.style, None);
+        let muted = ink_fill(&v.style, Some(ctx.paint(Role::SecondaryText, "var(--_m)")));
         let shape = svg_format!("x=\"", num(x0), "\" y=\"", num(y0), "\" width=\"", num(v.w), "\" height=\"", num(v.h), "\"");
         let mut name = svg_format!(label_svg(
             &v.label,
             0.0,
             if v.rows.is_empty() { 0.0 } else { y0 + v.head_h / 2.0 },
-            &joined(" class=\"pele-label\"", text),
+            &svg_format!(" class=\"pele-label\"", color, text),
             icons,
         ));
         let display = decode_entities(if node.alias.is_empty() { &node.label } else { &node.alias });
@@ -569,12 +589,10 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
             let line_color =
                 v.style.stroke.as_ref().map_or_else(|| ctx.paint(Role::InnerStroke, "var(--_b)").to_string(), |s| esc(s).into_owned());
             // The attributes of each column's text are the same on every row.
-            let secondary = ctx.paint(Role::SecondaryText, "var(--_m)");
-            let type_attrs = svg_format!(" class=\"pele-er-type\" fill=\"", secondary, "\"", text);
-            let name_attrs = joined(" class=\"pele-er-name\"", text);
-            let key_attrs =
-                svg_format!(" class=\"pele-er-keys\" font-size=\"", js::number_text(v.key_size), "\" fill=\"", secondary, "\"", text);
-            let comment_attrs = svg_format!(" class=\"pele-er-comment\" fill=\"", secondary, "\"", text);
+            let type_attrs = svg_format!(" class=\"pele-er-type\"", muted, text);
+            let name_attrs = svg_format!(" class=\"pele-er-name\"", color, text);
+            let key_attrs = svg_format!(" class=\"pele-er-keys\" font-size=\"", js::number_text(v.key_size), "\"", muted, text);
+            let comment_attrs = svg_format!(" class=\"pele-er-comment\"", muted, text);
             let mut stripes = String::new();
             let mut cells = String::new();
             let mut y = y0 + v.head_h;
@@ -606,10 +624,10 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                     }
                 }
                 let baseline = y + 9.0 / 2.0 + row_line / 2.0 + v.row_size * 0.35;
-                push_text_left(&mut cells, &row.cells[0], x0 + v.cols[0], baseline, &type_attrs, icons);
-                push_text_left(&mut cells, &row.cells[1], x0 + v.cols[1], baseline, &name_attrs, icons);
-                push_text_left(&mut cells, &row.cells[2], x0 + v.cols[2], baseline, &key_attrs, icons);
-                push_text_left(&mut cells, &row.cells[3], x0 + v.cols[3], baseline, &comment_attrs, icons);
+                push_text_left(&mut cells, &row.cells[0], x0 + v.cols[0], baseline, &type_attrs, icons, v.mono);
+                push_text_left(&mut cells, &row.cells[1], x0 + v.cols[1], baseline, &name_attrs, icons, v.mono);
+                push_text_left(&mut cells, &row.cells[2], x0 + v.cols[2], baseline, &key_attrs, icons, v.mono);
+                push_text_left(&mut cells, &row.cells[3], x0 + v.cols[3], baseline, &comment_attrs, icons, 0);
                 y += row.h;
             }
             svg_write!(
@@ -618,7 +636,11 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
                 shape,
                 rounded(&svg_format!(box_attrs, v.style.shape)),
                 "/><g class=\"pele-er-stripes\" fill=\"",
-                ctx.paint(Role::GroupHeader, "var(--_bg)"),
+                match ink(&v.style.shape, "") {
+                    Some(ON_LIGHT) => ON_DARK,
+                    Some(ON_DARK) => ON_LIGHT,
+                    _ => ctx.paint(Role::GroupHeader, "var(--_bg)"),
+                },
                 "\"",
                 if v.style.shape.contains("fill:") { " opacity=\"0.6\"" } else { "" },
                 ">",
@@ -662,12 +684,13 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
         }
     }
     let mut edges_out = String::new();
+    let mut casings = String::new();
     let mut labels_out = String::new();
     let bg = ctx.paint(Role::Background, "var(--_bg)");
     for (i, e) in edges.iter_mut().enumerate() {
         let edge = drawn[i];
         let label = &edge_labels[i];
-        let (d, start, end) = if let Some(l) = &loop_of[i] {
+        let (d, mut start, mut end) = if let Some(l) = &loop_of[i] {
             let c = &nodes[e.src];
             let v = &views[e.src];
             let spread = js::max(js::min(l.band / 2.0 - 6.0, 13.0), 1.0);
@@ -759,13 +782,29 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
             };
             (d, marker(&edge.tail, path.sx, path.sy, path.sdx, path.sdy, bg), marker(&edge.head, path.ex, path.ey, path.edx, path.edy, bg))
         };
+        let under = fill_under(&d, &[], &fills, None);
+        let over = under.as_ref().map(|f| match f {
+            FillUnder::Crossed => "",
+            FillUnder::Inside(fill) => edge_ink(fill, ""),
+        });
+        if over == Some("") {
+            casings.push_str(&casing(&d, &format!("{start}{end}"), "", false));
+        }
+        if let Some(FillUnder::Inside(fill)) = under {
+            if over.is_some_and(|s| !s.is_empty()) {
+                start = hollow_on(&start, fill, bg);
+                end = hollow_on(&end, fill, bg);
+            }
+        }
         svg_write!(
             edges_out,
             "<g class=\"pele-edge pele-er-",
             if edge.dashed { "non-identifying" } else { "identifying" },
             "\" data-id=\"",
             esc_text(&edge.id),
-            "\"><path d=\"",
+            "\"",
+            over.filter(|s| !s.is_empty()).map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
+            "><path d=\"",
             d,
             "\"",
             if edge.dashed { " stroke-dasharray=\"4 3\"" } else { "" },
@@ -784,6 +823,7 @@ fn draw(db: &ErModel, config: &Config, ctx: &RenderCtx, turned: bool) -> Result<
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
+    content.push_str(&casings_svg(&casings));
     if !edges_out.is_empty() {
         svg_write!(
             content,

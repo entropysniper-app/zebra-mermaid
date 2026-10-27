@@ -47,7 +47,7 @@ describe('zoom frame', () => {
 
 const drawingIn = (shown: number) => {
   const listening = new Map<string, number>();
-  const handlers = new Map<string, (event: unknown) => void>();
+  const handlers = new Map<string, ((event: unknown) => void)[]>();
   const attributes: Record<string, string> = { width: '1200', height: '300' };
   const svg = {
     localName: 'svg',
@@ -57,6 +57,7 @@ const drawingIn = (shown: number) => {
     removeAttribute: (name: string) => delete attributes[name],
     getBoundingClientRect: () => ({ left: 0, top: 0, width: shown, height: shown / 4 }),
     matches: (_selector: string): boolean => false,
+    querySelectorAll: (_selector: string): unknown[] => [],
   };
   const count = (type: string, by: number) => listening.set(type, (listening.get(type) ?? 0) + by);
   const element = {
@@ -66,7 +67,7 @@ const drawingIn = (shown: number) => {
     style: {},
     addEventListener: (type: string, handler: (event: unknown) => void) => {
       count(type, 1);
-      handlers.set(type, handler);
+      handlers.set(type, [...(handlers.get(type) ?? []), handler]);
     },
     removeEventListener: (type: string) => count(type, -1),
   };
@@ -74,7 +75,7 @@ const drawingIn = (shown: number) => {
     element: element as unknown as HTMLElement,
     svg,
     listening: (type: string) => listening.get(type) ?? 0,
-    fire: (type: string, event: unknown) => handlers.get(type)?.(event),
+    fire: (type: string, event: unknown) => handlers.get(type)?.forEach((handler) => handler(event)),
     show: (width: number) => {
       shown = width;
       element.clientWidth = width;
@@ -90,6 +91,7 @@ describe('zoom', () => {
   });
   afterEach(() => {
     delete globals.getComputedStyle;
+    delete globals.Node;
   });
 
   it('takes the wheel only while the drawing can be enlarged', () => {
@@ -97,7 +99,7 @@ describe('zoom', () => {
     enableZoom(fits.element, { controls: false });
     expect(fits.listening('wheel')).toBe(0);
     expect(fits.listening('gesturestart')).toBe(0);
-    expect(fits.listening('pointerdown')).toBe(1);
+    expect(fits.listening('pointermove')).toBe(1);
 
     const shrunk = drawingIn(400);
     const zoom = enableZoom(shrunk.element, { controls: false });
@@ -129,5 +131,138 @@ describe('zoom', () => {
     };
     expect(() => shrunk.fire('focusin', { target: shrunk.svg })).not.toThrow();
     expect((shrunk.svg.style as { outline?: string }).outline).toBe('');
+  });
+
+  it('narrows a drawing at rest so that the buttons do not hide its text', () => {
+    const bar = { left: 362, right: 392, top: 8, bottom: 64 };
+    // Text coordinates use a 400-wide drawing; centered drawings model auto margins.
+    const mounted = (text: { left: number; right: number; top: number; bottom: number }, centered = false) => {
+      const style: Record<string, string> = centered ? { maxWidth: '350px' } : {};
+      const box = () => {
+        const width = Math.min(400, parseFloat(style.maxWidth) || 400);
+        const right = parseFloat(style.marginRight);
+        const left = !centered ? 0 : Number.isNaN(right) ? (400 - width) / 2 : 400 - right - width;
+        return { left, right: left + width, top: 0, bottom: width / 4, width, height: width / 4 };
+      };
+      const shown = () => {
+        const at = box();
+        const k = at.width / 400;
+        return { left: at.left + text.left * k, right: at.left + text.right * k, top: text.top * k, bottom: text.bottom * k };
+      };
+      const svg = {
+        localName: 'svg',
+        style,
+        getAttribute: (name: string) => ({ width: '1200', height: '300' })[name] ?? null,
+        setAttribute: () => {},
+        removeAttribute: () => {},
+        getBoundingClientRect: box,
+        querySelectorAll: () => [{ getBoundingClientRect: shown }],
+      };
+      const node = () => ({ style: {}, setAttribute: () => {}, addEventListener: () => {}, append: () => {}, remove: () => {}, getBoundingClientRect: () => bar });
+      const element = {
+        firstElementChild: svg,
+        clientLeft: 0,
+        clientWidth: 400,
+        clientHeight: 100,
+        style: {},
+        ownerDocument: { createElement: node },
+        append: (child: { parentNode?: unknown }) => (child.parentNode = element),
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        getBoundingClientRect: () => ({ left: 0, right: 400, top: 0, bottom: 100 }),
+      };
+      return { style, box, zoom: enableZoom(element as unknown as HTMLElement) };
+    };
+    const label = { left: 330, right: 380, top: 30, bottom: 40 };
+    const left = mounted(label);
+    expect([left.style.maxWidth, left.style.marginRight]).toEqual(['358px', '42px']);
+    left.zoom.zoomBy(2);
+    expect(left.style.maxWidth).toBe('none');
+    left.zoom.refresh();
+    expect([left.style.width, left.style.maxWidth]).toEqual([undefined, '358px']);
+    expect(mounted({ ...label, left: 300, right: 350 }).style.maxWidth).toBeUndefined();
+    expect(mounted({ ...label, top: 70, bottom: 80 }).style.maxWidth).toBeUndefined();
+
+    const centered = mounted({ ...label, left: 360, right: 395 }, true);
+    expect(centered.box().right).toBe(358);
+    expect(centered.box().left).toBe(25);
+    centered.zoom.refresh();
+    centered.zoom.refresh();
+    expect(centered.box()).toMatchObject({ left: 25, right: 358 });
+    centered.zoom.destroy();
+    expect([centered.style.maxWidth, centered.style.marginRight]).toEqual(['350px', undefined]);
+  });
+
+  const pinch = (drawing: ReturnType<typeof drawingIn>) => {
+    drawing.fire('pointerdown', { pointerId: 1, pointerType: 'touch', clientX: 100, clientY: 50 });
+    drawing.fire('pointerdown', { pointerId: 2, pointerType: 'touch', clientX: 140, clientY: 50 });
+    drawing.fire('pointermove', { pointerId: 2, clientX: 220, clientY: 50 });
+    drawing.fire('pointerup', { pointerId: 1 });
+    drawing.fire('pointerup', { pointerId: 2 });
+  };
+  const tap = (drawing: ReturnType<typeof drawingIn>, target: unknown) => {
+    drawing.fire('pointerdown', { pointerId: 3, pointerType: 'touch', target });
+    drawing.fire('pointerup', { pointerId: 3 });
+  };
+  const click = (drawing: ReturnType<typeof drawingIn>, target: { listeners?: Map<string, () => void> }, detail = 1) => {
+    const event = { target, detail, defaultPrevented: false, stopped: false, preventDefault: () => (event.defaultPrevented = true), stopPropagation: () => (event.stopped = true) };
+    drawing.fire('click', event);
+    if (!event.stopped) target.listeners?.get('click')?.();
+    return event;
+  };
+
+  it('lets the first tap or key after a pinch work a button', () => {
+    class Node {
+      style: Record<string, string> = {};
+      listeners = new Map<string, () => void>();
+      children: Node[] = [];
+      setAttribute() {}
+      getBoundingClientRect() {
+        return { left: 0, right: 0, top: 0, bottom: 0 };
+      }
+      addEventListener(type: string, listener: () => void) {
+        this.listeners.set(type, listener);
+      }
+      append(child: Node) {
+        this.children.push(child);
+      }
+      contains(other: unknown): boolean {
+        return other === this || this.children.some((child) => child.contains(other));
+      }
+    }
+    globals.Node = Node;
+    const shrunk = drawingIn(400);
+    let bar = new Node();
+    Object.assign(shrunk.element, { ownerDocument: { createElement: () => new Node() }, append: (child: Node) => (bar = child) });
+    const zoom = enableZoom(shrunk.element);
+    const reset = bar.children[2];
+
+    pinch(shrunk);
+    expect(zoom.scale).toBeGreaterThan(zoom.fit);
+    tap(shrunk, reset);
+    click(shrunk, reset);
+    expect(zoom.scale).toBe(zoom.fit);
+
+    pinch(shrunk);
+    click(shrunk, reset, 0);
+    expect(zoom.scale).toBe(zoom.fit);
+  });
+
+  it('stops the click that ends a drag over the drawing, and no click after it', () => {
+    const shrunk = drawingIn(400);
+    const zoom = enableZoom(shrunk.element, { controls: false });
+    const link = {};
+    zoom.zoomTo(1);
+    shrunk.fire('pointerdown', { pointerId: 1, pointerType: 'mouse', button: 0, clientX: 100, clientY: 50 });
+    shrunk.fire('pointermove', { pointerId: 1, clientX: 130, clientY: 50 });
+    shrunk.fire('pointerup', { pointerId: 1 });
+    const dragged = click(shrunk, link);
+    expect([dragged.defaultPrevented, dragged.stopped]).toEqual([true, true]);
+
+    shrunk.fire('pointerdown', { pointerId: 2, pointerType: 'touch', clientX: 100, clientY: 50 });
+    shrunk.fire('pointermove', { pointerId: 2, clientX: 130, clientY: 50 });
+    shrunk.fire('pointerup', { pointerId: 2 });
+    tap(shrunk, link);
+    expect(click(shrunk, link).defaultPrevented).toBe(false);
   });
 });

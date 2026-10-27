@@ -199,6 +199,52 @@ describe('sequence rendering', () => {
     expect(step(wrapped)).toBeGreaterThanOrEqual(own[1] - own[0]);
   });
 
+  it('widens gaps within maxWidth before wrapping a message', () => {
+    const lines = (svg: string, id: string): number =>
+      svg.match(new RegExp(`<g class="pele-edge-label" data-id="${id}">(.*?)</g>`))![1].match(/<tspan/g)?.length ?? 1;
+    const reported =
+      'sequenceDiagram\n  participant U as UE\n  participant M as MeNB (LTE anchor)\n  participant S as SgNB (5G, NR leg)\n' +
+      '  M->>S: SgNB Addition Request (DRB-ID, CG-ConfigInfo)\n  M->>U: RRCConnectionReconfiguration (carries the NR SCG config)\n  U->>M: RRCConnectionReconfigurationComplete';
+    const long = 'thisIsAnExtremelyLongMessageIdentifierThatShouldHaveRoomToFit';
+    const cases: [string, string, number, number, object?][] = [
+      [reported, 'i2', 760, 1],
+      [reported, 'i2', 760.5, 1],
+      [reported, 'i2', 760, 1, { monospace: ['messages'] }],
+      [reported, 'i2', 400, 2],
+      [`sequenceDiagram\n  participant A\n  participant B\n  participant C\n  B->>A: ${'x'.repeat(168)}\n  C->>A: ${'x'.repeat(89)}`, 'i1', 709, 1],
+      [`sequenceDiagram\n  A->>B: ${long}`, 'i0', 300.25, 3],
+      [`sequenceDiagram\n  participant A\n  participant B\n  participant C\n  participant D\n  A->>D: ${long}`, 'i0', 450, 2],
+      [`sequenceDiagram\n  A->>+B: ${long}\n  Note right of B: note\n  B-->>-A: ok`, 'i0', 400, 2],
+    ];
+    for (const [source, id, maxWidth, count, extra] of cases) {
+      const result = render(source, { ...options, ...extra, maxWidth });
+      expect(result.width).toBeLessThanOrEqual(maxWidth);
+      expect(lines(result.svg, id)).toBe(count);
+    }
+  });
+
+  it('measures messages in the monospace font when monospace lists them', () => {
+    const src = 'sequenceDiagram\n  A->>B: a message in the monospace font\n  B->>B: a message to itself\n  Note over A,B: a note';
+    const plain = svgOf(src);
+    const mono = svgOf(src, { monospace: ['messages'] });
+    expect(mono).toContain('<g class="pele-edge-labels" font-size="14" font-family="var(--_fm)">');
+    expect(plain).not.toContain('font-family="var(--_fm)"');
+    expect(count(mono, 'font-family="var(--_fm)"')).toBe(1);
+    const gap = (svg: string): number => lifelines(svg).get('B')! - lifelines(svg).get('A')!;
+    expect(gap(mono)).toBeGreaterThan(gap(plain));
+    expect(render(src, { ...options, monospace: ['messages'] }).width - gap(mono)).toBeGreaterThan(render(src, options).width - gap(plain));
+    for (const monospace of [[], ['message'], 'messages', ['members']]) expect(svgOf(src, { monospace })).toBe(plain);
+  });
+
+  it('widens gaps within maxWidth for messages measured in the monospace font', () => {
+    const source =
+      'sequenceDiagram\n  participant UE\n  participant gNB\n  participant AMF\n  gNB->>UE: RRCConnectionReconfigurationComplete\n  UE->>gNB: ok';
+    const mono = render(source, { ...options, maxWidth: 760, monospace: ['messages'] });
+    expect(mono.width).toBeLessThanOrEqual(760);
+    expect(mono.width).toBeGreaterThan(render(source, { ...options, maxWidth: 760 }).width);
+    expect(mono.svg).toContain('>RRCConnectionReconfigurationComplete<');
+  });
+
   it('draws activations, nested ones offset, and ends arrows at their edges', () => {
     const svg = svgOf('sequenceDiagram\n  A->>+B: one\n  A->>+B: two\n  B-->>-A: three\n  B-->>-A: four');
     const x = lifelines(svg);
@@ -286,6 +332,61 @@ describe('sequence rendering', () => {
     expect(rects.filter((r) => !r.includes('fill:')).length).toBe(1);
     expect(svg.indexOf('rgb(191, 223, 255)')).toBeLessThan(svg.indexOf('rgba(0, 0, 255, .1)'));
     expect(svg.indexOf('class="pele-rects"')).toBeLessThan(svg.indexOf('class="pele-lifelines"'));
+  });
+
+  it('picks a contrasting text color for labels on a rect or box fill', () => {
+    const svg = svgOf(
+      'sequenceDiagram\n  box rgb(34, 56, 0) Group\n  participant A\n  participant B\n  end\n  participant C\n  participant D\n' +
+        '  A->>B: boxed\n  C->>D: open\n  rect rgb(191, 223, 255)\n  C->>D: light\n  C->>C: self\n  loop Often\n  D->>C: looped\n  end\n  rect black\n  C->>D: dark\n  end\n  rect rgba(0, 0, 0, .2)\n  C->>D: faint\n  end\n  A->>D: crossing two of the lifelines\n  end'
+    );
+    const label = (text: string): string => new RegExp(`<text[^>]*>(?:\\[)?${text}(?:\\])?</text>`).exec(svg)![0];
+    const light = 'fill="var(--pele-fg-on-light,#1f1f1f)"';
+    const dark = 'fill="var(--pele-fg-on-dark,#fff)"';
+    expect(label('boxed')).toContain(dark);
+    expect(svg).toContain(`<text class="pele-cluster-label" ${dark}`);
+    expect(label('open')).not.toContain('fill=');
+    expect(label('light')).toContain(light);
+    expect(label('self')).toContain(light);
+    expect(label('Often')).toContain(`class="pele-frame-label" ${light} stroke="none"`);
+    expect(label('looped')).toContain(light);
+    expect(label('dark')).toContain(dark);
+    expect(label('faint')).not.toContain('fill=');
+    // A label across a lifeline sits on a plate in the page color.
+    expect(svg).toMatch(/fill="var\(--_bg\)" stroke="none"\/><text x=[^>]*>crossing two of the lifelines</);
+  });
+
+  it('draws arrows on a rect or box fill in their label color', () => {
+    const svg = svgOf(
+      'sequenceDiagram\n  box black Group\n  participant A\n  participant B\n  end\n  participant C\n  A->>B: boxed\n  B->>C: open\n  rect rgb(191, 223, 255)\n  A-->>C: light\n  C-xC: self\n  A-|\\B: solid\n  A-\\\\B: stick\n  end'
+    );
+    const message = (text: string): string => {
+      const id = new RegExp(`data-id="(i\\d+)">(?:<rect[^>]*/>)?<text[^>]*>${text}<`).exec(svg)![1];
+      return new RegExp(`<g class="pele-edge pele-message" data-id="${id}"[^>]*>.*?</g>`).exec(svg)![0];
+    };
+    expect(message('boxed')).toMatch(/^<g [^>]* stroke="var\(--pele-fg-on-dark,#fff\)">/);
+    expect(message('boxed')).toContain('class="pele-marker"');
+    expect(message('boxed')).toMatch(/class="pele-marker"[^>]* fill="var\(--pele-fg-on-dark,#fff\)"/);
+    expect(message('open')).not.toContain('--pele-fg-on');
+    expect(message('light')).toMatch(/^<g [^>]* stroke="var\(--pele-fg-on-light,#1f1f1f\)"><path [^>]*stroke-dasharray/);
+    expect(message('self')).toMatch(/^<g [^>]* stroke="var\(--pele-fg-on-light,#1f1f1f\)">/);
+    expect(message('self')).not.toContain('var(--_l)');
+    expect(message('solid')).toMatch(/class="pele-marker" d="[^"]+Z" fill="var\(--pele-fg-on-light,#1f1f1f\)"/);
+    expect(message('stick')).toMatch(/^<g [^>]* stroke="var\(--pele-fg-on-light,#1f1f1f\)">/);
+    expect(message('stick')).not.toContain('var(--_l)');
+    expect(svg).not.toMatch(/class="pele-lifeline"[^>]*--pele-fg-on/);
+  });
+
+  it('keeps the theme color for a self-message that reaches past its box', () => {
+    const svg = svgOf('sequenceDiagram\n  autonumber 1000\n  box black\n  participant A\n  end\n  A->>A: x');
+    expect(svg).not.toMatch(/class="pele-edge pele-message"[^>]* stroke=/);
+  });
+
+  it('picks a contrasting name color for figures in a box', () => {
+    const svg = svgOf('sequenceDiagram\n  box black Group\n  actor A\n  participant B\n  end\n  actor C\n  A->>B: hi\n  B->>C: yo');
+    expect(count(svg, '<text class="pele-label" fill="var(--pele-fg-on-dark,#fff)"')).toBe(2);
+    expect(svg).toMatch(/data-id="A">.*?<text class="pele-label" fill="var\(--pele-fg-on-dark,#fff\)"/);
+    expect(svg).toMatch(/data-id="B">.*?<text class="pele-label" x=/);
+    expect(svg).toMatch(/data-id="C">.*?<text class="pele-label" x=/);
   });
 
   it('groups participants in boxes, with color and title', () => {

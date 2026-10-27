@@ -1,0 +1,17 @@
+{"source":"mindmap\n","expect":null}
+{"source":"mindmap a\n","expect":null}
+{"source":"mindmap\n a\n  :::big\r\n","expect":null}
+{"source":"kanban\n","expect":null}
+{"source":"mindmap\n  a\n b\n","expect":{"code":"semantic","message":"There can be only one root. No parent could be found for (\"b\")","line":0,"column":0,"snippet":"","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"mindmap\n a\n  b[x\n","expect":{"code":"syntax","message":"Parse error on line 3:\n  b[x\n-----^\nExpecting 'NODE_DEND', got '1'","line":3,"column":6,"snippet":"  b[x\n-----^","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"mindmap\n a\n  b{x}\n","expect":{"code":"syntax","message":"Lexical error on line 3. Unrecognized text.\n  b{x}\n---^","line":3,"column":4,"snippet":"  b{x}\n---^","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"mindmap\n a\n  b(x) c\n","expect":{"code":"syntax","message":"Parse error on line 3:\n  b(x) c\n------^\nExpecting 'SPACELINE', 'NL', 'EOF', got 'SPACELIST'","line":3,"column":7,"snippet":"  b(x) c\n------^","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"mindmap\n a\n  ::icon(x\n","expect":{"code":"syntax","message":"Parse error on line 3:\n  ::icon(x\n----------^\nExpecting 'SPACELINE', 'NL', 'EOF', got '1'","line":3,"column":11,"snippet":"  ::icon(x\n----------^","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"mindmap\n 中文😀\n  b{x}\n","expect":{"code":"syntax","message":"Lexical error on line 3. Unrecognized text.\n  b{x}\n---^","line":3,"column":4,"snippet":"  b{x}\n---^","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"mindmap\n a\n  b[\"`x\n","expect":{"code":"syntax","message":"Parse error on line 3:\n  b[\"`x\n-------^\nExpecting 'NODE_DEND', got '1'","line":3,"column":8,"snippet":"  b[\"`x\n-------^","type":"mindmap","mermaidType":"mindmap"}}
+{"source":"kanban\n a\n  b@{ shape: Rect }\n","expect":{"code":"semantic","message":"No such shape: Rect. Shape names should be lowercase.","line":0,"column":0,"snippet":"","type":"kanban","mermaidType":"kanban"}}
+{"source":"kanban\n a\n  b@{ label: [ }\n","expect":{"code":"syntax","message":"Metadata of \"b\" is not valid YAML. YAML: unexpected end of the stream within a flow collection","line":0,"column":0,"snippet":"","type":"kanban","mermaidType":"kanban"}}
+{"source":"kanban\n  a\n b\n c\n","expect":{"code":"semantic","message":"Items without section detected, found section (\"b\")","line":0,"column":0,"snippet":"","type":"kanban","mermaidType":"kanban"}}
+{"source":"kanban\n a\n  b@{ x^ }\n","expect":{"code":"syntax","message":"Lexical error on line 3. Unrecognized text.\n  b@{ x^ }\n-------^","line":3,"column":8,"snippet":"  b@{ x^ }\n-------^","type":"kanban","mermaidType":"kanban"}}
+{"source":"kanban\n a\n  b@{ label: x } y\n","expect":{"code":"syntax","message":"Parse error on line 3:\n  b@{ label: x } y\n----------------^\nExpecting 'SPACELINE', 'NL', 'EOF', 'SHAPE_DATA', got 'SPACELIST'","line":3,"column":17,"snippet":"  b@{ label: x } y\n----------------^","type":"kanban","mermaidType":"kanban"}}
+{"source":"kanban\n a\n  b@{ label: \"x\n\n  y\" }\n  c@{ a: 1\n","expect":{"code":"syntax","message":"Parse error on line 6:\n  c@{ a: 1\n----------^\nExpecting 'SPACELINE', 'NL', 'EOF', 'SHAPE_DATA', got '1'","line":6,"column":11,"snippet":"  c@{ a: 1\n----------^","type":"kanban","mermaidType":"kanban"}}

@@ -230,25 +230,21 @@ fn is_invalid_protocol(protocol: &str) -> bool {
     false
 }
 
-/// Follows the algorithm of @braintree/sanitize-url, which Mermaid applies to click targets.
-pub fn sanitize_url(url: &str) -> String {
-    if url.is_empty() {
-        return BLANK.into();
-    }
-    let mut decoded = decode(js::trim(url));
+fn unwrap_url(url: &str, percent: bool) -> Option<String> {
+    let mut decoded = if percent { decode(js::trim(url)) } else { js::trim(url).to_owned() };
     let mut rounds = 0;
     loop {
         // Each round peels one layer of encoding. A URL wrapped this many times is not a real one.
         rounds += 1;
         if rounds > 32 {
-            return BLANK.into();
+            return None;
         }
         let step = strip_ctrl(&decoded);
         let step = replace_html_entities(&step);
         let step = strip_ctrl_entities(&step);
         let step = strip_ctrl(&step);
         let step = strip_ws_escapes(&step);
-        decoded = decode(js::trim(&step));
+        decoded = if percent { decode(js::trim(&step)) } else { js::trim(&step).to_owned() };
         let more = decoded.chars().any(is_ctrl)
             || has_html_entity(&decoded)
             || find_ci(&decoded, "&newline;").is_some()
@@ -258,19 +254,26 @@ pub fn sanitize_url(url: &str) -> String {
             break;
         }
     }
+    Some(decoded)
+}
+
+/// Refuses hidden schemes like Mermaid's sanitizer, preserving percent escapes in safe URLs.
+pub fn sanitize_url(url: &str) -> String {
+    let Some(decoded) = unwrap_url(url, true).filter(|s| !s.is_empty()) else { return BLANK.into() };
+    let Some(kept) = unwrap_url(url, false).filter(|s| !s.is_empty()) else { return BLANK.into() };
     if decoded.is_empty() {
         return BLANK.into();
     }
     if decoded.starts_with('.') || decoded.starts_with('/') {
-        return decoded;
+        return kept;
     }
     let trimmed = decoded.trim_start_matches(is_space);
-    let Some(scheme) = scheme_match(trimmed) else { return decoded };
+    let Some(scheme) = scheme_match(trimmed) else { return kept };
     let protocol = js::trim(&scheme.to_lowercase()).to_string();
     if is_invalid_protocol(&protocol) {
         return BLANK.into();
     }
-    let normalized = trimmed.replace('\\', "/");
+    let normalized = kept.trim_start_matches(is_space).replace('\\', "/");
     if protocol == "mailto:" || protocol.contains("://") {
         return normalized;
     }
@@ -306,18 +309,23 @@ fn scheme_name(url: &str) -> Option<&str> {
 
 /// Stricter than Mermaid, which lets any scheme but three through: a diagram in a shared note
 /// could otherwise open a local file, a network share, or another application.
-fn allow<S: AsRef<str>>(url: &str, schemes: &[S]) -> Option<String> {
+fn allowed<S: AsRef<str>>(url: &str, schemes: &[S]) -> bool {
     let b = url.as_bytes();
     if b.len() >= 2 && matches!(b[0], b'\\' | b'/') && matches!(b[1], b'\\' | b'/') {
-        return None;
+        return false;
     }
     match scheme_name(url) {
-        None => Some(url.to_string()),
+        None => true,
         Some(scheme) => {
             let lower = scheme.to_lowercase();
-            schemes.iter().any(|s| s.as_ref() == lower).then(|| url.to_string())
+            schemes.iter().any(|s| s.as_ref() == lower)
         }
     }
+}
+
+fn allow<S: AsRef<str>>(url: &str, schemes: &[S]) -> Option<String> {
+    let decoded = unwrap_url(url, true)?;
+    (allowed(url, schemes) && allowed(&decoded, schemes)).then(|| url.to_owned())
 }
 
 /// Keeps a URL that `sanitize_url` has passed only when it is relative or its scheme is one

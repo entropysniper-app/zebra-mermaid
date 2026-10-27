@@ -124,6 +124,15 @@ describe('eventmodeling rendering', () => {
     expect(render('---\ntitle: Front\n---\neventmodeling\ntf 01 ui A\n', options).svg).toContain('>Front<');
   });
 
+  it('reads entity names that start with title', () => {
+    const model = parse('eventmodeling\ntf 01 ui titles\ntf 02 cmd title_x\nentity titles\n');
+    expect(model.type).toBe('eventmodeling');
+    if (model.type === 'eventmodeling') {
+      expect(model.boxes.map((b) => b.name)).toEqual(['titles', 'title_x']);
+      expect(model.entities).toEqual(['titles']);
+    }
+  });
+
   it('draws an empty model and is deterministic', () => {
     expect(render('eventmodeling', options).svg).toContain('<svg');
     expect(render(BASIC, options).svg).toBe(render(BASIC, options).svg);
@@ -138,6 +147,7 @@ describe('eventmodeling rendering', () => {
       expect((error as PeleError).message).toBe('Duplicate event modeling frame ID "01" on line 4');
       expect((error as PeleError).line).toBe(4);
     }
+    expect(() => render('eventmodeling\ntf 01 cmd\n%% a comment line\n\n', options)).toThrow(expect.objectContaining({ line: 2, column: 10 }));
     for (const src of ['eventmodeling\ntitle T\n', 'eventmodeling\ntf 01 evt data\n', 'eventmodeling\ntf 01 evt A {\n', 'eventmodeling\ntf 1234 evt A\n']) {
       expect(() => render(src, options), src).toThrow(PeleError);
     }

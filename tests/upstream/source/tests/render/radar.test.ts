@@ -101,9 +101,26 @@ describe('radar rendering', () => {
     if (model.type === 'radar') expect(model.curves[0].entries).toEqual([1, 2, 3]);
     expect(() => render('radar-beta\n axis A["Alpha"], B\n curve c{ B: 2 }', options)).toThrow('Missing entry for axis Alpha');
     expect(() => render('radar-beta\n axis a["#35;x &amp;y"], b\n curve c{ b: 1 }', options)).toThrow('Missing entry for axis #35;x &amp;y');
+    expect(() => render('radar-beta\ncurve a{1 %% c\n', options)).toThrow(expect.objectContaining({ line: 2, column: 10 }));
     expect(() => render('radar-beta\n curve c{ B: 2 }', options)).toThrow(
       'Axes must be populated before curves for reference entries'
     );
+  });
+
+  it('reads names that start with circle, polygon, true, false or title', () => {
+    const model = parse('radar-beta\n axis circles, polygonal, trueNorth, falsey, titles\n curve titles{1, 2, 3, 4, 5}, circles{ circles: 1, polygonal 2, trueNorth: 3, falsey 4, titles: 5 }');
+    expect(model.type).toBe('radar');
+    if (model.type === 'radar') {
+      expect(model.axes.map((a) => a.name)).toEqual(['circles', 'polygonal', 'trueNorth', 'falsey', 'titles']);
+      expect(model.curves.map((c) => [c.name, c.entries])).toEqual([['titles', [1, 2, 3, 4, 5]], ['circles', [1, 2, 3, 4, 5]]]);
+      expect(model.title).toBeUndefined();
+    }
+    const glued = parse('radar-beta\n axis a, b\n showLegend falsecurve x{1, 2}\n graticule polygonaxis c');
+    if (glued.type === 'radar') {
+      expect(glued.options).toMatchObject({ showLegend: false, graticule: 'polygon' });
+      expect(glued.axes.map((a) => a.name)).toEqual(['a', 'b', 'c']);
+    }
+    expect(() => parse('radar-beta\n axis circle, b')).toThrow('Parse error');
   });
 
   it('uses the last value of a repeated option and caps ticks at 32', () => {

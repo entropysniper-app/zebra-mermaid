@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
     acc_descr_value, acc_title_value, blanks, match_acc_descr, spaces, string_value, title_value, Pattern, Scanner, TokenType, ACC_DESCR,
-    ACC_TITLE, DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    ACC_TITLE, DIRECTIVE, EOF, NEWLINE, SINGLE_LINE_COMMENT, STRING, TITLE_DASH_WORD, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::keyword_token;
@@ -152,6 +152,16 @@ fn match_boolean(src: &str, p: usize) -> Option<usize> {
     }
 }
 
+fn graticule_value(src: &str, at: usize, previous: usize) -> Option<usize> {
+    let end = match_graticule(src, at)?;
+    (previous == GRATICULE || !crate::diagrams::common::tokens::name_rest(&src[end..])).then_some(end)
+}
+
+fn boolean_value(src: &str, at: usize, previous: usize) -> Option<usize> {
+    let end = match_boolean(src, at)?;
+    (previous == SHOW_LEGEND || !crate::diagrams::common::tokens::name_rest(&src[end..])).then_some(end)
+}
+
 /// A word that gives way to a longer name: Pele's `word()`, a literal with ID as its longer
 /// alternative.
 const fn word(text: &'static str) -> TokenType {
@@ -175,11 +185,11 @@ pub static RADAR_TOKENS: LazyLock<Vec<TokenType>> = LazyLock::new(|| {
         TokenType::literal("]", "]"),
         TokenType::literal("{", "{"),
         TokenType::literal("}", "}"),
-        TokenType::func("GRATICULE", match_graticule, None),
-        TokenType::func("BOOLEAN", match_boolean, None),
+        TokenType { pattern: Pattern::Context(graticule_value), ..TokenType::func("GRATICULE", match_graticule, None) },
+        TokenType { pattern: Pattern::Context(boolean_value), ..TokenType::func("BOOLEAN", match_boolean, None) },
         TokenType { pattern: Pattern::Scanner(acc_descr_scanner), ..ACC_DESCR },
         ACC_TITLE,
-        TITLE,
+        TITLE_DASH_WORD,
         TokenType { name: "NUMBER", pattern: Pattern::Scanner(number_scanner), hidden: false, opener: None, first: None, longer: &[] },
         STRING,
         TokenType::func("ID", match_id, None),

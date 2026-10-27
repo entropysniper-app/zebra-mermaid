@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 use crate::detect::DiagramType;
 use crate::diagrams::common::accdescr::acc_descr;
 use crate::diagrams::common::tokens::{
-    blanks, keyword_at, newline_at, TokenType, ACC_TITLE, DIRECTIVE, EOF, SINGLE_LINE_COMMENT, TITLE, YAML,
+    blanks, keyword_at, newline_at, TokenType, ACC_TITLE, DIRECTIVE, EOF, SINGLE_LINE_COMMENT, TITLE_WORD, YAML,
 };
 use crate::error::Error;
 use crate::util::chars::{char_at, is_line_end, is_space};
@@ -223,7 +223,7 @@ pub static EVENTMODELING_TOKENS: LazyLock<Vec<TokenType>> = LazyLock::new(|| {
         TokenType::func("EM_DATA_BLOCK", match_data_block, None),
         acc_descr("EM_ACC_DESCR"),
         TokenType { name: "EM_ACC_TITLE", ..ACC_TITLE },
-        TokenType { name: "EM_TITLE", ..TITLE },
+        TokenType { name: "EM_TITLE", ..TITLE_WORD },
         TokenType::func("EM_WS", match_ws, None).hidden(),
         TokenType { name: "EM_YAML", ..YAML },
         TokenType { name: "EM_DIRECTIVE", ..DIRECTIVE },

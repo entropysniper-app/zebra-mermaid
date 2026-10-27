@@ -64,7 +64,8 @@ fn acc_descr_scanner() -> Scanner {
 
 /// `/title(?:[\t ][^\n\r]*?(?=%%)|[\t ][^\n\r]*|)/y`. The shared matcher also takes leading
 /// blanks; this one is only tried at a `t`, where they cannot occur.
-pub(super) const TITLE: TokenType = TokenType::func("TITLE", tokens::match_title, Some("t"));
+pub(super) const TITLE: TokenType = tokens::TITLE_NAME;
+pub(super) const TITLE_ABNF: TokenType = tokens::TITLE_ABNF;
 /// `/accTitle[\t ]*:(?:[^\n\r]*?(?=%%)|[^\n\r]*)/y`, tried only at an `a`.
 pub(super) const ACC_TITLE: TokenType = TokenType::func("ACC_TITLE", tokens::match_acc_title, Some("a"));
 pub(super) const ACC_DESCR: TokenType = TokenType {

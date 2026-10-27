@@ -225,6 +225,35 @@ describe('class diagram rendering', () => {
     expect(draw('class A', { config: { class: { hideEmptyMembersBox: true } } })).not.toContain('pele-divider');
   });
 
+  it('measures members in the monospace font when monospace lists them', () => {
+    const width = (svg: string): number => Number(/<rect[^>]* width="([\d.]+)"/.exec(group(svg, 'A'))![1]);
+    const plain = draw('class A {\n  +title: string\n}');
+    const mono = draw('class A {\n  +title: string\n}', { monospace: ['members'] });
+    expect(mono).toContain('<g class="pele-members" font-size="14" font-family="var(--_fm)">');
+    expect(plain).not.toContain('font-family="var(--_fm)"');
+    expect(width(mono)).toBeGreaterThan(width(plain));
+  });
+
+  it('ignores monospace values that do not list members', () => {
+    const src = 'class A {\n  +title: string\n  +draw()*\n}';
+    const plain = draw(src);
+    for (const monospace of [[], ['member'], ['attributes'], 'members', { members: true }, true, null]) {
+      expect(draw(src, { monospace })).toBe(plain);
+    }
+    expect(draw(src, { config: { class: { monoMembers: true, monospace: ['members'] } } })).toBe(plain);
+    expect(draw(src, { monospace: ['attributes', 'members'] })).toBe(draw(src, { monospace: ['members'] }));
+  });
+
+  it("keeps a class's own font-family on its members when monospace lists them", () => {
+    for (const rule of ['style A color:black,font-family:serif', 'classDef serif color:black,font-family:serif\nclass A:::serif']) {
+      const src = `class A {\n  +title: string\n}\nclass B {\n  +title: string\n}\n${rule}`;
+      const svg = draw(src, { monospace: ['members'] });
+      const members = (out: string): string => /<g class="pele-members".*?<\/g>/.exec(group(out, 'A'))![0];
+      expect(members(svg)).toBe(members(draw(src)));
+      expect(group(svg, 'B')).toContain('font-family="var(--_fm)"');
+    }
+  });
+
   it('uses the label of a class in place of its name', () => {
     const svg = draw('class A["A class with a label"]\nclass `Animal Class!`\nA --> `Animal Class!`');
     expect(group(svg, 'A')).toContain('>A class with a label<');
@@ -444,6 +473,20 @@ describe('class diagram rendering', () => {
     expect(group(svg, 'C')).toContain('class="pele-node pele-class cold"');
     expect(group(svg, 'C')).toMatch(/<rect[^>]* style="rx:var\(--_r\);stroke:#00f;fill:#ddf;"/);
     expect(group(svg, 'D')).toContain('pele-static" style="fill:#090;text-decoration:underline"');
+  });
+
+  it('picks a contrasting text color on fills a style sets', () => {
+    const svg = draw(
+      'class A {\n  <<interface>>\n  +id int\n  +run()\n}\nclass B {\n  +x\n}\nclass C\nclassDef dark fill:#1f3a5f\nclass A:::dark\nstyle B fill:lightyellow,color:#900'
+    );
+    const dark = ' fill="var(--pele-fg-on-dark,#fff)"';
+    expect(group(svg, 'A')).toMatch(/<text class="pele-annotation"[^>]* fill="var\(--pele-fg-on-dark,#fff\)">«interface»</);
+    expect(group(svg, 'A')).toContain(`<text class="pele-label" font-weight="var(--_hw)"${dark}`);
+    expect(group(svg, 'A')).toMatch(/<g class="pele-members" font-size="\d+" fill="var\(--pele-fg-on-dark,#fff\)">/);
+    expect(count(group(svg, 'A'), dark)).toBe(3);
+    expect(group(svg, 'B')).not.toContain('--pele-fg-on');
+    expect(group(svg, 'B')).toContain('<text class="pele-label" font-weight="var(--_hw)" style="fill:#900;"');
+    expect(group(svg, 'C')).not.toContain('--pele-fg-on');
   });
 
   it('lets the later of a style and a classDef win, as Mermaid does', () => {

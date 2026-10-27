@@ -118,10 +118,17 @@ pub fn parse(source: &str, options: &ParseOptions) -> Result<ParsedDiagram, Erro
     }
     .map_err(|mut e| {
         if let Some(offset) = e.offset {
-            let at = map.to_source(offset).min(source.len());
-            e.span = Some(at..at);
             let normalized = source.replace("\r\n", "\n").replace('\r', "\n") + "\n";
-            let written_at = map.to_input_offset(offset);
+            let end = js::trim_end(&source_text).len();
+            let written_at = if end > 0 && offset >= end {
+                let last = source_text[..end].char_indices().next_back().unwrap().0;
+                let at = map.to_input_offset(last).min(source.len());
+                at + source[at..].chars().next().map_or(0, char::len_utf8)
+            } else {
+                map.to_input_offset(offset)
+            };
+            let at = written_at.min(source.len());
+            e.span = Some(at..at);
             let normalized_at = source[..written_at.min(source.len())].replace("\r\n", "\n").replace('\r', "\n").len()
                 + written_at.saturating_sub(source.len());
             e.relocate(&normalized, normalized_at);

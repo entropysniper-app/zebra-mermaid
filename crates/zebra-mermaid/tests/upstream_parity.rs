@@ -1,5 +1,6 @@
 //! Direct ports of individual tests from the pinned Pele suite.
 //! tests/upstream/ports.json maps every function to one collected upstream test.
+mod common;
 #[path = "upstream/edges.rs"]
 mod edges;
 #[cfg(feature = "info")]
@@ -48,3 +49,9 @@ mod layered;
 
 #[path = "upstream/release_1_10.rs"]
 mod release_1_10;
+
+#[path = "upstream/ink.rs"]
+mod ink;
+
+#[path = "upstream/release_1_12.rs"]
+mod release_1_12;

@@ -1,6 +1,7 @@
 //! Venn rendering. Ported from Pele `src/diagrams/venn/render.ts`.
 
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::ink::{declaration, ink};
 use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
@@ -34,6 +35,7 @@ struct Line {
 }
 
 struct Region {
+    across: bool,
     sets: Vec<String>,
     inside: Vec<usize>,
     spot: Spot,
@@ -46,6 +48,20 @@ struct Region {
 /// cannot hold a double quote, so the list itself is as good a key.
 fn key_of(ids: &[String]) -> Vec<String> {
     ids.to_vec()
+}
+
+fn filled_under<'a>(region: &'a Region, painted: &[&'a Region]) -> &'a str {
+    if region.across {
+        return "";
+    }
+    let mut fill =
+        if region.sets.len() == 1 && declaration(&region.style.shape, "fill-opacity").is_some() { region.style.shape.as_str() } else { "" };
+    for other in painted {
+        if other.sets.iter().all(|id| region.sets.contains(id)) {
+            fill = &other.style.shape;
+        }
+    }
+    fill
 }
 
 pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
@@ -122,10 +138,11 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         let outside: Vec<usize> = neighbors[smallest].iter().copied().filter(|i| !within.contains(i)).collect();
         let mut spot = find_spot(&circles, &inside, &outside);
         // A region that other circles cover, or all but cover, is written across them instead.
-        if spot.margin < circles[smallest].r * 0.2 {
+        let across = !outside.is_empty() && spot.margin < circles[smallest].r * 0.2;
+        if across {
             spot = find_spot(&circles, &inside, &[]);
         }
-        let mut region = Region { sets, inside, spot, lines: Vec::new(), style };
+        let mut region = Region { sets, inside, spot, lines: Vec::new(), style, across };
         if let Some(text) = text.filter(|t| !t.is_empty()) {
             let font_size = if region.sets.len() == 1 { size } else { small };
             region.lines.push(Line {
@@ -253,11 +270,8 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         .unwrap();
     }
 
-    // In resolved mode a region's own label takes a color that reads on what is drawn under it:
-    // the canvas tinted by each of the region's circles at the circles' opacity. Pele lets the
-    // label inherit the text color, which is what this picks unless the tint is strong. The
-    // tints are laid in drawing order; a fill an author's style gives a set is not looked at,
-    // and such a style can set the label's own color.
+    // Native fallback when no opaque authored fill supplies ink: the canvas tinted by each
+    // circle, in drawing order. Explicit text styles remain authoritative after this fill.
     let label_fill = |inside: &[usize]| -> String {
         if !ctx.resolved() {
             return String::new();
@@ -272,6 +286,8 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         svg_format!(" fill=\"", t.text_on(&under), "\"")
     };
     let text_fill = ctx.paint(Role::SecondaryText, "var(--_m)");
+
+    let painted: Vec<_> = regions.values().filter(|r| r.sets.len() > 1 && !r.style.shape.is_empty()).collect();
 
     let mut overlaps = String::new();
     let mut labels = String::new();
@@ -305,13 +321,16 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
         let x = region.spot.x * scale + ox;
         let mut y = region.spot.y * scale + oy - total / 2.0;
         let mut content = String::new();
+        let fill = filled_under(region, &painted);
         for line in &region.lines {
+            let own = line.id.as_ref().map_or_else(|| region.style.text.clone(), |id| style_of(std::slice::from_ref(id)).text);
+            let color = ink(fill, &own);
             let attrs = match &line.id {
                 None => svg_format!(
                     " class=\"pele-label\"",
                     if line.size == size { String::new() } else { svg_format!(" font-size=\"", js::number_text(line.size), "\"") },
-                    label_fill(&region.inside),
-                    region.style.text
+                    color.map_or_else(|| label_fill(&region.inside), |s| format!(" fill=\"{s}\"")),
+                    own
                 ),
                 Some(id) => svg_format!(
                     " class=\"pele-venn-text\" data-id=\"",
@@ -319,9 +338,9 @@ pub(crate) fn render(model: &VennModel, _config: &Config, ctx: &RenderCtx) -> Re
                     "\" font-size=\"",
                     js::number_text(tiny),
                     "\" fill=\"",
-                    text_fill,
+                    color.unwrap_or(text_fill),
                     "\"",
-                    style_of(std::slice::from_ref(id)).text
+                    own
                 ),
             };
             svg_write!(content, label_svg(&line.label, x, y + line.label.height / 2.0, &attrs, None)).unwrap();

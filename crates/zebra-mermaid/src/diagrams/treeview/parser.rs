@@ -5,7 +5,7 @@ use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::accdescr::acc_descr;
-use crate::diagrams::common::tokens::{acc_descr_value, acc_title_value, newline_at, title_value, TokenType, ACC_TITLE, EOF, TITLE};
+use crate::diagrams::common::tokens::{acc_descr_value, acc_title_value, newline_at, title_value, TokenType, ACC_TITLE, EOF, TITLE_TREE};
 use crate::error::Error;
 use crate::keyword_token;
 use crate::util::chars::{char_at, is_word};
@@ -178,7 +178,7 @@ pub static TREEVIEW_TOKENS: LazyLock<Vec<TokenType>> = LazyLock::new(|| {
         keyword_token!("treeView-beta").with_longer(&[BARE_NAME]),
         acc_descr("ACC_DESCR"),
         ACC_TITLE,
-        TITLE,
+        TITLE_TREE,
         TokenType::func("CLASS_ANNOTATION", match_class_annotation, None),
         TokenType::func("ICON_ANNOTATION", match_icon_annotation, None),
         TokenType::func("DESC_ANNOTATION", match_desc_annotation, None),

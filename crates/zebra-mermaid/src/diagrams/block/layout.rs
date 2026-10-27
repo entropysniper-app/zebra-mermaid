@@ -23,6 +23,8 @@ pub(super) struct Cell {
     pub row: f64,
     pub cols: f64,
     pub heights: Vec<f64>,
+    pub row_gaps: Vec<f64>,
+    pub col_gaps: Vec<f64>,
     pub x: f64,
     pub y: f64,
     pub w: f64,
@@ -101,7 +103,7 @@ fn measure(cells: &mut [Cell], b: usize, gap: f64, inset: f64) -> Result<(), Err
             tallest = child.nh;
         }
     }
-    let mut height = (heights.len() as f64 - 1.0) * gap;
+    let mut height = (heights.len() as f64 - 1.0) * gap + cells[b].row_gaps.iter().fold(0.0, |sum, x| sum + x);
     for h in heights.iter_mut() {
         if *h < 0.0 {
             *h = tallest;
@@ -112,7 +114,7 @@ fn measure(cells: &mut [Cell], b: usize, gap: f64, inset: f64) -> Result<(), Err
     bx.children = children;
     bx.cols = cols;
     bx.heights = heights;
-    bx.nw = js::max(bx.nw, cols * cw + (cols - 1.0) * gap + 2.0 * inset);
+    bx.nw = js::max(bx.nw, cols * cw + (cols - 1.0) * gap + bx.col_gaps.iter().fold(0.0, |sum, x| sum + x) + 2.0 * inset);
     bx.nh = height + 2.0 * inset + bx.head;
     Ok(())
 }
@@ -124,8 +126,18 @@ fn arrange(cells: &mut [Cell], b: usize, gap: f64, inset: f64) {
     let children = std::mem::take(&mut cells[b].children);
     let (bx, by, bw, bh, head) = (cells[b].x, cells[b].y, cells[b].w, cells[b].h, cells[b].head);
     let rows = heights.len() as f64;
-    let cw = (bw - 2.0 * inset - (cols - 1.0) * gap) / cols;
-    let room = bh - 2.0 * inset - head - (rows - 1.0) * gap;
+    let row_gaps = cells[b].row_gaps.clone();
+    let col_gaps = cells[b].col_gaps.clone();
+    let cw = (bw - 2.0 * inset - (cols - 1.0) * gap - col_gaps.iter().fold(0.0, |sum, x| sum + x)) / cols;
+    let room = bh - 2.0 * inset - head - (rows - 1.0) * gap - row_gaps.iter().fold(0.0, |sum, x| sum + x);
+    let mut offsets = Vec::new();
+    if !col_gaps.is_empty() {
+        let mut sum = 0.0;
+        for col in 0..cols as usize {
+            offsets.push(sum);
+            sum += col_gaps.get(col).copied().unwrap_or(0.0);
+        }
+    }
     let mut needed = 0.0;
     for &height in &heights {
         needed += height;
@@ -138,12 +150,14 @@ fn arrange(cells: &mut [Cell], b: usize, gap: f64, inset: f64) {
     for &c in &children {
         let child = &mut cells[c];
         while (row as f64) < child.row {
-            top += heights[row] * scale + share + gap;
+            top += heights[row] * scale + share + gap + row_gaps.get(row).copied().unwrap_or(0.0);
             row += 1;
         }
-        child.w = cw * child.span + gap * (child.span - 1.0);
+        let before = offsets.get(child.col as usize).copied().unwrap_or(0.0);
+        child.w = cw * child.span + gap * (child.span - 1.0) + offsets.get((child.col + child.span - 1.0) as usize).copied().unwrap_or(0.0)
+            - before;
         child.h = heights[row] * scale + share;
-        child.x = left + child.col * (cw + gap) + child.w / 2.0;
+        child.x = left + child.col * (cw + gap) + before + child.w / 2.0;
         child.y = top + child.h / 2.0;
     }
     cells[b].heights = heights;

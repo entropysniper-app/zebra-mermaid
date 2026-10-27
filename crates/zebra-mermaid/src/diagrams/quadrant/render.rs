@@ -101,6 +101,10 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     let is_clear = |taken: &[f64], from: usize, x0: f64, y0: f64, x1: f64, y1: f64| -> bool {
         let mut k = from;
         while k < taken.len() {
+            if taken[k] >= taken[k + 2] || taken[k + 1] >= taken[k + 3] {
+                k += 4;
+                continue;
+            }
             if x0 < taken[k + 2] && x1 > taken[k] && y0 < taken[k + 3] && y1 > taken[k + 1] {
                 return false;
             }

@@ -51,6 +51,10 @@ fn flowchart_written_positions() {
     assert!(e.message.starts_with("Parse error on line 8:\n  C --> --> D\n--------^\n"));
     let e = render("flowchart TD\n  A{a}  \n\n  C --> --> D", &RenderOptions::default()).unwrap_err();
     assert_eq!((e.line, e.column), (4, 9));
+    for end in ["", "\n", "\n%% A comment\n\n"] {
+        let e = render(&format!("flowchart LR\n  A -->{end}"), &RenderOptions::default()).unwrap_err();
+        assert_eq!((e.line, e.column), (2, 8), "{end:?}");
+    }
 }
 
 #[cfg(feature = "gantt")]
@@ -340,6 +344,8 @@ fn radar_named_entries_and_errors() {
     let p = model("radar-beta\n axis A, B, C\n curve c{ C: 3, A: 1, B: 2 }");
     let DiagramModel::Radar(m) = p.model() else { panic!("wrong type") };
     assert_eq!(m.curves[0].entries, [1.0, 2.0, 3.0]);
+    let e = render("radar-beta\ncurve a{1 %% c\n", &RenderOptions::default()).unwrap_err();
+    assert_eq!((e.line, e.column), (2, 10));
     for (source, message) in [
         ("radar-beta\n axis A[\"Alpha\"], B\n curve c{ B: 2 }", "Missing entry for axis Alpha"),
         ("radar-beta\n axis a[\"#35;x &amp;y\"], b\n curve c{ b: 1 }", "Missing entry for axis #35;x &amp;y"),

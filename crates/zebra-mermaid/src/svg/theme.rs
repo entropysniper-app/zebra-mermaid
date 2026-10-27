@@ -18,6 +18,10 @@ pub const ROOT_STYLE: &str = "--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1
 pub const FONT_MONO: &str = "var(--_fm)";
 pub const RADIUS: &str = "var(--pele-radius,4px)";
 pub const ROUNDED: &str = " style=\"rx:var(--_r)\"";
+
+pub fn sets_fill(shape: &str) -> bool {
+    crate::svg::ink::declaration(shape, "fill").is_some()
+}
 /// Radius variables use CSS; author styles follow the default and can override it.
 pub fn rounded(attrs: &str) -> String {
     if let Some(at) = attrs.find(" style=\"") {

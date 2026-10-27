@@ -24,15 +24,15 @@ for(const file of sources){
  const it=(name,fn)=>registered.push({name:[...suites,name].join(' > '),fn});
  let calls=[];
  const actual=(op,source)=>({op,source});
- const expect=value=>({toBe:expected=>record('toBe',value,expected),toEqual:expected=>record('toEqual',value,expected)});
- function record(matcher,value,expected){if(!value||!['url','yaml','entities','internal-link'].includes(value.op)||typeof value.source!=='string')throw Error('Unsupported actual expression');calls.push({...value,matcher,expected})}
+ const expect=value=>({toBe:expected=>record('toBe',value,expected),toEqual:expected=>record('toEqual',value,expected),toBeUndefined:()=>record('toBeUndefined',value,{$undefined:true})});
+ function record(matcher,value,expected){if(!value||!['url','yaml','entities','internal-link','link-url'].includes(value.op)||typeof value.source!=='string')throw Error('Unsupported actual expression');calls.push({...value,matcher,expected})}
  const ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  let executable=source;for(const s of [...ast.statements].reverse())if(ts.isImportDeclaration(s))executable=executable.slice(0,s.getStart(ast))+executable.slice(s.end);
  const corpus=readFileSync(resolve(root,'tests/upstream/source/tests/support/corpus.ts'),'utf8');
  const ca=ts.createSourceFile('corpus.ts',corpus,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  const rng=ca.statements.find(s=>ts.isFunctionDeclaration(s)&&s.name.text==='random').getText(ca).replace('export ','');
  executable=ts.transpileModule(rng+'\n'+executable,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
- vm.runInNewContext(executable,{describe,it,expect,reference,load,JSON_SCHEMA,sanitizeUrl:s=>actual('url',s),internalLink:(s,options)=>({...actual('internal-link',s),options}),parseYaml:s=>actual('yaml',s),encodeEntities:s=>actual('entities',s)},{filename:file,timeout:10000});
+ vm.runInNewContext(executable,{describe,it,expect,reference,load,JSON_SCHEMA,sanitizeUrl:s=>actual('url',s),linkUrl:(url,options)=>{if(url.op!=='url')throw Error('Unreviewed URL nesting');return{op:'link-url',source:url.source,options,sanitizeFirst:true}},internalLink:(s,options)=>({...actual('internal-link',s),options}),parseYaml:s=>actual('yaml',s),encodeEntities:s=>actual('entities',s)},{filename:file,timeout:10000});
  if(registered.length!==original.length)throw Error('Different registration count');
  for(let index=0;index<registered.length;index++){
   const test=registered[index],item=original[index];if(test.name!==item.fullName)throw Error('Different identity');

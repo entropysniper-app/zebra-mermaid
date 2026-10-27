@@ -8,6 +8,7 @@ use crate::layout::{
     layered::LayeredOptions,
 };
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::ink::ink_fill;
 use crate::svg::{
     builder::{esc, esc_text, num, render_label_svg as label_svg, render_shared_style as shared_style, span_style, text_style},
     edges::{default_reach, render_edge_label_svg as edge_label_svg, route_path, EdgePath},
@@ -297,6 +298,8 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
         let left = -v.w / 2.0;
         let top = -v.h / 2.0;
         let st = &v.style;
+        let ink = ink_fill(st, None);
+        let muted = ink_fill(st, Some(ctx.paint(Role::SecondaryText, "var(--_m)")));
         let mut body = svg_format!(
             "<rect x=\"",
             num(left),
@@ -320,21 +323,20 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 &v.kind,
                 0.0,
                 top + 10.0 + v.kind.height / 2.0,
-                &svg_format!(
-                    " class=\"pele-stereotype\" font-size=\"",
-                    js::number_text(v.kind.size),
-                    "\" fill=\"",
-                    ctx.paint(Role::SecondaryText, "var(--_m)"),
-                    "\"",
-                    st.text
-                ),
+                &svg_format!(" class=\"pele-stereotype\" font-size=\"", js::number_text(v.kind.size), "\"", muted, st.text),
                 None
             ),
             label_svg(
                 &v.name,
                 0.0,
                 top + 10.0 + v.kind.height + v.name.height / 2.0,
-                &svg_format!(" class=\"pele-label\" font-size=\"", js::number_text(v.name.size), "\" font-weight=\"var(--_hw)\"", st.text),
+                &svg_format!(
+                    " class=\"pele-label\" font-size=\"",
+                    js::number_text(v.name.size),
+                    "\" font-weight=\"var(--_hw)\"",
+                    ink,
+                    st.text
+                ),
                 None
             )
         );
@@ -358,17 +360,12 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
             let mut y = divider + 10.0;
             let mut row_svg = String::new();
             for row in &v.rows {
-                row_svg.push_str(&start_text(
-                    &row.key,
-                    left + 14.0,
-                    y,
-                    &svg_format!(" class=\"pele-field\" fill=\"", ctx.paint(Role::SecondaryText, "var(--_m)"), "\"", st.text),
-                ));
+                row_svg.push_str(&start_text(&row.key, left + 14.0, y, &svg_format!(" class=\"pele-field\"", muted, st.text)));
                 row_svg.push_str(&start_text(
                     &row.value,
                     left + 14.0 + v.key_width + 12.0,
                     y,
-                    &svg_format!(" class=\"pele-value\"", st.text),
+                    &svg_format!(" class=\"pele-value\"", ink, st.text),
                 ));
                 y += row.height + 2.0;
             }
@@ -427,6 +424,7 @@ fn draw(model: &RequirementModel, ctx: &RenderCtx, turned: bool) -> Result<Rende
                 ly = cy;
             }
             EdgePath {
+                tokens: None,
                 d: svg_format!("M", at(start_trim, -spread), "C", at(pull, -spread), " ", at(pull, spread), " ", at(0.0, spread)),
                 sx: if sideways { cx - spread } else { cx + v.w / 2.0 },
                 sy: if sideways { cy + v.h / 2.0 } else { cy - spread },

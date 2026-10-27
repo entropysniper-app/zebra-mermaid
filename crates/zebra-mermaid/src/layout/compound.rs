@@ -60,6 +60,33 @@ pub struct CNode {
     pub y: f64,
 }
 
+/// Groups crossed by an edge inherit the direction of their parent, as Mermaid does.
+pub fn inherit_crossed_directions(nodes: &mut [CNode], ends: impl IntoIterator<Item = (isize, isize)>) {
+    // With no authored directions there is nothing to clear. In particular, a deep chain
+    // of implicit flow groups must not rebuild every ancestor set for every edge.
+    if nodes.iter().all(|node| node.dir.is_none()) {
+        return;
+    }
+    fn ancestors(nodes: &[CNode], i: usize) -> std::collections::HashSet<usize> {
+        let mut set = std::collections::HashSet::new();
+        let mut p = nodes[i].parent;
+        while p >= 0 && set.insert(p as usize) {
+            p = nodes[p as usize].parent;
+        }
+        set
+    }
+    for (src, dst) in ends {
+        if src < 0 || dst < 0 || src == dst {
+            continue;
+        }
+        let a = ancestors(nodes, src as usize);
+        let b = ancestors(nodes, dst as usize);
+        for g in a.symmetric_difference(&b) {
+            nodes[*g].dir = None;
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct CEdge {
     pub src: usize,

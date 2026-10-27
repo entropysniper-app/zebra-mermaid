@@ -193,27 +193,66 @@ fn is_blank(c: char) -> bool {
 /// breaks (`/[\n\r]+/g`) so that no row is empty, then `trim()`. When `map` is given, it gets
 /// the byte of `text` that each byte of the result, and its end, came from.
 fn prepare(text: &str, map: Option<&mut Vec<usize>>) -> String {
-    let mut start = 0;
     let mut end = text.len();
-    while let Some(c) = text[start..end].chars().next().filter(|&c| is_blank(c)) {
-        start += c.len_utf8();
-    }
-    while let Some(c) = text[start..end].chars().next_back().filter(|&c| is_blank(c)) {
+    while let Some(c) = text[..end].chars().next_back().filter(|&c| is_blank(c)) {
         end -= c.len_utf8();
     }
-    let b = text.as_bytes();
-    let mut collapsed = String::with_capacity(end - start);
-    let mut from: Vec<usize> = Vec::new();
-    let mut i = start;
-    let mut copied = start;
+    let mut rows = String::with_capacity(end);
+    let mut row_from = Vec::new();
+    let mut kept = 0;
+    let mut quoted = false;
+    let mut i = 0;
     while i < end {
-        if b[i] == b'\n' || b[i] == b'\r' {
-            collapsed.push_str(&text[copied..i]);
-            if map.is_some() {
-                from.extend(copied..i);
-                from.push(i);
+        let c = text.as_bytes()[i];
+        if quoted {
+            if c == b'"' {
+                if text.as_bytes().get(i + 1) == Some(&b'"') {
+                    i += 1;
+                } else {
+                    quoted = false;
+                }
             }
-            while i < end && (b[i] == b'\n' || b[i] == b'\r') {
+            i += text[i..].chars().next().unwrap().len_utf8();
+        } else if c == b'"' {
+            quoted = true;
+            i += 1;
+        } else if text[i..].chars().next().is_some_and(is_blank) {
+            let mut j = i;
+            while let Some(c) = text[j..].chars().next().filter(|&c| is_blank(c)) {
+                j += c.len_utf8();
+            }
+            let p = i.checked_sub(1).and_then(|p| text.as_bytes().get(p));
+            let q = text.as_bytes().get(j);
+            if i == 0 || matches!(q, Some(b'\n' | b'\r')) || (matches!(p, Some(b'\n' | b'\r')) && q != Some(&b',')) {
+                rows.push_str(&text[kept..i]);
+                if map.is_some() {
+                    row_from.extend(kept..i);
+                }
+                kept = j;
+            }
+            i = j;
+        } else {
+            i += text[i..].chars().next().unwrap().len_utf8();
+        }
+    }
+    rows.push_str(&text[kept..end]);
+    if map.is_some() {
+        row_from.extend(kept..end);
+        row_from.push(end);
+    }
+    let b = rows.as_bytes();
+    let mut collapsed = String::with_capacity(rows.len());
+    let mut from = Vec::new();
+    let mut i = 0;
+    let mut copied = 0;
+    while i < b.len() {
+        if matches!(b[i], b'\n' | b'\r') {
+            collapsed.push_str(&rows[copied..i]);
+            if map.is_some() {
+                from.extend_from_slice(&row_from[copied..i]);
+                from.push(row_from[i]);
+            }
+            while i < b.len() && matches!(b[i], b'\n' | b'\r') {
                 i += 1;
             }
             collapsed.push('\n');
@@ -222,16 +261,15 @@ fn prepare(text: &str, map: Option<&mut Vec<usize>>) -> String {
             i += 1;
         }
     }
-    collapsed.push_str(&text[copied..end]);
+    collapsed.push_str(&rows[copied..]);
     let trimmed = js::trim(&collapsed);
     if let Some(map) = map {
-        from.extend(copied..end);
-        from.push(end);
+        from.extend_from_slice(&row_from[copied..]);
         let lead = trimmed.as_ptr() as usize - collapsed.as_ptr() as usize;
         map.clear();
         map.extend_from_slice(&from[lead..=lead + trimmed.len()]);
     }
-    trimmed.to_string()
+    trimmed.to_owned()
 }
 
 /// Mermaid's sankeyUtils `prepareTextForParsing`. Its first step is a regex that rescans every
@@ -371,7 +409,7 @@ mod tests {
 
     #[test]
     fn prepares_like_sankey_utils() {
-        assert_eq!(prepare_text_for_parsing("  \t sankey\r\n\r\n a,b,1 \n\n"), "sankey\n a,b,1");
+        assert_eq!(prepare_text_for_parsing("  \t sankey\r\n\r\n a,b,1 \n\n"), "sankey\na,b,1");
         assert_eq!(prepare_text_for_parsing("\u{a0}\n sankey"), "sankey");
         let mut map = Vec::new();
         let text = " sankey\n\n\nx,y,1\n";

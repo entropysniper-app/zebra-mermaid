@@ -8,6 +8,8 @@
 //! as Pele writes them, in `style` attributes, so they keep precedence in both modes.
 
 use crate::svg::concat::{svg_format, svg_write};
+use crate::svg::edges::{casing, casings_svg, over_fills, Fill};
+use crate::svg::ink::{ink_fill, paints};
 use std::collections::{HashMap, HashSet};
 
 use super::layout::{layout_c4, HEAD_LEFT, HEAD_TOP};
@@ -201,11 +203,19 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     // Every line is drawn before any label is placed, so that labels can keep off the
     // arrowheads.
     let mut edges_out = String::new();
+    let mut casings = String::new();
+    let mut fills = Vec::<Fill>::new();
     let trim = marker_trim("arrow_point");
     let mut lanes = Lanes::default();
     for &g in &layout.order {
         if g != root {
             lanes.frame(&layout.groups[g].bx);
+            let group = &layout.groups[g];
+            let el = &db.boundaries[group.boundary].element;
+            let shape = user_style(el.bg_color.as_deref(), None, None).shape;
+            if paints(&shape) {
+                fills.push(Fill { bounds: [group.bx.x, group.bx.y, group.bx.x + group.bx.w, group.bx.y + group.bx.h], shape });
+            }
         }
     }
     let mut routes: Vec<Route> = Vec::with_capacity(db.rels.len());
@@ -213,10 +223,6 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
         let a = ends[index * 2];
         let b = ends[index * 2 + 1];
         let st = user_style(None, rel.line_color.as_deref(), None);
-        let color = match &st.stroke {
-            Some(stroke) => esc(stroke).into_owned(),
-            None => ctx.paint(Role::Arrow, "var(--_l)").to_string(),
-        };
         let start_arrow = rel.rel_type == "birel" || rel.rel_type == "rel_b";
         let end_arrow = rel.rel_type != "rel_b";
         let reverse = a.id != b.id && pairs.get(&b.id).is_some_and(|s| s.contains(&a.id));
@@ -229,6 +235,20 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             if start_arrow { trim } else { 0.0 },
             if end_arrow { trim } else { 0.0 },
         );
+        let over = over_fills(&r.d, &[r.sx, r.sy, r.ex, r.ey], &fills, &st.line, None);
+        let color = over
+            .filter(|s| !s.is_empty())
+            .map(str::to_owned)
+            .unwrap_or_else(|| st.stroke.as_ref().map_or_else(|| ctx.paint(Role::Arrow, "var(--_l)").to_owned(), |s| esc(s).into_owned()));
+        if over == Some("") {
+            let markers = format!(
+                "{}{}",
+                if start_arrow { marker("arrow_point", r.sx, r.sy, r.sdx, r.sdy, "var(--_bg)").to_string() } else { String::new() },
+                if end_arrow { marker("arrow_point", r.ex, r.ey, r.edx, r.edy, "var(--_bg)").to_string() } else { String::new() }
+            )
+            .replace(" stroke=\"none\"", " stroke=\"var(--_bg)\"");
+            casings.push_str(&casing(&r.d, &markers, &st.line, false));
+        }
         grow(js::min(r.x0, r.x1), js::min(r.y0, r.y1), js::max(r.x0, r.x1), js::max(r.y0, r.y1));
         if start_arrow && careful {
             taken.extend_from_slice(&[r.sx - ARROW, r.sy - ARROW, r.sx + ARROW, r.sy + ARROW]);
@@ -241,6 +261,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             "<g class=\"pele-edge\" data-id=\"",
             esc_text(&format!("{}-{}", rel.from, rel.to)),
             "\"",
+            over.filter(|s| !s.is_empty()).map_or_else(String::new, |s| format!(" stroke=\"{s}\"")),
             st.line,
             "><path d=\"",
             r.d,
@@ -389,7 +410,9 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
             let boundary = &db.boundaries[group.boundary];
             let el = &boundary.element;
             let st = user_style(el.bg_color.as_deref(), el.border_color.as_deref(), el.font_color.as_deref());
-            let muted = ctx.paint(Role::SecondaryText, "var(--_m)");
+            let ink = ink_fill(&st, None);
+            let heading_fill = if ink.is_empty() { heading_fill.clone() } else { ink };
+            let muted = ink_fill(&st, Some(ctx.paint(Role::SecondaryText, "var(--_m)")));
             let x = group.bx.x + group.head_x;
             let mut y = group.bx.y + HEAD_TOP;
             let mut text = left_label_svg(
@@ -404,7 +427,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &group.labels[1],
                 x,
                 y,
-                &svg_format!(" class=\"pele-c4-type\" font-size=\"", small_s, "\" fill=\"", muted, "\"", st.text),
+                &svg_format!(" class=\"pele-c4-type\" font-size=\"", small_s, "\"", muted, st.text),
             );
             y += group.labels[1].height;
             push_left_label_svg(
@@ -412,7 +435,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 &group.labels[2],
                 x,
                 y,
-                &svg_format!(" class=\"pele-c4-descr\" font-size=\"", small_s, "\" fill=\"", muted, "\"", st.text),
+                &svg_format!(" class=\"pele-c4-descr\" font-size=\"", small_s, "\"", muted, st.text),
             );
             let node = boundary.node_type.as_deref().is_some_and(|t| !t.is_empty());
             svg_write!(
@@ -467,7 +490,8 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                 0.0
             };
             // Zebra writes all of a shape's text in the text color.
-            let muted = svg_format!(" fill=\"", ctx.paint(Role::Text, "var(--_m)"), "\"", st.text);
+            let ink = ink_fill(&st, None);
+            let muted = svg_format!(ink_fill(&st, Some(ctx.paint(Role::Text, "var(--_m)"))), st.text);
             let mut y = dy - node.text_h / 2.0;
             let mut text = svg_format!(label_svg(
                 &labels[0],
@@ -484,7 +508,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                     &labels[1],
                     dx,
                     y + labels[1].height / 2.0,
-                    &svg_format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"", st.text),
+                    &svg_format!(" class=\"pele-label\" font-weight=\"var(--_hw)\"", ink, st.text),
                     None,
                 )
             )
@@ -509,7 +533,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
                     &labels[3],
                     dx,
                     y + labels[3].height / 2.0,
-                    &svg_format!(" class=\"pele-c4-descr\" font-size=\"", small_s, "\"", st.text),
+                    &svg_format!(" class=\"pele-c4-descr\" font-size=\"", small_s, "\"", ink, st.text),
                     None,
                 )
             )
@@ -552,6 +576,7 @@ fn draw(db: &C4Model, _config: &Config, ctx: &RenderCtx, tight: bool, gap: f64) 
     if !clusters.is_empty() {
         svg_write!(content, "<g class=\"pele-clusters\">", clusters, "</g>").unwrap();
     }
+    content.push_str(&casings_svg(&casings));
     if !edges_out.is_empty() {
         svg_write!(
             content,

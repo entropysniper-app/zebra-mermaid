@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
     acc_descr_value, acc_title_value, match_string, string_value, title_value, TokenType, ACC_DESCR, ACC_TITLE, DIRECTIVE, EOF, NEWLINE,
-    SINGLE_LINE_COMMENT, STRING, TITLE, WHITESPACE, YAML,
+    SINGLE_LINE_COMMENT, STRING, TITLE_DASH_WORD, WHITESPACE, YAML,
 };
 use crate::error::Error;
 use crate::util::chars::is_word_byte;
@@ -131,7 +131,7 @@ pub static ARCHITECTURE_TOKENS: LazyLock<Vec<TokenType>> = LazyLock::new(|| {
         TokenType::func("ARROW_INTO", match_into, Some("<>")),
         ACC_DESCR,
         ACC_TITLE,
-        TITLE,
+        TITLE_DASH_WORD,
         STRING,
         TokenType::func("ID", match_id, None),
         NEWLINE,

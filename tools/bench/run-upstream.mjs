@@ -8,7 +8,7 @@ import {spawnSync,execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 const root=fileURLToPath(new URL('../..',import.meta.url)),upstream=resolve(root,'.research/pele');
 const referenceCommit=execFileSync('git',['-C',upstream,'rev-parse','HEAD'],{encoding:'utf8'}).trim();
-if(referenceCommit!=='4eff76f98c73b6817800a05773517f35832e4e92')throw Error('Unexpected Pele revision');
+if(referenceCommit!=='8aff183be57021b533f319a29341a529be934b08')throw Error('Unexpected Pele revision');
 const dir=resolve(root,'target/bench-upstream');mkdirSync(dir,{recursive:true});
 const source=readFileSync(resolve(upstream,'scripts/bench.mjs'),'utf8');
 const target=resolve(root,process.env.CARGO_TARGET_DIR??'target');
@@ -39,6 +39,6 @@ const rows=p.map((row,i)=>{
  return{case:row.case,diagrams:row.diagrams,pele:row.pele,'zebra-mermaid':value};
 });console.table(rows);
 const code=readFileSync(resolve(upstream,'dist/pele.js')),cli=readFileSync(resolve(target,'release/zebra-mermaid'));
-const result={createdAt:new Date().toISOString(),enabledTypes:r.enabledTypes,commit:'4eff76f98c73b6817800a05773517f35832e4e92',scriptSha256:createHash('sha256').update(source).digest('hex'),inputSha256:createHash('sha256').update(readFileSync(input)).digest('hex'),runtime:{node:process.version},protocol:'Original scripts/bench.mjs unmodified: render(src), 1 warm-up batch, >=300 ms, >=5 samples, maximum 2000 batches, upper median; ms per full batch',rows,validation:{success:true,diagrams:cases.reduce((n,c)=>n+c[1].length,0),method:'exact SVG strings and dimensions outside timing'},size:{peleMinifiedBytes:code.length,peleGzipBytes:gzipSync(code).length,rustCliBytes:cli.length,rustCliGzipBytes:gzipSync(cli).length}};
+const result={createdAt:new Date().toISOString(),enabledTypes:r.enabledTypes,commit:'8aff183be57021b533f319a29341a529be934b08',scriptSha256:createHash('sha256').update(source).digest('hex'),inputSha256:createHash('sha256').update(readFileSync(input)).digest('hex'),runtime:{node:process.version},protocol:'Original scripts/bench.mjs unmodified: render(src), 1 warm-up batch, >=300 ms, >=5 samples, maximum 2000 batches, upper median; ms per full batch',rows,validation:{success:true,diagrams:cases.reduce((n,c)=>n+c[1].length,0),method:'exact SVG strings and dimensions outside timing'},size:{peleMinifiedBytes:code.length,peleGzipBytes:gzipSync(code).length,rustCliBytes:cli.length,rustCliGzipBytes:gzipSync(cli).length}};
 writeFileSync(resolve(dir,'comparison.json'),JSON.stringify(result,null,2)+'\n');
 console.log('Saved target/bench-upstream/comparison.json');

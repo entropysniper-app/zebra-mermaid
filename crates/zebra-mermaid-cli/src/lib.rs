@@ -163,6 +163,7 @@ pub fn plan(r: &RenderArgs) -> Result<Plan, Failure> {
             theme_mode: r.theme,
             palette,
             font_family: r.font_family.clone().unwrap_or_else(|| zebra::ZEBRA_FONT_FAMILY.to_string()),
+            monospace: r.monospace.clone(),
             font_size: r.font_size.unwrap_or(16.0),
             canvas_background: r.canvas_background.unwrap_or_default(),
             ..Default::default()
@@ -185,6 +186,7 @@ pub fn plan(r: &RenderArgs) -> Result<Plan, Failure> {
     Ok(Plan::Library(Box::new(RenderOptions {
         font_family: r.font_family.clone(),
         font_family_mono: r.font_family_mono.clone(),
+        monospace: r.monospace.clone(),
         font_size: r.font_size,
         id_prefix: r.id_prefix.clone(),
         responsive: r.responsive,

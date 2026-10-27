@@ -5,7 +5,7 @@ use std::sync::LazyLock;
 
 use crate::detect::DiagramType;
 use crate::diagrams::common::tokens::{
-    acc_descr_value, acc_title_value, newline_at, spaces, title_value, TokenType, ACC_DESCR, ACC_TITLE, EOF, TITLE,
+    acc_descr_value, acc_title_value, newline_at, spaces, title_value, TokenType, ACC_DESCR, ACC_TITLE, EOF, TITLE_WORD,
 };
 use crate::error::Error;
 use crate::util::js;
@@ -161,7 +161,7 @@ pub static TREEMAP_TOKENS: LazyLock<Vec<TokenType>> = LazyLock::new(|| {
     vec![
         ACC_DESCR,
         ACC_TITLE,
-        TITLE,
+        TITLE_WORD,
         TokenType::func("TREEMAP_KEYWORD", match_keyword, None),
         TokenType::func("CLASS_DEF", match_class_def, None),
         TokenType::func("STYLE_SEPARATOR", match_style_separator, None),
