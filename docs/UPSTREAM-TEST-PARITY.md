@@ -4,12 +4,12 @@
 
 ## 完整参照
 
-- 固定版本：Pele 1.10.0，`4eff76f98c73b6817800a05773517f35832e4e92`（按用户 2026-10-25 要求升级；此前版本的证据保留）。
+- 固定版本：Pele 1.12.0，`8aff183be57021b533f319a29341a529be934b08`（按用户 2026-10-27 要求升级；此前版本的证据保留）。
 - 逐项清单：[`tests/upstream/inventory.json`](../tests/upstream/inventory.json)，保存文件、SHA-256、完整名称、位置、文件内序号、执行模式、原始 Vitest 超时和稳定 ID。参数化行分别展开，重复名称由文件内序号区分。
 - 完整原始测试和辅助文件：`tests/upstream/source/tests/`，保留上游版权和许可证。
 - 范围包含全部 `tests/**/*.{test,spec}.{ts,js}`，包括网站、mount、zoom、browser、字体加载与入口打包测试，不沿用 `npm test` 排除 website 的范围。
 
-上游全套复跑：**295 个文件、6,993 项；6,888 passed、103 skipped、2 todo**。这是 TypeScript 参照基线，不是 Rust 的通过数。
+上游全套复跑：**296 个文件、7,089 项；6,984 passed、103 skipped、2 todo**。这是 TypeScript 参照基线，不是 Rust 的通过数。
 
 ## 1:1 的含义
 
@@ -33,17 +33,19 @@ node tools/test-parity/check.mjs --run --isolate
 node tools/test-parity/check.mjs --require-complete
 ```
 
-[`ports.json`](../tests/upstream/ports.json) 严格一项对应一个实际测试；审计校验源哈希、目标唯一性、编译后的真实测试列表和实际结果。八类转换器的源与断言校验必须通过，补充 golden fixture 不接受为原测试映射。报告和本地日志在 `target/test-parity/`，映射不缓存“已通过”状态。
+[`ports.json`](../tests/upstream/ports.json) 严格一项对应一个实际测试；审计校验源哈希、目标唯一性、编译后的真实测试列表和实际结果。九类转换器的源与断言校验必须通过，补充 golden fixture 不接受为原测试映射。报告和本地日志在 `target/test-parity/`，映射不缓存“已通过”状态。
 
 ## 当前移植结果
 
-2026-10-25 原超时独立进程审计：**2,840 passed、0 failed、7 保留原 skip、4,146 未映射、0 待验证**，通过率 **40.61%**。`complete: false`，完整门禁退出码为 1。
+2026-10-27 原超时独立进程审计：**2,934 passed、0 failed、7 保留原 skip、4,148 未映射、0 待验证**，通过率 **41.39%**。`complete: false`，完整门禁退出码为 1。
 
-本次完整移植所有 22 项新增原测试、9 项修改过的已有回调和 1 项改名的 Sankey 用例，共增加 32 项独立映射。原超时、参数行、输入、断言和失败行为保留。边数压力测试仍有两组 2,000 × 2,000 组合及各自 2,000 ms 门槛，并执行原来的 5,000/5,001/11 条链。内部链接的两个原始回调通过符号转换保留所有原始布尔断言；其他用例逐项手写移植。
+本次增加 94 项独立映射：全部 93 项新增核心用例，以及 1 项改名的 Railroad 模型用例；另按 1.12.0 原文更新 3 项已有映射的完整断言。上游净增 96 项，新增的 3 项 Zoom 浏览器行为用例保留为宿主未映射项。84 个回调手写平移；8 个 ink 回调通过符号转换保留全部 497 次调用、350 个断言及 148 个颜色名称的循环，2 个 URL 回调保留原先全部编码地址与布尔断言。全部保留输入、调用关系、预期、循环、参数和时限。
 
-[验证汇总](research/pele-1.10.0-alignment-2026-10-25/validation.json) · [逐项报告](research/pele-1.10.0-alignment-2026-10-25/upstream-report.json.gz) · [源码与测试增量](research/pele-1.10.0-alignment-2026-10-25/source-delta.json)。316 个新补充完整响应、761 个文档响应、167 个样本和 39 组负载单独报告，不计作原测试映射。
+3 个修改过的已映射回调分别为：Sequence break hints 在间距扩展后改为两行的原预期；Flowchart 末尾注释/换行前的 EOF 位置；Radar 注释之后的 EOF 位置。上游修改了断言，Rust 跟随固定源码更新，没有用 Rust 输出生成预期。其他 8 个修改过的未映射原回调保留来源，未计通过。
 
-用户指定的默认 RaTeX 与移除数学回调属于有意的宿主 API 差异。上游回调测试完整保留且未映射，默认数学补充测试不冒充等价移植。Sankey 的独立 Jison oracle 测试仍未映射；网站、宿主和打包行为也继续在全套验收内。
+[验证汇总](research/pele-1.12.0-alignment-2026-10-27/validation.json) · [逐项报告](research/pele-1.12.0-alignment-2026-10-27/upstream-report.json.gz) · [源码与测试增量](research/pele-1.12.0-alignment-2026-10-27/source-delta.json)。316 个发布补充完整响应、761 个文档响应、167 个样本和 39 组负载单独报告，不计作原测试映射。
+
+用户指定的默认 RaTeX 与移除数学回调属于有意的宿主 API 差异。上游回调测试完整保留且未映射，默认数学补充测试不冒充等价移植。独立 Jison oracle、网站、宿主和打包行为继续在全套验收内。
 
 | 原文件 | 已映射项数 | Rust 验收通过 | 保留上游跳过 |
 | --- | ---: | ---: | ---: |
@@ -77,39 +79,51 @@ node tools/test-parity/check.mjs --require-complete
 | `tests/layout/compound.test.ts` | 27 | 27 | 0 |
 | `tests/layout/lanes.test.ts` | 24 | 24 | 0 |
 | `tests/layout/layered.test.ts` | 1 | 1 | 0 |
-| `tests/render/agentflow.test.ts` | 1 | 1 | 0 |
+| `tests/railroad/model.test.ts` | 1 | 1 | 0 |
+| `tests/render/agentflow.test.ts` | 4 | 4 | 0 |
+| `tests/render/architecture.test.ts` | 1 | 1 | 0 |
+| `tests/render/block.test.ts` | 16 | 16 | 0 |
 | `tests/render/break-hints.test.ts` | 11 | 11 | 0 |
-| `tests/render/c4.test.ts` | 1 | 1 | 0 |
+| `tests/render/c4.test.ts` | 3 | 3 | 0 |
 | `tests/render/cjk-wrap.test.ts` | 6 | 6 | 0 |
+| `tests/render/class.test.ts` | 4 | 4 | 0 |
 | `tests/render/edges.test.ts` | 6 | 6 | 0 |
-| `tests/render/eventmodeling.test.ts` | 1 | 1 | 0 |
-| `tests/render/flowchart.test.ts` | 2 | 2 | 0 |
+| `tests/render/er.test.ts` | 6 | 6 | 0 |
+| `tests/render/eventmodeling.test.ts` | 2 | 2 | 0 |
+| `tests/render/flowchart.test.ts` | 9 | 9 | 0 |
 | `tests/render/fonts.test.ts` | 6 | 6 | 0 |
 | `tests/render/gantt.test.ts` | 2 | 2 | 0 |
+| `tests/render/git.test.ts` | 1 | 1 | 0 |
 | `tests/render/info.test.ts` | 5 | 5 | 0 |
+| `tests/render/ink.test.ts` | 8 | 8 | 0 |
 | `tests/render/journey.test.ts` | 2 | 2 | 0 |
 | `tests/render/mermaid-type.test.ts` | 16 | 16 | 0 |
 | `tests/render/pie.test.ts` | 1 | 1 | 0 |
-| `tests/render/quadrant.test.ts` | 1 | 1 | 0 |
-| `tests/render/radar.test.ts` | 2 | 2 | 0 |
-| `tests/render/sankey.test.ts` | 4 | 4 | 0 |
+| `tests/render/quadrant.test.ts` | 2 | 2 | 0 |
+| `tests/render/radar.test.ts` | 3 | 3 | 0 |
+| `tests/render/railroad.test.ts` | 1 | 1 | 0 |
+| `tests/render/requirement.test.ts` | 1 | 1 | 0 |
+| `tests/render/sankey.test.ts` | 6 | 6 | 0 |
 | `tests/render/security.test.ts` | 1 | 1 | 0 |
-| `tests/render/sequence.test.ts` | 2 | 2 | 0 |
+| `tests/render/sequence.test.ts` | 9 | 9 | 0 |
+| `tests/render/state.test.ts` | 3 | 3 | 0 |
+| `tests/render/swimlane.test.ts` | 2 | 2 | 0 |
 | `tests/render/timeline.test.ts` | 2 | 2 | 0 |
-| `tests/render/treeview.test.ts` | 1 | 1 | 0 |
-| `tests/render/usecase.test.ts` | 1 | 1 | 0 |
-| `tests/render/venn.test.ts` | 3 | 3 | 0 |
+| `tests/render/treemap.test.ts` | 16 | 16 | 0 |
+| `tests/render/treeview.test.ts` | 3 | 3 | 0 |
+| `tests/render/usecase.test.ts` | 4 | 4 | 0 |
+| `tests/render/venn.test.ts` | 6 | 6 | 0 |
 | `tests/render/xychart.test.ts` | 2 | 2 | 0 |
 | `tests/requirement/stress.test.ts` | 36 | 36 | 0 |
 | `tests/sequence/stress.test.ts` | 47 | 47 | 0 |
 | `tests/state/stress.test.ts` | 53 | 53 | 0 |
 | `tests/stress.test.ts` | 1 | 1 | 0 |
 | `tests/util/preprocess.test.ts` | 9 | 9 | 0 |
-| `tests/util/url.test.ts` | 32 | 32 | 0 |
+| `tests/util/url.test.ts` | 34 | 34 | 0 |
 | `tests/util/yaml.test.ts` | 29 | 29 | 0 |
-| **合计** | **2,847** | **2,840** | **7** |
+| **合计** | **2,941** | **2,934** | **7** |
 
-未映射分为 Rust 核心 **4,080**、宿主/打包 **56**、网站 **10**。未映射不等于实现一定失败，也不能算作验收通过。未执行的 UTF-16 孤立代理项等既有差异不构成完整验收豁免。
+未映射分为 Rust 核心 **4,079**、宿主/打包 **59**、网站 **10**。未映射不等于实现一定失败，也不能算作验收通过。未执行的 UTF-16 孤立代理项等既有差异不构成完整验收豁免。
 
 以下保留此前迁移批次的历史结果，不能累计成当前通过数。当前清单与结果以前述固定版本和逐项报告为准。
 

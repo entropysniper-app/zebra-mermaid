@@ -1,0 +1,1342 @@
+{
+  "previousCommit": "4eff76f98c73b6817800a05773517f35832e4e92",
+  "commit": "8aff183be57021b533f319a29341a529be934b08",
+  "releases": [
+    "1.10.1",
+    "1.11.0",
+    "1.12.0"
+  ],
+  "sourceFiles": [
+    {
+      "upstream": "src/core.ts",
+      "upstreamSha256": "8d7c40be121d2de9abcfaff960418e55001f3e26ee6e178adc420a18c6c9fbbb",
+      "rust": [
+        "crates/zebra-mermaid/src/engine.rs",
+        "crates/zebra-mermaid/src/preprocess/source_map.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/agentflow/parser.ts",
+      "upstreamSha256": "a5f93b4252cfda0336ed6d8a2a456e54b1aa2210d9f0c64f49a9b90cec7a8331",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/agentflow/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/agentflow/render.ts",
+      "upstreamSha256": "7bb1cf54e14772a1d775551cd1221ade25f5a17407dadf15d8369078703fa97f",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/agentflow/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/architecture/parser.ts",
+      "upstreamSha256": "7e10c71734e03a60a8187b7c76067dad92d1e9a42092e57a115d6687a9d69779",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/architecture/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/block/layout.ts",
+      "upstreamSha256": "58cfb06316a17f0e09d70421e3683ce9c2bb17d1c9536b4c0b9d409b6c3852ca",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/block/layout.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/block/render.ts",
+      "upstreamSha256": "716cd96b0d6de4bcebd569e2876289abb21fd0ffb3c23499a76575b173ecfb7f",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/block/render.rs",
+        "crates/zebra-mermaid/src/diagrams/block/label_layout.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/c4/render.ts",
+      "upstreamSha256": "8d31538a7b9beac4b19312583eb6263478b790d0281bb5737774465dee1604bc",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/c4/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/class/render.ts",
+      "upstreamSha256": "efcfc566eb3562ffcbd2058608baeb438737838b8bd314df85a251bdd6ed24c6",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/class/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/common/tokens.ts",
+      "upstreamSha256": "44b4e372e272e13361494c3696ff6135948431cc3fc82f2d4d26f3e0a9703735",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/common/tokens.rs",
+        "crates/zebra-mermaid/src/diagrams/common/parse_tokens.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/er/render.ts",
+      "upstreamSha256": "d7acf2cc7e8593580f60151f4b7bbae20ea265648e7dddefef2b5ffac704f8dd",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/er/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/eventmodeling/parser.ts",
+      "upstreamSha256": "153437fcbb84a3024d6181459f45b876a448d90056843cca0f355dd450dd5287",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/eventmodeling/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/flowchart/render.ts",
+      "upstreamSha256": "456a8651d67b1644da019b27ea99f444a35977bdb365dd1a7b379b2d1c036e75",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/flowchart/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/git/parser.ts",
+      "upstreamSha256": "3f7742a6b65c6642af9d9d113932df09c70df885dbf09d2f35b46ece53ab0413",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/git_graph/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/quadrant/render.ts",
+      "upstreamSha256": "588d6d9eccaf4575a7660b8e749cd47aba97049b58f2da823f5463d552644d71",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/quadrant/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/radar/parser.ts",
+      "upstreamSha256": "93bf87f5e582c056022c65b384d109f55be2012610e0fd72796ed1776272ee11",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/radar/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/railroad/abnf.ts",
+      "upstreamSha256": "13e49236d5976816b61ac3b651f0743588e54c7ed5086c3bf1045fd09d3f46e4",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/railroad/abnf.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/railroad/common.ts",
+      "upstreamSha256": "bfcfab8dc181165213f0f3ffb0486b7dbda3db74b101219e53f28603df14be0b",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/railroad/common.rs",
+        "crates/zebra-mermaid/src/diagrams/common/tokens.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/railroad/ebnf.ts",
+      "upstreamSha256": "52c9adf4df1e51129a278bf0a0cebb0350cefd2eb4bbe4c1dda563ac5f1dfef1",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/railroad/ebnf.rs",
+        "crates/zebra-mermaid/src/diagrams/common/tokens.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/railroad/ir.ts",
+      "upstreamSha256": "85472677d5d3d57b7ef20384ede19074ef1db3b9b669b9236e324a1b3d206f72",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/railroad/ir.rs",
+        "crates/zebra-mermaid/src/diagrams/common/tokens.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/railroad/peg.ts",
+      "upstreamSha256": "ec941327948391f7ef7f4dd8cc0dccd1645f7fafea27ba060ec657e4b8c30d37",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/railroad/peg.rs",
+        "crates/zebra-mermaid/src/diagrams/common/tokens.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/requirement/render.ts",
+      "upstreamSha256": "3aac0b377edc84389d407d0817bb51e5a13e9b586e6c3e2feb3d5224d684dfb7",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/requirement/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/sankey/parser.ts",
+      "upstreamSha256": "9f9a324e7e287e8dba26e502525ca868b24c62d7272bdab6da125ac82f54131e",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/sankey/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/sequence/actors.ts",
+      "upstreamSha256": "cb551c59d9a63fb9529ce1fef6ab048150c3712637ee9a5179e0d00b18519d01",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/sequence/actors.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/sequence/render.ts",
+      "upstreamSha256": "5615ff1dbc5c1ef7d7aecedcc55885b9e3af8fde2ed0d36a02b366a611a7a541",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/sequence/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/state/render.ts",
+      "upstreamSha256": "12a1bbcabf87a4c364ea5db917168d5b70b26ff29c7e95f84333d1065c06a739",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/state/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/swimlane/index.ts",
+      "upstreamSha256": "fbe0e93b9d8ddf1c35cd3ceb7c031628dc608836de9c1d13b04ebe5fab0c37d4",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/swimlane/mod.rs",
+        "crates/zebra-mermaid/src/diagrams/flowchart/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/treemap/layout.ts",
+      "upstreamSha256": "717d0f84df84bcbc5d4a351b6f2d6904bb69bed190cacf7e0c76c37509608bcd",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/treemap/layout.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/treemap/parser.ts",
+      "upstreamSha256": "351607bd54bcc4eba013bdf4046269b0bfe03a9958bbdef00f1708e6ee5ceb81",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/treemap/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/treemap/render.ts",
+      "upstreamSha256": "a9a3423814fd785c084bd50f03d2e1b31fa84b75e026c469acb3c8a0b4361c14",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/treemap/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/treeview/parser.ts",
+      "upstreamSha256": "f5cb87eeece9495fde4ee01027d000866fab6426a99f62f74d7c475783d8990a",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/treeview/parser.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/treeview/render.ts",
+      "upstreamSha256": "b718edfb9e4e27de7a92ca0c408748651ae479a2241c28a7b0a94ec549b6c0ad",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/treeview/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/usecase/render.ts",
+      "upstreamSha256": "ab3dcf0ddfe856af7b0529ed9bd85959c784146b296737f593c1a362d29f6de8",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/usecase/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/venn/lexer.ts",
+      "upstreamSha256": "e70c6921996a23d7ee54d12304d7aea52201b0de54de8c738ad70c8114ab31d9",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/venn/lexer.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/venn/render.ts",
+      "upstreamSha256": "ddac92bcedbd4806ed3b8cc2f1b5a5fa1904dfb3efc9c3d44af6a4c08ac31587",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/venn/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/errors.ts",
+      "upstreamSha256": "f42d6b0ee184a8dd585fc2f160ebcc1823734e99334d38d0453b7a364bd3c3aa",
+      "rust": [
+        "crates/zebra-mermaid/src/error.rs",
+        "crates/zebra-mermaid/src/diagrams/common/parse_tokens.rs",
+        "crates/zebra-mermaid/src/preprocess/source_map.rs"
+      ]
+    },
+    {
+      "upstream": "src/layout/compound.ts",
+      "upstreamSha256": "6708ce93511dcd224cd897735753582966a886f254eb978c9ec17d89f3b3804b",
+      "rust": [
+        "crates/zebra-mermaid/src/layout/compound.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/edges.ts",
+      "upstreamSha256": "9d26a456f455dce0af6a30515146a9586a25a74b7d5deac4d706485440705af1",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/edges.rs",
+        "crates/zebra-mermaid/src/svg/edges_fills.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/ink.ts",
+      "upstreamSha256": "fe7b3f5a905cf7cca248e75960429e404cc1f2df61c9fefd4daee0ae0ec65e05",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/ink.rs",
+        "crates/zebra-mermaid/src/svg/resolve.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/shapes.ts",
+      "upstreamSha256": "82e44f21ea7252752552d8050f1d21a1befe642622dbea89f1831436d5ee30a4",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/shapes.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/theme.ts",
+      "upstreamSha256": "8b646a87e6320b2863a86fdd4ef8833f6ee2ec24638bdf0ac3bd49daac2932f1",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/theme.rs"
+      ]
+    },
+    {
+      "upstream": "src/types.ts",
+      "upstreamSha256": "357442fedaf86b4ff35e37499e28b3d242e861e583b94a6a19b0d623626eab7c",
+      "rust": [
+        "crates/zebra-mermaid/src/options.rs",
+        "crates/zebra-mermaid/src/zebra.rs",
+        "crates/zebra-mermaid-cli/src/args.rs"
+      ]
+    },
+    {
+      "upstream": "src/util/url.ts",
+      "upstreamSha256": "4711ccdf634bca408ccaa6f1e442a6c7f080abee5c044af16e5ca9e29207819e",
+      "rust": [
+        "crates/zebra-mermaid/src/util/url.rs"
+      ]
+    },
+    {
+      "upstream": "src/zoom.ts",
+      "upstreamSha256": "7fa979563130561a2a12bc4e6588dfb28ee12fc53d0a8940b455e5acba306c56",
+      "scope": "host/browser",
+      "rust": [],
+      "status": "unmapped; original host tests retained"
+    }
+  ],
+  "sourceFilesChanged": 43,
+  "testFiles": [
+    "tests/architecture/oracle.test.ts",
+    "tests/eventmodeling/oracle.test.ts",
+    "tests/git/oracle.test.ts",
+    "tests/mount.test.ts",
+    "tests/radar/oracle.test.ts",
+    "tests/railroad/model.test.ts",
+    "tests/render/agentflow.test.ts",
+    "tests/render/architecture.test.ts",
+    "tests/render/block.test.ts",
+    "tests/render/break-hints.test.ts",
+    "tests/render/c4.test.ts",
+    "tests/render/class.test.ts",
+    "tests/render/er.test.ts",
+    "tests/render/eventmodeling.test.ts",
+    "tests/render/flowchart.test.ts",
+    "tests/render/git.test.ts",
+    "tests/render/ink.test.ts",
+    "tests/render/quadrant.test.ts",
+    "tests/render/radar.test.ts",
+    "tests/render/railroad.test.ts",
+    "tests/render/requirement.test.ts",
+    "tests/render/sankey.test.ts",
+    "tests/render/sequence.test.ts",
+    "tests/render/state.test.ts",
+    "tests/render/swimlane.test.ts",
+    "tests/render/treemap.test.ts",
+    "tests/render/treeview.test.ts",
+    "tests/render/usecase.test.ts",
+    "tests/render/venn.test.ts",
+    "tests/sankey/oracle.test.ts",
+    "tests/support/eventmodeling-oracle.ts",
+    "tests/support/inert.ts",
+    "tests/support/radar-oracle.ts",
+    "tests/support/railroad-oracle.ts",
+    "tests/support/token-patch.ts",
+    "tests/support/venn-oracle.ts",
+    "tests/treemap/oracle.test.ts",
+    "tests/treeview/oracle.test.ts",
+    "tests/util/url.test.ts",
+    "tests/zoom.test.ts"
+  ],
+  "previousTests": 6993,
+  "tests": 7089,
+  "netAddedTests": 96,
+  "renamedTests": [
+    {
+      "file": "tests/railroad/model.test.ts",
+      "index": 12,
+      "previousName": "railroad model > takes `title` at the start of a name for a title statement, as Mermaid does",
+      "name": "railroad model > reads names that start with title, but no title after the first rule",
+      "previousId": "7a812465b3fc8d8edfe34907"
+    }
+  ],
+  "newOrRenamedCases": [
+    {
+      "id": "c4ac600c8cb5d4379b709af2",
+      "file": "tests/railroad/model.test.ts",
+      "index": 12,
+      "name": "railroad model > reads names that start with title, but no title after the first rule",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::railroad_title_names_and_late_title",
+      "state": "passed"
+    },
+    {
+      "id": "75e870a8ad0c2faf4646f38d",
+      "file": "tests/render/agentflow.test.ts",
+      "index": 12,
+      "name": "agentflow rendering > ignores a flow's direction when its nodes link outside it",
+      "scope": "rust-core",
+      "target": "release_1_12::color::agentflow_crossed_direction",
+      "state": "passed"
+    },
+    {
+      "id": "90f0ee56c8efee3b521cb8f1",
+      "file": "tests/render/agentflow.test.ts",
+      "index": 21,
+      "name": "agentflow rendering > picks a contrasting label color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::agentflow_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "ce7b6cc815f6a616440c7a6e",
+      "file": "tests/render/agentflow.test.ts",
+      "index": 22,
+      "name": "agentflow rendering > cases edges that cross a flow fill a style sets and inks those inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::color::agentflow_filled_edges",
+      "state": "passed"
+    },
+    {
+      "id": "7c0c56eb670b32cb51ecd457",
+      "file": "tests/render/architecture.test.ts",
+      "index": 20,
+      "name": "architecture rendering > reads ids that start with title",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::architecture_title_ids",
+      "state": "passed"
+    },
+    {
+      "id": "1fb909307915fbdc1d7e3c8f",
+      "file": "tests/render/block.test.ts",
+      "index": 21,
+      "name": "block rendering > separates labels on opposite vertical edges",
+      "scope": "rust-core",
+      "target": "release_1_12::block::vertical_opposite_labels",
+      "state": "passed"
+    },
+    {
+      "id": "0c1ac598a5bb6789d236f9ee",
+      "file": "tests/render/block.test.ts",
+      "index": 22,
+      "name": "block rendering > separates labels on opposite horizontal edges",
+      "scope": "rust-core",
+      "target": "release_1_12::block::horizontal_opposite_labels",
+      "state": "passed"
+    },
+    {
+      "id": "8ca7523047ec59d0d31c4239",
+      "file": "tests/render/block.test.ts",
+      "index": 23,
+      "name": "block rendering > keeps disjoint labels on their original straight parallel routes",
+      "scope": "rust-core",
+      "target": "release_1_12::block::disjoint_straight_routes",
+      "state": "passed"
+    },
+    {
+      "id": "1803e19b6930d0f85f56bc1b",
+      "file": "tests/render/block.test.ts",
+      "index": 24,
+      "name": "block rendering > separates wide labels when narrow endpoints clamp the parallel routes",
+      "scope": "rust-core",
+      "target": "release_1_12::block::narrow_endpoints",
+      "state": "passed"
+    },
+    {
+      "id": "8ec5f1b646f8667f8d24666b",
+      "file": "tests/render/block.test.ts",
+      "index": 25,
+      "name": "block rendering > keeps every label for several edges between the same blocks",
+      "scope": "rust-core",
+      "target": "release_1_12::block::all_parallel_labels",
+      "state": "passed"
+    },
+    {
+      "id": "f4ead7057ab6eff89172c4c6",
+      "file": "tests/render/block.test.ts",
+      "index": 26,
+      "name": "block rendering > keeps parallel edges straight while it stacks their labels",
+      "scope": "rust-core",
+      "target": "release_1_12::block::stacked_labels_straight",
+      "state": "passed"
+    },
+    {
+      "id": "e9e522d26862a5a5dbf9caf8",
+      "file": "tests/render/block.test.ts",
+      "index": 27,
+      "name": "block rendering > leaves parallel labels in place when stacking them would cover another block",
+      "scope": "rust-core",
+      "target": "release_1_12::block::avoid_other_blocks",
+      "state": "passed"
+    },
+    {
+      "id": "e9b62c5db4dbecdb3755c916",
+      "file": "tests/render/block.test.ts",
+      "index": 28,
+      "name": "block rendering > leaves parallel labels in place when stacking them would cover a composite title",
+      "scope": "rust-core",
+      "target": "release_1_12::block::avoid_composite_title",
+      "state": "passed"
+    },
+    {
+      "id": "f7dc931f5e1c6666b7f19ef8",
+      "file": "tests/render/block.test.ts",
+      "index": 29,
+      "name": "block rendering > keeps stacked labels clear of arrowheads",
+      "scope": "rust-core",
+      "target": "release_1_12::block::avoid_arrowheads",
+      "state": "passed"
+    },
+    {
+      "id": "86b7b3f4653e7e87774dbfc8",
+      "file": "tests/render/block.test.ts",
+      "index": 30,
+      "name": "block rendering > widens the gap between blocks whose parallel labels do not fit between them",
+      "scope": "rust-core",
+      "target": "release_1_12::block::widen_parallel_gap",
+      "state": "passed"
+    },
+    {
+      "id": "2a5cee17482254784e09fcba",
+      "file": "tests/render/block.test.ts",
+      "index": 31,
+      "name": "block rendering > keeps the gap between blocks when widening it leaves labels overlapping",
+      "scope": "rust-core",
+      "target": "release_1_12::block::no_gap_growth_without_gain",
+      "state": "passed"
+    },
+    {
+      "id": "05adc3de1559e30e27608212",
+      "file": "tests/render/block.test.ts",
+      "index": 32,
+      "name": "block rendering > does not widen columns past maxWidth",
+      "scope": "rust-core",
+      "target": "release_1_12::block::columns_max_width",
+      "state": "passed"
+    },
+    {
+      "id": "450bbb3c8a7b5aee9ec08864",
+      "file": "tests/render/block.test.ts",
+      "index": 33,
+      "name": "block rendering > stacks parallel labels without widening the drawing past maxWidth",
+      "scope": "rust-core",
+      "target": "release_1_12::block::stacked_max_width",
+      "state": "passed"
+    },
+    {
+      "id": "e4ff14259dc99363cef812e2",
+      "file": "tests/render/block.test.ts",
+      "index": 40,
+      "name": "block rendering > draws a composite fill the author sets at full opacity",
+      "scope": "rust-core",
+      "target": "release_1_12::block::opaque_composite",
+      "state": "passed"
+    },
+    {
+      "id": "b6aac9dd267c6236063e314f",
+      "file": "tests/render/block.test.ts",
+      "index": 41,
+      "name": "block rendering > picks a contrasting label color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::block::contrasting_labels",
+      "state": "passed"
+    },
+    {
+      "id": "e97e2a59da5582722f8a96fd",
+      "file": "tests/render/block.test.ts",
+      "index": 42,
+      "name": "block rendering > cases edges that cross a composite fill a style sets and inks those inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::block::filled_edges",
+      "state": "passed"
+    },
+    {
+      "id": "bdfe271ac26d87b43b48ea44",
+      "file": "tests/render/c4.test.ts",
+      "index": 25,
+      "name": "C4 rendering > picks a contrasting text color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::c4_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "8d9af7d2e0b84f616a4b4a1c",
+      "file": "tests/render/c4.test.ts",
+      "index": 26,
+      "name": "C4 rendering > cases relations that cross a boundary fill a style sets and inks those inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::color::c4_filled_edges",
+      "state": "passed"
+    },
+    {
+      "id": "dcc11031517d0ae475a2a6f0",
+      "file": "tests/render/class.test.ts",
+      "index": 15,
+      "name": "class diagram rendering > measures members in the monospace font when monospace lists them",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::class_members_mono",
+      "state": "passed"
+    },
+    {
+      "id": "8a290095a4f243f8c2e31f57",
+      "file": "tests/render/class.test.ts",
+      "index": 16,
+      "name": "class diagram rendering > ignores monospace values that do not list members",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::class_invalid_mono",
+      "state": "passed"
+    },
+    {
+      "id": "1eba9bed1dbab3602916bfe9",
+      "file": "tests/render/class.test.ts",
+      "index": 17,
+      "name": "class diagram rendering > keeps a class's own font-family on its members when monospace lists them",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::class_own_font",
+      "state": "passed"
+    },
+    {
+      "id": "4d9f549414f0e91e9e069b16",
+      "file": "tests/render/class.test.ts",
+      "index": 35,
+      "name": "class diagram rendering > picks a contrasting text color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::class_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "70a9d0422fdd1fe7e4d71c97",
+      "file": "tests/render/er.test.ts",
+      "index": 5,
+      "name": "ER diagram rendering > measures attribute types, names and keys in the monospace font when monospace lists attributes",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::er_attributes_mono",
+      "state": "passed"
+    },
+    {
+      "id": "0bc2cdafe86d8b8070f683ad",
+      "file": "tests/render/er.test.ts",
+      "index": 6,
+      "name": "ER diagram rendering > ignores monospace values that do not list attributes",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::er_invalid_mono",
+      "state": "passed"
+    },
+    {
+      "id": "9a4d3a8eb694c9a24d1b627b",
+      "file": "tests/render/er.test.ts",
+      "index": 7,
+      "name": "ER diagram rendering > keeps an entity's own font-family on its attributes when monospace lists them",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::er_own_font",
+      "state": "passed"
+    },
+    {
+      "id": "3c0dae7165f8eca915f4e8d7",
+      "file": "tests/render/er.test.ts",
+      "index": 20,
+      "name": "ER diagram rendering > picks a contrasting text color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::er_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "1a8e2c1ded064047ace78f10",
+      "file": "tests/render/er.test.ts",
+      "index": 24,
+      "name": "ER diagram rendering > draws a subgraph fill the author sets at full opacity",
+      "scope": "rust-core",
+      "target": "release_1_12::color::er_opaque_composite",
+      "state": "passed"
+    },
+    {
+      "id": "091efe4e6f47f15132f58137",
+      "file": "tests/render/er.test.ts",
+      "index": 25,
+      "name": "ER diagram rendering > cases relationships that cross a subgraph fill a style sets and inks those inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::color::er_filled_edges",
+      "state": "passed"
+    },
+    {
+      "id": "5962ba35f14f9042b94d2f04",
+      "file": "tests/render/eventmodeling.test.ts",
+      "index": 11,
+      "name": "eventmodeling rendering > reads entity names that start with title",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::event_title_entities",
+      "state": "passed"
+    },
+    {
+      "id": "ecc73766936e12582d424106",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 25,
+      "name": "flowchart rendering > draws a subgraph fill the author sets at full opacity",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::opaque_subgraph",
+      "state": "passed"
+    },
+    {
+      "id": "90e75610d9faeed01d960c87",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 26,
+      "name": "flowchart rendering > picks a contrasting label color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::contrasting_labels",
+      "state": "passed"
+    },
+    {
+      "id": "7660a9b7043866c1c6f75712",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 27,
+      "name": "flowchart rendering > cases edges that cross into a subgraph fill a style sets and inks edges inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::edges_on_and_across_fills",
+      "state": "passed"
+    },
+    {
+      "id": "cd1fb96859c0f4db45bd9225",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 28,
+      "name": "flowchart rendering > cases an edge whose marker alone reaches into a nested fill",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::marker_reaches_nested_fill",
+      "state": "passed"
+    },
+    {
+      "id": "9a6d56f67104e38b0633f0e6",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 29,
+      "name": "flowchart rendering > cases an edge whose curve runs into a filled subgraph",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::curve_enters_fill",
+      "state": "passed"
+    },
+    {
+      "id": "52f09cbfb48d5461ecd67786",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 30,
+      "name": "flowchart rendering > cases an edge as wide and as faint as its line style makes it",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::casing_width_and_opacity",
+      "state": "passed"
+    },
+    {
+      "id": "9641cac5fccd7c3819819dde",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 35,
+      "name": "flowchart rendering > ignores a subgraph's direction when its nodes link outside it",
+      "scope": "rust-core",
+      "target": "release_1_12::flow::crossed_group_direction",
+      "state": "passed"
+    },
+    {
+      "id": "80debdd10b5d873c495f998c",
+      "file": "tests/render/git.test.ts",
+      "index": 13,
+      "name": "git graph rendering > reads branch names that start with title",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::git_title_branches",
+      "state": "passed"
+    },
+    {
+      "id": "16045da721c64defb9883d46",
+      "file": "tests/render/ink.test.ts",
+      "index": 0,
+      "name": "label ink > reads hex fills",
+      "scope": "rust-core",
+      "target": "ink::case_00",
+      "state": "passed"
+    },
+    {
+      "id": "82f26ed939f2c27ca0a837ea",
+      "file": "tests/render/ink.test.ts",
+      "index": 1,
+      "name": "label ink > picks the ink with the higher contrast near the middle",
+      "scope": "rust-core",
+      "target": "ink::case_01",
+      "state": "passed"
+    },
+    {
+      "id": "66a24c003f3581dd3df48b92",
+      "file": "tests/render/ink.test.ts",
+      "index": 2,
+      "name": "label ink > reads rgb() in comma and space syntax",
+      "scope": "rust-core",
+      "target": "ink::case_02",
+      "state": "passed"
+    },
+    {
+      "id": "ae2b9c7e10804b053c6f0c44",
+      "file": "tests/render/ink.test.ts",
+      "index": 3,
+      "name": "label ink > reads hsl()",
+      "scope": "rust-core",
+      "target": "ink::case_03",
+      "state": "passed"
+    },
+    {
+      "id": "77d283fdc3f4123c3e72b77f",
+      "file": "tests/render/ink.test.ts",
+      "index": 4,
+      "name": "label ink > reads all 148 named colors, in any case",
+      "scope": "rust-core",
+      "target": "ink::case_04",
+      "state": "passed"
+    },
+    {
+      "id": "56dd1c34709be14a90c7bea5",
+      "file": "tests/render/ink.test.ts",
+      "index": 5,
+      "name": "label ink > leaves labels alone on fills it cannot read",
+      "scope": "rust-core",
+      "target": "ink::case_05",
+      "state": "passed"
+    },
+    {
+      "id": "9155638122060a2b70275a53",
+      "file": "tests/render/ink.test.ts",
+      "index": 6,
+      "name": "label ink > leaves labels alone on fills under half opaque",
+      "scope": "rust-core",
+      "target": "ink::case_06",
+      "state": "passed"
+    },
+    {
+      "id": "662eb59bc5107b2ae2e8fe78",
+      "file": "tests/render/ink.test.ts",
+      "index": 7,
+      "name": "label ink > leaves a color the style sets",
+      "scope": "rust-core",
+      "target": "ink::case_07",
+      "state": "passed"
+    },
+    {
+      "id": "02e8e040d35d3286e6238887",
+      "file": "tests/render/quadrant.test.ts",
+      "index": 12,
+      "name": "quadrant chart rendering > lets point labels sit where an empty quadrant label would be",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::quadrant_empty_label_space",
+      "state": "passed"
+    },
+    {
+      "id": "d7e09654b11ffb4559e79123",
+      "file": "tests/render/radar.test.ts",
+      "index": 8,
+      "name": "radar rendering > reads names that start with circle, polygon, true, false or title",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::radar_keyword_prefixes",
+      "state": "passed"
+    },
+    {
+      "id": "a86b804c63553a9ce71e6c11",
+      "file": "tests/render/railroad.test.ts",
+      "index": 10,
+      "name": "railroad rendering > reads rule names that start with title in each notation",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::railroad_title_rules_all_notations",
+      "state": "passed"
+    },
+    {
+      "id": "b1da0a5ccb8a2c3f8b3efb34",
+      "file": "tests/render/requirement.test.ts",
+      "index": 11,
+      "name": "requirement rendering > picks a contrasting text color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::requirement_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "fda208a2bd9ec899db7102c3",
+      "file": "tests/render/sankey.test.ts",
+      "index": 60,
+      "name": "sankey rendering > ignores blanks at the start and end of each row",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::sankey_row_blanks",
+      "state": "passed"
+    },
+    {
+      "id": "b2ae11ef39fc912fc450856a",
+      "file": "tests/render/sankey.test.ts",
+      "index": 61,
+      "name": "sankey rendering > reports errors after blanks at row edges where they are written",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::sankey_row_error_positions",
+      "state": "passed"
+    },
+    {
+      "id": "042f320b96d63b4ef83c5cfa",
+      "file": "tests/render/sequence.test.ts",
+      "index": 14,
+      "name": "sequence rendering > widens gaps within maxWidth before wrapping a message",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::widen_before_wrap",
+      "state": "passed"
+    },
+    {
+      "id": "44f95f7e6ee94d7c204e3d4b",
+      "file": "tests/render/sequence.test.ts",
+      "index": 15,
+      "name": "sequence rendering > measures messages in the monospace font when monospace lists them",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::message_mono",
+      "state": "passed"
+    },
+    {
+      "id": "886be3fd88386ff0150f53d9",
+      "file": "tests/render/sequence.test.ts",
+      "index": 16,
+      "name": "sequence rendering > widens gaps within maxWidth for messages measured in the monospace font",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::widen_mono",
+      "state": "passed"
+    },
+    {
+      "id": "717f428d617caaff422721b9",
+      "file": "tests/render/sequence.test.ts",
+      "index": 24,
+      "name": "sequence rendering > picks a contrasting text color for labels on a rect or box fill",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::contrasting_rect_box_labels",
+      "state": "passed"
+    },
+    {
+      "id": "360fb30f2f35232b82b8347d",
+      "file": "tests/render/sequence.test.ts",
+      "index": 25,
+      "name": "sequence rendering > draws arrows on a rect or box fill in their label color",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::contrasting_arrows",
+      "state": "passed"
+    },
+    {
+      "id": "49bcdc0db0ba88688bd03e29",
+      "file": "tests/render/sequence.test.ts",
+      "index": 26,
+      "name": "sequence rendering > keeps the theme color for a self-message that reaches past its box",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::self_message_outside_box",
+      "state": "passed"
+    },
+    {
+      "id": "bd90caaba7c6b3ca648f435d",
+      "file": "tests/render/sequence.test.ts",
+      "index": 27,
+      "name": "sequence rendering > picks a contrasting name color for figures in a box",
+      "scope": "rust-core",
+      "target": "release_1_12::sequence::figures_in_box",
+      "state": "passed"
+    },
+    {
+      "id": "6a605b45ffa750302c2c9716",
+      "file": "tests/render/state.test.ts",
+      "index": 9,
+      "name": "state diagram rendering > draws a composite fill the author sets at full opacity",
+      "scope": "rust-core",
+      "target": "release_1_12::color::state_opaque_composite",
+      "state": "passed"
+    },
+    {
+      "id": "6d03c89eba0cc65007a149b0",
+      "file": "tests/render/state.test.ts",
+      "index": 10,
+      "name": "state diagram rendering > picks a contrasting label color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::state_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "5142f888fc66fe507ecfff32",
+      "file": "tests/render/state.test.ts",
+      "index": 11,
+      "name": "state diagram rendering > cases transitions that cross a composite fill a style sets and inks those inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::color::state_filled_edges",
+      "state": "passed"
+    },
+    {
+      "id": "7d51b7de30ad2011af212d1d",
+      "file": "tests/render/swimlane.test.ts",
+      "index": 16,
+      "name": "swimlane rendering > picks a contrasting lane title color on a fill a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::swimlane_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "73472810499abe13e118800e",
+      "file": "tests/render/swimlane.test.ts",
+      "index": 17,
+      "name": "swimlane rendering > inks or cases edges on a lane band a style fills",
+      "scope": "rust-core",
+      "target": "release_1_12::color::swimlane_band_edges",
+      "state": "passed"
+    },
+    {
+      "id": "0b24ae27e46829eda429b48e",
+      "file": "tests/render/treemap.test.ts",
+      "index": 4,
+      "name": "treemap layout > gives a section too small for its header its whole box",
+      "scope": "rust-core",
+      "target": "diagrams::treemap::layout::upstream_1_12::headerless_section_full_area",
+      "state": "passed"
+    },
+    {
+      "id": "c772c66ce7d513ed258ab6ae",
+      "file": "tests/render/treemap.test.ts",
+      "index": 5,
+      "name": "treemap layout > keeps a box thinner than the gap, and one with no room at all",
+      "scope": "rust-core",
+      "target": "diagrams::treemap::layout::upstream_1_12::thinner_than_gap_and_zero_room",
+      "state": "passed"
+    },
+    {
+      "id": "486f688b4cb09ade9561c495",
+      "file": "tests/render/treemap.test.ts",
+      "index": 6,
+      "name": "treemap layout > keeps every box inside its area, with a finite size",
+      "scope": "rust-core",
+      "target": "diagrams::treemap::layout::upstream_1_12::finite_boxes_inside_area",
+      "state": "passed"
+    },
+    {
+      "id": "2804ff6cb40b38fb582481e8",
+      "file": "tests/render/treemap.test.ts",
+      "index": 15,
+      "name": "treemap rendering > picks a contrasting text color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::contrasting_text",
+      "state": "passed"
+    },
+    {
+      "id": "98cc57491838a4d54dc493fc",
+      "file": "tests/render/treemap.test.ts",
+      "index": 16,
+      "name": "treemap rendering > reads class names that start with title",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::title_classes",
+      "state": "passed"
+    },
+    {
+      "id": "abff841db51c1471043c6ed5",
+      "file": "tests/render/treemap.test.ts",
+      "index": 19,
+      "name": "treemap rendering > names a section drawn without a header in the tooltips of what covers it",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::headerless_tooltips",
+      "state": "passed"
+    },
+    {
+      "id": "1c0487456b6e39739b5a3988",
+      "file": "tests/render/treemap.test.ts",
+      "index": 20,
+      "name": "treemap rendering > draws every node of a large, deep tree",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::large_deep_tree",
+      "state": "passed"
+    },
+    {
+      "id": "fec7a7354837c148119a2f33",
+      "file": "tests/render/treemap.test.ts",
+      "index": 21,
+      "name": "treemap rendering > spaces a crowded treemap more tightly, with one gap throughout",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::crowded_gaps",
+      "state": "passed"
+    },
+    {
+      "id": "6d6ad3c63d397176ca491d6c",
+      "file": "tests/render/treemap.test.ts",
+      "index": 22,
+      "name": "treemap rendering > keeps the spacing of a roomy treemap",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::roomy_gaps",
+      "state": "passed"
+    },
+    {
+      "id": "0ef100c3583374d9ccc0a6cb",
+      "file": "tests/render/treemap.test.ts",
+      "index": 23,
+      "name": "treemap rendering > uses the padding an author sets as the gap",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::author_padding",
+      "state": "passed"
+    },
+    {
+      "id": "ecc4d192698ed6e90a81003e",
+      "file": "tests/render/treemap.test.ts",
+      "index": 24,
+      "name": "treemap rendering > draws no box for a section without a header",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::no_header_box",
+      "state": "passed"
+    },
+    {
+      "id": "8f65a9aed5431cc4d7e144ae",
+      "file": "tests/render/treemap.test.ts",
+      "index": 25,
+      "name": "treemap rendering > gives a small section a short header",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::short_header",
+      "state": "passed"
+    },
+    {
+      "id": "f8187e425878e337c4c7bb7b",
+      "file": "tests/render/treemap.test.ts",
+      "index": 26,
+      "name": "treemap rendering > keeps the corners of a small box within a quarter of its shorter side",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::small_corners",
+      "state": "passed"
+    },
+    {
+      "id": "b734ddead4a419a19a6dedb3",
+      "file": "tests/render/treemap.test.ts",
+      "index": 27,
+      "name": "treemap rendering > fits text at the font size a class sets",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::class_font_fits",
+      "state": "passed"
+    },
+    {
+      "id": "2c7f352be2836a0fefaefd67",
+      "file": "tests/render/treemap.test.ts",
+      "index": 28,
+      "name": "treemap rendering > keeps section names at large font sizes that fit the header",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::large_section_names",
+      "state": "passed"
+    },
+    {
+      "id": "86e7ffe3ab58679ffe38ab4a",
+      "file": "tests/render/treemap.test.ts",
+      "index": 29,
+      "name": "treemap rendering > draws a label at a fractional class font size when it fits",
+      "scope": "rust-core",
+      "target": "release_1_12::treemap::fractional_class_font",
+      "state": "passed"
+    },
+    {
+      "id": "f7264469c7111a0d367def4c",
+      "file": "tests/render/treeview.test.ts",
+      "index": 5,
+      "name": "treeView rendering > measures names in the monospace font when monospace lists files",
+      "scope": "rust-core",
+      "target": "release_1_12::mono::tree_names_mono",
+      "state": "passed"
+    },
+    {
+      "id": "a793400ceee797461dd77f4f",
+      "file": "tests/render/treeview.test.ts",
+      "index": 9,
+      "name": "treeView rendering > reads names that start with title",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::tree_title_names",
+      "state": "passed"
+    },
+    {
+      "id": "b56d11c401ddd0a4fed7d4a5",
+      "file": "tests/render/usecase.test.ts",
+      "index": 9,
+      "name": "use case diagram rendering > draws a boundary fill the author sets at full opacity",
+      "scope": "rust-core",
+      "target": "release_1_12::color::usecase_opaque_boundary",
+      "state": "passed"
+    },
+    {
+      "id": "37aad17b26d58cd86e2ee776",
+      "file": "tests/render/usecase.test.ts",
+      "index": 10,
+      "name": "use case diagram rendering > picks a contrasting text color on fills a style sets",
+      "scope": "rust-core",
+      "target": "release_1_12::color::usecase_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "d9ac6a1a695bfd70a3531b76",
+      "file": "tests/render/usecase.test.ts",
+      "index": 11,
+      "name": "use case diagram rendering > cases edges that cross a boundary fill a style sets and inks those inside it",
+      "scope": "rust-core",
+      "target": "release_1_12::color::usecase_filled_edges",
+      "state": "passed"
+    },
+    {
+      "id": "525a3bb3751a1ef40e8e911c",
+      "file": "tests/render/venn.test.ts",
+      "index": 17,
+      "name": "venn diagram rendering > picks a contrasting text color on an overlap a style fills",
+      "scope": "rust-core",
+      "target": "release_1_12::color::venn_overlap_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "da25f18b045646e2db6a9665",
+      "file": "tests/render/venn.test.ts",
+      "index": 18,
+      "name": "venn diagram rendering > reads the fill under the text from what is drawn last there",
+      "scope": "rust-core",
+      "target": "release_1_12::color::venn_last_fill",
+      "state": "passed"
+    },
+    {
+      "id": "297f9242cf78a4adfbc45001",
+      "file": "tests/render/venn.test.ts",
+      "index": 23,
+      "name": "venn diagram rendering > reads a name that starts with a keyword and a hyphen",
+      "scope": "rust-core",
+      "target": "release_1_12::parsing::venn_hyphenated_keywords",
+      "state": "passed"
+    },
+    {
+      "id": "4148613cf2b4b772ac88e2c5",
+      "file": "tests/util/url.test.ts",
+      "index": 30,
+      "name": "percent escapes > are kept",
+      "scope": "rust-core",
+      "target": "utilities::url_30",
+      "state": "passed"
+    },
+    {
+      "id": "efa7362a9fd9032b42048e9e",
+      "file": "tests/util/url.test.ts",
+      "index": 31,
+      "name": "percent escapes > cannot hide a scheme or a network path",
+      "scope": "rust-core",
+      "target": "utilities::url_31",
+      "state": "passed"
+    },
+    {
+      "id": "46280bd64527afcc11881812",
+      "file": "tests/zoom.test.ts",
+      "index": 6,
+      "name": "zoom > narrows a drawing at rest so that the buttons do not hide its text",
+      "scope": "host-or-packaging",
+      "target": null,
+      "state": "unmapped"
+    },
+    {
+      "id": "dc4464511e4517588578f65f",
+      "file": "tests/zoom.test.ts",
+      "index": 7,
+      "name": "zoom > lets the first tap or key after a pinch work a button",
+      "scope": "host-or-packaging",
+      "target": null,
+      "state": "unmapped"
+    },
+    {
+      "id": "3d4817b74c86f96fa9d205cc",
+      "file": "tests/zoom.test.ts",
+      "index": 8,
+      "name": "zoom > stops the click that ends a drag over the drawing, and no click after it",
+      "scope": "host-or-packaging",
+      "target": null,
+      "state": "unmapped"
+    }
+  ],
+  "changedExistingCallbacks": [
+    {
+      "id": "acfa3e769eac08b3b9d5b86b",
+      "file": "tests/mount.test.ts",
+      "name": "mount > shows the error over the last drawing, dimmed, until the text can be drawn",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "5f86030d729cf00b20d2af8b",
+      "file": "tests/render/agentflow.test.ts",
+      "name": "agentflow rendering > lays a flow out in its own direction",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "f825917a4aae60519c304700",
+      "file": "tests/render/agentflow.test.ts",
+      "name": "agentflow rendering > rejects what the grammar rejects, with the line",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "90c89c9d2abf06deb30ef7bd",
+      "file": "tests/render/break-hints.test.ts",
+      "name": "break hints > splits a hinted sequence message at the hints on a narrow screen",
+      "mapped": true,
+      "target": "break_hints::narrow_sequence_message_splits_at_hints"
+    },
+    {
+      "id": "e811d3cc27eed408783f1ba9",
+      "file": "tests/render/er.test.ts",
+      "name": "ER diagram rendering > applies style, classDef, class and the ::: shorthand",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "e55f5d0d662f485519752315",
+      "file": "tests/render/eventmodeling.test.ts",
+      "name": "eventmodeling rendering > rejects what Mermaid rejects, with Mermaid's message for a reused frame number",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "f0b1c958ae897d30275a0b89",
+      "file": "tests/render/flowchart.test.ts",
+      "name": "public api > reports lines and columns in the source as written",
+      "mapped": true,
+      "target": "release_1_10::flowchart_written_positions"
+    },
+    {
+      "id": "e97b962eb5071540d3ae9c0a",
+      "file": "tests/render/radar.test.ts",
+      "name": "radar rendering > orders named entries by axis, and rejects a missing one",
+      "mapped": true,
+      "target": "release_1_10::radar_named_entries_and_errors"
+    },
+    {
+      "id": "09d49dd8e14e1294b476d07f",
+      "file": "tests/render/sankey.test.ts",
+      "name": "sankey rendering > rejects what Mermaid rejects",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "7e3b5b2ee99bc8b6de64a5c0",
+      "file": "tests/render/treemap.test.ts",
+      "name": "treemap rendering > shrinks, shortens, or hides text that does not fit",
+      "mapped": false,
+      "target": null
+    },
+    {
+      "id": "6b5cfd574ff678cc8edeedfa",
+      "file": "tests/zoom.test.ts",
+      "name": "zoom > takes the wheel only while the drawing can be enlarged",
+      "mapped": false,
+      "target": null
+    }
+  ],
+  "websiteFiles": [
+    "website/src/content/docs/api.md",
+    "website/src/content/docs/compatibility.md",
+    "website/src/content/docs/theming.md",
+    "website/src/lib/layout-cases.ts"
+  ],
+  "scopeNote": "All 94 new or renamed Rust-core callbacks are mapped independently; 3 new Zoom callbacks remain host/browser gaps. All 3 changed existing mapped callbacks were updated without dropping assertions. Existing independent Jison oracle and other host/website gaps remain; full acceptance is incomplete. Historical samples, performance and code-size measurements are preserved. No performance optimization loop was resumed."
+}

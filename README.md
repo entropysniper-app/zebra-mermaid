@@ -1,6 +1,6 @@
 # zebra-mermaid
 
-A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/4eff76f98c73b6817800a05773517f35832e4e92) and aligned with **1.10.0**, targeting **Mermaid 12.1.0** syntax.
+A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/8aff183be57021b533f319a29341a529be934b08) and aligned with **1.12.0**, targeting **Mermaid 12.1.0** syntax.
 
 - **33 diagram types** enabled by default, with Cargo features for smaller builds.
 - **Native rendering** with no JavaScript, browser, or external layout process at runtime.
@@ -16,7 +16,7 @@ Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from G
 
 ```sh
 cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
-  --rev 2950c70ffb28700d1484ef9f7b2afd729f98884a \
+  --rev fe30aae322c76400856f871992cc52d24e29fd50 \
   --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
@@ -26,7 +26,7 @@ zebra-mermaid check diagram.mmd --format json
 zebra-mermaid batch ./diagrams --out-dir ./svg --jobs 4
 ```
 
-Use `-` to read standard input. Output files are written atomically; add `--force` to replace an existing file. Run `zebra-mermaid --help` for layout, font, link, image, and resource-limit options.
+Use `-` to read standard input. Output files are written atomically; add `--force` to replace an existing file. Use `--monospace members,attributes,files,messages` to select class members, ER attributes, file names, and sequence messages. Run `zebra-mermaid --help` for layout, font, link, image, and resource-limit options.
 
 <!-- sample-comparison:start -->
 ## Rendering comparison
@@ -109,7 +109,7 @@ Add the library to your application's `Cargo.toml`. Both installation examples p
 
 ```toml
 [dependencies]
-zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "2950c70ffb28700d1484ef9f7b2afd729f98884a" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "fe30aae322c76400856f871992cc52d24e29fd50" }
 ```
 
 ```rust
@@ -133,7 +133,7 @@ fn main() -> Result<(), zebra_mermaid::Error> {
 }
 ```
 
-Use `render(source, &options)` for a single call, or keep a parsed diagram and render it repeatedly with different appearance or width options. `RenderCache` adds bounded caching. A host can provide its own `TextMeasurer`; the default uses deterministic Arial advance metrics.
+Use `render(source, &options)` for a single call, or keep a parsed diagram and render it repeatedly with different appearance or width options. `RenderCache` adds bounded caching. A host can provide its own `TextMeasurer`; the default uses deterministic Arial advance metrics. `RenderOptions::monospace` accepts a list of `MonospacePart::{Members, Attributes, Files, Messages}`; each selection changes both text measurement and the emitted font family while preserving explicit author fonts.
 
 ### Mathematics
 
@@ -162,10 +162,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,304 passed**, 0 failed, 5 ignored |
-| Original-test acceptance | **2,840/6,993 passed** (40.61%); 7 preserved skips, 4,146 unmapped |
+| Workspace tests | **3,398 passed**, 0 failed, 5 ignored |
+| Original-test acceptance | **2,934/7,089 passed** (41.39%); 7 preserved skips, 4,148 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.10.0-alignment-2026-10-25/validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.12.0-alignment-2026-10-27/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1
