@@ -55,3 +55,5 @@ mod ink;
 
 #[path = "upstream/release_1_12.rs"]
 mod release_1_12;
+#[path = "upstream/release_1_13.rs"]
+mod release_1_13;

@@ -113,7 +113,11 @@ pub(crate) fn render(model: &TreemapModel, config: &Config, ctx: &RenderCtx) -> 
         let rect = format!("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{color}\"", num(x), num(y), num(b.w), num(b.h));
         let fixed = st.font_size;
         let text_style = (if st.bold { style::BOLD } else { 0 }) | (if st.italic { style::ITALIC } else { 0 });
-        let ink = crate::svg::ink::ink_fill(&st, None);
+        let ink = if crate::svg::theme::sets_fill(&st.shape) {
+            crate::svg::ink::ink_fill(&st, None)
+        } else {
+            ctx.series_ink_fill(b.series as i64)
+        };
         let classes = class_names(node.class_selector.as_deref().unwrap_or(""));
         if node.children.is_some() {
             let mut text = String::new();

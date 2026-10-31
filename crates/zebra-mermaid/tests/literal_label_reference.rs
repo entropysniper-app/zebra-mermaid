@@ -7,7 +7,7 @@ use zebra_mermaid::text::{Icons, Label, Measure, MetricsMeasurer, Span, TextMeas
 
 fn fixture() -> Value {
     let value: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        &include_bytes!("../../../tests/fixtures/pele-1.12.0/unit/literal-label-regression.json.gz")[..],
+        &include_bytes!("../../../tests/fixtures/pele-1.13.0/unit/literal-label-regression.json.gz")[..],
     ))
     .unwrap();
     assert_eq!(value["upstreamCommit"], zebra_mermaid::PELE_COMMIT);

@@ -5,6 +5,7 @@ pub mod cluster;
 pub(crate) mod concat;
 pub mod edges;
 pub mod ink;
+pub mod palette;
 pub mod resolve;
 pub mod root;
 pub mod shapes;

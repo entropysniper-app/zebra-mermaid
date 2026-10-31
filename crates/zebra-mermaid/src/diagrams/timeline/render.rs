@@ -126,6 +126,15 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     let event_height = |label: &Label| js::max(label.height, js::round(small * 1.5)) + 2.0 * PAD_Y;
     // Leading periods take Pele's muted color when sections follow; in resolved mode that is
     // the secondary text color, the neutral of Zebra's palette.
+    let series_of = |group: &Group, period: usize| {
+        if group.section >= 0 {
+            Some(group.section)
+        } else if has_sections {
+            None
+        } else {
+            Some(if multicolor { period as i64 } else { 0 })
+        }
+    };
     let color_of = |group: &Group, period: usize| -> String {
         if group.section >= 0 {
             ctx.series(group.section).into_owned()
@@ -165,18 +174,31 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
     let top = pad + title_h;
 
     // Text on a series fill: the canvas color in CSS mode, a contrasting color when resolved.
-    let on_color = |fill: &str| svg_format!(" fill=\"", ctx.theming.text_on(fill, "var(--_bg)"), "\"");
+    let on_color = |fill: &str, index: Option<i64>| {
+        let ink = index.map_or_else(String::new, |i| ctx.series_ink_fill(i));
+        if ink.is_empty() {
+            svg_format!(" fill=\"", ctx.theming.text_on(fill, "var(--_bg)"), "\"")
+        } else {
+            ink
+        }
+    };
     let section_label = |group: &Group, w: f64| -> Label {
         fit_label(Some(&model.sections[group.section as usize]), &m, size, w - 2.0 * PAD_X, style::BOLD)
     };
     let header = |group: &Group, label: &Label, x: f64, y: f64, w: f64, h: f64| -> String {
         let fill = ctx.series(group.section);
         rect(x, y, w, h, &svg_format!(" fill=\"", fill, "\""))
-            + &svg_format!(label_svg(label, x + w / 2.0, y + h / 2.0, &svg_format!(" font-weight=\"var(--_hw)\"", on_color(&fill)), None))
+            + &svg_format!(label_svg(
+                label,
+                x + w / 2.0,
+                y + h / 2.0,
+                &svg_format!(" font-weight=\"var(--_hw)\"", on_color(&fill, Some(group.section))),
+                None
+            ))
     };
-    let period = |labels: &[Label], i: usize, color: &str, x: f64, y: f64, h: f64| -> String {
+    let period = |labels: &[Label], i: usize, group: &Group, color: &str, x: f64, y: f64, h: f64| -> String {
         rect(x, y, col_w, h, &svg_format!(" fill=\"", color, "\""))
-            + &svg_format!(label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color), None))
+            + &svg_format!(label_svg(&labels[i], x + col_w / 2.0, y + h / 2.0, &on_color(color, series_of(group, i)), None))
     };
     let event = |label: &Label, color: &str, x: f64, y: f64, h: f64| -> String {
         svg_format!(
@@ -252,7 +274,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                     svg_write!(d, "M", num(axis_x), ",", num(cy), "H", num(spine_x), "V", num(last)).unwrap();
                 }
                 body.push_str(&open_period(i));
-                body.push_str(&period(&period_labels, i, &color, left, cy - h / 2.0, h));
+                body.push_str(&period(&period_labels, i, group, &color, left, cy - h / 2.0, h));
                 svg_write!(body, "<path class=\"pele-edge\" d=\"", d, "\"", line, "/>").unwrap();
                 body.push_str(&dot(axis_x, cy, &color));
                 body.push_str(&cards);
@@ -340,7 +362,7 @@ fn draw(model: &TimelineModel, config: &Config, ctx: &RenderCtx, vertical: bool)
                 }
                 bottom = js::max(bottom, ey - EVENT_GAP);
                 body.push_str(&open_period(i));
-                body.push_str(&period(&period_labels, i, &color, x, periods_y, chip_h));
+                body.push_str(&period(&period_labels, i, group, &color, x, periods_y, chip_h));
                 svg_write!(body, "<path class=\"pele-edge\" d=\"", d, "\"", line, "/>").unwrap();
                 body.push_str(&dot(cx, axis_y, &color));
                 body.push_str(&cards);

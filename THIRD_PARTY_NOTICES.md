@@ -5,8 +5,8 @@ sources listed below, under the terms quoted for each.
 
 ## Pele
 
-The renderer (`crates/zebra-mermaid/src/**`) is a Rust port of Pele 1.12.0
-(<https://github.com/obsidianmd/pele>, commit `8aff183be57021b533f319a29341a529be934b08`),
+The renderer (`crates/zebra-mermaid/src/**`) is a Rust port of Pele 1.13.0
+(<https://github.com/obsidianmd/pele>, commit `3a2f075ee0c3d914f0fad3545fc0f193693975ac`),
 originally ported at commit `44da152bbb79b91f03e68016f42499bb25bf6e82`:
 its preprocessing, YAML reader, parsers, layout, text measurement tables and SVG output. Pele's
 Arial advance table (`text/metrics.rs`) and Unicode letter table (`util/unicode.rs`) are copied

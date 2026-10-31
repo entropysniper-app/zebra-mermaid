@@ -71,7 +71,7 @@ fn marker_reaches_nested_fill() {
 }
 #[test]
 fn curve_enters_fill() {
-    let s = svg("flowchart LR\nsubgraph S\n  A\n  B\nend\nD\nE --> A\nD --> F\nF --> C\nB --> C\nstyle S fill:white");
+    let s = svg("flowchart LR\nsubgraph S\n  A\n  B --> G\nend\nD\nE --> A\nD --> F\nF --> C\nB --> C\nstyle S fill:white");
     let c = &captures(&s, r#"<g class="pele-casings"[^>]*>(.*)</g><g class="pele-edges""#)[1];
     let edge = |id: &str| captures(&s, &format!(r#"data-id="{id}"><path d="([^"]+)""#))[1].clone();
     assert!(c.contains(&format!("<path d=\"{}\"/>", edge("L_F_C_0"))));

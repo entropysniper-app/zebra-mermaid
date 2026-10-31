@@ -34,7 +34,14 @@ const native=[
 for(const source of native){const actual=run(source);assert.doesNotMatch(actual.svg,/var\(|color-mix\(|light-dark\(/);}
 const files=run(cases[2][1],['--zebra','--monospace','files']);assert.doesNotMatch(files.svg,/var\(/);assert.match(files.svg,/font-family="monospace"/);
 const invalid=spawnSync(binary,['render','-','--monospace','member'],{input:cases[0][1],encoding:'utf8'});assert.equal(invalid.status,2);assert.equal(invalid.stdout,'');assert.match(invalid.stderr,/--monospace/);
+const paletteSources=[
+ '%%{init: {"themeVariables":{"pie1":"#ffeb3b","pie2":"navy"}}}%%\npie\n"A": 1\n"B": 1',
+ '%%{init: {"themeVariables":{"xyChart":{"plotColorPalette":"rgb(0, 0, 0), blue"}}}}%%\nxychart\nbar [1,2]\nline [2,1]',
+ '---\nconfig:\n  quadrantChart:\n    titleFontSize: 30\n    pointLabelFontSize: 9\n---\nquadrantChart\ntitle Plan\nP: [0.5,0.5]',
+];
+for(const source of paletteSources){const actual=run(source,['--color-mode','css']),expected=oracle.render(source);for(const key of ['svg','width','height'])assert.equal(actual[key],expected[key]);compared++;}
+const nativePalette=run('%%{init: {"themeVariables":{"pie1":"var(--pele-accent)","pie2":"light-dark(#000, #fff)"}}}%%\npie\n"A":1\n"B":1');assert.doesNotMatch(nativePalette.svg,/var\(|light-dark\(/);
 const cliVersion=execFileSync(binary,['--version'],{encoding:'utf8'}).trim();assert.ok(cliVersion.includes(version));
-const result={version,commit,cliVersion,cssComparisons:compared,nativeChecks:native.length+1,invalidOptionChecks:1,success:true};
+const result={version,commit,cliVersion,cssComparisons:compared,nativeChecks:native.length+2,invalidOptionChecks:1,success:true};
 writeFileSync(`target/alignment-${version}/cli-validation.json`,JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify(result));

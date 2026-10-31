@@ -1,237 +1,237 @@
 // Generated from frozen upstream callbacks by compile-utilities.mjs.
 #[test]
 fn url_00() {
-    check("c1e2585f28a7cfef9c842b38");
+    check("e5b067180be21d5e94c7aead");
 }
 #[test]
 fn url_01() {
-    check("8947285472ceba55ba775c7b");
+    check("3c2e25e20357492bbd75973d");
 }
 #[test]
 fn url_02() {
-    check("d0fb609072e600782ea494fc");
+    check("4ebd3b1c92f2f174b9c620ef");
 }
 #[test]
 fn url_03() {
-    check("8dfc0dafb2a9a8273a3ae0ce");
+    check("e6b7b86c904a5d824041c104");
 }
 #[test]
 fn url_04() {
-    check("c8bbf766f1ccd6e3abf1e633");
+    check("6216e1b1b183a9d37c464aac");
 }
 #[test]
 fn url_05() {
-    check("772eb9dc3042490a9a7d25af");
+    check("c121e65a6155c7542330ee70");
 }
 #[test]
 fn url_06() {
-    check("7a923ea5575ac1bfad5f7caa");
+    check("b915408028b1570e57fb053e");
 }
 #[test]
 fn url_07() {
-    check("526e8a1b38a0f8ad9ec57c8b");
+    check("50d968154b7be6d385a074ed");
 }
 #[test]
 fn url_08() {
-    check("8d800af0de50c31999198ccd");
+    check("19ac2afb5e13fc6172ecab08");
 }
 #[test]
 fn url_09() {
-    check("e90eaf5a5986026b89f037b1");
+    check("731bfc6226aec5fd3d73fab8");
 }
 #[test]
 fn url_10() {
-    check("e640ed45f591b86d74f3e6e1");
+    check("0a7624420eccd6a6acc7ded3");
 }
 #[test]
 fn url_11() {
-    check("b9c673aeeb59d19ae6245580");
+    check("2a9ba339e3775d50b65d5450");
 }
 #[test]
 fn url_12() {
-    check("fe45e7b7137c1b9902e28b47");
+    check("0e10fd3aeaba327628472ee3");
 }
 #[test]
 fn url_13() {
-    check("131822c07210550fd53fcc1a");
+    check("d500dcce459f159e248342d0");
 }
 #[test]
 fn url_14() {
-    check("5146d24751a359a9487ebd67");
+    check("57e3ee64cd30a1978d6b76be");
 }
 #[test]
 fn url_15() {
-    check("6027550ae0979dc93e4068e2");
+    check("faf0d7d032af3b9c44281a1f");
 }
 #[test]
 fn url_16() {
-    check("95305667721c11a0d600f02d");
+    check("a27ead58f22a8dce2437342e");
 }
 #[test]
 fn url_17() {
-    check("7d418ae9e5a9544f576c65c1");
+    check("1280ba7ddcf5dda6ed607b47");
 }
 #[test]
 fn url_18() {
-    check("3c6fa6437ee9bba982903e10");
+    check("204cc04fe7348f55af821302");
 }
 #[test]
 fn url_19() {
-    check("bee0041018b3c56dfa6fc4b8");
+    check("e2cfbfe2dbc4b260d0811880");
 }
 #[test]
 fn url_20() {
-    check("64585cc81677d7af4ae582b3");
+    check("3756c43482708616fed79328");
 }
 #[test]
 fn url_21() {
-    check("a5e560a10737f7f130aaca07");
+    check("3a603411d01d5e15c807a4eb");
 }
 #[test]
 fn url_22() {
-    check("95b9f03f66b726c50ec7443a");
+    check("35dde31af83b4eda9567152b");
 }
 #[test]
 fn url_23() {
-    check("530f8ee23be6e89dd073ef02");
+    check("5accf945b6085d1fe3b54758");
 }
 #[test]
 fn url_24() {
-    check("a05cf7c15dd0e01baee34e15");
+    check("dd966ed44e625e0eade3ecc5");
 }
 #[test]
 fn url_25() {
-    check("5ede747eae75d8c76defd1c3");
+    check("5a695fdd83fe548611c7ac5d");
 }
 #[test]
 fn url_26() {
-    check("5927f15376c5ba8b7c99a1f0");
+    check("64d3385265114683d857302d");
 }
 #[test]
 fn url_27() {
-    check("2976328c17c00aa318b18155");
+    check("9576a77aa62a6b20071035b4");
 }
 #[test]
 fn url_28() {
-    check("01d67994cf62d14e6b209cca");
+    check("3f15d326b8c37cf19fd65713");
 }
 #[test]
 fn url_29() {
-    check("0c67e55d76dd48b424ec7a98");
+    check("de3f89b81cf44aefd773761a");
 }
 #[test]
 fn url_30() {
-    check("4148613cf2b4b772ac88e2c5");
+    check("40c6e36d9b53c9d11993c502");
 }
 #[test]
 fn url_31() {
-    check("efa7362a9fd9032b42048e9e");
+    check("7bb0e4d2291a07cc3cb758d7");
 }
 #[test]
 fn url_32() {
-    check("4fe89ab18acffa6dcc05f5ec");
+    check("5558fd9326f366790e390316");
 }
 #[test]
 fn url_33() {
-    check("3cec4febe6aceedfbca77bf4");
+    check("72fb6456837167eff0117e57");
 }
 #[test]
 fn yaml_00() {
-    check("b16c5de83270a16df0677b06");
+    check("ca31dc951a9943d15e71d027");
 }
 #[test]
 fn yaml_01() {
-    check("386e6c81086f7c2185c3c4a7");
+    check("830a3a63e350212d95c3195d");
 }
 #[test]
 fn yaml_02() {
-    check("17944fb0f5cfb38b0c1aa2f3");
+    check("dfb43838de5dc9e0473aecf6");
 }
 #[test]
 fn yaml_03() {
-    check("56944fe251a2de8a6e48b05a");
+    check("8cde3b6297bd88760e70fc68");
 }
 #[test]
 fn yaml_04() {
-    check("a1d3f258bfbc9d611552e4f7");
+    check("88a33dd0aa9c8fc097cbd00b");
 }
 #[test]
 fn yaml_05() {
-    check("7c59f93859bbb7a46402f0b0");
+    check("ddb9a2223d611cc7449eeee0");
 }
 #[test]
 fn yaml_06() {
-    check("41880e18ffbf147cb329e850");
+    check("5292ed843327bc74ca3e20b6");
 }
 #[test]
 fn yaml_07() {
-    check("f3950962ef0f5b8c0f73d0ea");
+    check("c790b59651bddddc4bf268b0");
 }
 #[test]
 fn yaml_08() {
-    check("d25fabd0e0e63bc0f381d8fd");
+    check("1b8dc2a5b4ed4999b769861c");
 }
 #[test]
 fn yaml_09() {
-    check("4116523df4b272298c97553f");
+    check("82a1502738b4273c9692a4e2");
 }
 #[test]
 fn yaml_10() {
-    check("b0e898e877b296c5548d920e");
+    check("6ceb2a0e68e004812a99673c");
 }
 #[test]
 fn yaml_11() {
-    check("ea04d886bfed4a411441bfe4");
+    check("9a28be9ff4272e61fb61fbdc");
 }
 #[test]
 fn yaml_12() {
-    check("a875c720384f44d8ba1879da");
+    check("5ca6104d3ce66843835bb46c");
 }
 #[test]
 fn yaml_13() {
-    check("e74cd2651bce285b7bab0655");
+    check("fc26365305bf85e896aa97bc");
 }
 #[test]
 fn yaml_14() {
-    check("3fb8f3fe88248c0be3c30d33");
+    check("9fe89aec1df8e25c8d3a324d");
 }
 #[test]
 fn yaml_15() {
-    check("81495261f5a0e8e1a694dfff");
+    check("cb7eb671aa5d8d2d8647c49d");
 }
 #[test]
 fn yaml_16() {
-    check("cb235bb508c04cc0bd4dad0e");
+    check("c868c02c623648e66328472c");
 }
 #[test]
 fn yaml_17() {
-    check("599f86735a76c0ff949724ea");
+    check("09e72635dd1306bca2887374");
 }
 #[test]
 fn yaml_18() {
-    check("c316ce07000181373550a863");
+    check("0d65948f26b07cf633bf9146");
 }
 #[test]
 fn yaml_19() {
-    check("8c088226762501438e726d17");
+    check("26adfe318c5b7c4406795b4c");
 }
 #[test]
 fn yaml_20() {
-    check("7f36bf9b034f2fa2fe42e8d4");
+    check("adbb2bf15fcc37a15e175fa2");
 }
 #[test]
 fn yaml_21() {
-    check("a51399ac4b648b51dbbb5af7");
+    check("b0792790e47543fa57e78b19");
 }
 #[test]
 fn yaml_22() {
-    check("00dec59ecd5c2fbb267250e2");
+    check("67dffc2a6db1d7a821e6ba32");
 }
 #[test]
 fn yaml_23() {
-    check("59c0b1ce9ddbd6058ba21846");
+    check("7aa1e3d3b31d4defe68cf2ee");
 }
 #[test]
 fn yaml_24() {
-    check("2d23f0c3abc6c5b7a0edcf78");
+    check("83c1e186df57c7df7b60f1f7");
 }

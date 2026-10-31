@@ -618,6 +618,71 @@ describe('compound layout', () => {
     }
   });
 
+  it('runs an edge straight across the gap between a group border and the node it meets inside', () => {
+    for (const dir of ['TB', 'LR'] as Dir[]) {
+      const nodes = [group(100), group(101)];
+      const from = [0, 1, 2].map(() => nodes.push(cnode(60, 30, 0)) - 1);
+      const to = [0, 1, 2, 3, 4].map(() => nodes.push(cnode(60, 30, 1)) - 1);
+      nodes.forEach((node, i) => {
+        if (node.isGroup) return;
+        node.seq = i;
+        node.span = Math.min(node.w, node.h) - 8;
+      });
+      const edges: CEdge[] = [];
+      for (const b of to) for (const a of from) edges.push(edge(a, b, 40, 16));
+      compoundLayout(nodes, edges, dir, OPTIONS);
+      const across = dir === 'TB' ? 0 : 1;
+      for (const [i, e] of edges.entries()) {
+        const last = e.route.length - 3;
+        let k = 0;
+        while (k < last && !onBorder(nodes[1], e.route[k], e.route[k + 1])) k += 3;
+        expect(k, `${dir} edge ${i} enters its group`).toBeLessThan(last);
+        expect(e.route[k + across], `${dir} edge ${i} enters`).toBeCloseTo(e.route[last + across], 5);
+        k = last;
+        while (k > 0 && !onBorder(nodes[0], e.route[k], e.route[k + 1])) k -= 3;
+        expect(k, `${dir} edge ${i} leaves its group`).toBeGreaterThan(0);
+        expect(e.route[k + across], `${dir} edge ${i} leaves`).toBeCloseTo(e.route[across], 5);
+      }
+    }
+  });
+
+  it('keeps edges straight when their ends on a node are less than a twin apart', () => {
+    const nodes = [group(100), cnode(48, 48, 0), cnode(70, 66, 0), cnode(48, 48)];
+    nodes.forEach((node, i) => {
+      if (i > 0) node.seq = i;
+    });
+    nodes[1].span = 24;
+    nodes[2].span = 0.995;
+    nodes[3].span = 24;
+    const edges = [edge(1, 2, 40, 16), edge(2, 3), edge(3, 2)];
+    compoundLayout(nodes, edges, 'TB', OPTIONS);
+    for (const e of edges.slice(1)) {
+      const xs = e.route.filter((_, k) => k % 3 === 0);
+      const lo = Math.min(xs[0], xs[xs.length - 1]);
+      const hi = Math.max(xs[0], xs[xs.length - 1]);
+      for (const x of xs) {
+        expect(x).toBeGreaterThanOrEqual(lo - 1);
+        expect(x).toBeLessThanOrEqual(hi + 1);
+      }
+    }
+  });
+
+  it('runs an edge into a group straight when only its bends need to move', () => {
+    const nodes = [group(100), group(101)];
+    const leaf = (parent: number): number => {
+      const v = nodes.push(cnode(54, 48, parent)) - 1;
+      nodes[v].seq = v;
+      nodes[v].span = 24;
+      return v;
+    };
+    const [a1, a2, a3, b1, b2, c, d] = [leaf(0), leaf(0), leaf(0), leaf(1), leaf(1), leaf(-1), leaf(-1)];
+    const edges = [edge(a1, a2), edge(a1, a3), edge(b1, b2), edge(a2, b1), edge(a3, b1), edge(b2, a1), edge(c, 0), edge(c, 1), edge(0, d), edge(1, d)];
+    compoundLayout(nodes, edges, 'TB', OPTIONS);
+    const route = edges[7].route;
+    const x = route[route.length - 3];
+    for (let k = 0; k < route.length; k += 3) if (route[k + 1] > nodes[c].y + nodes[c].h / 2 + 24) expect(route[k]).toBeCloseTo(x, 5);
+  });
+
   it('orders the nodes of a row of groups as one drawing, so that the edges between them do not cross', () => {
     const nodes = [group(100), group(101), group(102)];
     const stage = (g: number): number[] =>

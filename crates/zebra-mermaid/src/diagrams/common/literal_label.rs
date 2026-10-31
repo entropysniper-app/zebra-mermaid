@@ -277,7 +277,7 @@ mod adapter_reference {
     #[test]
     fn direct_left_label_parts_match_independent_node_svg() {
         let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../../tests/fixtures/pele-1.12.0/unit/literal-label-regression.json.gz")[..],
+            &include_bytes!("../../../../../tests/fixtures/pele-1.13.0/unit/literal-label-regression.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);

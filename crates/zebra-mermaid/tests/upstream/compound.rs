@@ -707,3 +707,109 @@ fn coordinates_rows_of_groups_as_one_drawing_without_crossing() {
     compound_layout(&mut nodes, &mut edges, Dir::LR, &options());
     assert_eq!(route_crossings(&nodes, &edges, Style::Curved), 0);
 }
+
+// Pele 1.13.0: all original routes, directions, side spans and precision retained.
+#[test]
+fn border_gap_runs_straight() {
+    for dir in [Dir::TB, Dir::LR] {
+        let mut nodes = vec![ordered_group(100.), ordered_group(101.)];
+        let from = (0..3)
+            .map(|_| {
+                nodes.push(cnode(60., 30., 0));
+                nodes.len() - 1
+            })
+            .collect::<Vec<_>>();
+        let to = (0..5)
+            .map(|_| {
+                nodes.push(cnode(60., 30., 1));
+                nodes.len() - 1
+            })
+            .collect::<Vec<_>>();
+        for (i, n) in nodes.iter_mut().enumerate() {
+            if n.is_group {
+                continue;
+            }
+            n.seq = i as f64;
+            n.span = n.w.min(n.h) - 8.;
+        }
+        let mut edges = Vec::new();
+        for b in to {
+            for &a in &from {
+                edges.push(labelled(a, b, 40., 16.));
+            }
+        }
+        compound_layout(&mut nodes, &mut edges, dir, &options());
+        let across = if dir == Dir::TB { 0 } else { 1 };
+        for (i, e) in edges.iter().enumerate() {
+            let last = e.route.len() - 3;
+            let mut k = 0;
+            while k < last && !border(&nodes[1], e.route[k], e.route[k + 1]) {
+                k += 3;
+            }
+            assert!(k < last, "{dir:?} edge {i} enters its group");
+            close(e.route[k + across], e.route[last + across]);
+            k = last;
+            while k > 0 && !border(&nodes[0], e.route[k], e.route[k + 1]) {
+                k -= 3;
+            }
+            assert!(k > 0, "{dir:?} edge {i} leaves its group");
+            close(e.route[k + across], e.route[across]);
+        }
+    }
+}
+#[test]
+fn sub_twin_ends_stay_straight() {
+    let mut nodes = vec![ordered_group(100.), cnode(48., 48., 0), cnode(70., 66., 0), cnode(48., 48., -1)];
+    for (i, n) in nodes.iter_mut().enumerate() {
+        if i > 0 {
+            n.seq = i as f64;
+        }
+    }
+    nodes[1].span = 24.;
+    nodes[2].span = 0.995;
+    nodes[3].span = 24.;
+    let mut edges = vec![labelled(1, 2, 40., 16.), edge(2, 3), edge(3, 2)];
+    compound_layout(&mut nodes, &mut edges, Dir::TB, &options());
+    for e in edges.iter().skip(1) {
+        let xs = e.route.iter().step_by(3).copied().collect::<Vec<_>>();
+        let lo = xs[0].min(*xs.last().unwrap());
+        let hi = xs[0].max(*xs.last().unwrap());
+        for x in xs {
+            assert!(x >= lo - 1.);
+            assert!(x <= hi + 1.);
+        }
+    }
+}
+#[test]
+fn bend_only_group_entry_straight() {
+    let mut nodes = vec![ordered_group(100.), ordered_group(101.)];
+    let mut leaf = |parent| {
+        let v = nodes.len();
+        let mut n = cnode(54., 48., parent);
+        n.seq = v as f64;
+        n.span = 24.;
+        nodes.push(n);
+        v
+    };
+    let [a1, a2, a3, b1, b2, c, d] = [leaf(0), leaf(0), leaf(0), leaf(1), leaf(1), leaf(-1), leaf(-1)];
+    let mut edges = vec![
+        edge(a1, a2),
+        edge(a1, a3),
+        edge(b1, b2),
+        edge(a2, b1),
+        edge(a3, b1),
+        edge(b2, a1),
+        edge(c, 0),
+        edge(c, 1),
+        edge(0, d),
+        edge(1, d),
+    ];
+    compound_layout(&mut nodes, &mut edges, Dir::TB, &options());
+    let r = &edges[7].route;
+    let x = r[r.len() - 3];
+    for k in (0..r.len()).step_by(3) {
+        if r[k + 1] > nodes[c].y + nodes[c].h / 2. + 24. {
+            close(r[k], x);
+        }
+    }
+}

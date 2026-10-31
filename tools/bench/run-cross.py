@@ -8,7 +8,7 @@ revision='3726ccbffe0e8032361eb9668694b24f77858060'
 actual=subprocess.check_output(['git','-C','.research/mermaid-rs-renderer','rev-parse','HEAD'],cwd=root,text=True).strip()
 assert actual==revision, 'Unexpected mermaid-rs-renderer revision'
 pele_revision=subprocess.check_output(['git','-C','.research/pele','rev-parse','HEAD'],cwd=root,text=True).strip()
-assert pele_revision=='8aff183be57021b533f319a29341a529be934b08', 'Unexpected Pele revision'
+assert pele_revision=='3a2f075ee0c3d914f0fad3545fc0f193693975ac', 'Unexpected Pele revision'
 native=root/os.environ.get('ZM_CROSS_BINARY','target/cross-bench-build/release/zebra-mermaid-cross-bench')
 env={**os.environ,'TZ':'UTC','XDG_CACHE_HOME':str(out/'font-cache')}
 engines=['mermaid','pele','zebra','mmdr']
@@ -99,8 +99,8 @@ for index,c in enumerate(common):
         row['timings'][e]={'ms':statistics.median(values),'runsMs':values}
     rows.append(row)
 versions={'mermaid':json.loads((root/'.research/pele/website/node_modules/mermaid/package.json').read_text())['version'],
-    'pele':'1.12.0','zebra':'0.1.0','mmdr':'0.3.1','mmdrCommit':revision,
-    'peleCommit':'8aff183be57021b533f319a29341a529be934b08','browser':runs[0]['mermaid']['browser'],
+    'pele':'1.13.0','zebra':'0.1.0','mmdr':'0.3.1','mmdrCommit':revision,
+    'peleCommit':'3a2f075ee0c3d914f0fad3545fc0f193693975ac','browser':runs[0]['mermaid']['browser'],
     'rustc':subprocess.check_output(['rustc','--version'],text=True).strip(),'node':subprocess.check_output(['node','--version'],text=True).strip()}
 report={'createdAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'versions':versions,'inputSha256':sha(case_path),'commonSha256':sha(common_path),'nativeBinarySha256':sha(native),
     'nativeCargoLockSha256':sha(root/'tools/cross-bench/Cargo.lock'),'coverage':coverage,'rows':rows,

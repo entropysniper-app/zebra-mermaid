@@ -6,12 +6,12 @@ use zebra_mermaid::{render, type_enabled, DiagramType};
 
 #[test]
 fn current_release_corpus_matches_svg_geometry_links_and_error_metadata() {
-    let metadata: serde_json::Value = serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.12.0.metadata.json")).unwrap();
+    let metadata: serde_json::Value = serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.13.0.metadata.json")).unwrap();
     assert_eq!(metadata["version"], zebra_mermaid::PELE_VERSION);
     assert_eq!(metadata["commit"], zebra_mermaid::PELE_COMMIT);
     let mut checked = 0;
     let mut failures = common::Failures::default();
-    for row in common::read_jsonl("pele-1.12.0.jsonl.gz") {
+    for row in common::read_jsonl("pele-1.13.0.jsonl.gz") {
         let expected = &row["expect"];
         let diagram_type = expected["type"].as_str().or(expected["error"]["type"].as_str());
         if diagram_type.and_then(|t| t.parse::<DiagramType>().ok()).is_some_and(|t| !type_enabled(t)) {
@@ -38,7 +38,7 @@ fn current_release_corpus_matches_svg_geometry_links_and_error_metadata() {
 #[test]
 fn release_regressions_match_complete_responses() {
     let metadata: serde_json::Value =
-        serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.12.0/release-regressions.metadata.json")).unwrap();
+        serde_json::from_str(include_str!("../../../tests/fixtures/pele-1.13.0/release-regressions.metadata.json")).unwrap();
     assert_eq!(metadata["version"], zebra_mermaid::PELE_VERSION);
     assert_eq!(metadata["commit"], zebra_mermaid::PELE_COMMIT);
     let mut failures = common::Failures::default();

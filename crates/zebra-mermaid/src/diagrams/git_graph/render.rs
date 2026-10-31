@@ -53,7 +53,7 @@ fn tag_width(tag: &Label) -> f64 {
 /// The color of branch `lane`: Pele's series color in CSS mode, Zebra's branch color (its
 /// `chart_series`) in resolved mode.
 fn branch_color(ctx: &RenderCtx, lane: usize) -> String {
-    ctx.theming.series_line(lane as i64).into_owned()
+    ctx.series_line(lane as i64).into_owned()
 }
 
 fn symbol(ctx: &RenderCtx, kind: u8, x: f64, y: f64, color: &str) -> String {
@@ -395,7 +395,13 @@ fn draw(model: &GitModel, config: &Config, ctx: &RenderCtx, direction: GitDirect
                 )
                 .unwrap();
                 let text = ctx.theming.text_on(&color, "var(--_bg)");
-                svg_write!(branches, label_svg(name, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", text, "\""), None)).unwrap();
+                let ink = ctx.series_ink_fill(i as i64);
+                let attrs = if ink.is_empty() {
+                    svg_format!(" class=\"pele-label\" fill=\"", text, "\"")
+                } else {
+                    format!(" class=\"pele-label\"{ink}")
+                };
+                svg_write!(branches, label_svg(name, cx, cy, &attrs, None)).unwrap();
             }
             branches.push_str("</g>");
         }

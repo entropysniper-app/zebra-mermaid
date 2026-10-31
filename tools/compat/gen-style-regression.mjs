@@ -1,5 +1,5 @@
 import {mkdirSync as ensureReleaseDir} from 'node:fs';
-ensureReleaseDir('tests/fixtures/pele-1.12.0',{recursive:true});
+ensureReleaseDir('tests/fixtures/pele-1.13.0',{recursive:true});
 // Freeze author-style edge cases against the pinned upstream implementation.
 import {readFileSync,writeFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -24,5 +24,5 @@ for(let i=0;i<2048;i++){
  inputs.push(declarations);
 }
 const cases=inputs.map(declarations=>({declarations,expected:plain(oracle.resolveStyle(declarations))}));
-writeFileSync('tests/fixtures/pele-1.12.0/style-regression.json.gz',gzipSync(JSON.stringify({commit,seed:'0x57a1e',randomCases:2048,cases}),{level:9}));
+writeFileSync('tests/fixtures/pele-1.13.0/style-regression.json.gz',gzipSync(JSON.stringify({commit,seed:'0x57a1e',randomCases:2048,cases}),{level:9}));
 console.log(JSON.stringify({cases:cases.length,commit}));

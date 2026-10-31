@@ -40,6 +40,17 @@ fn length(config: &Config, key: &str, fallback: f64, max: f64) -> f64 {
     }
 }
 
+fn text_size(config: &Config, key: &str, fallback: f64) -> f64 {
+    setting(config, key).and_then(ConfigValue::as_f64).filter(|n| n.is_finite()).map_or(fallback, |n| js::min(72.0, js::max(4.0, n)))
+}
+fn size_attr(own: f64, inherited: f64) -> String {
+    if own == inherited {
+        String::new()
+    } else {
+        format!(" font-size=\"{}\"", js::number_text(own))
+    }
+}
+
 fn hex(color: &str) -> String {
     if color.starts_with('#') {
         color.to_string()
@@ -55,8 +66,11 @@ fn label(m: &Measure, text: Option<&QuadrantText>, font_size: f64, max: f64) -> 
 pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) -> Result<Rendered, Error> {
     let options = ctx.options;
     let size = ctx.font_size();
-    let axis_size = js::round(size * 0.875);
-    let point_size = js::round(size * 0.75);
+    let title_size = text_size(config, "titleFontSize", size);
+    let quadrant_size = text_size(config, "quadrantLabelFontSize", size);
+    let x_axis_size = text_size(config, "xAxisLabelFontSize", js::round(size * 0.875));
+    let y_axis_size = text_size(config, "yAxisLabelFontSize", js::round(size * 0.875));
+    let point_size = text_size(config, "pointLabelFontSize", js::round(size * 0.75));
     let m = ctx.measure();
     let natural = js::round(js::max(100.0, length(config, "chartWidth", 500.0, 4000.0)));
     let width = js::round(cap_width(options, natural, 280.0, 0.0));
@@ -66,7 +80,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     let y_pad = length(config, "yAxisLabelPadding", 5.0, 200.0);
     let has_points = !model.points.is_empty();
 
-    let title = layout_label(model.title.as_deref(), false, &m.without_math(), size, js::max(width - 2.0 * outer, 40.0), style::BOLD);
+    let title = layout_label(model.title.as_deref(), false, &m.without_math(), title_size, js::max(width - 2.0 * outer, 40.0), style::BOLD);
     let title_pad = length(config, "titlePadding", 10.0, 200.0);
     let title_space = if title.height > 0.0 { title.height + title_pad } else { 0.0 };
 
@@ -78,13 +92,13 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     let y_right = setting(config, "yAxisPosition").and_then(ConfigValue::as_str) == Some("right");
 
     let side = width - 2.0 * outer;
-    let x_left = label(&m, model.x_axis_left.as_ref(), axis_size, if model.x_axis_right.is_some() { side / 2.0 - 16.0 } else { side });
-    let x_right = label(&m, model.x_axis_right.as_ref(), axis_size, side / 2.0 - 16.0);
+    let x_left = label(&m, model.x_axis_left.as_ref(), x_axis_size, if model.x_axis_right.is_some() { side / 2.0 - 16.0 } else { side });
+    let x_right = label(&m, model.x_axis_right.as_ref(), x_axis_size, side / 2.0 - 16.0);
     let x_height = js::max(x_left.height, x_right.height);
     let x_space = if has_x { x_height + x_pad } else { 0.0 };
     let tall = height - 2.0 * outer - title_space - x_space;
-    let y_bottom = label(&m, model.y_axis_bottom.as_ref(), axis_size, if model.y_axis_top.is_some() { tall / 2.0 - 16.0 } else { tall });
-    let y_top = label(&m, model.y_axis_top.as_ref(), axis_size, tall / 2.0 - 16.0);
+    let y_bottom = label(&m, model.y_axis_bottom.as_ref(), y_axis_size, if model.y_axis_top.is_some() { tall / 2.0 - 16.0 } else { tall });
+    let y_top = label(&m, model.y_axis_top.as_ref(), y_axis_size, tall / 2.0 - 16.0);
     let y_height = js::max(y_bottom.height, y_top.height);
     let y_space = if has_y { y_height + y_pad } else { 0.0 };
 
@@ -122,7 +136,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
     for k in 0..4 {
         let x = if k == 0 || k == 3 { left + w - tile_w } else { left };
         let y = if k < 2 { top } else { top + h - tile_h };
-        let text = label(&m, model.quadrants[k].as_ref(), size, tile_w - 16.0);
+        let text = label(&m, model.quadrants[k].as_ref(), quadrant_size, tile_w - 16.0);
         let cx = x + tile_w / 2.0;
         let cy = if has_points { y + text_top + text.height / 2.0 } else { y + tile_h / 2.0 };
         taken.extend_from_slice(&[cx - text.width / 2.0, cy - text.height / 2.0, cx + text.width / 2.0, cy + text.height / 2.0]);
@@ -141,7 +155,13 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
             "\"",
             crate::svg::theme::ROUNDED,
             "/>",
-            label_svg(&text, cx, cy, &svg_format!(" class=\"pele-label\" fill=\"", on_region, "\" stroke=\"none\""), None),
+            label_svg(
+                &text,
+                cx,
+                cy,
+                &svg_format!(" class=\"pele-label\"", size_attr(quadrant_size, size), " fill=\"", on_region, "\" stroke=\"none\""),
+                None
+            ),
             "</g>"
         )
         .unwrap();
@@ -163,7 +183,9 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
                     num(x),
                     ",",
                     num(y),
-                    ") rotate(-90)\">",
+                    ") rotate(-90)\"",
+                    size_attr(y_axis_size, x_axis_size),
+                    ">",
                     label_svg(text, 0.0, 0.0, "", None),
                     "</g>"
                 )
@@ -207,7 +229,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
             cx,
             cy,
             reach: r + stroke_width.map_or(0.0, |s| js::min(js::parse_int(s, 0), 400.0) / 2.0),
-            text: label(&m, Some(&point.text), point_size, 200.0),
+            text: label(&m, Some(&point.text), point_size, w),
         });
         let own_stroke =
             if stroke_width.is_some() && stroke_color.is_none() { svg_format!(" stroke=\"", fill, "\"") } else { String::new() };
@@ -299,7 +321,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         &title,
         width / 2.0,
         title_pad / 2.0 + title.height / 2.0,
-        " class=\"pele-title\" font-weight=\"var(--_tw)\"",
+        &svg_format!(" class=\"pele-title\"", size_attr(title_size, size), " font-weight=\"var(--_tw)\""),
         None
     ));
     svg_write!(
@@ -317,7 +339,7 @@ pub(crate) fn render(model: &QuadrantModel, config: &Config, ctx: &RenderCtx) ->
         svg_write!(
             content,
             "<g class=\"pele-axis-labels\" font-size=\"",
-            js::number_text(axis_size),
+            js::number_text(x_axis_size),
             "\" fill=\"",
             ctx.paint(Role::SecondaryText, "var(--_m)"),
             "\">",

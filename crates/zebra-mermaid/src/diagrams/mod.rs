@@ -106,6 +106,7 @@ pub struct RenderCtx<'a> {
     math_enabled: bool,
     /// The color choices of this render.
     pub theming: &'a Theming,
+    pub(crate) palette: crate::svg::palette::Palette,
 }
 
 impl<'a> RenderCtx<'a> {
@@ -129,6 +130,7 @@ impl<'a> RenderCtx<'a> {
             .with_images(options.images != Some(false)),
             math_enabled: false,
             theming,
+            palette: Default::default(),
         }
     }
 
@@ -140,7 +142,23 @@ impl<'a> RenderCtx<'a> {
 
     /// The fill of data series `index`. See [`Theming::series`].
     pub fn series(&self, index: i64) -> std::borrow::Cow<'a, str> {
+        if self.resolved() {
+            if let Some(color) = self.palette.native(index, self.theming) {
+                return std::borrow::Cow::Owned(color);
+            }
+        }
         self.theming.series(index)
+    }
+    pub fn series_line(&self, index: i64) -> std::borrow::Cow<'a, str> {
+        if self.resolved() {
+            if let Some(color) = self.palette.native(index, self.theming) {
+                return std::borrow::Cow::Owned(color);
+            }
+        }
+        self.theming.series_line(index)
+    }
+    pub fn series_ink_fill(&self, index: i64) -> String {
+        self.palette.ink_fill(index)
     }
 
     /// Whether colors are written as concrete values.

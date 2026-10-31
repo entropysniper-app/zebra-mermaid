@@ -277,7 +277,7 @@ mod tests {
 
     fn fixture() -> Value {
         let data: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-            &include_bytes!("../../../../tests/fixtures/pele-1.12.0/unit/render-label-reference.json.gz")[..],
+            &include_bytes!("../../../../tests/fixtures/pele-1.13.0/unit/render-label-reference.json.gz")[..],
         ))
         .unwrap();
         assert_eq!(data["upstreamCommit"], crate::PELE_COMMIT);

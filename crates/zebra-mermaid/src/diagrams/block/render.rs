@@ -703,6 +703,13 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             continue;
         }
         let arrow = v.kind == Kind::Arrow;
+        let expanded = if c.span > 1.0 && v.label.width > 0.0 && v.label.lines().len() > 1 && v.bw > c.nw && (arrow || !fixed(v.shape)) {
+            let text_style = if v.style.bold { style::BOLD } else { 0 } | if v.style.italic { style::ITALIC } else { 0 };
+            Some(layout_label(model.blocks[v.block].label.as_deref(), false, &m, v.label.size, v.label.width + (v.bw - c.nw), text_style))
+        } else {
+            None
+        };
+        let label = expanded.as_ref().unwrap_or(&v.label);
         let drawn_shape = if arrow {
             draw_arrow(v.mask, v.bw, v.bh, &format!("{}{}", shape_attrs, v.style.shape))
         } else {
@@ -729,7 +736,7 @@ fn draw(model: &BlockModel, config: &Config, ctx: &RenderCtx, tight: bool) -> Re
             ")\">",
             drawn_shape,
             label_svg(
-                &v.label,
+                label,
                 v.dx,
                 v.dy,
                 &svg_format!(

@@ -188,6 +188,8 @@ const LEVEL_TOUCH: f64 = 4.0;
 const CROSSED_SLOPE: f64 = 0.5;
 /// How far out of line two points may be and still count as in line.
 const IN_LINE: f64 = 0.5;
+const TWIN: f64 = 1.0;
+const BEND_SNAP: f64 = 24.0;
 /// A node, with whatever it is already in line with, moves this far at most to bring one more
 /// of its edges into line.
 const SNAP: f64 = 12.0;
@@ -690,6 +692,7 @@ pub fn layered(nodes: &mut [LNode], edges: &mut [LEdge], opt: &LayeredOptions) -
             e.head_dx = if e.reversed { a_dx } else { b_dx };
         }
     }
+    align_ports(&g, &mut xs, empty.as_deref());
     let spreads = spans;
 
     // A rank that holds nothing but the bends of edges is only there because some other edge
@@ -1089,6 +1092,11 @@ pub fn rank(nodes: &mut [LNode], edges: &[LEdge], step: i32) {
 
     // Int32Array: sums are compared as numbers and stored with ToInt32.
     let mut r = vec![0i64; n];
+    for i in 0..n {
+        if nodes[i].kind == Kind::StartPort {
+            r[i] = -(step as i64);
+        }
+    }
     let store = |x: i64| x as i32 as i64;
     let mut indeg = vec![0usize; n];
     for i in 0..n {
@@ -1579,6 +1587,34 @@ fn settle(g: &mut Graph, nodes: &[LNode], xs: &[f64], efk: &[u8], etk: &[u8], fr
 /// Brings edges that are nearly straight into line, by moving a node a little across the flow
 /// along with everything it is in line with already, where the nodes beside them leave room.
 /// What is in line stays in line, so each move leaves one more edge straight.
+fn align_ports(g: &Graph, xs: &mut [f64], empty: Option<&[u8]>) {
+    for (r, kind) in [(0, Kind::StartPort), (g.max_rank, Kind::EndPort)] {
+        let s = g.layer_start[r];
+        let end = g.layer_start[r + 1];
+        let mut to = Vec::new();
+        for i in s..end {
+            let v = g.order[i];
+            let start = kind == Kind::StartPort;
+            if g.kind[v] != kind || (if start { g.succ_start[v + 1] - g.succ_start[v] } else { g.pred_start[v + 1] - g.pred_start[v] }) != 1
+            {
+                break;
+            }
+            let e = follow(g, empty, if start { g.succ_e[g.succ_start[v]] } else { g.pred_e[g.pred_start[v]] }, usize::from(start));
+            let at = if start { xs[g.et[e]] + g.etd[e] } else { xs[g.ef[e]] + g.efd[e] };
+            if to.last().is_some_and(|last| at < last + TWIN) {
+                break;
+            }
+            to.push(at);
+        }
+        if to.is_empty() || to.len() != end - s {
+            continue;
+        }
+        for i in s..end {
+            xs[g.order[i]] = to[i - s];
+        }
+    }
+}
+
 fn snap(g: &Graph, xs: &mut [f64], empty: Option<&[u8]>, opt: &LayeredOptions) {
     let passed = |u: usize| -> bool { empty.is_some_and(|e| g.kind[u] == Kind::Dummy && e[g.rank[u]] == 1) };
     // Each edge from one point that is held in place to the next, past the bends in ranks that
@@ -1622,7 +1658,7 @@ fn snap(g: &Graph, xs: &mut [f64], empty: Option<&[u8]>, opt: &LayeredOptions) {
         let d = off(xs, k).abs();
         if d < 0.01 {
             join(&mut block, &mut members, a[k], b[k]);
-        } else if d <= SNAP {
+        } else if d <= BEND_SNAP {
             near.push(k);
         }
     }
@@ -1652,7 +1688,7 @@ fn snap(g: &Graph, xs: &mut [f64], empty: Option<&[u8]>, opt: &LayeredOptions) {
             join(&mut block, &mut members, a[k], b[k]);
             continue;
         }
-        if d.abs() > SNAP || block[a[k]] == block[b[k]] {
+        if d.abs() > BEND_SNAP || block[a[k]] == block[b[k]] {
             continue;
         }
         // The smaller of the two blocks moves, if it can; else the other.
@@ -1661,6 +1697,9 @@ fn snap(g: &Graph, xs: &mut [f64], empty: Option<&[u8]>, opt: &LayeredOptions) {
         let first = if members[upper].len() <= members[lower].len() { upper } else { lower };
         for id in [first, if first == upper { lower } else { upper }] {
             let shift = if id == upper { d } else { -d };
+            if d.abs() > SNAP && !members[id].iter().all(|&v| g.kind[v] == Kind::Dummy) {
+                continue;
+            }
             if !free(xs, &block, &members, id, shift) {
                 continue;
             }
@@ -2076,7 +2115,7 @@ fn straighten(g: &Graph, xs: &mut [f64], empty: &[u8], first_dummy: &[isize], sp
         while i < row.len() {
             twins.clear();
             let mut j = i;
-            while j < row.len() && (from[row[j]] - from[row[i]]).abs() < 1.0 && (to[row[j]] - to[row[i]]).abs() < 1.0 {
+            while j < row.len() && (from[row[j]] - from[row[i]]).abs() < TWIN && (to[row[j]] - to[row[i]]).abs() < TWIN {
                 twins.push(row[j]);
                 j += 1;
             }

@@ -1,4 +1,4 @@
-//! Contrasting text on authored fills. Ported from Pele 1.12.0 `src/svg/ink.ts` (MIT).
+//! Contrasting text on authored fills. Ported from Pele 1.13.0 `src/svg/ink.ts` (MIT).
 use super::theme::ResolvedStyle;
 use crate::util::{js, math};
 
@@ -7,6 +7,13 @@ pub const ON_DARK: &str = "var(--pele-fg-on-dark,#fff)";
 const DARK: &str = "black blue blueviolet brown crimson darkblue darkcyan darkgreen darkmagenta darkolivegreen darkorchid darkred darkslateblue darkslategray darkviolet dimgray firebrick forestgreen green indigo maroon mediumblue mediumslateblue mediumvioletred midnightblue navy olive purple rebeccapurple royalblue saddlebrown seagreen sienna slateblue steelblue teal";
 const LIGHT: &str = "aliceblue antiquewhite aqua aquamarine azure beige bisque blanchedalmond burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk cyan darkgoldenrod darkgray darkkhaki darkorange darksalmon darkseagreen darkturquoise deeppink deepskyblue dodgerblue floralwhite fuchsia gainsboro ghostwhite gold goldenrod gray greenyellow honeydew hotpink indianred ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightpink lightsalmon lightseagreen lightskyblue lightslategray lightsteelblue lightyellow lime limegreen linen magenta mediumaquamarine mediumorchid mediumpurple mediumseagreen mediumspringgreen mediumturquoise mintcream mistyrose moccasin navajowhite oldlace olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue red rosybrown salmon sandybrown seashell silver skyblue slategray snow springgreen tan thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen";
 
+pub fn plain_color(raw: &str) -> bool {
+    let value = js::trim(raw).to_lowercase();
+    let name = value.replacen("grey", "gray", 1);
+    value.strip_prefix('#').is_some_and(|h| matches!(h.len(), 3 | 4 | 6 | 8) && h.bytes().all(|b| b.is_ascii_hexdigit()))
+        || DARK.split(' ').chain(LIGHT.split(' ')).any(|n| n == name)
+        || matches!(value.as_str(), "transparent" | "currentcolor")
+}
 fn linear(c: f64) -> f64 {
     if c <= 0.04045 {
         c / 12.92

@@ -9,11 +9,11 @@ root = pathlib.Path(__file__).resolve().parents[2]
 output = root / 'target/bench-complete'
 output.mkdir(parents=True, exist_ok=True)
 environment = {**os.environ, 'TZ': 'UTC', 'CARGO_TARGET_DIR': 'target'}
-environment.setdefault('BENCH_REPORT_SUFFIX', '-pele-1-12-0')
-environment.setdefault('BENCHMARK_TAG', 'unreleased-pele1.12.0')
+environment.setdefault('BENCH_REPORT_SUFFIX', '-pele-1-13-0')
+environment.setdefault('BENCHMARK_TAG', 'unreleased-pele1.13.0')
 reference = root / '.research/pele'
 revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=reference, text=True).strip()
-assert revision == '8aff183be57021b533f319a29341a529be934b08', 'Unexpected Pele revision'
+assert revision == '3a2f075ee0c3d914f0fad3545fc0f193693975ac', 'Unexpected Pele revision'
 subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', 'src', 'scripts'], cwd=reference, check=True)
 for variable in ('BENCH_MS', 'BENCH_SAMPLES'):
     environment.pop(variable, None)

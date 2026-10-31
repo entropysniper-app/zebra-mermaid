@@ -165,6 +165,7 @@ pub fn render_parsed(parsed: &ParsedDiagram, options: &RenderOptions) -> Result<
         None => &default_measurer,
     };
     let mut ctx = RenderCtx::new(options, responsive, measurer, &icons, &theming);
+    ctx.palette = crate::svg::palette::Palette::new(diagram_type, &parsed.config);
     ctx.enable_math(matches!(
         diagram_type,
         DiagramType::Flowchart

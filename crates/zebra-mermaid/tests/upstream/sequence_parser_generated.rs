@@ -1,501 +1,501 @@
 // Generated from frozen sequence assertions (MIT). One test per original callback.
 #[test]
 fn case_000() {
-    run_case("2330d0c47ca35608c7c4b16c");
+    run_case("bfb7ba4c2840aa46e6bc5332");
 }
 #[test]
 fn case_001() {
-    run_case("2185be9539bac144fe22bfb4");
+    run_case("821fbca8d477e8145e399307");
 }
 #[test]
 fn case_002() {
-    run_case("9e678179ac5270201c221ca9");
+    run_case("2e0814628155b64621e78815");
 }
 #[test]
 fn case_003() {
-    run_case("f31a19c2d28dd4f5928b377a");
+    run_case("e0ab8fa5110881e67d16e6f5");
 }
 #[test]
 fn case_004() {
-    run_case("05709830f5a295ddc0808c6d");
+    run_case("06659af4044b6e04f446db93");
 }
 #[test]
 fn case_005() {
-    run_case("e8fb7ac6dacb9ac8ddff3a15");
+    run_case("cb886b3ed75815b37da96ad3");
 }
 #[test]
 fn case_006() {
-    run_case("dfb89b6609760dfada14eac0");
+    run_case("1d817572043f0510198c60cb");
 }
 #[test]
 fn case_007() {
-    run_case("56ba663667cfcdb147ed6467");
+    run_case("bef61da49dcae839b44a413b");
 }
 #[test]
 fn case_008() {
-    run_case("63e50fd81ab83728b959249b");
+    run_case("e82e14c770af7be27c8f748e");
 }
 #[test]
 fn case_009() {
-    run_case("15be878330b6624933778cf7");
+    run_case("c0a0c81a51073c6f28b97ccd");
 }
 #[test]
 fn case_010() {
-    run_case("8b344e26939b8f0d74090163");
+    run_case("0abc39e7b23d25d4dcade31f");
 }
 #[test]
 fn case_011() {
-    run_case("e8ea2f0f5150ecaeb707962d");
+    run_case("492bb886c1df400334e01dab");
 }
 #[test]
 fn case_012() {
-    run_case("b68dbea5ea3c4ae2d9ee8821");
+    run_case("aedcb2b4670e8eb4760f60cc");
 }
 #[test]
 fn case_013() {
-    run_case("b1dc1fe2ab3b71ccbb38c5a8");
+    run_case("12db2875061ebd4dfa8dba59");
 }
 #[test]
 fn case_014() {
-    run_case("0c0725a10885f383b08aba3a");
+    run_case("6a8495243f95a66edd3636b4");
 }
 #[test]
 fn case_015() {
-    run_case("1a3233f38146b01da7f96b9b");
+    run_case("21454b7932749fbf7994cfdd");
 }
 #[test]
 fn case_016() {
-    run_case("f0734cc2ba5d3319917087cb");
+    run_case("8f894885e6555cb948393bac");
 }
 #[test]
 fn case_017() {
-    run_case("cbd4611a53412b1dfd40f1e5");
+    run_case("023c5fe10383195a361f69d9");
 }
 #[test]
 fn case_018() {
-    run_case("de9ad932642e1903a0a37dfc");
+    run_case("f4ff8bd944413ffe96c3ae4b");
 }
 #[test]
 fn case_019() {
-    run_case("4a6ffd0c3ec141abedaec4ac");
+    run_case("d37fbce5974e308081c3e0b8");
 }
 #[test]
 fn case_020() {
-    run_case("ade7cf2b713298f72bbf3eec");
+    run_case("b4e643efe209c61ca6147d79");
 }
 #[test]
 fn case_021() {
-    run_case("3052991664ed4d786eec5c0e");
+    run_case("1dbf8a677606af521d18a3d0");
 }
 #[test]
 fn case_022() {
-    run_case("ef7e1bc99b8fa27647598942");
+    run_case("45b36eb0473fdea63a21b178");
 }
 #[test]
 fn case_023() {
-    run_case("d40551029c9f8903f6ba3e53");
+    run_case("456bb71a1c9f938959f23048");
 }
 #[test]
 fn case_024() {
-    run_case("9f79ab76d3857e23b479fd45");
+    run_case("c77097259aedad7d0f566515");
 }
 #[test]
 fn case_025() {
-    run_case("cd9ed79ffcaa7442b40a602b");
+    run_case("ce40a4b9601640b32a8e2772");
 }
 #[test]
 fn case_026() {
-    run_case("14253496dce773c7ef36084b");
+    run_case("1dd701e97c5e2b9c9fa81883");
 }
 #[test]
 fn case_027() {
-    run_case("d7ab96b2e57d1ea67f03431f");
+    run_case("679b0eed54ec111e7cb67736");
 }
 #[test]
 fn case_028() {
-    run_case("0aeb20bc9b86c5f17f72d201");
+    run_case("005c971891cf0e3b38144e9b");
 }
 #[test]
 fn case_029() {
-    run_case("f01504970470bc25cc1b72b7");
+    run_case("075fc45ef98fb14b54d4980d");
 }
 #[test]
 fn case_030() {
-    run_case("c6a05341e210e7337e24a8d0");
+    run_case("a011146201b01f0838c0277f");
 }
 #[test]
 fn case_031() {
-    run_case("26de2017be77d526c40830c7");
+    run_case("2e5cebb651dd394535f12de9");
 }
 #[test]
 fn case_032() {
-    run_case("5806ebc550bd14f14a6fb70e");
+    run_case("e0f16457df44978704883e8e");
 }
 #[test]
 fn case_033() {
-    run_case("53950b6d4809c0aff51ecfe1");
+    run_case("4b41b972dc66ea4bb3522135");
 }
 #[test]
 fn case_034() {
-    run_case("a93df603ca8a014349cfd6e1");
+    run_case("589569c8f7bba8748c0745a2");
 }
 #[test]
 fn case_035() {
-    run_case("430f5311a8848d938b81a9de");
+    run_case("4e7d0b02522fff8d00f8e641");
 }
 #[test]
 fn case_036() {
-    run_case("0a9cbcab4848fc49b0b704a0");
+    run_case("aced3e4e245c927971323aaa");
 }
 #[test]
 fn case_037() {
-    run_case("de70af6b76e832ea5ee7a2b2");
+    run_case("5f974cde03ff7c3d730ee048");
 }
 #[test]
 fn case_038() {
-    run_case("1505b2b3e07da3058f004fa2");
+    run_case("c70e462c7bef5731316a3464");
 }
 #[test]
 fn case_039() {
-    run_case("f48f3e9c0fb2feb7e8ce1ae0");
+    run_case("236d500b965fb991ae1ea135");
 }
 #[test]
 fn case_040() {
-    run_case("c97e9d027a93d88f430fcb5b");
+    run_case("c7073411c3279ccaaa222f6d");
 }
 #[test]
 fn case_041() {
-    run_case("804305d60210fe12f3f0db0e");
+    run_case("a7712c52c6cd98b136b47264");
 }
 #[test]
 fn case_042() {
-    run_case("b40b0c282edaa54d9d9656c5");
+    run_case("d8fd7592737de88c71eb1270");
 }
 #[test]
 fn case_043() {
-    run_case("8669adbe61fb80339772e7ba");
+    run_case("301e9213f8bd8f3821d76df7");
 }
 #[test]
 fn case_044() {
-    run_case("c275f52ffa490dc10abe9814");
+    run_case("cce7425d104527315bcd9da0");
 }
 #[test]
 fn case_045() {
-    run_case("a592a6c7e9be029d3dc3e039");
+    run_case("113320798f8776ac7e4036b3");
 }
 #[test]
 fn case_046() {
-    run_case("0e89988db9e88fc4b0fbe7ce");
+    run_case("ed4ae39ae4ed59724214f2a3");
 }
 #[test]
 fn case_047() {
-    run_case("4186a43f3f5e756b67bbf65f");
+    run_case("7776d859dd8586ae2bb9b9dc");
 }
 #[test]
 fn case_048() {
-    run_case("5561d4dbf294f484e8b2bbf5");
+    run_case("2d959ccef7d31c22d7e778f4");
 }
 #[test]
 fn case_049() {
-    run_case("e433f3db945557945918c603");
+    run_case("20867ac155698733c727fac7");
 }
 #[test]
 fn case_050() {
-    run_case("91f4f967162e1514ca799b9b");
+    run_case("5a61a75e0b122d79ede9f3d5");
 }
 #[test]
 fn case_051() {
-    run_case("b51160dedbae51244c96c8bc");
+    run_case("ec70c65e06aaf2cba92db66c");
 }
 #[test]
 fn case_052() {
-    run_case("115c66fab6c2319cff55bcad");
+    run_case("ccefa451abd27dc954581ed0");
 }
 #[test]
 fn case_053() {
-    run_case("186616d1bec399c95aa8cd4a");
+    run_case("7d162c4961889bc332cedc06");
 }
 #[test]
 fn case_054() {
-    run_case("2d5cfd1ec3689e5bfa805aeb");
+    run_case("01518366618af2140d7ef3f5");
 }
 #[test]
 fn case_055() {
-    run_case("b5db6c7d544315ecae201270");
+    run_case("cf38522d0905c72bcca8ee25");
 }
 #[test]
 fn case_056() {
-    run_case("2c2f3c89eeee4e3ccf2ab5dd");
+    run_case("3d6574f04889a1d557f8a523");
 }
 #[test]
 fn case_057() {
-    run_case("65f3dcd17609f0fe614fe7b8");
+    run_case("d04e76ffd0243d0a610aae08");
 }
 #[test]
 fn case_058() {
-    run_case("4b73feb3cc1ad7124f7f92c1");
+    run_case("ed7b8eabc51d4a4a5e27d347");
 }
 #[test]
 fn case_059() {
-    run_case("a78717f0856f3ce2b9f09c8a");
+    run_case("a6d83763a6babc58aeaf6540");
 }
 #[test]
 fn case_060() {
-    run_case("d6db87d2bafdf1e8677b5565");
+    run_case("ff6b8b7d8facf0bd3844faa0");
 }
 #[test]
 fn case_061() {
-    run_case("1ee311d11af50a2a6a8595ad");
+    run_case("f31f32c56ca0bd93043e2151");
 }
 #[test]
 fn case_062() {
-    run_case("e7670bed2d5a8cabeb3f1821");
+    run_case("c32778517d3fbf4e87226cb3");
 }
 #[test]
 fn case_063() {
-    run_case("6da4be0b42f2458e3ed51a57");
+    run_case("8d11b727d6afff9c68cc989c");
 }
 #[test]
 fn case_064() {
-    run_case("62ab4ecc92237e41205f555c");
+    run_case("87c786d7cc949caf00b41749");
 }
 #[test]
 fn case_065() {
-    run_case("69fcb4900de054f9ed900a26");
+    run_case("29d9bcf8a2a21365bef17dce");
 }
 #[test]
 fn case_066() {
-    run_case("9c22b2341960c632281adbad");
+    run_case("2a04bbed3216fa7dedda4616");
 }
 #[test]
 fn case_067() {
-    run_case("d0775f3498db9feb27d2f31f");
+    run_case("54c20c8dbb1da3c14bce374e");
 }
 #[test]
 fn case_068() {
-    run_case("5d7243d52cb6309a42f21564");
+    run_case("5a6285dcda8a6b5842a0e8d5");
 }
 #[test]
 fn case_069() {
-    run_case("3016a36ff4d35aff5308a771");
+    run_case("c07fde96a6d3e3691cafb1a0");
 }
 #[test]
 fn case_070() {
-    run_case("42698b731cd918eda91b0947");
+    run_case("031633592e9c05f778fa5180");
 }
 #[test]
 fn case_071() {
-    run_case("d27bf621fda5c8aa13c3435e");
+    run_case("f052f3adb44563de88962582");
 }
 #[test]
 fn case_072() {
-    run_case("3c44384dbddf2bacb44d8e6a");
+    run_case("94038b3668188a7b9f711bb7");
 }
 #[test]
 fn case_073() {
-    run_case("2e0d9c080ddb0a4141a83f41");
+    run_case("193511d8d1cfb4b559985dd0");
 }
 #[test]
 fn case_074() {
-    run_case("e866b59e4c6be66a9f7d1dde");
+    run_case("646b5aa55da26c1c65e3b8ed");
 }
 #[test]
 fn case_075() {
-    run_case("dc39eb97305b22e74f0c2034");
+    run_case("5b649f26cadc5478a7eb01a2");
 }
 #[test]
 fn case_076() {
-    run_case("9dbdfe875ced1da67c20af6a");
+    run_case("7ce2aa26bc3d8fdedd762548");
 }
 #[test]
 fn case_077() {
-    run_case("67e50e8d8cb89f776f634e03");
+    run_case("dd062ae9090773d335b4538b");
 }
 #[test]
 fn case_078() {
-    run_case("16440e45f24b984dd4de552f");
+    run_case("edb2a3d4636f6c8f36830b75");
 }
 #[test]
 fn case_079() {
-    run_case("939b9928e2d1fe1264fc996f");
+    run_case("368d8823ebed301189f1cd92");
 }
 #[test]
 fn case_080() {
-    run_case("39c69cc058a991d5e4efbf7d");
+    run_case("6dfabdbe34407e86a3fea76a");
 }
 #[test]
 fn case_081() {
-    run_case("59d4b27ff2b8fe108b91fe27");
+    run_case("333a3bf29571543bb11fb879");
 }
 #[test]
 fn case_082() {
-    run_case("0b7ab02e4c1554c589a62bc8");
+    run_case("df26cf457491bde7d2a9a4bf");
 }
 #[test]
 fn case_083() {
-    run_case("7778faa37e54ba68ed6eab88");
+    run_case("98e21b4f643e030d95344a36");
 }
 #[test]
 fn case_084() {
-    run_case("429f60f307456a591e1cb85d");
+    run_case("221e2c6a947f38eaa71a26ec");
 }
 #[test]
 fn case_085() {
-    run_case("ca1b980fe32197cb91b4317a");
+    run_case("2e5d9ea87ab7fe605dd1903f");
 }
 #[test]
 fn case_086() {
-    run_case("424e12b58249348bc4d7ecf6");
+    run_case("de2c90d5e50a0dfbc0177f7f");
 }
 #[test]
 fn case_087() {
-    run_case("c8fbe0720786986dfeefa4be");
+    run_case("c51c3877da34714c18bff5ce");
 }
 #[test]
 fn case_088() {
-    run_case("e440823b55f8047db4a236f6");
+    run_case("6d60b01485b520bbcd5d889d");
 }
 #[test]
 fn case_099() {
-    run_case("cc64e2e21d4dbeed72852cce");
+    run_case("4aff19741908305afbaef3ef");
 }
 #[test]
 fn case_117() {
-    run_case("460d10cad13282f307efac55");
+    run_case("0eb6f7529c29b02f4eba6a25");
 }
 #[test]
 fn case_118() {
-    run_case("dcf64ce87d0cfee6a7fbc92c");
+    run_case("95b0e5cfc5a1bde9279c4524");
 }
 #[test]
 fn case_123() {
-    run_case("74b0d1fb80759322abf37270");
+    run_case("6c77e29d3d71a9a87c4ac6f7");
 }
 #[test]
 fn case_124() {
-    run_case("952edef50482b3e818814af5");
+    run_case("afbb3d3b7c79f7de3d45d575");
 }
 #[test]
 fn case_126() {
-    run_case("8b00307f1e4f7464db4f6875");
+    run_case("c52f395ab26658c191f4e7bd");
 }
 #[test]
 fn case_127() {
-    run_case("b4f6086eb5ab8138f36857e7");
+    run_case("5ddea3a33f03590480aa2664");
 }
 #[test]
 fn case_128() {
-    run_case("16be9991729247cbcaf84353");
+    run_case("9baebd8680a0275c0a3d0c76");
 }
 #[test]
 fn case_129() {
-    run_case("2833a2822262de4f024ae695");
+    run_case("785800b7f43868fb00827132");
 }
 #[test]
 fn case_130() {
-    run_case("3cf39b22de5681ded840831e");
+    run_case("80c6dd93274cce3665c1644e");
 }
 #[test]
 fn case_131() {
-    run_case("399ce9b65ddfd25f1f22e9c3");
+    run_case("3f2907e348ab5ce449cb905f");
 }
 #[test]
 fn case_132() {
-    run_case("553f9d5aecab314cc586da13");
+    run_case("376844d445d5a3617382d071");
 }
 #[test]
 fn case_133() {
-    run_case("f1100e281961a6f2a7d0b309");
+    run_case("4d24653ed1d33c9e332505c9");
 }
 #[test]
 fn case_134() {
-    run_case("ff4e16ea525bd1bc4b994d8b");
+    run_case("37a2a53b5be40e2fe3f84b11");
 }
 #[test]
 fn case_135() {
-    run_case("87ac5d48a8951180cd3faa3f");
+    run_case("6612ab0e2a870c3041c6986e");
 }
 #[test]
 fn case_136() {
-    run_case("7307dcc5574727bd6182a58f");
+    run_case("149cb6ff43dc2cb23def6d7f");
 }
 #[test]
 fn case_137() {
-    run_case("59e2c39d94c8e02835d7bc5d");
+    run_case("96b21378fc94057f56c29636");
 }
 #[test]
 fn case_138() {
-    run_case("dcc21a41a6c4ea9138afa980");
+    run_case("2501d2fe34064b080e5dcd4f");
 }
 #[test]
 fn case_139() {
-    run_case("4f6844f3d8aeb25ab4d6f447");
+    run_case("c772c448cfa20416553a2d83");
 }
 #[test]
 fn case_140() {
-    run_case("c3b31b2eb0032d45442eccaa");
+    run_case("0136f22f615687b1a8719518");
 }
 #[test]
 fn case_141() {
-    run_case("5d5b13cd0b6382a6330ee23f");
+    run_case("f9d0449ead8d9c7cf7d42a8e");
 }
 #[test]
 fn case_142() {
-    run_case("06369804834085c54f093e11");
+    run_case("b09e848401355f50de727567");
 }
 #[test]
 fn case_143() {
-    run_case("efe18b4f48ac7b731ae1fd86");
+    run_case("b0d18db70e202e9134ea5c4d");
 }
 #[test]
 fn case_144() {
-    run_case("37bb22df71f22153a0286c21");
+    run_case("c1f5b329a21d4d1cc02ead78");
 }
 #[test]
 fn case_145() {
-    run_case("12261230c4f2e128b6a6884b");
+    run_case("9387fba225b33fe845ed2bac");
 }
 #[test]
 fn case_146() {
-    run_case("8d5cb38c4105a29a3cbfe53a");
+    run_case("2aec22f24f308b68e109774e");
 }
 #[test]
 fn case_147() {
-    run_case("cd84664b870f3df5d5b097dc");
+    run_case("393e1f416f32264e7d7f197f");
 }
 #[test]
 fn case_148() {
-    run_case("ebd17cf0a12147fb087ddfe2");
+    run_case("e0626b78f3f59ffb9f0d8e06");
 }
 #[test]
 fn case_149() {
-    run_case("3de6ea42e4059908617a5af1");
+    run_case("b5ca7e3a4b1e1d8b7e00859b");
 }
 #[test]
 fn case_150() {
-    run_case("14a88ced31855b89a4fdb1a6");
+    run_case("d06c16901d6153d1a98b576a");
 }
 #[test]
 fn case_151() {
-    run_case("b38a749be42f58efb9c36acf");
+    run_case("f120c4e03bfd8a5327808bc6");
 }
 #[test]
 fn case_152() {
-    run_case("3eed240ac7f7aea737850785");
+    run_case("23bdcb522d6604864421f44e");
 }
 #[test]
 fn case_153() {
-    run_case("73a0e61ab022fa0bc4006fbf");
+    run_case("b2141c8d0999f2b8bfa1ce87");
 }
 #[test]
 fn case_154() {
-    run_case("7708b2fc89f80e907fe00b98");
+    run_case("e534b8e858df107972b13f24");
 }
 #[test]
 fn case_155() {
-    run_case("ceed45767c779376eac46052");
+    run_case("5b27c47cd1fd8272f2ba084d");
 }
 #[test]
 fn case_156() {
-    run_case("ae6fa57a1d111101c76d5372");
+    run_case("ff43c6ba1ca909f472dc909c");
 }

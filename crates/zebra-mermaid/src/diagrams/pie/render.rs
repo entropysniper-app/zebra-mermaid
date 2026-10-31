@@ -244,6 +244,8 @@ fn draw(model: &PieModel, config: &Config, ctx: &RenderCtx, radius: f64, tight: 
             let r = radius * text_position;
             // In resolved mode each label takes a color that reads on its own slice.
             let own = if resolved { svg_format!(" fill=\"", ctx.theming.resolved.text_on(&fill), "\"") } else { String::new() };
+            let series_ink = ctx.series_ink_fill(index as i64);
+            let own = if series_ink.is_empty() { own } else { series_ink };
             svg_write!(
                 labels,
                 "<text x=\"",

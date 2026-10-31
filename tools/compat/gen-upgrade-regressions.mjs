@@ -16,6 +16,6 @@ const results=sources.map(source=>({source,expect:answer(o,{op:'parse',source})}
 const rect={input:['rect',10,4,' a="1"',''],expect:shapes.drawShape('rect',10,4,' a="1"','')};
 const seq=o.render('sequenceDiagram\n  participant A as $$\\alpha$$\n  A->>B: Solve $$x^2$$\n  Note over A: $$\\int x$$',{math:()=>({svg:'<path/>',width:30,height:18})}).svg;
 const proof={commit,runtime:{node:process.version},method:'Pinned upstream parser, shape function and constant math fixture callback only; no Rust output used.',results,rect,sequenceMathBoxes:(seq.match(/class="pele-math"/g)??[]).length};
-mkdirSync('tests/fixtures/pele-1.12.0',{recursive:true});
-writeFileSync('tests/fixtures/pele-1.12.0/upgrade-regressions.json',JSON.stringify(proof,null,2)+'\n');
+mkdirSync('tests/fixtures/pele-1.13.0',{recursive:true});
+writeFileSync('tests/fixtures/pele-1.13.0/upgrade-regressions.json',JSON.stringify(proof,null,2)+'\n');
 console.log(JSON.stringify({references:results.length,sequenceMathBoxes:proof.sequenceMathBoxes}));
