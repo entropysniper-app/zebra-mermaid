@@ -1,11 +1,12 @@
 # zebra-mermaid
 
-A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/8aff183be57021b533f319a29341a529be934b08) and aligned with **1.12.0**, targeting **Mermaid 12.1.0** syntax.
+A pure Rust library and CLI for rendering Mermaid diagrams to SVG. Ported from [Pele](https://github.com/obsidianmd/pele/tree/3a2f075ee0c3d914f0fad3545fc0f193693975ac) and aligned with **1.13.0**, targeting **Mermaid 12.1.0** syntax.
 
 - **33 diagram types** enabled by default, with Cargo features for smaller builds.
 - **Native rendering** with no JavaScript, browser, or external layout process at runtime.
 - **Built-in mathematics** with [RaTeX](https://github.com/erweixin/RaTeX), bundled math fonts, and self-contained SVG glyphs.
 - **Host-controlled appearance** with CSS variables for web content and resolved colors for native SVG consumers.
+- **Mermaid palette variables** for pie, git, timeline, radar, treemap, mindmap, Venn, and XY diagrams, with contrasting labels where supported.
 - **Library, CLI, and C ABI** with parsed-model reuse, an optional render cache, batch conversion, and structured errors.
 
 [Quick start](#quick-start) · [Rendering comparison](#rendering-comparison) · [Performance](#performance) · [Library API](#library-api) · [Validation](#validation)
@@ -16,7 +17,7 @@ Requires Rust 1.96 or later; verified with rustc 1.96.1. Install directly from G
 
 ```sh
 cargo install --git https://github.com/entropysniper-app/zebra-mermaid \
-  --rev fe30aae322c76400856f871992cc52d24e29fd50 \
+  --rev 40b9fa59c294068662df83e58262cb607db0913b \
   --locked zebra-mermaid-cli
 
 zebra-mermaid render diagram.mmd -o diagram.svg
@@ -109,7 +110,7 @@ Add the library to your application's `Cargo.toml`. Both installation examples p
 
 ```toml
 [dependencies]
-zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "fe30aae322c76400856f871992cc52d24e29fd50" }
+zebra-mermaid = { git = "https://github.com/entropysniper-app/zebra-mermaid", rev = "40b9fa59c294068662df83e58262cb607db0913b" }
 ```
 
 ```rust
@@ -162,10 +163,10 @@ Diagram coverage, output equality, and original-test acceptance are separate mea
 | --- | --- |
 | Diagram types enabled by default | **33/33** |
 | Documentation response comparisons | **761/761**: 702 successful renders and 59 expected rejections |
-| Workspace tests | **3,398 passed**, 0 failed, 5 ignored |
-| Original-test acceptance | **2,934/7,089 passed** (41.39%); 7 preserved skips, 4,148 unmapped |
+| Workspace tests | **3,416 passed**, 0 failed, 5 ignored |
+| Original-test acceptance | **2,952/7,110 passed** (41.52%); 7 preserved skips, 4,151 unmapped |
 
-**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.12.0-alignment-2026-10-27/validation.json).
+**Full original-test acceptance is incomplete.** Two tests execute successfully in Rust but retain their original skip status and are excluded from acceptance passes. Rendering samples and benchmark results do not replace this requirement. See the [test mapping](docs/UPSTREAM-TEST-PARITY.md), [implementation status](docs/IMPLEMENTATION-STATUS.md), and [validation evidence](docs/research/pele-1.13.0-alignment-2026-10-31/validation.json).
 
 ```sh
 cargo test --workspace --all-features --locked -- --test-threads=1

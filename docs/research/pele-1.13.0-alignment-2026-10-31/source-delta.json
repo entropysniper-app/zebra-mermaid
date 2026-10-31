@@ -1,0 +1,338 @@
+{
+  "previousCommit": "8aff183be57021b533f319a29341a529be934b08",
+  "commit": "3a2f075ee0c3d914f0fad3545fc0f193693975ac",
+  "sourceFilesChanged": 12,
+  "sourceFiles": [
+    {
+      "upstream": "src/core.ts",
+      "upstreamSha256": "8ce11c4c3f40cd53e7aaeef06643b1e82e8bdf8045f3801200a0e27f85e9bdc9",
+      "rust": [
+        "crates/zebra-mermaid/src/engine.rs",
+        "crates/zebra-mermaid/src/diagrams/mod.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/block/render.ts",
+      "upstreamSha256": "4c513315c3c3aff5af71a68511552bdccac2b1c61ef487afbf9fb5a636527a61",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/block/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/git/render.ts",
+      "upstreamSha256": "39f4c79b14c3f545e5f8a21242bf0b26a1b1a720562a925b9f7a0cdf4ab79451",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/git_graph/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/pie/render.ts",
+      "upstreamSha256": "15f2fd7853766b2de36da408591c9990f551427b55ab57bf68cac0e2c93a4785",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/pie/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/quadrant/render.ts",
+      "upstreamSha256": "42088cc43c4a2a420c2a1f704c6a2ebd465b1eef4a2556157235984ae5f83e00",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/quadrant/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/timeline/render.ts",
+      "upstreamSha256": "817943630c878e82f6ced3d91ae4cbc9fc97bc4fdb6704256621843f476f5b0e",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/timeline/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/diagrams/treemap/render.ts",
+      "upstreamSha256": "8d4dd66d10441ea5005252dc17ee4060d53c5b2e2029b75143d66f4e3b76b630",
+      "rust": [
+        "crates/zebra-mermaid/src/diagrams/treemap/render.rs"
+      ]
+    },
+    {
+      "upstream": "src/layout/layered.ts",
+      "upstreamSha256": "0827ace5507c69ad2365ad91fe8abb64f057fbb0404bc40baa182c553bd8a537",
+      "rust": [
+        "crates/zebra-mermaid/src/layout/layered.rs"
+      ]
+    },
+    {
+      "upstream": "src/preprocess.ts",
+      "upstreamSha256": "96b360e2b578af58bff501c4012f60c2dd0c83ee3bd4c3529e4ef7b41d03b679",
+      "rust": [
+        "crates/zebra-mermaid/src/config/value.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/ink.ts",
+      "upstreamSha256": "41973762be09df5e5dfa57943c04be373001fbe68107971010c2e3705da451f9",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/ink.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/palette.ts",
+      "upstreamSha256": "9bee74365bb9d417792f2b05f5dad033e5aa523add456bee7cf866afe1085bec",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/palette.rs",
+        "crates/zebra-mermaid/src/diagrams/mod.rs"
+      ]
+    },
+    {
+      "upstream": "src/svg/root.ts",
+      "upstreamSha256": "59f2afc60e77f5ba12705ac8cff76386819c2705dc2533ab100521e369a05664",
+      "rust": [
+        "crates/zebra-mermaid/src/svg/root.rs"
+      ]
+    }
+  ],
+  "testFiles": [
+    "tests/layout/compound.test.ts",
+    "tests/render/block.test.ts",
+    "tests/render/flowchart.test.ts",
+    "tests/render/palette.test.ts",
+    "tests/render/quadrant.test.ts",
+    "tests/support/inert.ts",
+    "tests/website/playground-link.test.ts"
+  ],
+  "previousTests": 7089,
+  "tests": 7110,
+  "netAddedTests": 21,
+  "newOrRenamedCases": [
+    {
+      "id": "0eba2c1612eb838c32f90859",
+      "file": "tests/layout/compound.test.ts",
+      "index": 25,
+      "name": "compound layout > runs an edge straight across the gap between a group border and the node it meets inside",
+      "scope": "rust-core",
+      "target": "compound::border_gap_runs_straight",
+      "state": "passed"
+    },
+    {
+      "id": "a6464a7e9164ff2d242cd2fe",
+      "file": "tests/layout/compound.test.ts",
+      "index": 26,
+      "name": "compound layout > keeps edges straight when their ends on a node are less than a twin apart",
+      "scope": "rust-core",
+      "target": "compound::sub_twin_ends_stay_straight",
+      "state": "passed"
+    },
+    {
+      "id": "1b6afd834f78fa7629158638",
+      "file": "tests/layout/compound.test.ts",
+      "index": 27,
+      "name": "compound layout > runs an edge into a group straight when only its bends need to move",
+      "scope": "rust-core",
+      "target": "compound::bend_only_group_entry_straight",
+      "state": "passed"
+    },
+    {
+      "id": "780e5597ed5a35d6d65966e9",
+      "file": "tests/render/block.test.ts",
+      "index": 6,
+      "name": "block rendering > uses the wider cell to wrap a spanning block label",
+      "scope": "rust-core",
+      "target": "release_1_13::spanning_block_wraps",
+      "state": "passed"
+    },
+    {
+      "id": "6132d9ab7e4210452519323c",
+      "file": "tests/render/block.test.ts",
+      "index": 7,
+      "name": "block rendering > keeps fixed shapes and explicit line breaks when a block spans columns",
+      "scope": "rust-core",
+      "target": "release_1_13::fixed_shapes_and_breaks",
+      "state": "passed"
+    },
+    {
+      "id": "251a8f38a42aa4c9c2ff6b6d",
+      "file": "tests/render/flowchart.test.ts",
+      "index": 36,
+      "name": "flowchart rendering > lines up unlinked subgraph members with the member an outside edge enters",
+      "scope": "rust-core",
+      "target": "release_1_13::entering_edge_keeps_row",
+      "state": "passed"
+    },
+    {
+      "id": "121c713e3c9c6da62e21e419",
+      "file": "tests/render/palette.test.ts",
+      "index": 0,
+      "name": "palette theme variables > colors xychart series from plotColorPalette, repeating a short list",
+      "scope": "rust-core",
+      "target": "release_1_13::xy_palette_repeats",
+      "state": "passed"
+    },
+    {
+      "id": "194e7f2f6760befb9932b592",
+      "file": "tests/render/palette.test.ts",
+      "index": 1,
+      "name": "palette theme variables > keeps commas inside color functions",
+      "scope": "rust-core",
+      "target": "release_1_13::function_commas",
+      "state": "passed"
+    },
+    {
+      "id": "df7396fe642a14392a962427",
+      "file": "tests/render/palette.test.ts",
+      "index": 2,
+      "name": "palette theme variables > maps each diagram palette onto the series in order",
+      "scope": "rust-core",
+      "target": "release_1_13::palettes_in_series_order",
+      "state": "passed"
+    },
+    {
+      "id": "4b1225cd2d94122a8eac3d9a",
+      "file": "tests/render/palette.test.ts",
+      "index": 3,
+      "name": "palette theme variables > repeats the venn colors that are set",
+      "scope": "rust-core",
+      "target": "release_1_13::venn_palette_repeats",
+      "state": "passed"
+    },
+    {
+      "id": "80e134f8e2ca21b723f9266a",
+      "file": "tests/render/palette.test.ts",
+      "index": 4,
+      "name": "palette theme variables > ignores palettes of other diagrams and other theme colors",
+      "scope": "rust-core",
+      "target": "release_1_13::unrelated_variables_ignored",
+      "state": "passed"
+    },
+    {
+      "id": "55412c029b2dfd83352d1864",
+      "file": "tests/render/palette.test.ts",
+      "index": 5,
+      "name": "palette theme variables > reads theme variables from front matter, directives and the config option",
+      "scope": "rust-core",
+      "target": "release_1_13::palette_config_sources",
+      "state": "passed"
+    },
+    {
+      "id": "4a6b7da1f4efe8441054d6af",
+      "file": "tests/render/palette.test.ts",
+      "index": 6,
+      "name": "palette theme variables > accepts theme-aware colors",
+      "scope": "rust-core",
+      "target": "release_1_13::theme_aware_colors",
+      "state": "passed"
+    },
+    {
+      "id": "de9cbcd5f1360cc0678e3cd2",
+      "file": "tests/render/palette.test.ts",
+      "index": 7,
+      "name": "palette theme variables > drops values that are not colors and keeps the theme color in their place",
+      "scope": "rust-core",
+      "target": "release_1_13::invalid_palette_colors",
+      "state": "passed"
+    },
+    {
+      "id": "6eff06afc19dc3311f18e0b8",
+      "file": "tests/render/palette.test.ts",
+      "index": 8,
+      "name": "palette theme variables > picks label colors that contrast with palette colors",
+      "scope": "rust-core",
+      "target": "release_1_13::palette_label_contrast",
+      "state": "passed"
+    },
+    {
+      "id": "1f3c9cfb727f19070c49ab35",
+      "file": "tests/render/palette.test.ts",
+      "index": 9,
+      "name": "palette theme variables > leaves the output unchanged without a palette",
+      "scope": "rust-core",
+      "target": "release_1_13::no_palette_unchanged",
+      "state": "passed"
+    },
+    {
+      "id": "35859b4518c03ca0643be91f",
+      "file": "tests/render/quadrant.test.ts",
+      "index": 9,
+      "name": "quadrant chart rendering > sizes text with the quadrantChart font size settings",
+      "scope": "rust-core",
+      "target": "release_1_13::quadrant_font_settings",
+      "state": "passed"
+    },
+    {
+      "id": "dc756825f4cca8a88401c59d",
+      "file": "tests/render/quadrant.test.ts",
+      "index": 10,
+      "name": "quadrant chart rendering > keeps a point label on one line when it fits in the plot",
+      "scope": "rust-core",
+      "target": "release_1_13::quadrant_point_line",
+      "state": "passed"
+    },
+    {
+      "id": "8751eda48f5edaa89bf13062",
+      "file": "tests/website/playground-link.test.ts",
+      "index": 0,
+      "name": "playground links > carries the source and CSS",
+      "scope": "website",
+      "target": null,
+      "state": "unmapped"
+    },
+    {
+      "id": "f703234b9b8677fe02a50698",
+      "file": "tests/website/playground-link.test.ts",
+      "index": 1,
+      "name": "playground links > leaves CSS out of links without it",
+      "scope": "website",
+      "target": null,
+      "state": "unmapped"
+    },
+    {
+      "id": "cd3d117c90a9f6da2d878454",
+      "file": "tests/website/playground-link.test.ts",
+      "index": 2,
+      "name": "playground links > rejects CSS over the limit",
+      "scope": "website",
+      "target": null,
+      "state": "unmapped"
+    }
+  ],
+  "changedExistingCallbacks": [
+    {
+      "id": "724a4c45bc97d2223da9fa28",
+      "file": "tests/render/flowchart.test.ts",
+      "name": "flowchart rendering > cases an edge whose curve runs into a filled subgraph",
+      "target": "release_1_12::flow::curve_enters_fill"
+    }
+  ],
+  "websiteFiles": [
+    "website/src/content/docs/compatibility.md",
+    "website/src/content/docs/theming.md",
+    "website/src/lib/examples.ts",
+    "website/src/lib/playground-limits.ts",
+    "website/src/lib/playground-link.ts",
+    "website/src/pages/compare/index.astro",
+    "website/src/pages/playground.astro",
+    "website/src/scripts/playground-columns.ts",
+    "website/src/scripts/playground-copy.ts",
+    "website/src/scripts/playground-editor.ts",
+    "website/src/scripts/playground-keys.ts",
+    "website/src/scripts/playground-settings.ts",
+    "website/src/scripts/playground-share.ts",
+    "website/src/scripts/playground-tabs.ts",
+    "website/src/scripts/playground.ts",
+    "website/src/styles/base.scss",
+    "website/src/styles/code.scss",
+    "website/src/styles/docs.scss",
+    "website/src/styles/examples.scss",
+    "website/src/styles/header.scss",
+    "website/src/styles/home.scss",
+    "website/src/styles/menu.scss",
+    "website/src/styles/mobile-docs-menu.scss",
+    "website/src/styles/playground.scss",
+    "website/src/styles/segmented-control.scss",
+    "website/src/styles/tables.scss"
+  ],
+  "scopeNote": "All 18 new core tests have independent Rust mappings. The 3 new website link/CSS tests remain unmapped. Browser/site changes remain in the source inventory and are not claimed as Rust host implementations. Continuous optimization remains stopped.",
+  "otherFiles": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "package-lock.json"
+  ]
+}

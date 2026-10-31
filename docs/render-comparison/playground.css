@@ -12,7 +12,7 @@
   --radius-pill: 999px;
   --header-height: 64px;
   --page-width: 88vw;
-  --desktop-navigation-left: max(24px, calc((100vw - var(--reading)) / 2 - 180px - clamp(40px, 3.5vw, 56px)));
+  --desktop-navigation-start: max(24px, calc((100vw - var(--reading)) / 2 - 180px - clamp(40px, 3.5vw, 56px)));
   --desktop-wordmark-top: calc((var(--header-height) - var(--font-size-heading)) / 2);
   --font-sans: -apple-system, BlinkMacSystemFont, "Inter Variable", Inter, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "IBM Plex Mono", "Roboto Mono", "DejaVu Sans Mono", "Liberation Mono", Menlo, Monaco, "Consolas", "Source Code Pro", monospace;
@@ -90,6 +90,18 @@ a {
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.03em;
+}
+.wordmark:dir(rtl) {
+  letter-spacing: normal;
+}
+
+.rtl-mirror:dir(rtl) {
+  scale: -1 1;
+}
+
+kbd {
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .button {
@@ -210,7 +222,7 @@ svg.pele:focus {
 }
 .playground-header .playground-brand {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
   flex-shrink: 0;
 }
@@ -220,11 +232,25 @@ svg.pele:focus {
   font-weight: 300;
   font-size: var(--font-size-heading);
 }
+.playground-header .playground-version {
+  margin-inline-start: 4px;
+  color: var(--muted);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+}
+.playground-header .playground-version:hover {
+  color: var(--paper);
+}
+@media (max-width: 419px) {
+  .playground-header .playground-version {
+    display: none;
+  }
+}
 .playground-header .playground-actions {
   position: relative;
   display: flex;
   align-items: center;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 .playground-header #playground-settings[aria-expanded=true] {
   color: #f2f0e5;
@@ -236,7 +262,7 @@ svg.pele:focus {
 
 #playground-settings-menu {
   z-index: 20;
-  right: 0;
+  inset-inline: auto 0;
   min-width: 180px;
 }
 
@@ -297,7 +323,7 @@ svg.pele:focus {
   gap: 8px;
   height: 54px;
   flex-shrink: 0;
-  padding: 0 12px 0 20px;
+  padding-inline: 20px 12px;
   border-bottom: 1px solid var(--line);
 }
 .playground-panel-header h2 {
@@ -306,52 +332,50 @@ svg.pele:focus {
   font-weight: 400;
 }
 
-.playground-language {
-  color: var(--muted);
-}
-
 @container (max-width: 240px) {
   .playground-panel-header {
     padding-inline: 12px;
     gap: 8px;
-  }
-  .playground-language {
-    display: none;
   }
 }
 .playground-copy {
   flex-shrink: 0;
 }
 
-.playground-language + .playground-copy {
-  margin-left: auto;
-}
-
-.playground-output-views {
-  margin-right: auto;
-}
-
-.playground-panel-header:has(.playground-output-views) {
-  gap: 8px;
+.playground-views {
+  margin-inline-end: auto;
 }
 
 @container (max-width: 520px) {
-  .playground-panel-header:has(.playground-output-views) h2 {
+  #output-panel h2 {
     display: none;
   }
 }
 @container (max-width: 400px) {
-  .playground-panel-header:has(.playground-output-views) {
+  .playground-panel-header {
     padding-inline: 12px;
     gap: 6px;
   }
-  .playground-output-views {
+  .playground-views {
     font-size: var(--font-size-menu);
   }
-  .playground-output-views > button {
+  .playground-views > button {
     padding-inline: 6px;
   }
 }
+@container (max-width: 280px) {
+  #input-panel h2 {
+    display: none;
+  }
+}
+#input-panel[data-language=mermaid] :is([data-editor=css], #css-status), #input-panel[data-language=css] :is([data-editor=input], #input-status) {
+  display: none;
+}
+
+#css-status:empty {
+  display: none;
+}
+
 #output-panel:not([data-view=svg]) > .playground-editor, #output-panel:not([data-view=svg]) .playground-copy {
   display: none;
 }
@@ -387,6 +411,7 @@ svg.pele:focus {
   min-width: 0;
   min-height: 0;
   margin: 0;
+  contain: paint;
 }
 .playground-diagram figcaption {
   display: flex;
@@ -402,6 +427,7 @@ svg.pele:focus {
 
 .playground-diagram-canvas {
   display: flex;
+  direction: ltr;
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -431,7 +457,7 @@ svg.pele:focus {
   }
   #output-panel[data-view=compare] .playground-diagram + .playground-diagram {
     border-top: 0;
-    border-left: 1px solid var(--pele-surface-alt);
+    border-inline-start: 1px solid var(--pele-surface-alt);
   }
 }
 .playground-copy:disabled {
@@ -445,6 +471,7 @@ svg.pele:focus {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  direction: ltr;
 }
 .playground-editor textarea {
   width: 100%;
@@ -578,7 +605,7 @@ svg.pele:focus {
 }
 
 #output-status {
-  text-align: right;
+  text-align: end;
 }
 
 #output-status[data-state=""] {
@@ -596,7 +623,7 @@ svg.pele:focus {
   background: transparent;
   padding: 4px 0;
   color: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 @media (hover: hover) {
@@ -609,7 +636,8 @@ svg.pele:focus {
 }
 
 .playground-diagnostic-detail {
-  margin: 4px 0 0 22px;
+  margin-block: 4px 0;
+  margin-inline-start: 22px;
   overflow-x: auto;
   color: var(--muted);
   font-family: var(--font-mono);
@@ -651,7 +679,7 @@ svg.pele:focus {
   .playground-header .playground-actions {
     grid-row: 1;
     grid-column: 2;
-    margin-left: 0;
+    margin-inline-start: 0;
   }
   .playground-header > .filter-search-trigger {
     grid-row: 1;
@@ -669,6 +697,9 @@ svg.pele:focus {
   }
   .playground-tabs > button {
     min-height: 40px;
+  }
+  .playground-panel-header h2 {
+    display: none;
   }
   #playground-settings > span {
     display: none;

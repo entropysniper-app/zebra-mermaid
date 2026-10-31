@@ -2,7 +2,7 @@
 
 [Open the interactive gallery](index.html). Each row shows the same source rendered by zebra-mermaid, Pele, and Mermaid.js. Filter by diagram type, source, or result, and click a preview to inspect the full SVG.
 
-The sample set is selected by the unmodified `sampleGroups()` function at commit `8aff183be57021b533f319a29341a529be934b08`: **33 diagram types and 167 samples**, including its built-in examples and original selection order. Engine versions: zebra-mermaid 0.1.0, Pele 1.12.0, Mermaid.js 12.1.0.
+The sample set is selected by the unmodified `sampleGroups()` function at commit `3a2f075ee0c3d914f0fad3545fc0f193693975ac`: **33 diagram types and 167 samples**, including its built-in examples and original selection order. Engine versions: zebra-mermaid 0.1.0, Pele 1.13.0, Mermaid.js 12.1.0.
 
 | Diagram | Samples | zebra-mermaid | Pele | Mermaid.js | Identical Rust/Pele SVG and dimensions |
 | --- | ---: | ---: | ---: | ---: | ---: |
