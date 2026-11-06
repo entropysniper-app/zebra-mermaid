@@ -25,3 +25,10 @@
 - 对完成验证的优化适时提交并 `git push origin main`，更新 `docs/IMPLEMENTATION-STATUS.md` 和对应测量证据，再继续下一轮，直到目标有完整证据支撑或用户明确停止/调整。不得只提出建议就结束，也不得伪造达标结论；遇到权限、认证、额度或验收范围阻碍时记录真实原因，不绕过限制。
 - README 默认英文，保留渲染与性能对比，仅展示终态结果，只在开头提一次移植与对齐版本。消费者安装示例使用远程 Git 地址并锁定已验证的代码提交，不使用本地 `path` 依赖。
 - 实际进度与性能基线以 `docs/IMPLEMENTATION-STATUS.md`、`docs/OUTPUT-BENCHMARK.md` 和对应原始证据为准。配对测量使用 `tools/bench/compare-optimization.py`、`tools/bench/compare-output.py`；四引擎的共同成功子集不能替代主目标的全 33 类集合。
+
+## crates.io 发布
+
+- 用户于 2026-11-06 明确要求将当前版本发布到 crates.io；发行包为 zebra-mermaid、zebra-mermaid-cli、zebra-mermaid-ffi，开发 profiler 不发布。
+- 发布前检查根 LICENSE/THIRD_PARTY_NOTICES.md 与各包副本一致，运行 `cargo publish --workspace --registry crates-io --dry-run --all-features --locked` 和 `python3 tools/release/audit-crates.py --require-clean`。保留注册表依赖版本和 FFI 头文件；仓库测试与断言不得为发布而删减。
+- 用户本次授权发布后，消费者也可使用已发布 crate 的精确版本；Git 安装示例仍锁定已验证的远程提交，禁用本地 path 消费示例。
+- 只有注册表实际确认三个版本可下载后才记为发布成功，并核对归档校验和、补充安装验证、提交推送及版本 tag。凭据和机器配置留在本地，不写入仓库或报告。

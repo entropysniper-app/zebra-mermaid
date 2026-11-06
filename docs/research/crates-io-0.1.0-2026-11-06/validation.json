@@ -1,0 +1,126 @@
+{
+  "status": "prepared-not-published",
+  "version": "0.1.0",
+  "preparedOn": "2026-11-06",
+  "sourceCommit": "e4d52f859193cddcc352697f536bde084ff0b6bf",
+  "rendererImplementationCommit": "40b9fa59c294068662df83e58262cb607db0913b",
+  "upstream": {
+    "version": "1.13.0",
+    "commit": "3a2f075ee0c3d914f0fad3545fc0f193693975ac"
+  },
+  "packages": [
+    "zebra-mermaid",
+    "zebra-mermaid-cli",
+    "zebra-mermaid-ffi"
+  ],
+  "publishedPackages": [],
+  "registryAuthentication": "pending",
+  "runtime": {
+    "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "developmentEnvironment": {
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  },
+  "checks": [
+    {
+      "name": "publish-dry-run-default",
+      "command": [
+        "cargo",
+        "publish",
+        "--workspace",
+        "--dry-run",
+        "--locked",
+        "--allow-dirty"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "publish-dry-run-all-features",
+      "command": [
+        "cargo",
+        "publish",
+        "--workspace",
+        "--dry-run",
+        "--all-features",
+        "--locked",
+        "--allow-dirty"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "publish-dry-run-clean",
+      "command": [
+        "cargo",
+        "publish",
+        "--workspace",
+        "--registry",
+        "crates-io",
+        "--dry-run",
+        "--all-features",
+        "--locked"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "package-audit",
+      "command": [
+        "python3",
+        "tools/release/audit-crates.py",
+        "--require-clean"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--all-features",
+        "--locked",
+        "--",
+        "--test-threads=1"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "original-test-gate",
+      "command": [
+        "node",
+        "tools/test-parity/check.mjs",
+        "--require-complete"
+      ],
+      "exitCode": 1
+    },
+    {
+      "name": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "workspace": {
+    "passed": 3416,
+    "failed": 0,
+    "ignored": 5
+  },
+  "originalTestAcceptance": {
+    "total": 7110,
+    "mapped": 2959,
+    "unmapped": 4151,
+    "passed": 2952,
+    "failed": 0,
+    "skipped": 7,
+    "unverified": 0
+  },
+  "completeOriginalAcceptance": false,
+  "archiveScope": "Source, README and complete license notices; FFI also includes the C header. Repository fixtures, benchmarks and external upstream-test assets remain in Git. Packaging exclusions do not alter repository test targets or acceptance results.",
+  "note": "No registry upload or release tag has been performed. Prepared package size is source-archive storage, not compiled code size. Continuous performance/code-size optimization remains stopped."
+}
