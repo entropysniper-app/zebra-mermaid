@@ -5,6 +5,17 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 description.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/zebra-mermaid"
+readme = "README.md"
+keywords = ["mermaid", "diagram", "svg", "renderer", "charts"]
+categories = ["graphics", "visualization", "rendering"]
+include = ["src/**", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md"]
+publish = ["crates-io"]
+
+[package.metadata.docs.rs]
+all-features = true
 
 [features]
 # The types implemented so far. It grows with each milestone until it equals `all-diagrams`;

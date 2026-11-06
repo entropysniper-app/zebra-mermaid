@@ -5,6 +5,14 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 description = "C ABI (version 2) of zebra-mermaid, in the shape of Zebra's native Mermaid bridge"
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/zebra-mermaid-ffi"
+readme = "README.md"
+keywords = ["mermaid", "diagram", "svg", "ffi", "c-api"]
+categories = ["external-ffi-bindings", "graphics", "visualization"]
+include = ["src/**", "include/**", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md"]
+publish = ["crates-io"]
 
 [lib]
 name = "zebra_mermaid_ffi"
@@ -16,4 +24,4 @@ implemented = ["zebra-mermaid/implemented"]
 all-diagrams = ["zebra-mermaid/all-diagrams"]
 
 [dependencies]
-zebra-mermaid = { path = "../zebra-mermaid", default-features = false }
+zebra-mermaid = { version = "=0.1.0", path = "../zebra-mermaid", default-features = false }
