@@ -4,11 +4,11 @@
 
 本次从 1.12.0 对齐至 1.13.0，默认数学排版继续内置 RaTeX。**持续性能与代码体积优化仍停止；全量原测试 1:1 验收尚未完成。** 历史性能与体积数据保留原参照，不改标为新版本测量。
 
-## crates.io 发布准备（2026-11-06）
+## crates.io 发布（2026-11-06）
 
 用户要求将当前版本发布到 crates.io。库、CLI、FFI 均准备为 **0.1.0**：补齐仓库/文档元数据、明确内部注册表版本、随包 README、MIT 许可文本及第三方通知，FFI 包含 C 头文件；开发 profiler 维持不发布。包内运行时代码与仓库逐字节一致，渲染器逻辑未改。
 
-三个包的默认及全 feature 发布预演通过，包括从解包后的归档独立构建。归档压缩后约 745 KiB、25 KiB、16 KiB；这些是源码发布包大小，不是编译体积。大型开发夹具和测试入口保留在仓库，不上传到 crates.io；仓库原测试未删除、未改断言或增加跳过。当前发布仍为 **待注册表登录、未上传**，不得宣称已发布。
+三个包的默认及全 feature 发布预演通过，包括从解包后的归档独立构建。归档压缩后约 745 KiB、25 KiB、16 KiB；这些是源码发布包大小，不是编译体积。大型开发夹具和测试入口保留在仓库，不上传到 crates.io；仓库原测试未删除、未改断言或增加跳过。三个包已于 2026-11-06 由 `entropysniper-app` 从提交 `4f38aceb7b5e3af10d64ab89d5a8ba2ba5bbe7c7` 发布为 **0.1.0**（该提交的 `crates/*/src`、FFI 头文件和 `Cargo.lock` 与 tag `v0.1.0-pele1.13.0` 一致）。注册表 API 校验和、下载归档与本地打包三者一致，未 yank；`cargo install zebra-mermaid-cli --version =0.1.0 --locked` 成功并可渲染 SVG。记录见 [发布记录](research/crates-io-0.1.0-2026-11-06/publication.json)。
 
 本轮工作区复验为 **3,416 passed、0 failed、5 ignored**；独立原时限门禁仍为 **2,952 passed、0 failed、7 保留跳过、4,151 未映射、0 待验证**，退出 1、`complete: false`。记录见 [发布准备验证](research/crates-io-0.1.0-2026-11-06/validation.json) 与同目录的 `package-audit.json`、`upstream-report.json.gz`。
 
